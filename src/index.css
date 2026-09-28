@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  :focus-visible { outline: 2px solid #ff6600; outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50; }
+  .btn-primary { @apply btn bg-mva-orange text-white hover:bg-mva-orangeHover; }
+  .btn-dark { @apply btn bg-mva-blue text-white hover:bg-navy-800; }
+  .btn-ghost { @apply btn border border-navy-200 text-navy-700 hover:bg-navy-100; }
+  .input { @apply w-full rounded-lg border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 focus:border-mva-orange focus:outline-none focus:ring-2 focus:ring-mva-orange/20; }
+  .label { @apply mb-1.5 block text-sm font-medium text-navy-700; }
+}
+
+@layer utilities {
+  @keyframes scaleUp { from { opacity: 0; transform: scale(.96) } to { opacity: 1; transform: none } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(16px) } to { opacity: 1; transform: none } }
+  .animate-scaleUp { animation: scaleUp .18s ease-out }
+  .animate-slideIn { animation: slideIn .22s ease-out }
+}
+@media print { .no-print { display: none !important } }
+body { font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif; }
