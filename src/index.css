@@ -25,3 +25,35 @@
 }
 @media print { .no-print { display: none !important } }
 body { font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif; }
+
+/* ---------- Responsivo e acabamento ---------- */
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+body { background: #f8fafc; overflow-x: hidden; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; }
+button, [role="tab"] { touch-action: manipulation; }
+select { text-overflow: ellipsis; }
+
+@layer components {
+  /* Modais: janela deslizante no celular, cartão centralizado no desktop */
+  .fixed.inset-0.z-50 { overscroll-behavior: contain; }
+}
+
+@media (max-width: 639px) {
+  /* 16px evita o zoom automático do iPhone ao tocar em um campo */
+  input, select, textarea { font-size: 16px !important; }
+  .text-xs { font-size: 0.8125rem; line-height: 1.25rem; }
+  .text-\[11px\] { font-size: 0.75rem; }
+  .text-\[10px\] { font-size: 0.6875rem; }
+
+  .fixed.inset-0.z-50 { align-items: flex-end !important; padding: 0 !important; }
+  .fixed.inset-0.z-50 > div {
+    width: 100% !important; max-width: none !important; max-height: 92dvh; overflow-y: auto;
+    margin: 0 !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important;
+    border-top-left-radius: 1.5rem !important; border-top-right-radius: 1.5rem !important;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (pointer: coarse) {
+  select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) { min-height: 44px; }
+}

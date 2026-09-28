@@ -30,7 +30,7 @@ export default function App() {
   }, [activeTab, blocked, currentUser, setActiveTab, setAuthModalOpen, setAuthModalTab])
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
       <Navbar />
       {admin && (
         <div className="border-b border-navy-200 bg-white">

@@ -214,7 +214,7 @@ export const ClientDashboardView: React.FC = () => {
 
         {clientBookings.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <div className="overflow-x-auto -mx-1 px-1"><table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
                   <th className="py-3.5 px-6">Espaço / Coworking</th>
@@ -285,7 +285,7 @@ export const ClientDashboardView: React.FC = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         ) : (
           <div className="text-center py-12 p-6 space-y-3">

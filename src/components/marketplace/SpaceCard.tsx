@@ -53,7 +53,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ space, onSelect, onBook })
 
         {/* Bottom Address preview */}
         <div className="absolute bottom-3 left-3 right-3 text-white flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1 drop-shadow-sm font-medium truncate max-w-[210px]">
+          <div className="flex items-center gap-1 drop-shadow-sm font-medium truncate max-w-[60%] sm:max-w-[210px]">
             <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
             <span className="truncate">{space.street}, {space.number}</span>
           </div>
@@ -93,7 +93,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ space, onSelect, onBook })
               Até {space.capacity} pess.
             </span>
             {space.amenities.slice(0, 2).map((amenity, i) => (
-              <span key={i} className="px-2 py-1 rounded-md text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200/60 truncate max-w-[130px]">
+              <span key={i} className="px-2 py-1 rounded-md text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200/60 truncate max-w-[45%] sm:max-w-[130px]">
                 {amenity}
               </span>
             ))}
