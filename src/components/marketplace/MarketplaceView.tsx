@@ -1,338 +1,187 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Space } from '../../types';
 import { SpaceCard } from './SpaceCard';
 import { SpaceDetailModal } from './SpaceDetailModal';
 import { BookingModal } from './BookingModal';
-import { 
-  Search, 
-  MapPin, 
-  Filter, 
-  Sparkles, 
-  Building2, 
-  SlidersHorizontal,
-  X,
-  PlusCircle
-} from 'lucide-react';
+import { Search, MapPin, Users, LayoutGrid, X, PlusCircle, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
+
+const CATEGORIES = [
+  { id: 'todas', label: 'Todos' },
+  { id: 'reuniao', label: 'Salas de reunião' },
+  { id: 'atendimento', label: 'Atendimento e consultório' },
+  { id: 'privada', label: 'Salas privadas' },
+  { id: 'auditorio', label: 'Auditórios e eventos' },
+];
+
+const STEPS = [
+  { title: 'Encontre', text: 'Busque por cidade, tipo de sala e capacidade.' },
+  { title: 'Reserve', text: 'Escolha data e horário e confirme na hora.' },
+  { title: 'Use', text: 'Faça o check-in na recepção e trabalhe com toda a infraestrutura.' },
+];
+
+const FAQ = [
+  ['Como reservo uma sala?', 'Escolha o espaço, clique em reservar, informe data, horário e seus dados. A confirmação é imediata e aparece em "Minhas reservas".'],
+  ['Posso contratar endereço fiscal?', 'Sim. Na página Endereço Fiscal você contrata o plano, acompanha o alvará e recebe a correspondência da sua empresa.'],
+  ['Tenho um coworking. Como anuncio?', 'Crie uma conta como coworking, cadastre o espaço com fotos e endereço e envie. A equipe MVA analisa o anúncio antes de publicá-lo.'],
+  ['Por que meu anúncio ainda não apareceu?', 'Todo espaço novo ou alterado passa por aprovação dos administradores. Você acompanha o status (em análise, aprovado ou rejeitado) no painel do anunciante.'],
+];
 
 export const MarketplaceView: React.FC = () => {
-  const { 
-    spaces, 
-    searchQuery, 
-    setSearchQuery, 
-    selectedCity, 
-    setSelectedCity, 
-    selectedCategory, 
-    setSelectedCategory,
-    setActiveTab 
-  } = useCoworking();
-
-  const [capacityFilter, setCapacityFilter] = useState<string>('all');
+  const { spaces, searchQuery, setSearchQuery, selectedCity, setSelectedCity, selectedCategory, setSelectedCategory, setActiveTab } = useCoworking();
+  const [capacity, setCapacity] = useState('all');
   const [sortBy, setSortBy] = useState<'rating' | 'priceAsc' | 'priceDesc' | 'capacity'>('rating');
-  const [detailSpace, setDetailSpace] = useState<Space | null>(null);
-  const [bookingSpace, setBookingSpace] = useState<Space | null>(null);
+  const [detail, setDetail] = useState<Space | null>(null);
+  const [booking, setBooking] = useState<Space | null>(null);
+  const results = useRef<HTMLElement>(null);
 
-  // Extract cities
-  const cities = useMemo(() => {
-    const set = new Set<string>();
-    spaces.forEach(s => set.add(s.city));
-    return ['Todas', ...Array.from(set)];
-  }, [spaces]);
+  const live = useMemo(() => spaces.filter(s => (s.approval ?? 'aprovado') === 'aprovado'), [spaces]);
+  const cities = useMemo(() => ['Todas', ...Array.from(new Set(live.map(s => s.city)))], [live]);
+  const hq = live.find(s => s.isMvaHeadquarters);
 
-  // Categories list
-  const categories: { id: string; label: string; count: number }[] = useMemo(() => {
-    return [
-      { id: 'todas', label: 'Todos os Espaços', count: spaces.length },
-      { id: 'reuniao', label: 'Salas de Reunião', count: spaces.filter(s => s.category === 'reuniao').length },
-      { id: 'atendimento', label: 'Atendimento & Consultório', count: spaces.filter(s => s.category === 'atendimento').length },
-      { id: 'auditorio', label: 'Auditórios & Eventos', count: spaces.filter(s => s.category === 'auditorio').length },
-      { id: 'privada', label: 'Salas Privadas', count: spaces.filter(s => s.category === 'privada').length },
-    ];
-  }, [spaces]);
-
-  // Filtered & sorted spaces
-  const filteredSpaces = useMemo(() => {
-    return spaces
-      .filter(space => {
-        if (selectedCity !== 'Todas' && space.city !== selectedCity) return false;
-        if (selectedCategory !== 'todas' && space.category !== selectedCategory) return false;
-
-        if (capacityFilter === 'small' && space.capacity > 4) return false;
-        if (capacityFilter === 'medium' && (space.capacity < 5 || space.capacity > 10)) return false;
-        if (capacityFilter === 'large' && space.capacity <= 10) return false;
-
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          const matchName = space.name.toLowerCase().includes(q);
-          const matchCoworking = space.coworkingName.toLowerCase().includes(q);
-          const matchStreet = space.street.toLowerCase().includes(q);
-          const matchNeighborhood = space.neighborhood.toLowerCase().includes(q);
-          const matchCity = space.city.toLowerCase().includes(q);
-          const matchDesc = space.description.toLowerCase().includes(q);
-          const matchAmenities = space.amenities.some(a => a.toLowerCase().includes(q));
-          return matchName || matchCoworking || matchStreet || matchNeighborhood || matchCity || matchDesc || matchAmenities;
-        }
-
-        return true;
-      })
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return live
+      .filter(s => selectedCity === 'Todas' || s.city === selectedCity)
+      .filter(s => selectedCategory === 'todas' || s.category === selectedCategory)
+      .filter(s => capacity === 'all' || (capacity === 'small' ? s.capacity <= 4 : capacity === 'medium' ? s.capacity >= 5 && s.capacity <= 10 : s.capacity > 10))
+      .filter(s => !q || [s.name, s.coworkingName, s.street, s.neighborhood, s.city, s.description, ...s.amenities].some(t => t.toLowerCase().includes(q)))
       .sort((a, b) => {
-        // Always prioritize MVA headquarters on top unless filtered
-        if (a.isMvaHeadquarters && !b.isMvaHeadquarters) return -1;
-        if (!a.isMvaHeadquarters && b.isMvaHeadquarters) return 1;
-
-        if (sortBy === 'rating') return b.rating - a.rating;
-        if (sortBy === 'priceAsc') return a.pricePerHour - b.pricePerHour;
-        if (sortBy === 'priceDesc') return b.pricePerHour - a.pricePerHour;
-        if (sortBy === 'capacity') return b.capacity - a.capacity;
-        return 0;
+        if (a.isMvaHeadquarters !== b.isMvaHeadquarters) return a.isMvaHeadquarters ? -1 : 1;
+        return sortBy === 'rating' ? b.rating - a.rating : sortBy === 'priceAsc' ? a.pricePerHour - b.pricePerHour : sortBy === 'priceDesc' ? b.pricePerHour - a.pricePerHour : b.capacity - a.capacity;
       });
-  }, [spaces, selectedCity, selectedCategory, capacityFilter, searchQuery, sortBy]);
+  }, [live, selectedCity, selectedCategory, capacity, searchQuery, sortBy]);
+
+  const dirty = searchQuery || selectedCity !== 'Todas' || selectedCategory !== 'todas' || capacity !== 'all';
+  const clear = () => { setSearchQuery(''); setSelectedCity('Todas'); setSelectedCategory('todas'); setCapacity('all'); };
+  const search = (e: React.FormEvent) => { e.preventDefault(); results.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  const field = 'w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-navy-900 focus:border-orange-500 focus:outline-hidden focus:ring-2 focus:ring-orange-500/30';
 
   return (
-    <div className="space-y-8 pb-16">
-      
-      {/* Hero Banner - Minimalist Deep Navy & Orange */}
-      <div className="rounded-3xl bg-navy-950 text-white p-6 sm:p-10 border border-navy-800 shadow-md relative overflow-hidden">
-        <div className="relative z-10 max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30">
-            <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-            <span>MVA Coworking • Sede: Rua Dom José Thomaz, 565</span>
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
-            Reserve salas de reunião e atendimento ou anuncie seu espaço de coworking.
+    <div className="space-y-16 pb-8">
+      {/* Hero com busca */}
+      <section className="relative overflow-hidden rounded-3xl bg-navy-950 px-6 py-12 text-white sm:px-12 sm:py-16">
+        <div className="absolute inset-y-0 right-0 w-1/3 bg-radial from-orange-500/15 to-transparent pointer-events-none" />
+        <div className="relative max-w-3xl">
+          <h1 className="text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+            Espaços de coworking e salas de reunião {selectedCity !== 'Todas' ? `em ${selectedCity}` : 'para o seu negócio'}
           </h1>
-
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
-            A MVA Coworking disponibiliza sua sede na Rua Dom José Thomaz, 565 e conecta empresas de coworking de todo o país para que profissionais reservem salas com infraestrutura de ponta.
+          <p className="mt-4 max-w-xl text-base text-slate-300">
+            Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados.
           </p>
-
-          <div className="pt-2 flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setActiveTab('owner-dashboard')}
-              className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-orange-500/25 transition-all flex items-center gap-2"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Sou Dono de Coworking: Anunciar Espaço
-            </button>
-
-            <button
-              onClick={() => setActiveTab('fiscal')}
-              className="px-5 py-2.5 bg-navy-800 hover:bg-navy-700 text-slate-200 border border-navy-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
-            >
-              <Building2 className="w-4 h-4 text-orange-400" />
-              Contratar Endereço Fiscal para CNPJ
-            </button>
-          </div>
         </div>
+        <form onSubmit={search} className="relative mt-8 grid gap-3 rounded-2xl bg-white p-3 shadow-xl md:grid-cols-12" role="search">
+          <div className="relative md:col-span-4"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Nome, bairro ou comodidade" aria-label="Buscar espaços" className={field} /></div>
+          <div className="relative md:col-span-3"><MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} aria-label="Cidade" className={field}>{cities.map(c => <option key={c} value={c}>{c === 'Todas' ? 'Todas as cidades' : c}</option>)}</select></div>
+          <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label="Capacidade" className={field}><option value="all">Qualquer capacidade</option><option value="small">Até 4 pessoas</option><option value="medium">5 a 10 pessoas</option><option value="large">Mais de 10 pessoas</option></select></div>
+          <button className="rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white hover:bg-orange-600 md:col-span-2">Buscar</button>
+        </form>
+        <ul className="relative mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-300">
+          <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-orange-400" aria-hidden />Espaços aprovados pela equipe MVA</li>
+          <li className="flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-orange-400" aria-hidden />Confirmação imediata</li>
+          <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-orange-400" aria-hidden />Endereço fiscal disponível</li>
+        </ul>
+      </section>
 
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial from-orange-500/10 to-transparent pointer-events-none" />
-      </div>
-
-      {/* Sede MVA Official Highlight Card */}
-      <div className="bg-gradient-to-r from-navy-900 to-navy-950 border border-orange-500/30 rounded-2xl p-4 sm:p-5 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-bold text-white shrink-0 shadow-sm">
-            MVA
-          </div>
+      {/* Resultados */}
+      <section ref={results} className="scroll-mt-28" aria-labelledby="resultados">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <strong className="text-sm font-bold text-white">Sede Oficial MVA Coworking</strong>
-              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">
-                Aracaju / SE
-              </span>
-            </div>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Rua Dom José Thomaz, 565 - São José, Aracaju - SE • Salas de Reunião, Atendimento Acústico & Endereço Fiscal
-            </p>
+            <h2 id="resultados" className="text-2xl font-bold text-navy-900">Espaços disponíveis</h2>
+            <p className="text-sm text-slate-500">{filtered.length} {filtered.length === 1 ? 'espaço encontrado' : 'espaços encontrados'}</p>
           </div>
-        </div>
-
-        <button
-          onClick={() => {
-            setSelectedCity('Aracaju');
-            setSearchQuery('');
-          }}
-          className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/40 rounded-xl text-xs font-bold transition-colors whitespace-nowrap self-stretch sm:self-auto text-center"
-        >
-          Ver Salas da Sede MVA
-        </button>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-4">
-        
-        {/* Top search inputs row */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-          <div className="md:col-span-6 relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Buscar por nome, rua, comodidade (ex: Dom José Thomaz, acústica, 4K)..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-slate-50/60"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          <div className="md:col-span-3 relative">
-            <MapPin className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
-            <select
-              value={selectedCity}
-              onChange={e => setSelectedCity(e.target.value)}
-              className="w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-slate-50/60 font-medium"
-            >
-              {cities.map(city => (
-                <option key={city} value={city}>
-                  {city === 'Todas' ? 'Todas as Cidades' : city}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="md:col-span-3 relative">
-            <SlidersHorizontal className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
-            <select
-              value={capacityFilter}
-              onChange={e => setCapacityFilter(e.target.value)}
-              className="w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-slate-50/60 font-medium"
-            >
-              <option value="all">Qualquer Capacidade</option>
-              <option value="small">1 a 4 pessoas (Atendimento)</option>
-              <option value="medium">5 a 10 pessoas (Reunião média)</option>
-              <option value="large">10+ pessoas (Auditórios / Grandes)</option>
+          <div className="flex items-center gap-3">
+            {dirty && <button onClick={clear} className="flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700"><X className="h-4 w-4" aria-hidden />Limpar filtros</button>}
+            <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)} aria-label="Ordenar" className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">
+              <option value="rating">Melhor avaliados</option><option value="priceAsc">Menor preço por hora</option><option value="priceDesc">Maior preço por hora</option><option value="capacity">Maior capacidade</option>
             </select>
           </div>
         </div>
-
-        {/* Category Pills & Sort Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
-          
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {categories.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  selectedCategory === cat.id
-                    ? 'bg-navy-900 text-white shadow-xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
-                }`}
-              >
-                <span>{cat.label}</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                  selectedCategory === cat.id ? 'bg-orange-500 text-white' : 'bg-slate-200 text-slate-700'
-                }`}>
-                  {cat.count}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-            <span className="text-xs text-slate-500 font-medium">Ordenar:</span>
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value as any)}
-              className="text-xs font-semibold text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-hidden focus:ring-2 focus:ring-orange-500"
-            >
-              <option value="rating">Melhor Avaliados</option>
-              <option value="priceAsc">Menor Preço/h</option>
-              <option value="priceDesc">Maior Preço/h</option>
-              <option value="capacity">Maior Capacidade</option>
-            </select>
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* Results Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-navy-900">
-            Espaços Disponíveis para Agendamento
-          </h2>
-          <p className="text-xs text-slate-500">
-            Exibindo {filteredSpaces.length} salas (Sede MVA e parceiros credenciados)
-          </p>
-        </div>
-
-        {(searchQuery || selectedCity !== 'Todas' || selectedCategory !== 'todas' || capacityFilter !== 'all') && (
-          <button
-            onClick={() => {
-              setSearchQuery('');
-              setSelectedCity('Todas');
-              setSelectedCategory('todas');
-              setCapacityFilter('all');
-            }}
-            className="text-xs text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-1"
-          >
-            <X className="w-3.5 h-3.5" />
-            Limpar Filtros
-          </button>
-        )}
-      </div>
-
-      {/* Spaces Grid */}
-      {filteredSpaces.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSpaces.map(space => (
-            <SpaceCard
-              key={space.id}
-              space={space}
-              onSelect={s => setDetailSpace(s)}
-              onBook={s => setBookingSpace(s)}
-            />
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Tipo de espaço">
+          {CATEGORIES.map(c => (
+            <button key={c.id} role="tab" aria-selected={selectedCategory === c.id} onClick={() => setSelectedCategory(c.id)}
+              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${selectedCategory === c.id ? 'bg-navy-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-navy-900'}`}>
+              {c.label}
+            </button>
           ))}
         </div>
-      ) : (
-        <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8 space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-orange-50 border border-orange-100 text-orange-600 flex items-center justify-center mx-auto">
-            <Filter className="w-8 h-8" />
+        {filtered.length > 0 ? (
+          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filtered.map(s => <SpaceCard key={s.id} space={s} onSelect={setDetail} onBook={setBooking} />)}
           </div>
-          <h3 className="text-lg font-bold text-navy-900">Nenhum espaço encontrado</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Não encontramos salas que correspondam aos filtros selecionados. Tente alterar a cidade ou limpar a busca.
-          </p>
-          <button
-            onClick={() => {
-              setSearchQuery('');
-              setSelectedCity('Todas');
-              setSelectedCategory('todas');
-              setCapacityFilter('all');
-            }}
-            className="px-5 py-2 text-xs font-semibold bg-orange-600 text-white rounded-xl shadow-xs hover:bg-orange-500 transition-colors"
-          >
-            Ver Todas as Salas
-          </button>
+        ) : (
+          <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
+            <Filter className="mx-auto h-8 w-8 text-orange-500" aria-hidden />
+            <h3 className="mt-3 text-lg font-bold text-navy-900">Nenhum espaço encontrado</h3>
+            <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">Altere a cidade, o tipo de sala ou a busca para ver mais opções.</p>
+            <button onClick={clear} className="mt-5 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-orange-600">Ver todos os espaços</button>
+          </div>
+        )}
+        {hq && live.filter(s => !s.isMvaHeadquarters).length === 0 && (
+          <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-navy-200 bg-white p-6 sm:flex-row sm:items-center">
+            <div>
+              <h3 className="font-bold text-navy-900">Seja o primeiro coworking parceiro</h3>
+              <p className="text-sm text-slate-500">Hoje o marketplace reúne as salas da sede MVA. Anuncie o seu espaço e alcance novos clientes.</p>
+            </div>
+            <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-800"><PlusCircle className="h-4 w-4" aria-hidden />Anunciar espaço</button>
+          </div>
+        )}
+      </section>
+
+      {/* Como funciona */}
+      <section aria-labelledby="como">
+        <h2 id="como" className="text-2xl font-bold text-navy-900">Como funciona</h2>
+        <ol className="mt-6 grid gap-6 md:grid-cols-3">
+          {STEPS.map((s, i) => (
+            <li key={s.title} className="rounded-2xl border border-slate-200 bg-white p-6">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-500 text-sm font-bold text-white">{i + 1}</span>
+              <h3 className="mt-4 font-bold text-navy-900">{s.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-500">{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Serviços */}
+      <section aria-labelledby="servicos" className="grid gap-6 md:grid-cols-2">
+        <h2 id="servicos" className="sr-only">Serviços para empresas</h2>
+        {[
+          { icon: Building2, title: 'Endereço fiscal', text: 'Use o endereço da sede MVA para o CNPJ da sua empresa, com acompanhamento do alvará.', tab: 'fiscal', cta: 'Contratar endereço fiscal' },
+          { icon: Mail, title: 'Recebimento de correspondência', text: 'Cartas, encomendas e documentos recebidos, avisados e digitalizados pela recepção.', tab: 'correspondence', cta: 'Ver correspondências' },
+        ].map(({ icon: Icon, title, text, tab, cta }) => (
+          <div key={title} className="rounded-2xl bg-navy-950 p-8 text-white">
+            <Icon className="h-7 w-7 text-orange-400" aria-hidden />
+            <h3 className="mt-4 text-xl font-bold">{title}</h3>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-300">{text}</p>
+            <button onClick={() => setActiveTab(tab)} className="mt-6 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-bold hover:bg-orange-600">{cta}</button>
+          </div>
+        ))}
+      </section>
+
+      {/* Anunciante */}
+      <section className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-orange-200 bg-orange-50 p-8 md:flex-row md:items-center">
+        <div className="max-w-xl">
+          <h2 className="text-2xl font-bold text-navy-900">Tem um coworking? Anuncie na MVA</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">Cadastre seu espaço com fotos e endereço. Depois da análise e aprovação da equipe MVA, ele aparece para todos os visitantes.</p>
         </div>
-      )}
+        <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-sm font-bold text-white hover:bg-orange-600"><LayoutGrid className="h-4 w-4" aria-hidden />Cadastrar meu espaço</button>
+      </section>
 
-      {/* Modals */}
-      {detailSpace && (
-        <SpaceDetailModal
-          space={detailSpace}
-          onClose={() => setDetailSpace(null)}
-          onOpenBooking={s => setBookingSpace(s)}
-        />
-      )}
+      {/* FAQ */}
+      <section aria-labelledby="faq" className="max-w-3xl">
+        <h2 id="faq" className="text-2xl font-bold text-navy-900">Perguntas frequentes</h2>
+        <div className="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
+          {FAQ.map(([q, a]) => (
+            <details key={q} className="group px-5 py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-navy-900">{q}<ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" aria-hidden /></summary>
+              <p className="mt-2 text-sm leading-relaxed text-slate-500">{a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
 
-      {bookingSpace && (
-        <BookingModal
-          space={bookingSpace}
-          onClose={() => setBookingSpace(null)}
-        />
-      )}
-
+      {detail && <SpaceDetailModal space={detail} onClose={() => setDetail(null)} onOpenBooking={setBooking} />}
+      {booking && <BookingModal space={booking} onClose={() => setBooking(null)} />}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
+import { PendingApprovals } from './PendingApprovals';
 import { Space, SpaceCategory, Booking } from '../../types';
 import { 
   Building2, 
@@ -159,6 +160,7 @@ export const AdminDashboardView: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-16">
+      <PendingApprovals />
       
       {/* Top Banner */}
       <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">

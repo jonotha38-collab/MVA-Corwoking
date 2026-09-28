@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { isAdmin } from '../lib/auth';
 import { Space, Correspondence, FiscalContract, Booking, UserAccount } from '../types';
 import { INITIAL_SPACES, INITIAL_CORRESPONDENCE, INITIAL_FISCAL_CONTRACTS, INITIAL_BOOKINGS } from '../mock/initialData';
 
@@ -33,6 +34,8 @@ interface CoworkingContextType {
   addSpace: (space: Omit<Space, 'id' | 'rating' | 'reviewsCount' | 'address'>) => void;
   updateSpace: (id: string, space: Partial<Space>) => void;
   deleteSpace: (id: string) => void;
+  approveSpace: (id: string) => void;
+  rejectSpace: (id: string, reason: string) => void;
   addBooking: (booking: Omit<Booking, 'id' | 'createdAt' | 'status' | 'checkIn'>) => Booking;
   cancelBooking: (id: string) => void;
   checkInBooking: (id: string) => void;
@@ -151,15 +154,26 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       reviewsCount: 1,
       ownerId: currentUser?.id || 'owner-guest',
       ownerName: currentUser?.name || 'Empresa Parceira',
-      isMvaHeadquarters: false, // Third-party added spaces are partner spaces
+      isMvaHeadquarters: false,
+      approval: isAdmin(currentUser) ? 'aprovado' : 'pendente',
+      submittedAt: new Date().toISOString(),
     };
     setSpaces(prev => [newSpace, ...prev]);
-    showToast(`Espaço "${newSpace.name}" publicado com sucesso no Marketplace MVA!`, 'success');
+    showToast(newSpace.approval === 'aprovado' ? `Espaço "${newSpace.name}" publicado no marketplace!` : `Espaço "${newSpace.name}" enviado! Ele aparece no marketplace após a aprovação da equipe MVA.`, 'success');
   };
 
   const updateSpace = (id: string, updatedFields: Partial<Space>) => {
-    setSpaces(prev => prev.map(s => s.id === id ? { ...s, ...updatedFields } : s));
-    showToast('Espaço atualizado com sucesso.', 'info');
+    const resubmit = !isAdmin(currentUser) && !('approval' in updatedFields);
+    setSpaces(prev => prev.map(s => s.id === id ? { ...s, ...updatedFields, ...(resubmit && !s.isMvaHeadquarters ? { approval: 'pendente' as const, rejectionReason: undefined } : {}) } : s));
+    showToast(resubmit ? 'Alterações enviadas para nova aprovação da equipe MVA.' : 'Espaço atualizado com sucesso.', 'info');
+  };
+  const approveSpace = (id: string) => {
+    setSpaces(prev => prev.map(s => s.id === id ? { ...s, approval: 'aprovado', rejectionReason: undefined } : s));
+    showToast('Espaço aprovado e publicado no marketplace.', 'success');
+  };
+  const rejectSpace = (id: string, reason: string) => {
+    setSpaces(prev => prev.map(s => s.id === id ? { ...s, approval: 'rejeitado', rejectionReason: reason } : s));
+    showToast('Espaço rejeitado. O motivo ficará visível para o anunciante.', 'info');
   };
 
   const deleteSpace = (id: string) => {
@@ -304,6 +318,8 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         addSpace,
         updateSpace,
         deleteSpace,
+        approveSpace,
+        rejectSpace,
         addBooking,
         cancelBooking,
         checkInBooking,

@@ -28,6 +28,9 @@ export interface Space {
   openingHours: string;
   offersFiscalAddress?: boolean;
   offersCorrespondence?: boolean;
+  approval?: 'pendente' | 'aprovado' | 'rejeitado'; // ausente = aprovado
+  rejectionReason?: string;
+  submittedAt?: string;
 }
 
 export type CorrespondenceType = 'carta' | 'notificacao_judicial' | 'encomenda' | 'documento_fiscal';

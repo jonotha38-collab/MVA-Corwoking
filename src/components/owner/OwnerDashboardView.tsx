@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { fileToDataUrl } from '../../lib/auth';
+import { fileToDataUrl, isAdmin } from '../../lib/auth';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Space, SpaceCategory } from '../../types';
 import { 
@@ -91,7 +91,7 @@ export const OwnerDashboardView: React.FC = () => {
   }
 
   // Spaces belonging to this user or all third-party spaces
-  const mySpaces = spaces.filter(s => s.ownerId === currentUser.id || !s.isMvaHeadquarters);
+  const mySpaces = spaces.filter(s => isAdmin(currentUser) || s.ownerId === currentUser.id);
 
   const handleOpenAdd = () => {
     setEditingId(null);
@@ -294,9 +294,15 @@ export const OwnerDashboardView: React.FC = () => {
                     </div>
 
                     <div className="absolute top-3 right-3">
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {space.status === 'available' ? 'No Ar' : 'Pausado'}
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                        space.approval === 'pendente' ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : space.approval === 'rejeitado' ? 'bg-red-50 text-red-700 border-red-200'
+                        : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
+                        {space.approval === 'pendente' ? 'Em análise' : space.approval === 'rejeitado' ? 'Rejeitado' : space.status === 'available' ? 'No Ar' : 'Pausado'}
                       </span>
+                      {space.approval === 'rejeitado' && space.rejectionReason && (
+                        <p className="mt-1 max-w-[220px] rounded-md bg-red-50 px-2 py-1 text-[10px] text-red-700">Motivo: {space.rejectionReason}</p>
+                      )}
                     </div>
                   </div>
 
