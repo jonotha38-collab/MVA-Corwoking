@@ -7,9 +7,7 @@ import {
   Clock, 
   Users, 
   Check, 
-  Coffee, 
   Video, 
-  Car, 
   Printer, 
   MapPin, 
   CheckCircle2, 
@@ -49,9 +47,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   const durationHours = Math.max(1, endH - startH);
 
   const addonPrices: Record<string, number> = {
-    'Coffee break Nespresso & Pão de Queijo': 35 * Math.min(space.capacity, 8),
     'Gravação da Sala & Suporte A/V': 60,
-    'Vaga de Garagem com Manobrista': 30,
   };
 
   const addonsTotal = selectedAddons.reduce((acc, curr) => acc + (addonPrices[curr] || 0), 0);
@@ -181,7 +177,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                   <QrCode className="w-12 h-12 text-slate-800 p-1 bg-white rounded border border-slate-200" />
                   <div>
                     <span className="font-medium text-navy-900 block">Check-in automático na recepção</span>
-                    <span className="text-slate-500">Wi-Fi, café cortesia e suporte inclusos.</span>
+                    <span className="text-slate-500">Wi-Fi e suporte inclusos.</span>
                   </div>
                 </div>
 
@@ -333,22 +329,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               <div className="space-y-2">
                 {[
                   {
-                    name: 'Coffee break Nespresso & Pão de Queijo',
-                    icon: <Coffee className="w-4 h-4 text-amber-600" />,
-                    desc: 'Café moído, chás finos e pães de queijo quentinhos',
-                    price: 35 * Math.min(space.capacity, 8)
-                  },
-                  {
                     name: 'Gravação da Sala & Suporte A/V',
                     icon: <Video className="w-4 h-4 text-navy-900" />,
                     desc: 'Gravação em alta definição da reunião na nuvem',
                     price: 60
-                  },
-                  {
-                    name: 'Vaga de Garagem com Manobrista',
-                    icon: <Car className="w-4 h-4 text-emerald-600" />,
-                    desc: 'Estacionamento coberto no local',
-                    price: 30
                   },
                 ].map((addon) => {
                   const isChecked = selectedAddons.includes(addon.name);

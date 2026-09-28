@@ -180,7 +180,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
     endTime: '16:00',
     durationHours: 2,
     totalPrice: 190,
-    addons: ['Coffee break MVA Gourmet'],
+    addons: [],
     status: 'confirmada',
     checkIn: false,
     createdAt: '2026-09-28'

@@ -33,9 +33,10 @@ export const Navbar: React.FC = () => {
         </div>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <button onClick={() => setActiveTab('marketplace')} className="flex shrink-0 items-center gap-3" aria-label="MVA Coworking Hub - página inicial">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-orange-500 text-base font-black shadow-md">MVA</span>
+            <img src="/logo.png" alt="MVA" className="h-8 w-auto" />
+            <span className="hidden h-7 w-px bg-navy-700 sm:block" aria-hidden />
             <span className="text-left leading-tight">
-              <span className="block text-lg font-extrabold tracking-tight">Coworking Hub</span>
+              <span className="block text-base font-bold tracking-tight text-slate-100">Coworking Hub</span>
               <span className="hidden text-[11px] text-slate-400 sm:block">Espaços · Endereço fiscal · Correspondência</span>
             </span>
           </button>

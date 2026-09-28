@@ -70,6 +70,7 @@ export const AuthModal: React.FC = () => {
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scaleUp">
         <div className="bg-navy-900 text-white p-6 relative">
           <button onClick={() => setAuthModalOpen(false)} aria-label="Fechar" className="absolute top-5 right-5 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+          <img src="/logo.png" alt="MVA" className="mb-3 h-7 w-auto" />
           <h2 className="text-xl font-bold tracking-tight">{register ? 'Crie sua conta' : 'Acesse sua conta'}</h2>
           <p className="text-xs text-slate-400 mt-1">Anuncie seu coworking, reserve salas e gerencie seu endereço fiscal.</p>
           <div className="flex bg-navy-800/80 p-1 rounded-xl mt-4 border border-navy-700">

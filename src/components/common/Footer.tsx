@@ -13,10 +13,8 @@ export const Footer: React.FC = () => {
           {/* Brand Col */}
           <div className="space-y-3">
             <div className="flex items-center gap-2.5 text-white">
-              <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white font-extrabold text-sm">
-                MVA
-              </div>
-              <span className="font-extrabold text-base tracking-tight">MVA Coworking Hub</span>
+              <img src="/logo.png" alt="MVA" className="h-8 w-auto" />
+              <span className="font-bold text-base tracking-tight text-slate-100">Coworking Hub</span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed">
               Plataforma para empresas de coworking anunciarem seus espaços e clientes reservarem salas de reunião, atendimento e endereço fiscal com segurança.
