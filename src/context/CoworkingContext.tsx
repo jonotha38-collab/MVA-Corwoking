@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { isAdmin } from '../lib/auth';
 import { Space, Correspondence, FiscalContract, Booking, UserAccount } from '../types';
-import { INITIAL_SPACES, INITIAL_CORRESPONDENCE, INITIAL_FISCAL_CONTRACTS, INITIAL_BOOKINGS } from '../mock/initialData';
+import { INITIAL_CORRESPONDENCE, INITIAL_FISCAL_CONTRACTS, INITIAL_BOOKINGS } from '../mock/initialData';
+import { supabase } from '../lib/supabase';
 
 interface ToastState {
   id: number;
@@ -75,10 +76,57 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [spaces, setSpaces] = useState<Space[]>(() => {
-    const saved = localStorage.getItem('mva_spaces');
-    return saved ? JSON.parse(saved) : INITIAL_SPACES;
-  });
+  const [spaces, setSpaces] = useState<Space[]>([]);
+
+  useEffect(() => {
+    fetchSpaces();
+  }, []);
+
+  const fetchSpaces = async () => {
+    try {
+      const { data, error } = await supabase.from('spaces').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      
+      if (data) {
+        const loadedSpaces: Space[] = data.map(dbSpace => ({
+          id: dbSpace.id,
+          ownerId: dbSpace.owner_id,
+          ownerName: 'Empresa Parceira',
+          name: dbSpace.name,
+          coworkingName: dbSpace.coworking_name || 'Coworking',
+          isMvaHeadquarters: dbSpace.is_mva_headquarters,
+          street: dbSpace.street || '',
+          number: dbSpace.number || '',
+          neighborhood: dbSpace.neighborhood || '',
+          city: dbSpace.city || '',
+          state: dbSpace.state || '',
+          cep: dbSpace.cep || '',
+          address: `${dbSpace.street || ''}, ${dbSpace.number || ''} - ${dbSpace.neighborhood || ''}, ${dbSpace.city || ''} - ${dbSpace.state || ''}`,
+          category: dbSpace.category,
+          capacity: dbSpace.capacity,
+          pricePerHour: dbSpace.price_per_hour,
+          pricePerShift: dbSpace.price_per_shift,
+          rating: dbSpace.rating,
+          reviewsCount: dbSpace.reviews_count,
+          amenities: dbSpace.amenities || [],
+          image: dbSpace.image || '',
+          gallery: dbSpace.gallery || [],
+          description: dbSpace.description || '',
+          status: dbSpace.status,
+          openingHours: dbSpace.opening_hours || '',
+          offersFiscalAddress: dbSpace.offers_fiscal_address,
+          offersCorrespondence: dbSpace.offers_correspondence,
+          approval: 'aprovado'
+        }));
+        setSpaces(loadedSpaces);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar espaços no Supabase:', error);
+      // Fallback para localStorage temporário caso o BD não esteja rodando ainda
+      const saved = localStorage.getItem('mva_spaces');
+      if (saved) setSpaces(JSON.parse(saved));
+    }
+  };
 
   const [correspondence, setCorrespondence] = useState<Correspondence[]>(() => {
     const saved = localStorage.getItem('mva_correspondence');
@@ -144,22 +192,56 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Você saiu da sua conta.', 'info');
   };
 
-  const addSpace = (spaceData: Omit<Space, 'id' | 'rating' | 'reviewsCount' | 'address'>) => {
-    const formattedAddress = `${spaceData.street}, ${spaceData.number} - ${spaceData.neighborhood}, ${spaceData.city} - ${spaceData.state}`;
-    const newSpace: Space = {
-      ...spaceData,
-      id: `sp-${Date.now()}`,
-      address: formattedAddress,
-      rating: 5.0,
-      reviewsCount: 1,
-      ownerId: currentUser?.id || 'owner-guest',
-      ownerName: currentUser?.name || 'Empresa Parceira',
-      isMvaHeadquarters: false,
-      approval: isAdmin(currentUser) ? 'aprovado' : 'pendente',
-      submittedAt: new Date().toISOString(),
-    };
-    setSpaces(prev => [newSpace, ...prev]);
-    showToast(newSpace.approval === 'aprovado' ? `Espaço "${newSpace.name}" publicado no marketplace!` : `Espaço "${newSpace.name}" enviado! Ele aparece no marketplace após a aprovação da equipe MVA.`, 'success');
+  const addSpace = async (spaceData: Omit<Space, 'id' | 'rating' | 'reviewsCount' | 'address'>) => {
+    try {
+      const { data, error } = await supabase.from('spaces').insert([{
+        owner_id: currentUser?.id,
+        name: spaceData.name,
+        coworking_name: spaceData.coworkingName,
+        street: spaceData.street,
+        number: spaceData.number,
+        neighborhood: spaceData.neighborhood,
+        city: spaceData.city,
+        state: spaceData.state,
+        cep: spaceData.cep || '00000-000',
+        category: spaceData.category,
+        capacity: spaceData.capacity,
+        price_per_hour: spaceData.pricePerHour,
+        price_per_shift: spaceData.pricePerShift,
+        image: spaceData.image,
+        gallery: spaceData.gallery || [],
+        description: spaceData.description,
+        opening_hours: spaceData.openingHours,
+        amenities: spaceData.amenities,
+        offers_fiscal_address: spaceData.offersFiscalAddress,
+        offers_correspondence: spaceData.offersCorrespondence,
+        status: spaceData.status || 'available',
+      }]).select().single();
+
+      if (error) throw error;
+      
+      // Update local state by re-fetching or adding directly
+      fetchSpaces();
+      showToast('Espaço salvo permanentemente no banco de dados!', 'success');
+    } catch (err) {
+      console.error('Erro ao adicionar espaço:', err);
+      // Fallback behavior if db fails
+      const formattedAddress = `${spaceData.street}, ${spaceData.number} - ${spaceData.neighborhood}, ${spaceData.city} - ${spaceData.state}`;
+      const newSpace: Space = {
+        ...spaceData,
+        id: `sp-${Date.now()}`,
+        address: formattedAddress,
+        rating: 5.0,
+        reviewsCount: 1,
+        ownerId: currentUser?.id || 'owner-guest',
+        ownerName: currentUser?.name || 'Empresa Parceira',
+        isMvaHeadquarters: false,
+        approval: isAdmin(currentUser) ? 'aprovado' : 'pendente',
+        submittedAt: new Date().toISOString(),
+      };
+      setSpaces(prev => [newSpace, ...prev]);
+      showToast('Aviso: Salvo apenas localmente (Banco de dados não configurado).', 'info');
+    }
   };
 
   const updateSpace = (id: string, updatedFields: Partial<Space>) => {
