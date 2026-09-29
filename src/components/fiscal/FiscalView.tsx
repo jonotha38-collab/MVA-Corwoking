@@ -115,116 +115,124 @@ export const FiscalView: React.FC = () => {
     <div className="space-y-8 pb-16">
       
       {/* Top Overview Hero - Minimalist Deep Navy & Orange */}
-      <div className="bg-navy-950 text-white rounded-3xl p-6 sm:p-10 border border-navy-800 shadow-md relative overflow-hidden">
-        <div className="max-w-3xl space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30">
-            <ShieldCheck className="w-3.5 h-3.5 text-orange-400" />
+      <div className="bg-gradient-to-br from-navy-900 to-navy-950 text-white rounded-3xl p-8 sm:p-12 border border-navy-800 shadow-2xl relative overflow-hidden">
+        <div className="max-w-3xl space-y-6 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 backdrop-blur-md">
+            <ShieldCheck className="w-4 h-4 text-orange-400" />
             <span>Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
-            Panorama do Endereço Fiscal & Domicílio Tributário
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+            Seu Domicílio Fiscal <br className="hidden sm:block" /> com Segurança Legal
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Abra ou regularize seu CNPJ com endereço fiscal na Sede MVA (Rua Dom José Thomaz, 565) ou na rede de coworkings credenciados. Economize com aluguel tradicional, proteja sua privacidade residencial e garanta aprovação imediata do alvará de funcionamento.
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-medium">
+            Abra ou regularize seu CNPJ com endereço fiscal na Sede MVA ou rede credenciada. Economize com aluguel tradicional, proteja sua privacidade residencial e garanta aprovação imediata do alvará de funcionamento.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-3">
+          <div className="pt-4 flex flex-col sm:flex-row flex-wrap gap-4">
             <button
               onClick={() => {
                 setSelectedPlanForHire('Fiscal + Correspondência VIP');
                 setShowContractModal(true);
               }}
-              className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-orange-500/25 transition-all flex items-center gap-2"
+              className="px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
-              <FileCheck className="w-4 h-4" />
+              <FileCheck className="w-5 h-5" />
               Contratar Endereço Fiscal Online
             </button>
             <button
               onClick={() => setShowCertificateModal(true)}
-              className="px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white border border-navy-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
+              className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md rounded-xl text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
-              <Printer className="w-4 h-4 text-orange-400" />
-              Emitir Declaração de Domicílio
+              <Printer className="w-5 h-5 text-orange-400" />
+              Emitir Declaração Oficial
             </button>
           </div>
         </div>
 
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial from-orange-500/10 to-transparent pointer-events-none" />
+        {/* Decorative background elements */}
+        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-orange-500/10 to-transparent pointer-events-none" />
+        <div className="absolute -right-20 -top-20 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl opacity-50 pointer-events-none" />
       </div>
 
       {/* Active Contract Panorama Card */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-200 text-orange-600 flex items-center justify-center shrink-0">
-              <Building2 className="w-6 h-6" />
+      <div className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl shadow-slate-200/40 space-y-8 relative overflow-hidden">
+        {/* Subtle decorative background for the card */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-slate-50 to-orange-50 rounded-bl-[100px] -z-10 pointer-events-none" />
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6 relative z-10">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 text-orange-600 flex items-center justify-center shrink-0 shadow-sm">
+              <Building2 className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">
+              <span className="text-[10px] font-extrabold text-orange-600 uppercase tracking-widest block mb-1">
                 Status do Domicílio Fiscal Ativo
               </span>
-              <h2 className="text-xl font-bold text-navy-900">{currentCompany.companyName}</h2>
-              <p className="text-xs text-slate-500">
-                CNPJ: {currentCompany.cnpj} • Plano: <strong className="text-slate-700">{currentCompany.planName}</strong>
+              <h2 className="text-2xl font-black text-navy-900 tracking-tight">{currentCompany.companyName}</h2>
+              <p className="text-sm text-slate-500 mt-0.5">
+                CNPJ: <span className="font-mono">{currentCompany.cnpj}</span> • Plano: <strong className="text-slate-700">{currentCompany.planName}</strong>
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <div className="flex flex-col sm:items-end gap-3">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
               Regularizado na Receita
             </span>
             <button
               onClick={() => setShowCertificateModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold shadow-md transition-colors hover:-translate-y-0.5"
             >
-              <FileText className="w-3.5 h-3.5 text-orange-400" />
+              <FileText className="w-4 h-4 text-orange-400" />
               Ver Declaração Oficial
             </button>
           </div>
         </div>
 
         {/* 4 Pillars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase">Endereço Registrado</span>
-            <div className="text-xs font-bold text-navy-900 flex items-start gap-1.5">
-              <MapPin className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
-              <span>{currentCompany.unitAddress}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-sm relative z-10">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Endereço Registrado</span>
+            <div className="text-sm font-bold text-navy-900 flex items-start gap-2">
+              <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+              <span className="leading-tight">{currentCompany.unitAddress}</span>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase">Alvará & Prefeitura</span>
-            <div className="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-600" />
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-emerald-300 transition-colors">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Alvará & Prefeitura</span>
+            <div className="text-sm font-bold text-emerald-700 flex items-center gap-2">
+              <Check className="w-5 h-5 text-emerald-500 bg-emerald-100 rounded-full p-0.5" />
               <span>Aprovado ({currentCompany.alvaraProtocol})</span>
             </div>
-            <p className="text-[10px] text-slate-400">Regular para emissão de notas fiscais</p>
+            <p className="text-[11px] text-slate-500 font-medium">Regular para emissão de notas fiscais</p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase">Vigência Contratual</span>
-            <div className="text-xs font-bold text-navy-900">
-              {currentCompany.startDate.split('-').reverse().join('/')} até {currentCompany.renewalDate.split('-').reverse().join('/')}
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-navy-300 transition-colors">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Vigência Contratual</span>
+            <div className="text-sm font-bold text-navy-900 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-navy-400" />
+              <span>{currentCompany.startDate.split('-').reverse().join('/')} a {currentCompany.renewalDate.split('-').reverse().join('/')}</span>
             </div>
-            <p className="text-[10px] text-slate-400">Renovação anual com emissão automática</p>
+            <p className="text-[11px] text-slate-500 font-medium">Renovação anual automática</p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase">Crédito de Reunião Inclusas</span>
-            <div className="text-xs font-bold text-navy-900 flex items-center justify-between">
-              <span>{currentCompany.meetingHoursUsed}h usadas de {currentCompany.meetingHoursAllowance}h</span>
-              <span className="text-orange-600 font-bold">
-                {currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed}h livres
-              </span>
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors flex flex-col justify-between">
+            <div>
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Crédito de Reunião</span>
+              <div className="text-sm font-bold text-navy-900 flex items-center justify-between">
+                <span>{currentCompany.meetingHoursUsed}h / {currentCompany.meetingHoursAllowance}h</span>
+                <span className="text-orange-600 font-black">
+                  {currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed}h livres
+                </span>
+              </div>
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-1.5 mt-1 overflow-hidden">
+            <div className="w-full bg-slate-100 rounded-full h-2 mt-2 overflow-hidden shadow-inner">
               <div 
-                className="bg-orange-500 h-1.5 rounded-full" 
+                className="bg-gradient-to-r from-orange-400 to-orange-500 h-full rounded-full transition-all duration-1000" 
                 style={{ width: `${(currentCompany.meetingHoursUsed / Math.max(1, currentCompany.meetingHoursAllowance)) * 100}%` }}
               />
             </div>

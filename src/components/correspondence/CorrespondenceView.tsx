@@ -114,17 +114,17 @@ export const CorrespondenceView: React.FC = () => {
   return (
     <div className="space-y-8 pb-16">
       
-      {/* Top Banner - Minimalist Navy */}
-      <div className="bg-navy-950 rounded-3xl p-6 sm:p-8 border border-navy-800 shadow-sm text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 mb-2">
-            <Mail className="w-3.5 h-3.5" />
+      {/* Top Banner - Professional Navy */}
+      <div className="bg-gradient-to-br from-navy-900 to-navy-950 rounded-3xl p-8 sm:p-12 border border-navy-800 shadow-2xl text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative overflow-hidden">
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 backdrop-blur-md mb-4">
+            <Mail className="w-4 h-4" />
             Central de Recepção & Triagem de Correspondências
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Gestão & Digitalização de Correspondências
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            Gestão Inteligente de <br className="hidden sm:block" /> Correspondências
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+          <p className="text-sm sm:text-base text-slate-300 mt-4 max-w-2xl font-medium leading-relaxed">
             Recebimento diário pelas recepções dos coworkings, triagem protocolada, lockers protegidos e serviço de digitalização de documentos em PDF sob demanda.
           </p>
         </div>
@@ -132,68 +132,84 @@ export const CorrespondenceView: React.FC = () => {
         {currentUser?.accountType === 'coworking_owner' && (
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-orange-500/25 transition-all flex items-center gap-2 shrink-0"
+            className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:-translate-y-0.5 flex items-center gap-2 shrink-0"
           >
-            <Plus className="w-4 h-4" />
-            Dar Entrada em Correspondência
+            <Plus className="w-5 h-5" />
+            Registrar Correspondência
           </button>
         )}
+
+        {/* Decorative background elements */}
+        <div className="absolute left-0 top-0 bottom-0 w-1/2 bg-gradient-to-r from-orange-500/5 to-transparent pointer-events-none" />
+        <div className="absolute -left-20 -top-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl opacity-60 pointer-events-none" />
       </div>
 
       {/* Stats Counter Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm">
         <div 
           onClick={() => setActiveFilter('aguardando_retirada')}
-          className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+          className={`p-6 rounded-3xl border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
             activeFilter === 'aguardando_retirada' 
-              ? 'bg-orange-50 border-orange-400 shadow-xs' 
-              : 'bg-white border-slate-200 hover:border-slate-300'
+              ? 'bg-gradient-to-br from-orange-50 to-white border-orange-400 shadow-lg shadow-orange-500/10' 
+              : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
           }`}
         >
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">Aguardando Retirada</span>
-            <Clock className="w-5 h-5 text-orange-500" />
+          <div className="flex items-center justify-between text-slate-500 mb-3">
+            <span className="font-extrabold uppercase tracking-widest text-[10px] text-slate-400">Aguardando Retirada</span>
+            <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+              <Clock className="w-5 h-5" />
+            </div>
           </div>
-          <div className="text-2xl font-black text-navy-900 mt-2">
-            {correspondence.filter(c => c.status === 'aguardando_retirada').length}
+          <div className="flex items-end gap-3">
+            <div className="text-4xl font-black text-navy-900 leading-none">
+              {correspondence.filter(c => c.status === 'aguardando_retirada').length}
+            </div>
+            <span className="text-orange-600 font-bold text-xs pb-1">Disponíveis</span>
           </div>
-          <span className="text-orange-600 font-medium">Disponíveis nos armários</span>
         </div>
 
         <div 
           onClick={() => setActiveFilter('digitalizado')}
-          className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+          className={`p-6 rounded-3xl border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
             activeFilter === 'digitalizado' 
-              ? 'bg-navy-50 border-navy-400 shadow-xs' 
-              : 'bg-white border-slate-200 hover:border-slate-300'
+              ? 'bg-gradient-to-br from-navy-50 to-white border-navy-400 shadow-lg shadow-navy-900/10' 
+              : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
           }`}
         >
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">Digitalizados em PDF</span>
-            <FileText className="w-5 h-5 text-navy-900" />
+          <div className="flex items-center justify-between text-slate-500 mb-3">
+            <span className="font-extrabold uppercase tracking-widest text-[10px] text-slate-400">Digitalizados (PDF)</span>
+            <div className="w-10 h-10 rounded-xl bg-navy-100 flex items-center justify-center text-navy-800">
+              <FileText className="w-5 h-5" />
+            </div>
           </div>
-          <div className="text-2xl font-black text-navy-900 mt-2">
-            {correspondence.filter(c => c.status === 'digitalizado').length}
+          <div className="flex items-end gap-3">
+            <div className="text-4xl font-black text-navy-900 leading-none">
+              {correspondence.filter(c => c.status === 'digitalizado').length}
+            </div>
+            <span className="text-navy-700 font-bold text-xs pb-1">Para download</span>
           </div>
-          <span className="text-slate-600 font-medium">Prontos para download imediato</span>
         </div>
 
         <div 
           onClick={() => setActiveFilter('retirado')}
-          className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+          className={`p-6 rounded-3xl border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
             activeFilter === 'retirado' 
-              ? 'bg-emerald-50 border-emerald-400 shadow-xs' 
-              : 'bg-white border-slate-200 hover:border-slate-300'
+              ? 'bg-gradient-to-br from-emerald-50 to-white border-emerald-400 shadow-lg shadow-emerald-500/10' 
+              : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
           }`}
         >
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">Entregues com Protocolo</span>
-            <CheckCircle className="w-5 h-5 text-emerald-600" />
+          <div className="flex items-center justify-between text-slate-500 mb-3">
+            <span className="font-extrabold uppercase tracking-widest text-[10px] text-slate-400">Entregues / Resolvidos</span>
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+              <CheckCircle className="w-5 h-5" />
+            </div>
           </div>
-          <div className="text-2xl font-black text-navy-900 mt-2">
-            {correspondence.filter(c => c.status === 'retirado').length}
+          <div className="flex items-end gap-3">
+            <div className="text-4xl font-black text-navy-900 leading-none">
+              {correspondence.filter(c => c.status === 'retirado').length}
+            </div>
+            <span className="text-emerald-600 font-bold text-xs pb-1">Finalizados</span>
           </div>
-          <span className="text-emerald-700 font-medium">Retirados pelos clientes</span>
         </div>
       </div>
 
@@ -242,12 +258,12 @@ export const CorrespondenceView: React.FC = () => {
             return (
               <div 
                 key={item.id}
-                className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:border-orange-300 hover:shadow-md transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:border-orange-300 hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group"
               >
                 {/* Left: Icon & Main info */}
-                <div className="flex items-start gap-4 flex-1">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border shrink-0 ${config.color}`}>
-                    <Icon className="w-6 h-6" />
+                <div className="flex items-start gap-5 flex-1">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shrink-0 shadow-sm group-hover:scale-105 transition-transform ${config.color}`}>
+                    <Icon className="w-7 h-7" />
                   </div>
 
                   <div className="space-y-1">

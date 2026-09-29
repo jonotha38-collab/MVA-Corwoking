@@ -5,6 +5,7 @@ import { SpaceCard } from './SpaceCard';
 import { SpaceDetailModal } from './SpaceDetailModal';
 import { BookingModal } from './BookingModal';
 import { Search, MapPin, Users, LayoutGrid, X, PlusCircle, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
+import heroOffice from '../../assets/hero-office.jpg';
 
 const CATEGORIES = [
   { id: 'todas', label: 'Todos' },
@@ -60,23 +61,33 @@ export const MarketplaceView: React.FC = () => {
   return (
     <div className="space-y-16 pb-8">
       {/* Hero com busca */}
-      <section className="relative overflow-hidden rounded-3xl bg-navy-950 px-6 py-12 text-white sm:px-12 sm:py-16">
-        <div className="absolute inset-y-0 right-0 w-1/3 bg-radial from-orange-500/15 to-transparent pointer-events-none" />
-        <div className="relative max-w-3xl">
-          <h1 className="text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+      <section 
+        className="relative overflow-hidden rounded-3xl bg-navy-950 px-6 py-12 text-white sm:px-12 sm:py-20"
+        style={{
+          backgroundImage: `url(${heroOffice})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-navy-950/80 mix-blend-multiply pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/80 to-transparent pointer-events-none" />
+        
+        <div className="relative max-w-3xl z-10">
+          <h1 className="text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl drop-shadow-md">
             Espaços de coworking e salas de reunião {selectedCity !== 'Todas' ? `em ${selectedCity}` : 'para o seu negócio'}
           </h1>
-          <p className="mt-4 max-w-xl text-base text-slate-300">
+          <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">
             Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados.
           </p>
         </div>
-        <form onSubmit={search} className="relative mt-8 grid gap-3 rounded-2xl bg-white p-3 shadow-xl md:grid-cols-12" role="search">
+        
+        <form onSubmit={search} className="relative z-10 mt-10 grid gap-3 rounded-2xl bg-white p-3 shadow-2xl md:grid-cols-12" role="search">
           <div className="relative md:col-span-4"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Nome, bairro ou comodidade" aria-label="Buscar espaços" className={field} /></div>
           <div className="relative md:col-span-3"><MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} aria-label="Cidade" className={field}>{cities.map(c => <option key={c} value={c}>{c === 'Todas' ? 'Todas as cidades' : c}</option>)}</select></div>
           <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label="Capacidade" className={field}><option value="all">Qualquer capacidade</option><option value="small">Até 4 pessoas</option><option value="medium">5 a 10 pessoas</option><option value="large">Mais de 10 pessoas</option></select></div>
           <button className="rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white hover:bg-orange-600 md:col-span-2">Buscar</button>
         </form>
-        <ul className="relative mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-300">
+        <ul className="relative z-10 mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-200">
           <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-orange-400" aria-hidden />Espaços aprovados pela equipe MVA</li>
           <li className="flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-orange-400" aria-hidden />Confirmação imediata</li>
           <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-orange-400" aria-hidden />Endereço fiscal disponível</li>
