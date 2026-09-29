@@ -13,7 +13,8 @@ import {
   Lock, 
   X,
   FileCheck,
-  ChevronRight
+  ChevronRight,
+  Calendar
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
