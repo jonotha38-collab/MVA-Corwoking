@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { fileToDataUrl } from '../../lib/auth';
 import { useCoworking } from '../../context/CoworkingContext';
 import { PendingApprovals } from './PendingApprovals';
 import { Space, SpaceCategory, Booking } from '../../types';
@@ -53,6 +54,8 @@ export const AdminDashboardView: React.FC = () => {
   const [formPricePerHour, setFormPricePerHour] = useState(90);
   const [formPricePerShift, setFormPricePerShift] = useState(320);
   const [formImage, setFormImage] = useState('https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80');
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [photoError, setPhotoError] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [formOpeningHours, setFormOpeningHours] = useState('08:00 às 20:00');
   const [formAmenities, setFormAmenities] = useState<string[]>([
@@ -647,13 +650,54 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block font-semibold text-slate-700 mb-1">URL da Imagem de Capa (Unsplash ou Direta)</label>
-                  <input
-                    type="url"
-                    value={formImage}
-                    onChange={e => setFormImage(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                  <label className="block font-semibold text-slate-700 mb-1">Imagem de Capa do Espaço</label>
+                  <input 
+                    ref={fileRef} 
+                    type="file" 
+                    accept="image/*" 
+                    hidden 
+                    onChange={async e => {
+                      const file = e.target.files?.[0];
+                      e.target.value = '';
+                      setPhotoError('');
+                      if (!file) return;
+                      try {
+                        const dataUrl = await fileToDataUrl(file);
+                        setFormImage(dataUrl);
+                      } catch (err) {
+                        setPhotoError(err instanceof Error ? err.message : 'Erro ao enviar foto.');
+                      }
+                    }} 
                   />
+                  <div className="flex items-start gap-4">
+                    {formImage ? (
+                      <div className="relative h-24 w-40 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-xs">
+                        <img src={formImage} alt="Capa" className="w-full h-full object-cover" />
+                        <button 
+                          type="button" 
+                          onClick={() => setFormImage('')} 
+                          className="absolute right-1.5 top-1.5 rounded-full bg-slate-900/80 p-0.5 text-white hover:bg-rose-600 transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        type="button" 
+                        onClick={() => fileRef.current?.click()} 
+                        className="h-24 w-40 rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-500 hover:border-indigo-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+                      >
+                        <Plus className="w-6 h-6 mb-1" />
+                        <span className="text-[11px] font-semibold">Adicionar Foto</span>
+                      </button>
+                    )}
+                    <div className="flex-1 space-y-1 pt-1">
+                      <p className="text-[11px] text-slate-500">
+                        Clique na imagem para enviar do seu dispositivo. Esta foto aparecerá na capa do marketplace.
+                      </p>
+                      {photoError && <p role="alert" className="text-[11px] font-bold text-red-600">{photoError}</p>}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2">
