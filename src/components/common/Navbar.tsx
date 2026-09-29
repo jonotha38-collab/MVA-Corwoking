@@ -27,10 +27,6 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-navy-800 bg-navy-950/95 text-white backdrop-blur-md no-print">
-        <div className="hidden items-center justify-between border-b border-navy-800/80 bg-navy-900/90 px-8 py-1.5 text-xs text-slate-300 md:flex">
-          <span><strong className="text-white">Sede MVA:</strong> Rua Dom José Thomaz, 565 · Aracaju - SE</span>
-          <span className="text-slate-400">Plataforma aberta para coworkings anunciarem seus espaços</span>
-        </div>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <button onClick={() => setActiveTab('marketplace')} className="flex shrink-0 items-center gap-3" aria-label="MVA Coworking Hub - página inicial">
             <img src="/logo.png" alt="MVA" className="h-8 w-auto" />

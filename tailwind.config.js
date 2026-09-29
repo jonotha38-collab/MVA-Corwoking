@@ -43,7 +43,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Montserrat', 'Roboto', 'system-ui', 'sans-serif'],
       }
     },
   },
