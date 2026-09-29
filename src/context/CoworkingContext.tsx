@@ -364,7 +364,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const resetToDefaults = () => {
-    setSpaces(INITIAL_SPACES);
+    fetchSpaces();
     setCorrespondence(INITIAL_CORRESPONDENCE);
     setFiscalContracts(INITIAL_FISCAL_CONTRACTS);
     setBookings(INITIAL_BOOKINGS);
