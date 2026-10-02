@@ -62,7 +62,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
     }
   };
 
-  const handleConfirm = (e: React.FormEvent) => {
+  const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (endH <= startH) {
@@ -70,7 +70,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
       return;
     }
 
-    const newBooking = addBooking({
+    const newBooking = await addBooking({
       spaceId: space.id,
       spaceName: space.name,
       spaceCategory: space.category,
@@ -87,6 +87,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
       addons: selectedAddons,
     });
 
+    if (!newBooking) return;
     setConfirmedBooking(newBooking);
 
     try {

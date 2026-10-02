@@ -1,16 +1,14 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { isAdmin } from '../lib/auth';
-import { Space, Correspondence, FiscalContract, Booking, UserAccount } from '../types';
-import { INITIAL_CORRESPONDENCE, INITIAL_FISCAL_CONTRACTS, INITIAL_BOOKINGS } from '../mock/initialData';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { isAdmin, profileToUser } from '../lib/auth';
+import { formatAddress, rowToBooking, rowToCorrespondence, rowToFiscal, rowToSpace, spaceToRow } from '../lib/mappers';
+import type { Booking, Correspondence, FiscalContract, Space, UserAccount } from '../types';
 
-interface ToastState {
-  id: number;
-  message: string;
-  type: 'success' | 'info' | 'error';
-}
+interface ToastState { id: number; message: string; type: 'success' | 'info' | 'error' }
 
 interface CoworkingContextType {
+  ready: boolean;
   spaces: Space[];
   correspondence: Correspondence[];
   fiscalContracts: FiscalContract[];
@@ -30,398 +28,274 @@ interface CoworkingContextType {
   setSelectedCategory: (cat: string) => void;
   setAuthModalOpen: (open: boolean) => void;
   setAuthModalTab: (tab: 'login' | 'register') => void;
-  signIn: (user: UserAccount) => void;
   logout: () => void;
-  addSpace: (space: Omit<Space, 'id' | 'rating' | 'reviewsCount' | 'address'>) => void;
-  updateSpace: (id: string, space: Partial<Space>) => void;
-  deleteSpace: (id: string) => void;
-  approveSpace: (id: string) => void;
-  rejectSpace: (id: string, reason: string) => void;
-  addBooking: (booking: Omit<Booking, 'id' | 'createdAt' | 'status' | 'checkIn'>) => Booking;
-  cancelBooking: (id: string) => void;
-  checkInBooking: (id: string) => void;
+  addSpace: (space: Omit<Space, 'id' | 'rating' | 'reviewsCount' | 'address'>) => Promise<boolean>;
+  updateSpace: (id: string, space: Partial<Space>) => Promise<boolean>;
+  deleteSpace: (id: string) => Promise<void>;
+  approveSpace: (id: string) => Promise<void>;
+  rejectSpace: (id: string, reason: string) => Promise<void>;
+  addBooking: (booking: Omit<Booking, 'id' | 'createdAt' | 'status' | 'checkIn' | 'userId'>) => Promise<Booking | null>;
+  cancelBooking: (id: string) => Promise<void>;
+  checkInBooking: (id: string) => Promise<void>;
   addCorrespondence: (item: {
-    trackingCode: string;
-    companyId: string;
-    companyName: string;
-    coworkingLocation: string;
-    sender: string;
-    type: Correspondence['type'];
-    priority: Correspondence['priority'];
-    notes?: string;
-    lockerNumber?: string;
-  }) => void;
-  requestDigitalization: (id: string) => void;
-  markCorrespondenceAsRetrieved: (id: string) => void;
+    trackingCode: string; companyId: string; companyName: string; coworkingLocation: string; sender: string;
+    type: Correspondence['type']; priority: Correspondence['priority']; notes?: string; lockerNumber?: string;
+  }) => Promise<void>;
+  requestDigitalization: (id: string) => Promise<void>;
+  markCorrespondenceAsRetrieved: (id: string) => Promise<void>;
   addFiscalContract: (data: {
-    companyName: string;
-    tradingName: string;
-    cnpj: string;
-    contactEmail: string;
-    contactPhone: string;
-    planName: string;
-    coworkingProviderName: string;
-    unitAddress: string;
-    monthlyFee: number;
-  }) => void;
+    companyName: string; tradingName: string; cnpj: string; contactEmail: string; contactPhone: string;
+    planName: string; coworkingProviderName: string; unitAddress: string; monthlyFee: number;
+  }) => Promise<boolean>;
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
-  resetToDefaults: () => void;
 }
+
+const EMPTY_COMPANY: FiscalContract = {
+  id: '', companyName: '', tradingName: '', cnpj: '', contactEmail: '', contactPhone: '', planName: '',
+  status: 'pendente_documento', startDate: '', renewalDate: '', coworkingProviderName: '', unitAddress: '',
+  monthlyFee: 0, alvaraStatus: 'em_processamento', alvaraProtocol: '', meetingHoursAllowance: 0, meetingHoursUsed: 0,
+};
 
 const CoworkingContext = createContext<CoworkingContextType | undefined>(undefined);
 
 export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
-    const saved = localStorage.getItem('mva_user');
-    return saved ? JSON.parse(saved) : null;
-  });
-
+  const [ready, setReady] = useState(false);
   const [spaces, setSpaces] = useState<Space[]>([]);
-
-  useEffect(() => {
-    fetchSpaces();
-  }, []);
-
-  const fetchSpaces = async () => {
-    try {
-      const { data, error } = await supabase.from('spaces').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      
-      if (data) {
-        const loadedSpaces: Space[] = data.map(dbSpace => ({
-          id: dbSpace.id,
-          ownerId: dbSpace.owner_id,
-          ownerName: 'Empresa Parceira',
-          name: dbSpace.name,
-          coworkingName: dbSpace.coworking_name || 'Coworking',
-          isMvaHeadquarters: dbSpace.is_mva_headquarters,
-          street: dbSpace.street || '',
-          number: dbSpace.number || '',
-          neighborhood: dbSpace.neighborhood || '',
-          city: dbSpace.city || '',
-          state: dbSpace.state || '',
-          cep: dbSpace.cep || '',
-          address: `${dbSpace.street || ''}, ${dbSpace.number || ''} - ${dbSpace.neighborhood || ''}, ${dbSpace.city || ''} - ${dbSpace.state || ''}`,
-          category: dbSpace.category,
-          capacity: dbSpace.capacity,
-          pricePerHour: dbSpace.price_per_hour,
-          pricePerShift: dbSpace.price_per_shift,
-          rating: dbSpace.rating,
-          reviewsCount: dbSpace.reviews_count,
-          amenities: dbSpace.amenities || [],
-          image: dbSpace.image || '',
-          gallery: dbSpace.gallery || [],
-          description: dbSpace.description || '',
-          status: dbSpace.status,
-          openingHours: dbSpace.opening_hours || '',
-          offersFiscalAddress: dbSpace.offers_fiscal_address,
-          offersCorrespondence: dbSpace.offers_correspondence,
-          approval: 'aprovado'
-        }));
-        setSpaces(loadedSpaces);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar espaços no Supabase:', error);
-      // Fallback para localStorage temporário caso o BD não esteja rodando ainda
-      const saved = localStorage.getItem('mva_spaces');
-      if (saved) setSpaces(JSON.parse(saved));
-    }
-  };
-
-  const [correspondence, setCorrespondence] = useState<Correspondence[]>(() => {
-    const saved = localStorage.getItem('mva_correspondence');
-    return saved ? JSON.parse(saved) : INITIAL_CORRESPONDENCE;
-  });
-
-  const [fiscalContracts, setFiscalContracts] = useState<FiscalContract[]>(() => {
-    const saved = localStorage.getItem('mva_fiscal_contracts');
-    return saved ? JSON.parse(saved) : INITIAL_FISCAL_CONTRACTS;
-  });
-
-  const [bookings, setBookings] = useState<Booking[]>(() => {
-    const saved = localStorage.getItem('mva_bookings');
-    return saved ? JSON.parse(saved) : INITIAL_BOOKINGS;
-  });
-
-  const [activeTab, setActiveTab] = useState<string>('marketplace');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCity, setSelectedCity] = useState<string>('Todas');
-  const [selectedCategory, setSelectedCategory] = useState<string>('todas');
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [fiscalContracts, setFiscalContracts] = useState<FiscalContract[]>([]);
+  const [correspondence, setCorrespondence] = useState<Correspondence[]>([]);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+  const [activeTab, setActiveTab] = useState('marketplace');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCity, setSelectedCity] = useState('Todas');
+  const [selectedCategory, setSelectedCategory] = useState('todas');
   const [toasts, setToasts] = useState<ToastState[]>([]);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
+  const lastUid = useRef<string | null>(null);
 
-  const currentCompany = fiscalContracts[0] || INITIAL_FISCAL_CONTRACTS[0];
-
-  useEffect(() => {
-    localStorage.setItem('mva_user', JSON.stringify(currentUser));
-  }, [currentUser]);
-
-  useEffect(() => {
-    localStorage.setItem('mva_spaces', JSON.stringify(spaces));
-  }, [spaces]);
-
-  useEffect(() => {
-    localStorage.setItem('mva_correspondence', JSON.stringify(correspondence));
-  }, [correspondence]);
-
-  useEffect(() => {
-    localStorage.setItem('mva_fiscal_contracts', JSON.stringify(fiscalContracts));
-  }, [fiscalContracts]);
-
-  useEffect(() => {
-    localStorage.setItem('mva_bookings', JSON.stringify(bookings));
-  }, [bookings]);
-
-  const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
+  const showToast = useCallback((message: string, type: 'success' | 'info' | 'error' = 'success') => {
     const id = Date.now() + Math.random();
     setToasts(prev => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, 4500);
-  };
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4500);
+  }, []);
 
-  const signIn = (user: UserAccount) => {
-    setCurrentUser(user);
-    setAuthModalOpen(false);
-    showToast(`Bem-vindo, ${user.name.split(' ')[0]}!`, 'success');
-  };
+  const fail = useCallback((what: string, err: unknown) => {
+    console.error(what, err);
+    showToast(`${what}. Tente novamente em instantes.`, 'error');
+  }, [showToast]);
+
+  /* ---------- carregamento ---------- */
+  const loadAll = useCallback(async (uid: string | null) => {
+    const sp = await supabase.from('spaces').select('*').order('created_at', { ascending: false });
+    if (sp.error) fail('Não foi possível carregar os espaços', sp.error);
+    else setSpaces((sp.data || []).map(rowToSpace));
+    if (!uid) { setBookings([]); setFiscalContracts([]); setCorrespondence([]); return; }
+    const [bk, fc, co] = await Promise.all([
+      supabase.from('bookings').select('*').order('created_at', { ascending: false }),
+      supabase.from('fiscal_contracts').select('*').order('created_at', { ascending: false }),
+      supabase.from('correspondence').select('*').order('received_at', { ascending: false }),
+    ]);
+    if (bk.error || fc.error || co.error) fail('Não foi possível carregar seus dados', bk.error || fc.error || co.error);
+    else {
+      setBookings((bk.data || []).map(rowToBooking));
+      setFiscalContracts((fc.data || []).map(rowToFiscal));
+      setCorrespondence((co.data || []).map(rowToCorrespondence));
+    }
+  }, [fail]);
+
+  /* ---------- sessão ---------- */
+  useEffect(() => {
+    let alive = true;
+    const apply = async (session: Session | null, event: string) => {
+      try {
+        if (!session) {
+          lastUid.current = null; setCurrentUser(null); await loadAll(null); return;
+        }
+        const uid = session.user.id;
+        let { data: prof } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle();
+        const pending = localStorage.getItem('mva:pending-type');
+        if (pending && prof && event === 'SIGNED_IN') {
+          localStorage.removeItem('mva:pending-type');
+          const fresh = Date.now() - new Date(prof.created_at).getTime() < 5 * 60 * 1000;
+          if (fresh && prof.account_type !== pending && (pending === 'client' || pending === 'coworking_owner')) {
+            const upd = await supabase.from('profiles').update({ account_type: pending }).eq('id', uid).select().maybeSingle();
+            if (upd.data) prof = upd.data;
+          }
+        }
+        const user = profileToUser(prof, session.user);
+        const first = lastUid.current !== uid;
+        lastUid.current = uid;
+        setCurrentUser(user);
+        if (first) {
+          setAuthModalOpen(false);
+          if (event === 'SIGNED_IN') showToast(`Bem-vindo, ${user.name.split(' ')[0]}!`, 'success');
+          await loadAll(uid);
+        }
+      } catch (e) { console.error(e); }
+    };
+    supabase.auth.getSession()
+      .then(({ data }) => apply(data.session, 'INITIAL_SESSION'))
+      .catch(e => console.error(e))
+      .finally(() => { if (alive) setReady(true); });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') return;
+      setTimeout(() => { void apply(session, event); }, 0); // evita travar o cliente do Supabase
+    });
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, [loadAll, showToast]);
+
+  // Atualiza os dados quando a pessoa volta para a aba (ex.: admin vê novos anúncios)
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') void loadAll(lastUid.current); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [loadAll]);
+
+  const requireLogin = useCallback(() => {
+    setAuthModalTab('login'); setAuthModalOpen(true);
+    showToast('Entre na sua conta para continuar.', 'info');
+  }, [showToast]);
 
   const logout = () => {
-    setCurrentUser(null);
-    showToast('Você saiu da sua conta.', 'info');
+    void supabase.auth.signOut().then(() => showToast('Você saiu da sua conta.', 'info'));
   };
 
-  const addSpace = async (spaceData: Omit<Space, 'id' | 'rating' | 'reviewsCount' | 'address'>) => {
-    try {
-      const { data, error } = await supabase.from('spaces').insert([{
-        owner_id: currentUser?.id,
-        name: spaceData.name,
-        coworking_name: spaceData.coworkingName,
-        street: spaceData.street,
-        number: spaceData.number,
-        neighborhood: spaceData.neighborhood,
-        city: spaceData.city,
-        state: spaceData.state,
-        cep: spaceData.cep || '00000-000',
-        category: spaceData.category,
-        capacity: spaceData.capacity,
-        price_per_hour: spaceData.pricePerHour,
-        price_per_shift: spaceData.pricePerShift,
-        image: spaceData.image,
-        gallery: spaceData.gallery || [],
-        description: spaceData.description,
-        opening_hours: spaceData.openingHours,
-        amenities: spaceData.amenities,
-        offers_fiscal_address: spaceData.offersFiscalAddress,
-        offers_correspondence: spaceData.offersCorrespondence,
-        status: spaceData.status || 'available',
-      }]).select().single();
-
-      if (error) throw error;
-      
-      // Update local state by re-fetching or adding directly
-      fetchSpaces();
-      showToast('Espaço salvo permanentemente no banco de dados!', 'success');
-    } catch (err) {
-      console.error('Erro ao adicionar espaço:', err);
-      // Fallback behavior if db fails
-      const formattedAddress = `${spaceData.street}, ${spaceData.number} - ${spaceData.neighborhood}, ${spaceData.city} - ${spaceData.state}`;
-      const newSpace: Space = {
-        ...spaceData,
-        id: `sp-${Date.now()}`,
-        address: formattedAddress,
-        rating: 5.0,
-        reviewsCount: 1,
-        ownerId: currentUser?.id || 'owner-guest',
-        ownerName: currentUser?.name || 'Empresa Parceira',
-        isMvaHeadquarters: false,
-        approval: isAdmin(currentUser) ? 'aprovado' : 'pendente',
-        submittedAt: new Date().toISOString(),
-      };
-      setSpaces(prev => [newSpace, ...prev]);
-      showToast('Aviso: Salvo apenas localmente (Banco de dados não configurado).', 'info');
-    }
+  /* ---------- espaços ---------- */
+  const addSpace: CoworkingContextType['addSpace'] = async (spaceData) => {
+    if (!currentUser) { requireLogin(); return false; }
+    const admin = isAdmin(currentUser);
+    const row = {
+      ...spaceToRow(spaceData),
+      address: formatAddress(spaceData),
+      owner_id: currentUser.id,
+      owner_name: currentUser.coworkingBrandName || currentUser.name,
+      is_mva_headquarters: false,
+      approval: admin ? 'aprovado' : 'pendente',
+    };
+    const { data, error } = await supabase.from('spaces').insert(row).select().single();
+    if (error) { fail('Não foi possível salvar o espaço', error); return false; }
+    setSpaces(prev => [rowToSpace(data), ...prev]);
+    showToast(admin ? `Espaço "${data.name}" publicado no marketplace!` : `Espaço "${data.name}" enviado! Ele aparece no marketplace após a aprovação da equipe MVA.`, 'success');
+    return true;
   };
 
-  const updateSpace = (id: string, updatedFields: Partial<Space>) => {
-    const resubmit = !isAdmin(currentUser) && !('approval' in updatedFields);
-    setSpaces(prev => prev.map(s => s.id === id ? { ...s, ...updatedFields, ...(resubmit && !s.isMvaHeadquarters ? { approval: 'pendente' as const, rejectionReason: undefined } : {}) } : s));
+  const updateSpace: CoworkingContextType['updateSpace'] = async (id, fields) => {
+    const current = spaces.find(s => s.id === id);
+    if (!current) return false;
+    const admin = isAdmin(currentUser);
+    const resubmit = !admin && !('approval' in fields) && !current.isMvaHeadquarters;
+    const merged = { ...current, ...fields };
+    const row: Record<string, unknown> = { ...spaceToRow(fields) };
+    if (['street', 'number', 'neighborhood', 'city', 'state'].some(k => k in fields)) row.address = formatAddress(merged);
+    if (resubmit) { row.approval = 'pendente'; row.rejection_reason = null; }
+    const { data, error } = await supabase.from('spaces').update(row).eq('id', id).select().single();
+    if (error) { fail('Não foi possível atualizar o espaço', error); return false; }
+    setSpaces(prev => prev.map(s => (s.id === id ? rowToSpace(data) : s)));
     showToast(resubmit ? 'Alterações enviadas para nova aprovação da equipe MVA.' : 'Espaço atualizado com sucesso.', 'info');
-  };
-  const approveSpace = (id: string) => {
-    setSpaces(prev => prev.map(s => s.id === id ? { ...s, approval: 'aprovado', rejectionReason: undefined } : s));
-    showToast('Espaço aprovado e publicado no marketplace.', 'success');
-  };
-  const rejectSpace = (id: string, reason: string) => {
-    setSpaces(prev => prev.map(s => s.id === id ? { ...s, approval: 'rejeitado', rejectionReason: reason } : s));
-    showToast('Espaço rejeitado. O motivo ficará visível para o anunciante.', 'info');
+    return true;
   };
 
-  const deleteSpace = (id: string) => {
+  const setApproval = async (id: string, approval: 'aprovado' | 'rejeitado', reason: string | null) => {
+    const { data, error } = await supabase.from('spaces').update({ approval, rejection_reason: reason }).eq('id', id).select().single();
+    if (error) return fail('Não foi possível atualizar o status do anúncio', error);
+    setSpaces(prev => prev.map(s => (s.id === id ? rowToSpace(data) : s)));
+    showToast(approval === 'aprovado' ? 'Espaço aprovado e publicado no marketplace.' : 'Espaço rejeitado. O motivo ficará visível para o anunciante.', approval === 'aprovado' ? 'success' : 'info');
+  };
+  const approveSpace = (id: string) => setApproval(id, 'aprovado', null);
+  const rejectSpace = (id: string, reason: string) => setApproval(id, 'rejeitado', reason);
+
+  const deleteSpace = async (id: string) => {
+    const { error } = await supabase.from('spaces').delete().eq('id', id);
+    if (error) return fail('Não foi possível remover o espaço', error);
     setSpaces(prev => prev.filter(s => s.id !== id));
-    showToast('Espaço removido do sistema.', 'info');
+    showToast('Espaço removido.', 'info');
   };
 
-  const addBooking = (bookingData: Omit<Booking, 'id' | 'createdAt' | 'status' | 'checkIn'>): Booking => {
-    const newBooking: Booking = {
-      ...bookingData,
-      id: `bk-${Date.now()}`,
-      status: 'confirmada',
-      checkIn: false,
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setBookings(prev => [newBooking, ...prev]);
-    showToast(`Reserva confirmada para ${bookingData.spaceName}!`, 'success');
-    return newBooking;
+  /* ---------- reservas ---------- */
+  const addBooking: CoworkingContextType['addBooking'] = async (b) => {
+    if (!currentUser) { requireLogin(); return null; }
+    const { data, error } = await supabase.from('bookings').insert({
+      user_id: currentUser.id, space_id: b.spaceId, space_name: b.spaceName, space_category: b.spaceCategory,
+      coworking_name: b.coworkingName, company_name: b.companyName, responsible_name: b.responsibleName,
+      responsible_email: b.responsibleEmail, responsible_phone: b.responsiblePhone, booking_date: b.date,
+      start_time: b.startTime, end_time: b.endTime, duration_hours: b.durationHours, total_price: b.totalPrice, addons: b.addons,
+    }).select().single();
+    if (error) {
+      if (error.code === '23P01') showToast('Este horário já está reservado nesta sala. Escolha outro horário.', 'error');
+      else fail('Não foi possível confirmar a reserva', error);
+      return null;
+    }
+    const booking = rowToBooking(data);
+    setBookings(prev => [booking, ...prev]);
+    return booking;
   };
 
-  const cancelBooking = (id: string) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'cancelada' } : b));
-    showToast('Reserva cancelada com sucesso.', 'info');
+  const patchBooking = async (id: string, patch: Record<string, unknown>, ok: string) => {
+    const { data, error } = await supabase.from('bookings').update(patch).eq('id', id).select().single();
+    if (error) return fail('Não foi possível atualizar a reserva', error);
+    setBookings(prev => prev.map(x => (x.id === id ? rowToBooking(data) : x)));
+    showToast(ok, 'info');
+  };
+  const cancelBooking = (id: string) => patchBooking(id, { status: 'cancelada' }, 'Reserva cancelada.');
+  const checkInBooking = (id: string) => patchBooking(id, { check_in: true }, 'Check-in realizado com sucesso!');
+
+  /* ---------- correspondência ---------- */
+  const addCorrespondence: CoworkingContextType['addCorrespondence'] = async (i) => {
+    const { data, error } = await supabase.from('correspondence').insert({
+      tracking_code: i.trackingCode, company_id: i.companyId, company_name: i.companyName,
+      coworking_location: i.coworkingLocation, sender: i.sender, type: i.type, priority: i.priority,
+      notes: i.notes || null, locker_number: i.lockerNumber || null,
+    }).select().single();
+    if (error) return fail('Não foi possível registrar a correspondência', error);
+    setCorrespondence(prev => [rowToCorrespondence(data), ...prev]);
+    showToast('Correspondência registrada e cliente notificado.', 'success');
   };
 
-  const checkInBooking = (id: string) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, checkIn: true } : b));
-    showToast('Check-in do cliente registrado na recepção.', 'success');
+  const patchCorr = async (id: string, patch: Record<string, unknown>, ok: string) => {
+    const { data, error } = await supabase.from('correspondence').update(patch).eq('id', id).select().single();
+    if (error) return fail('Não foi possível atualizar a correspondência', error);
+    setCorrespondence(prev => prev.map(c => (c.id === id ? rowToCorrespondence(data) : c)));
+    showToast(ok, 'success');
+  };
+  const requestDigitalization = (id: string) =>
+    patchCorr(id, { digitalization_requested: true, status: 'digitalizado' }, 'Digitalização solicitada.');
+  const markCorrespondenceAsRetrieved = (id: string) =>
+    patchCorr(id, { status: 'retirado' }, 'Retirada registrada.');
+
+  /* ---------- endereço fiscal ---------- */
+  const addFiscalContract: CoworkingContextType['addFiscalContract'] = async (d) => {
+    if (!currentUser) { requireLogin(); return false; }
+    const { data, error } = await supabase.from('fiscal_contracts').insert({
+      user_id: currentUser.id, company_name: d.companyName, trading_name: d.tradingName, cnpj: d.cnpj,
+      contact_email: d.contactEmail, contact_phone: d.contactPhone, plan_name: d.planName,
+      coworking_provider_name: d.coworkingProviderName, unit_address: d.unitAddress, monthly_fee: d.monthlyFee,
+      alvara_protocol: `ALV-${new Date().getFullYear()}/${Math.floor(100000 + Math.random() * 900000)}`,
+      meeting_hours_allowance: d.planName.includes('Combo') ? 10 : d.planName.includes('VIP') ? 4 : 0,
+    }).select().single();
+    if (error) { fail('Não foi possível registrar o contrato', error); return false; }
+    setFiscalContracts(prev => [rowToFiscal(data), ...prev]);
+    return true;
   };
 
-  const addCorrespondence = (item: {
-    trackingCode: string;
-    companyId: string;
-    companyName: string;
-    coworkingLocation: string;
-    sender: string;
-    type: Correspondence['type'];
-    priority: Correspondence['priority'];
-    notes?: string;
-    lockerNumber?: string;
-  }) => {
-    const newCor: Correspondence = {
-      ...item,
-      id: `cor-${Date.now()}`,
-      receivedDate: 'Hoje às ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-      status: 'aguardando_retirada',
-      digitalizationRequested: false,
-    };
-    setCorrespondence(prev => [newCor, ...prev]);
-    showToast(`Correspondência ${item.trackingCode} cadastrada com sucesso!`, 'success');
-  };
-
-  const requestDigitalization = (id: string) => {
-    setCorrespondence(prev => prev.map(c => {
-      if (c.id === id) {
-        return {
-          ...c,
-          digitalizationRequested: true,
-          status: 'digitalizado',
-          digitalizedDocUrl: 'https://exemplo.com/documento-digitalizado-mva.pdf',
-          notes: (c.notes || '') + ' [Digitalizado pela recepção]'
-        };
-      }
-      return c;
-    }));
-    showToast('Documento digitalizado em PDF! Disponível para visualização.', 'success');
-  };
-
-  const markCorrespondenceAsRetrieved = (id: string) => {
-    setCorrespondence(prev => prev.map(c => {
-      if (c.id === id) {
-        return {
-          ...c,
-          status: 'retirado',
-        };
-      }
-      return c;
-    }));
-    showToast('Correspondência baixada como entregue.', 'info');
-  };
-
-  const addFiscalContract = (data: {
-    companyName: string;
-    tradingName: string;
-    cnpj: string;
-    contactEmail: string;
-    contactPhone: string;
-    planName: string;
-    coworkingProviderName: string;
-    unitAddress: string;
-    monthlyFee: number;
-  }) => {
-    const newContract: FiscalContract = {
-      ...data,
-      id: `fisc-${Date.now()}`,
-      status: 'ativo',
-      startDate: new Date().toISOString().split('T')[0],
-      renewalDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      alvaraStatus: 'em_processamento',
-      alvaraProtocol: `ALV-${new Date().getFullYear()}/${Math.floor(100000 + Math.random() * 900000)}`,
-      meetingHoursAllowance: data.planName.includes('Combo') ? 10 : data.planName.includes('VIP') ? 4 : 0,
-      meetingHoursUsed: 0
-    };
-    setFiscalContracts(prev => [newContract, ...prev]);
-    showToast(`Contrato de Endereço Fiscal para ${data.companyName} ativado!`, 'success');
-  };
-
-  const resetToDefaults = () => {
-    fetchSpaces();
-    setCorrespondence(INITIAL_CORRESPONDENCE);
-    setFiscalContracts(INITIAL_FISCAL_CONTRACTS);
-    setBookings(INITIAL_BOOKINGS);
-    setCurrentUser(null);
-    localStorage.clear();
-    showToast('Dados restaurados para o padrão!', 'info');
-  };
+  const currentCompany = fiscalContracts.find(c => c.userId === currentUser?.id) || EMPTY_COMPANY;
 
   return (
-    <CoworkingContext.Provider
-      value={{
-        spaces,
-        correspondence,
-        fiscalContracts,
-        bookings,
-        currentCompany,
-        currentUser,
-        activeTab,
-        searchQuery,
-        selectedCity,
-        selectedCategory,
-        toasts,
-        authModalOpen,
-        authModalTab,
-        setActiveTab,
-        setSearchQuery,
-        setSelectedCity,
-        setSelectedCategory,
-        setAuthModalOpen,
-        setAuthModalTab,
-        signIn,
-        logout,
-        addSpace,
-        updateSpace,
-        deleteSpace,
-        approveSpace,
-        rejectSpace,
-        addBooking,
-        cancelBooking,
-        checkInBooking,
-        addCorrespondence,
-        requestDigitalization,
-        markCorrespondenceAsRetrieved,
-        addFiscalContract,
-        showToast,
-        resetToDefaults,
-      }}
-    >
+    <CoworkingContext.Provider value={{
+      ready, spaces, correspondence, fiscalContracts, bookings, currentCompany, currentUser, activeTab, searchQuery,
+      selectedCity, selectedCategory, toasts, authModalOpen, authModalTab, setActiveTab, setSearchQuery, setSelectedCity,
+      setSelectedCategory, setAuthModalOpen, setAuthModalTab, logout, addSpace, updateSpace, deleteSpace, approveSpace,
+      rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization,
+      markCorrespondenceAsRetrieved, addFiscalContract, showToast,
+    }}>
       {children}
     </CoworkingContext.Provider>
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useCoworking = () => {
-  const context = useContext(CoworkingContext);
-  if (!context) {
-    throw new Error('useCoworking must be used within a CoworkingProvider');
-  }
-  return context;
+  const ctx = useContext(CoworkingContext);
+  if (!ctx) throw new Error('useCoworking must be used within CoworkingProvider');
+  return ctx;
 };

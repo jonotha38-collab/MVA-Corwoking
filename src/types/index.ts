@@ -57,6 +57,7 @@ export interface Correspondence {
 
 export interface FiscalContract {
   id: string;
+  userId?: string;
   companyName: string;
   tradingName: string;
   cnpj: string;
@@ -77,6 +78,7 @@ export interface FiscalContract {
 
 export interface Booking {
   id: string;
+  userId?: string;
   spaceId: string;
   spaceName: string;
   spaceCategory: SpaceCategory;
@@ -97,6 +99,7 @@ export interface Booking {
 }
 
 export interface UserAccount {
+  isAdmin?: boolean;
   id: string;
   name: string;
   email: string;

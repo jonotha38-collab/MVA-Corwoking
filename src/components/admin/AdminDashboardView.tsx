@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { fileToDataUrl } from '../../lib/auth';
+import { supabase, uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { PendingApprovals } from './PendingApprovals';
 import { Space, SpaceCategory, Booking } from '../../types';
@@ -662,7 +662,9 @@ export const AdminDashboardView: React.FC = () => {
                       setPhotoError('');
                       if (!file) return;
                       try {
-                        const dataUrl = await fileToDataUrl(file);
+                        const uid = (await supabase.auth.getSession()).data.session?.user.id;
+                        if (!uid) throw new Error('Entre novamente para enviar fotos.');
+                        const dataUrl = await uploadSpacePhoto(file, uid);
                         setFormImage(dataUrl);
                       } catch (err) {
                         setPhotoError(err instanceof Error ? err.message : 'Erro ao enviar foto.');

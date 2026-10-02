@@ -1,61 +1,49 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { X, Building2, User, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Building2, User, AlertCircle, MailCheck } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
-import { googleAccount, loginAccount, registerAccount } from '../../lib/auth';
+import { signInEmail, signInGoogle, signUpEmail } from '../../lib/auth';
 
-type GoogleId = {
-  initialize: (o: { client_id: string; callback: (r: { credential: string }) => void }) => void;
-  renderButton: (el: HTMLElement, o: Record<string, unknown>) => void;
-};
-declare global {
-  interface Window { google?: { accounts: { id: GoogleId } } }
-}
-const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+const GoogleLogo = () => (
+  <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden>
+    <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z" />
+    <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z" />
+    <path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z" />
+    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.500 42.600 14.600 48 24 48z" />
+  </svg>
+);
 
 export const AuthModal: React.FC = () => {
-  const { authModalOpen, setAuthModalOpen, authModalTab, setAuthModalTab, signIn } = useCoworking();
+  const { authModalOpen, setAuthModalOpen, authModalTab, setAuthModalTab } = useCoworking();
   const [type, setType] = useState<'coworking_owner' | 'client'>('coworking_owner');
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
-  const gRef = useRef<HTMLDivElement>(null);
-  const typeRef = useRef(type);
-  typeRef.current = type;
   const register = authModalTab === 'register';
 
-  useEffect(() => {
-    if (!authModalOpen || !CLIENT_ID) return;
-    const init = () => {
-      if (!window.google || !gRef.current) return;
-      window.google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        callback: ({ credential }) => {
-          try { signIn(googleAccount(credential, typeRef.current)); }
-          catch { setError('Não foi possível entrar com o Google. Tente novamente.'); }
-        },
-      });
-      window.google.accounts.id.renderButton(gRef.current, { theme: 'outline', size: 'large', width: 340, text: 'continue_with', locale: 'pt-BR' });
-    };
-    if (window.google) return init();
-    const s = document.createElement('script');
-    s.src = 'https://accounts.google.com/gsi/client';
-    s.async = true;
-    s.onload = init;
-    document.head.appendChild(s);
-  }, [authModalOpen, authModalTab, signIn]);
-
   if (!authModalOpen) return null;
+
+  const switchTab = (t: 'login' | 'register') => { setAuthModalTab(t); setError(''); setInfo(''); };
+
+  const google = async () => {
+    setError('');
+    try { await signInGoogle(register ? type : 'client'); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Algo deu errado.'); }
+  };
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const email = String(f.get('email')), password = String(f.get('password'));
-    setError('');
+    setError(''); setInfo('');
     if (register && password.length < 6) return setError('A senha precisa ter pelo menos 6 caracteres.');
     setLoading(true);
     try {
-      signIn(register
-        ? await registerAccount({ name: String(f.get('name')), email, password, accountType: type, brand: String(f.get('brand') || '') })
-        : await loginAccount(email, password));
+      if (register) {
+        const { needsConfirmation } = await signUpEmail({ name: String(f.get('name')), email, password, accountType: type, brand: String(f.get('brand') || '') });
+        if (needsConfirmation) setInfo('Conta criada! Enviamos um link de confirmação para o seu e-mail. Abra-o para entrar.');
+      } else {
+        await signInEmail(email, password);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Algo deu errado.');
     } finally { setLoading(false); }
@@ -66,46 +54,45 @@ export const AuthModal: React.FC = () => {
     `flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${authModalTab === t ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'}`;
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={register ? 'Criar conta' : 'Entrar'} className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 bg-navy-950/80 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-scaleUp">
-        <div className="bg-gradient-to-r from-navy-900 to-navy-800 text-white p-8 relative text-center">
-          <button onClick={() => setAuthModalOpen(false)} aria-label="Fechar" className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-navy-900/50 p-1.5 rounded-full"><X className="w-5 h-5" /></button>
-          <img src="/logo.png" alt="MVA" className="mx-auto mb-4 h-8 w-auto drop-shadow-md" />
-          <h2 className="text-2xl font-bold tracking-tight">{register ? 'Crie sua conta' : 'Acesse sua conta'}</h2>
-          <p className="text-sm text-slate-300 mt-2">Gestão de espaços, endereço fiscal e reservas</p>
-          
-          <div className="flex bg-navy-950/50 p-1 rounded-xl mt-6 border border-navy-700/50">
-            <button onClick={() => { setAuthModalTab('login'); setError(''); }} className={tab('login')}>Entrar</button>
-            <button onClick={() => { setAuthModalTab('register'); setError(''); }} className={tab('register')}>Criar conta</button>
+    <div role="dialog" aria-modal="true" aria-label={register ? 'Criar conta' : 'Entrar'} className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 bg-slate-950/70">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scaleUp">
+        <div className="bg-navy-900 text-white p-6 relative">
+          <button onClick={() => setAuthModalOpen(false)} aria-label="Fechar" className="absolute top-5 right-5 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+          <img src="/logo.png" alt="MVA" className="mb-3 h-7 w-auto" />
+          <h2 className="text-xl font-bold tracking-tight">{register ? 'Crie sua conta' : 'Acesse sua conta'}</h2>
+          <p className="text-xs text-slate-400 mt-1">Anuncie seu coworking, reserve salas e gerencie seu endereço fiscal.</p>
+          <div className="flex bg-navy-800/80 p-1 rounded-xl mt-4 border border-navy-700">
+            <button onClick={() => switchTab('login')} className={tab('login')}>Entrar</button>
+            <button onClick={() => switchTab('register')} className={tab('register')}>Criar conta</button>
           </div>
         </div>
-        <div className="p-8 space-y-6">
+        <div className="p-6 space-y-4">
           {register && (
-            <div className="grid grid-cols-2 gap-3">
-              {([['coworking_owner', Building2, 'Dono de Coworking'], ['client', User, 'Quero Reservar']] as const).map(([v, Icon, label]) => (
-                <button key={v} type="button" onClick={() => setType(v)} className={`flex flex-col items-center p-3 rounded-xl border text-center text-xs transition-all ${type === v ? 'border-orange-500 bg-orange-50 font-bold text-orange-700 shadow-sm' : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'}`}>
-                  <Icon className={`w-6 h-6 mb-2 ${type === v ? 'text-orange-500' : 'text-slate-400'}`} />{label}
+            <div className="grid grid-cols-2 gap-2">
+              {([['coworking_owner', Building2, 'Tenho um coworking'], ['client', User, 'Quero reservar espaços']] as const).map(([v, Icon, label]) => (
+                <button key={v} type="button" onClick={() => setType(v)} className={`p-2.5 rounded-xl border text-left text-xs transition-all ${type === v ? 'border-orange-500 bg-orange-50 font-bold text-orange-950' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                  <Icon className={`w-4 h-4 mb-1 ${type === v ? 'text-orange-600' : 'text-slate-400'}`} />{label}
                 </button>
               ))}
             </div>
           )}
+          <button type="button" onClick={google} className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <GoogleLogo />Continuar com o Google
+          </button>
+          <div className="flex items-center gap-3 text-[11px] text-slate-400"><span className="h-px flex-1 bg-slate-200" />ou com e-mail<span className="h-px flex-1 bg-slate-200" /></div>
+          {info ? (
+            <p role="status" className="flex items-start gap-2 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800"><MailCheck className="w-5 h-5 shrink-0" />{info}</p>
+          ) : (
+            <form onSubmit={submit} className="space-y-3">
+              {register && <input name="name" required placeholder="Nome completo" autoComplete="name" aria-label="Nome completo" className={field} />}
+              {register && type === 'coworking_owner' && <input name="brand" placeholder="Nome do seu coworking (opcional)" aria-label="Nome do coworking" className={field} />}
+              <input name="email" type="email" required placeholder="E-mail" autoComplete="email" aria-label="E-mail" className={field} />
+              <input name="password" type="password" required placeholder="Senha" autoComplete={register ? 'new-password' : 'current-password'} aria-label="Senha" className={field} />
+              {error && <p role="alert" className="flex items-start gap-2 text-xs text-red-600"><AlertCircle className="w-4 h-4 shrink-0" />{error}</p>}
+              <button disabled={loading} className="w-full rounded-xl bg-orange-500 py-3 text-sm font-bold text-white hover:bg-orange-600 disabled:opacity-50">{loading ? 'Aguarde...' : register ? 'Criar conta' : 'Entrar'}</button>
+            </form>
+          )}
           
-          <div className="flex justify-center">
-            {CLIENT_ID ? <div ref={gRef} /> : (
-              <p className="w-full rounded-xl bg-slate-100 p-4 text-center text-xs text-slate-600 border border-slate-200">Login com Google indisponível em dev local (configure <code className="font-semibold">VITE_GOOGLE_CLIENT_ID</code>).</p>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-4 text-xs font-medium text-slate-400"><span className="h-px flex-1 bg-slate-200" />ou use o e-mail<span className="h-px flex-1 bg-slate-200" /></div>
-          
-          <form onSubmit={submit} className="space-y-4">
-            {register && <input name="name" required placeholder="Seu nome completo" autoComplete="name" aria-label="Nome completo" className={field} />}
-            {register && type === 'coworking_owner' && <input name="brand" placeholder="Nome do seu coworking (opcional)" aria-label="Nome do coworking" className={field} />}
-            <input name="email" type="email" required placeholder="Seu melhor e-mail" autoComplete="email" aria-label="E-mail" className={field} />
-            <input name="password" type="password" required placeholder="Sua senha secreta" autoComplete={register ? 'new-password' : 'current-password'} aria-label="Senha" className={field} />
-            {error && <p role="alert" className="flex items-center gap-2 text-xs font-medium text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"><AlertCircle className="w-4 h-4 shrink-0" />{error}</p>}
-            <button disabled={loading} className="w-full rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0">{loading ? 'Aguarde um momento...' : register ? 'Criar minha conta' : 'Entrar na plataforma'}</button>
-          </form>
         </div>
       </div>
     </div>

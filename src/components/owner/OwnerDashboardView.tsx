@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { fileToDataUrl, isAdmin } from '../../lib/auth';
+import { isAdmin } from '../../lib/auth';
+import { uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Space, SpaceCategory } from '../../types';
 import { 
@@ -53,6 +54,7 @@ export const OwnerDashboardView: React.FC = () => {
   const [image, setImage] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   const [photoError, setPhotoError] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [gallery, setGallery] = useState<string[]>([]);
   const photos = [image, ...gallery].filter(Boolean);
   const [description, setDescription] = useState('');
@@ -136,12 +138,13 @@ export const OwnerDashboardView: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!image) { setPhotoError('Adicione pelo menos uma foto do espaço.'); return; }
 
+    let ok = false;
     if (editingId) {
-      updateSpace(editingId, {
+      ok = await updateSpace(editingId, {
         name,
         coworkingName,
         street,
@@ -164,7 +167,7 @@ export const OwnerDashboardView: React.FC = () => {
         offersCorrespondence: offersCorrespondence,
       });
     } else {
-      addSpace({
+      ok = await addSpace({
         name,
         coworkingName,
         street,
@@ -188,7 +191,7 @@ export const OwnerDashboardView: React.FC = () => {
       });
     }
 
-    setShowModal(false);
+    if (ok) setShowModal(false);
   };
 
   return (
@@ -566,14 +569,15 @@ export const OwnerDashboardView: React.FC = () => {
                 <h4 className="font-bold text-navy-900 uppercase text-[11px] tracking-wider border-b pb-1">3. Fotos do Espaço</h4>
                 <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={async e => {
                   const files = Array.from(e.target.files || []); e.target.value = ''
-                  setPhotoError('')
+                  setPhotoError(''); setUploading(true)
                   try {
                     const room = 6 - photos.length
-                    const added = await Promise.all(files.slice(0, room).map(f => fileToDataUrl(f)))
+                    const added = await Promise.all(files.slice(0, room).map(f => uploadSpacePhoto(f, currentUser!.id)))
                     const all = [...photos, ...added]
                     setImage(all[0] || ''); setGallery(all.slice(1))
                     if (files.length > room) setPhotoError('Limite de 6 fotos por espaço.')
                   } catch (err) { setPhotoError(err instanceof Error ? err.message : 'Erro ao enviar foto.') }
+                  finally { setUploading(false) }
                 }} />
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {photos.map((src, i) => (
@@ -584,7 +588,7 @@ export const OwnerDashboardView: React.FC = () => {
                     </div>
                   ))}
                   {photos.length < 6 && (
-                    <button type="button" onClick={() => fileRef.current?.click()} className="h-20 rounded-lg border-2 border-dashed border-slate-300 text-[11px] font-semibold text-slate-500 hover:border-orange-500 hover:text-orange-600">+ Adicionar fotos</button>
+                    <button type="button" onClick={() => fileRef.current?.click()} className="h-20 rounded-lg border-2 border-dashed border-slate-300 text-[11px] font-semibold text-slate-500 hover:border-orange-500 hover:text-orange-600">{uploading ? 'Enviando...' : '+ Adicionar fotos'}</button>
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500">A primeira foto aparece no card do marketplace. Até 6 fotos.</p>

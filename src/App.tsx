@@ -16,7 +16,7 @@ import { AdminDashboardView } from './components/admin/AdminDashboardView'
 const PRIVATE = ['owner-dashboard', 'client-dashboard', 'correspondence', 'admin']
 
 export default function App() {
-  const { activeTab, setActiveTab, currentUser, setAuthModalOpen, setAuthModalTab, spaces } = useCoworking()
+  const { ready, activeTab, setActiveTab, currentUser, setAuthModalOpen, setAuthModalTab, spaces } = useCoworking()
   const pending = spaces.filter(s => s.approval === 'pendente').length
   const admin = isAdmin(currentUser)
   const blocked = PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin))
@@ -28,6 +28,14 @@ export default function App() {
     }
     window.scrollTo({ top: 0 })
   }, [activeTab, blocked, currentUser, setActiveTab, setAuthModalOpen, setAuthModalTab])
+
+  if (!ready) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-navy-950" role="status" aria-label="Carregando">
+        <img src="/logo.png" alt="MVA" className="h-10 w-auto animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">

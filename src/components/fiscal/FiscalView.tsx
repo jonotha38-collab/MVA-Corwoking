@@ -81,7 +81,7 @@ export const FiscalView: React.FC = () => {
     }
   ];
 
-  const handleHireSubmit = (e: React.FormEvent) => {
+  const handleHireSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCompanyName || !newCnpj) {
       alert('Preencha os campos obrigatórios.');
@@ -90,7 +90,7 @@ export const FiscalView: React.FC = () => {
 
     const planObj = plans.find(p => p.name === selectedPlanForHire) || plans[1];
 
-    addFiscalContract({
+    const saved = await addFiscalContract({
       companyName: newCompanyName,
       tradingName: newTradingName || newCompanyName,
       cnpj: newCnpj,
@@ -102,6 +102,7 @@ export const FiscalView: React.FC = () => {
       monthlyFee: planObj.price
     });
 
+    if (!saved) return;
     setShowContractModal(false);
     showToast('Contrato firmado! Seu comprovante de domicílio fiscal foi liberado.', 'success');
 
@@ -157,7 +158,7 @@ export const FiscalView: React.FC = () => {
         <div className="absolute -right-20 -top-20 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl opacity-50 pointer-events-none" />
       </div>
 
-      {/* Active Contract Panorama Card */}
+      {currentCompany.id && (
       <div className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl shadow-slate-200/40 space-y-8 relative overflow-hidden">
         {/* Subtle decorative background for the card */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-slate-50 to-orange-50 rounded-bl-[100px] -z-10 pointer-events-none" />
@@ -240,6 +241,7 @@ export const FiscalView: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Explanatory Cards: Fiscal vs Comercial */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

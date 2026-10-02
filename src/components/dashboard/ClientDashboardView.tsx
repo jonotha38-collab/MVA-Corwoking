@@ -31,7 +31,7 @@ export const ClientDashboardView: React.FC = () => {
   const [selectedVoucher, setSelectedVoucher] = useState<Booking | null>(null);
 
   // Filter bookings
-  const clientBookings = bookings.filter(b => b.companyName === currentCompany.companyName);
+  const clientBookings = bookings.filter(b => b.userId === currentUser?.id);
 
   // Pending correspondence
   const pendingMails = correspondence.filter(

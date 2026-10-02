@@ -62,10 +62,12 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
                   {categoryLabels[space.category]}
                 </span>
               )}
+              {space.reviewsCount > 0 && (
               <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-md">
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 {space.rating} ({space.reviewsCount} avaliações)
               </span>
+              )}
             </div>
             
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{space.name}</h2>

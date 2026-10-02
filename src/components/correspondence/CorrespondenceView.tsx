@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { isAdmin } from '../../lib/auth';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Correspondence, CorrespondenceType, CorrespondenceStatus } from '../../types';
 import { 
@@ -52,7 +53,7 @@ export const CorrespondenceView: React.FC = () => {
   // Filter correspondence
   const filteredList = correspondence.filter(item => {
     // If not owner of coworking, show company correspondence
-    if (currentUser?.accountType === 'client' && item.companyId !== currentCompany.id) {
+    if (!isAdmin(currentUser) && item.companyId !== currentCompany.id) {
       return false;
     }
 
@@ -129,7 +130,7 @@ export const CorrespondenceView: React.FC = () => {
           </p>
         </div>
 
-        {currentUser?.accountType === 'coworking_owner' && (
+        {isAdmin(currentUser) && (
           <button
             onClick={() => setShowAddModal(true)}
             className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:-translate-y-0.5 flex items-center gap-2 shrink-0"
@@ -337,7 +338,7 @@ export const CorrespondenceView: React.FC = () => {
                         Autorizar Terceiro
                       </button>
 
-                      {currentUser?.accountType === 'coworking_owner' && (
+                      {isAdmin(currentUser) && (
                         <button
                           onClick={() => markCorrespondenceAsRetrieved(item.id)}
                           className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
@@ -363,7 +364,7 @@ export const CorrespondenceView: React.FC = () => {
                         Visualizar PDF
                       </button>
 
-                      {currentUser?.accountType === 'coworking_owner' && (
+                      {isAdmin(currentUser) && (
                         <button
                           onClick={() => markCorrespondenceAsRetrieved(item.id)}
                           className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors"

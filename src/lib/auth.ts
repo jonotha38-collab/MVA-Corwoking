@@ -1,58 +1,66 @@
-/** Contas locais (demonstração). Em produção, troque por um backend de autenticação. */
-import type { UserAccount } from '../types'
+import type { User } from '@supabase/supabase-js';
+import { supabase } from './supabase';
+import type { UserAccount } from '../types';
 
-type Stored = UserAccount & { passwordHash?: string }
-const KEY = 'mva:accounts'
-const read = (): Stored[] => { try { return JSON.parse(localStorage.getItem(KEY) || '[]') } catch { return [] } }
-const save = (l: Stored[]) => localStorage.setItem(KEY, JSON.stringify(l))
-const pub = ({ passwordHash: _p, ...u }: Stored): UserAccount => u
-const mail = (e: string) => e.trim().toLowerCase()
-const avatar = (s: string) => `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(s)}&backgroundColor=0a192f`
+export const isAdmin = (u: UserAccount | null) => !!u?.isAdmin;
 
-async function sha256(t: string) {
-  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))
-  return Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, '0')).join('')
+export const avatarFor = (name: string) =>
+  `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=0a192f`;
+
+type ProfileRow = {
+  id: string; name: string; email: string; avatar: string; account_type: 'coworking_owner' | 'client';
+  coworking_brand_name: string | null; provider: string; is_admin: boolean;
+};
+
+export function profileToUser(row: ProfileRow | null, auth: User): UserAccount {
+  const meta = (auth.user_metadata || {}) as Record<string, string>;
+  const name = row?.name || meta.name || meta.full_name || (auth.email || '').split('@')[0];
+  return {
+    id: auth.id,
+    name,
+    email: row?.email || auth.email || '',
+    avatar: row?.avatar || meta.avatar_url || meta.picture || avatarFor(name),
+    accountType: row?.account_type || 'client',
+    coworkingBrandName: row?.coworking_brand_name || undefined,
+    provider: (row?.provider || auth.app_metadata?.provider) === 'google' ? 'google' : 'email',
+    isAdmin: !!row?.is_admin,
+  };
 }
 
-export const ADMIN_EMAILS = String(import.meta.env.VITE_ADMIN_EMAILS || '').split(',').map(mail).filter(Boolean)
-export const isAdmin = (u: UserAccount | null) => !!u && ADMIN_EMAILS.includes(mail(u.email))
-
-export async function registerAccount(p: { name: string; email: string; password: string; accountType: UserAccount['accountType']; brand?: string }) {
-  const list = read()
-  if (list.some(u => u.email === mail(p.email))) throw new Error('Este e-mail já tem conta. Entre para continuar.')
-  const u: Stored = { id: crypto.randomUUID(), name: p.name.trim(), email: mail(p.email), avatar: avatar(p.name), accountType: p.accountType, coworkingBrandName: p.brand?.trim() || undefined, provider: 'email', passwordHash: await sha256(p.password) }
-  save([...list, u])
-  return pub(u)
+function friendly(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes('invalid login')) return 'E-mail ou senha incorretos.';
+  if (m.includes('email not confirmed')) return 'Confirme seu e-mail pelo link que enviamos antes de entrar.';
+  if (m.includes('already registered')) return 'Este e-mail já tem conta. Entre para continuar.';
+  if (m.includes('password should be')) return 'A senha precisa ter pelo menos 6 caracteres.';
+  if (m.includes('rate limit')) return 'Muitas tentativas. Aguarde alguns minutos e tente de novo.';
+  if (m.includes('failed to fetch') || m.includes('network')) return 'Sem conexão com o servidor. Verifique sua internet.';
+  return 'Não foi possível concluir. Tente novamente.';
 }
 
-export async function loginAccount(email: string, password: string) {
-  const u = read().find(x => x.email === mail(email))
-  if (!u || u.passwordHash !== (await sha256(password))) throw new Error('E-mail ou senha incorretos.')
-  return pub(u)
+export async function signUpEmail(p: { name: string; email: string; password: string; accountType: UserAccount['accountType']; brand?: string }) {
+  const { data, error } = await supabase.auth.signUp({
+    email: p.email.trim(),
+    password: p.password,
+    options: { data: { name: p.name.trim(), account_type: p.accountType, brand: p.brand?.trim() || '' }, emailRedirectTo: window.location.origin },
+  });
+  if (error) throw new Error(friendly(error.message));
+  // Com confirmação de e-mail ativa, e-mail repetido volta sem erro e sem identidades.
+  if (data.user && data.user.identities && data.user.identities.length === 0) throw new Error('Este e-mail já tem conta. Entre para continuar.');
+  return { needsConfirmation: !data.session };
 }
 
-export function googleAccount(credential: string, accountType: UserAccount['accountType']) {
-  const raw = credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
-  const g = JSON.parse(decodeURIComponent(atob(raw).split('').map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join(''))) as { name: string; email: string; picture?: string }
-  const list = read()
-  const found = list.find(x => x.email === mail(g.email))
-  const u: Stored = found ? { ...found, name: g.name, avatar: g.picture || found.avatar } : { id: crypto.randomUUID(), name: g.name, email: mail(g.email), avatar: g.picture || avatar(g.name), accountType, provider: 'google' }
-  save(found ? list.map(x => (x.id === u.id ? u : x)) : [...list, u])
-  return pub(u)
+export async function signInEmail(email: string, password: string) {
+  const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+  if (error) throw new Error(friendly(error.message));
 }
 
-/** Reduz e comprime a foto antes de salvar. */
-export function fileToDataUrl(file: File, max = 1200, q = 0.8): Promise<string> {
-  return new Promise((res, rej) => {
-    if (!file.type.startsWith('image/')) return rej(new Error('Envie apenas imagens.'))
-    const url = URL.createObjectURL(file), img = new Image()
-    img.onload = () => {
-      const s = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas')
-      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s)
-      c.getContext('2d')!.drawImage(img, 0, 0, c.width, c.height)
-      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', q))
-    }
-    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Não foi possível ler a imagem.')) }
-    img.src = url
-  })
+export async function signInGoogle(accountType: UserAccount['accountType']) {
+  try { localStorage.setItem('mva:pending-type', accountType); } catch { /* ignore */ }
+  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+  if (error) throw new Error('Login com Google indisponível. Verifique a configuração no Supabase.');
+}
+
+export async function signOut() {
+  await supabase.auth.signOut();
 }

@@ -45,10 +45,14 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ space, onSelect, onBook })
             </span>
           )}
 
+          {space.reviewsCount > 0 ? (
           <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-white/95 text-slate-800 backdrop-blur-md shadow-xs">
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             {space.rating}
           </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/95 text-slate-800 backdrop-blur-md shadow-xs">Novo</span>
+          )}
         </div>
 
         {/* Bottom Address preview */}
