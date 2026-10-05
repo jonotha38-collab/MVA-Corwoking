@@ -38,11 +38,11 @@ function friendly(message: string): string {
   return 'Não foi possível concluir. Tente novamente.';
 }
 
-export async function signUpEmail(p: { name: string; email: string; password: string; accountType: UserAccount['accountType']; brand?: string }) {
+export async function signUpEmail(p: { name: string; email: string; password: string; accountType: UserAccount['accountType']; brand?: string; lgpdConsentAt?: string }) {
   const { data, error } = await supabase.auth.signUp({
     email: p.email.trim(),
     password: p.password,
-    options: { data: { name: p.name.trim(), account_type: p.accountType, brand: p.brand?.trim() || '' }, emailRedirectTo: window.location.origin },
+    options: { data: { name: p.name.trim(), account_type: p.accountType, brand: p.brand?.trim() || '', lgpd_consent_at: p.lgpdConsentAt || new Date().toISOString() }, emailRedirectTo: window.location.origin },
   });
   if (error) throw new Error(friendly(error.message));
   // Com confirmação de e-mail ativa, e-mail repetido volta sem erro e sem identidades.

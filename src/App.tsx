@@ -23,7 +23,7 @@ export default function App() {
 
   useEffect(() => {
     if (blocked) {
-      setActiveTab('marketplace')
+      setActiveTab('fiscal')
       if (!currentUser) { setAuthModalTab('login'); setAuthModalOpen(true) }
     }
     window.scrollTo({ top: 0 })

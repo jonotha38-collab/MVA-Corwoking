@@ -3,8 +3,8 @@ import { useCoworking } from '../../context/CoworkingContext';
 import { Search, ShieldCheck, Mail, Briefcase, PlusCircle, LogOut, User, ChevronDown } from 'lucide-react';
 
 const ITEMS = [
-  { tab: 'marketplace', label: 'Explorar espaços', short: 'Explorar', icon: Search },
   { tab: 'fiscal', label: 'Endereço fiscal', short: 'Fiscal', icon: ShieldCheck },
+  { tab: 'marketplace', label: 'Explorar espaços', short: 'Explorar', icon: Search },
   { tab: 'correspondence', label: 'Correspondência', short: 'Correio', icon: Mail },
   { tab: 'client-dashboard', label: 'Minhas reservas', short: 'Reservas', icon: Briefcase },
   { tab: 'owner-dashboard', label: 'Anunciar coworking', short: 'Anunciar', icon: PlusCircle },
@@ -28,7 +28,7 @@ export const Navbar: React.FC = () => {
     <>
       <header className="sticky top-0 z-40 border-b border-navy-800 bg-navy-950/95 text-white backdrop-blur-md no-print">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <button onClick={() => setActiveTab('marketplace')} className="flex shrink-0 items-center gap-3" aria-label="MVA Coworking Hub - página inicial">
+          <button onClick={() => setActiveTab('fiscal')} className="flex shrink-0 items-center gap-3" aria-label="MVA Coworking Hub - página inicial">
             <img src="/logo.png" alt="MVA" className="h-8 w-auto" />
             <span className="hidden h-7 w-px bg-navy-700 sm:block" aria-hidden />
             <span className="text-left leading-tight">
@@ -60,7 +60,7 @@ export const Navbar: React.FC = () => {
                     <div className="border-b border-slate-100 p-4"><p className="truncate text-sm font-bold">{currentUser.name}</p><p className="truncate text-xs text-slate-500">{currentUser.email}</p></div>
                     <button role="menuitem" onClick={() => { setMenu(false); setActiveTab('owner-dashboard'); }} className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50"><PlusCircle className="h-4 w-4 text-orange-500" aria-hidden />Meus espaços</button>
                     <button role="menuitem" onClick={() => { setMenu(false); setActiveTab('client-dashboard'); }} className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50"><Briefcase className="h-4 w-4 text-orange-500" aria-hidden />Minhas reservas</button>
-                    <button role="menuitem" onClick={() => { setMenu(false); logout(); setActiveTab('marketplace'); }} className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-3 text-sm text-red-600 hover:bg-red-50"><LogOut className="h-4 w-4" aria-hidden />Sair</button>
+                    <button role="menuitem" onClick={() => { setMenu(false); logout(); setActiveTab('fiscal'); }} className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-3 text-sm text-red-600 hover:bg-red-50"><LogOut className="h-4 w-4" aria-hidden />Sair</button>
                   </div>
                 )}
               </>
