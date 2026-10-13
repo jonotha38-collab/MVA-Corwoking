@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { X, Building2, User, AlertCircle, MailCheck, ShieldCheck } from 'lucide-react';
+import { X, Building2, User, AlertCircle, MailCheck } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInEmail, signInGoogle, signUpEmail } from '../../lib/auth';
+import { BlurReveal } from '../ui/BlurReveal';
+import { TypewriterText } from '../ui/TypewriterText';
+import { LabelInput } from '../ui/LabelInput';
 
 const GoogleLogo = () => (
   <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden>
@@ -55,8 +58,6 @@ export const AuthModal: React.FC = () => {
     } finally { setLoading(false); }
   };
 
-  const field = 'w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-hidden transition-all bg-slate-50/70 hover:bg-slate-100/70 focus:bg-white placeholder:text-slate-400 text-slate-800';
-
   return (
     <div 
       role="dialog" 
@@ -88,11 +89,24 @@ export const AuthModal: React.FC = () => {
             </span>
           </div>
 
-          <h2 className="text-lg font-extrabold tracking-tight text-navy-900">
-            {register ? 'Crie sua conta' : 'Acesse sua conta'}
+          <h2 className="text-lg font-extrabold tracking-tight text-navy-900 min-h-[1.75rem]">
+            <BlurReveal
+              key={register ? 'register-title' : 'login-title'}
+              text={register ? 'Crie sua conta' : 'Acesse sua conta'}
+              stagger={35}
+              duration={380}
+            />
           </h2>
-          <p className="text-[11px] text-slate-500">
-            {register ? 'Cadastre-se para reservar salas e gerenciar espaços.' : 'Entre para gerenciar suas reservas e endereços.'}
+          <p className="text-[11px] text-slate-500 min-h-[2rem]">
+            <TypewriterText
+              key={register ? 'register-sub' : 'login-sub'}
+              text={register
+                ? 'Cadastre-se para reservar salas e gerenciar espaços.'
+                : 'Entre para gerenciar suas reservas e endereços.'}
+              speed={28}
+              delay={200}
+              cursor={true}
+            />
           </p>
 
           {/* Abas Entrar / Criar Conta */}
@@ -155,40 +169,36 @@ export const AuthModal: React.FC = () => {
           ) : (
             <form onSubmit={submit} className="space-y-2">
               {register && (
-                <input 
-                  name="name" 
-                  required 
-                  placeholder="Nome completo" 
-                  autoComplete="name" 
-                  aria-label="Nome completo" 
-                  className={field} 
+                <LabelInput
+                  name="name"
+                  required
+                  label="Nome completo"
+                  autoComplete="name"
+                  aria-label="Nome completo"
                 />
               )}
               {register && type === 'coworking_owner' && (
-                <input 
-                  name="brand" 
-                  placeholder="Nome do seu coworking (opcional)" 
-                  aria-label="Nome do coworking" 
-                  className={field} 
+                <LabelInput
+                  name="brand"
+                  label="Nome do seu coworking (opcional)"
+                  aria-label="Nome do coworking"
                 />
               )}
-              <input 
-                name="email" 
-                type="email" 
-                required 
-                placeholder="E-mail" 
-                autoComplete="email" 
-                aria-label="E-mail" 
-                className={field} 
+              <LabelInput
+                name="email"
+                type="email"
+                required
+                label="E-mail"
+                autoComplete="email"
+                aria-label="E-mail"
               />
-              <input 
-                name="password" 
-                type="password" 
-                required 
-                placeholder="Senha" 
-                autoComplete={register ? 'new-password' : 'current-password'} 
-                aria-label="Senha" 
-                className={field} 
+              <LabelInput
+                name="password"
+                type="password"
+                required
+                label="Senha"
+                autoComplete={register ? 'new-password' : 'current-password'}
+                aria-label="Senha"
               />
 
               {error && (
