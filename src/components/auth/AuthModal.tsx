@@ -55,57 +55,171 @@ export const AuthModal: React.FC = () => {
     } finally { setLoading(false); }
   };
 
-  const field = 'w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:outline-hidden';
-  const tab = (t: 'login' | 'register') =>
-    `flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${authModalTab === t ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'}`;
+  const field = 'w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-hidden transition-all bg-slate-50/70 hover:bg-slate-100/70 focus:bg-white placeholder:text-slate-400 text-slate-800';
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={register ? 'Criar conta' : 'Entrar'} className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 bg-slate-950/70">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scaleUp">
-        <div className="bg-navy-900 text-white p-6 relative">
-          <button onClick={close} aria-label="Fechar" className="absolute top-5 right-5 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
-          <img src="/logo.png" alt="MVA" className="mb-3 h-7 w-auto" />
-          <h2 className="text-xl font-bold tracking-tight">{register ? 'Crie sua conta' : 'Acesse sua conta'}</h2>
-          <p className="text-xs text-slate-400 mt-1">Anuncie seu coworking, reserve salas e gerencie seu endereço fiscal.</p>
-          <div className="flex bg-navy-800/80 p-1 rounded-xl mt-4 border border-navy-700">
-            <button onClick={() => switchTab('login')} className={tab('login')}>Entrar</button>
-            <button onClick={() => switchTab('register')} className={tab('register')}>Criar conta</button>
+    <div 
+      role="dialog" 
+      aria-modal="true" 
+      aria-label={register ? 'Criar conta' : 'Entrar'} 
+      onClick={(e) => {
+        if (e.target === e.currentTarget) close();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-navy-950/70 backdrop-blur-sm cursor-pointer"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()} 
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-[370px] overflow-hidden animate-scaleUp border border-slate-100 cursor-default"
+      >
+        {/* Header Compacto */}
+        <div className="bg-white text-slate-900 p-5 pb-3 relative border-b border-slate-100">
+          <button 
+            onClick={close} 
+            aria-label="Fechar" 
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors bg-slate-100 hover:bg-slate-200 rounded-full p-1"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+          
+          <div className="flex items-center gap-2 mb-2">
+            <img src="/logo-orange.png" alt="MVA" className="h-6 w-auto" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
+              Coworking Hub
+            </span>
+          </div>
+
+          <h2 className="text-lg font-extrabold tracking-tight text-navy-900">
+            {register ? 'Crie sua conta' : 'Acesse sua conta'}
+          </h2>
+          <p className="text-[11px] text-slate-500">
+            {register ? 'Cadastre-se para reservar salas e gerenciar espaços.' : 'Entre para gerenciar suas reservas e endereços.'}
+          </p>
+
+          {/* Abas Entrar / Criar Conta */}
+          <div className="flex bg-slate-100 p-0.5 rounded-lg mt-3 border border-slate-200">
+            <button 
+              onClick={() => switchTab('login')} 
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${!register ? 'bg-navy-900 text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              Entrar
+            </button>
+            <button 
+              onClick={() => switchTab('register')} 
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${register ? 'bg-orange-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              Criar conta
+            </button>
           </div>
         </div>
-        <div className="p-6 space-y-4">
+
+        {/* Corpo do Modal */}
+        <div className="p-5 pt-3 space-y-2.5">
           {register && (
-            <div className="grid grid-cols-2 gap-2">
-              {([['coworking_owner', Building2, 'Tenho um coworking'], ['client', User, 'Quero reservar espaços']] as const).map(([v, Icon, label]) => (
-                <button key={v} type="button" onClick={() => setType(v)} className={`p-2.5 rounded-xl border text-left text-xs transition-all ${type === v ? 'border-orange-500 bg-orange-50 font-bold text-orange-950' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}>
-                  <Icon className={`w-4 h-4 mb-1 ${type === v ? 'text-orange-600' : 'text-slate-400'}`} />{label}
+            <div className="grid grid-cols-2 gap-1.5">
+              {([['coworking_owner', Building2, 'Tenho coworking'], ['client', User, 'Quero reservar']] as const).map(([v, Icon, label]) => (
+                <button 
+                  key={v} 
+                  type="button" 
+                  onClick={() => setType(v)} 
+                  className={`p-2 rounded-lg border text-left text-[11px] font-medium transition-all flex items-center gap-1.5 ${type === v ? 'border-orange-500 bg-orange-50 font-bold text-orange-950' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                >
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${type === v ? 'text-orange-600' : 'text-slate-400'}`} />
+                  <span className="truncate">{label}</span>
                 </button>
               ))}
             </div>
           )}
-          <label className={`flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 text-xs leading-relaxed transition-colors ${lgpd ? 'border-orange-500 bg-orange-50 text-orange-950' : 'border-slate-200 text-slate-600'}`}>
-            <input type="checkbox" checked={lgpd} onChange={e => { setLgpd(e.target.checked); if (e.target.checked) setError(''); }} aria-required="true" className="mt-0.5 h-4 w-4 shrink-0 accent-orange-500" />
-            <span>
-              <ShieldCheck className="mr-1 inline h-3.5 w-3.5 text-orange-600" aria-hidden />
-              Estou de acordo com as normas da <strong>LGPD</strong> (Lei nº 13.709/2018) e autorizo o tratamento dos meus dados pessoais pela MVA Coworking para acesso e uso da plataforma.
-            </span>
-          </label>
-          <button type="button" onClick={google} disabled={!lgpd} className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">
-            <GoogleLogo />Continuar com o Google
+
+          {/* Botão Google */}
+          <button 
+            type="button" 
+            onClick={google} 
+            disabled={!lgpd} 
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-40 transition-all shadow-2xs"
+          >
+            <GoogleLogo />
+            <span>Continuar com o Google</span>
           </button>
-          <div className="flex items-center gap-3 text-[11px] text-slate-400"><span className="h-px flex-1 bg-slate-200" />ou com e-mail<span className="h-px flex-1 bg-slate-200" /></div>
+
+          <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+            <span className="h-px flex-1 bg-slate-200" />
+            ou com e-mail
+            <span className="h-px flex-1 bg-slate-200" />
+          </div>
+
           {info ? (
-            <p role="status" className="flex items-start gap-2 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800"><MailCheck className="w-5 h-5 shrink-0" />{info}</p>
+            <p role="status" className="flex items-start gap-2 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800 border border-emerald-100">
+              <MailCheck className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
+              <span>{info}</span>
+            </p>
           ) : (
-            <form onSubmit={submit} className="space-y-3">
-              {register && <input name="name" required placeholder="Nome completo" autoComplete="name" aria-label="Nome completo" className={field} />}
-              {register && type === 'coworking_owner' && <input name="brand" placeholder="Nome do seu coworking (opcional)" aria-label="Nome do coworking" className={field} />}
-              <input name="email" type="email" required placeholder="E-mail" autoComplete="email" aria-label="E-mail" className={field} />
-              <input name="password" type="password" required placeholder="Senha" autoComplete={register ? 'new-password' : 'current-password'} aria-label="Senha" className={field} />
-              {error && <p role="alert" className="flex items-start gap-2 text-xs text-red-600"><AlertCircle className="w-4 h-4 shrink-0" />{error}</p>}
-              <button disabled={loading || !lgpd} className="w-full rounded-xl bg-orange-500 py-3 text-sm font-bold text-white hover:bg-orange-600 disabled:opacity-50">{loading ? 'Aguarde...' : register ? 'Criar conta' : 'Entrar'}</button>
+            <form onSubmit={submit} className="space-y-2">
+              {register && (
+                <input 
+                  name="name" 
+                  required 
+                  placeholder="Nome completo" 
+                  autoComplete="name" 
+                  aria-label="Nome completo" 
+                  className={field} 
+                />
+              )}
+              {register && type === 'coworking_owner' && (
+                <input 
+                  name="brand" 
+                  placeholder="Nome do seu coworking (opcional)" 
+                  aria-label="Nome do coworking" 
+                  className={field} 
+                />
+              )}
+              <input 
+                name="email" 
+                type="email" 
+                required 
+                placeholder="E-mail" 
+                autoComplete="email" 
+                aria-label="E-mail" 
+                className={field} 
+              />
+              <input 
+                name="password" 
+                type="password" 
+                required 
+                placeholder="Senha" 
+                autoComplete={register ? 'new-password' : 'current-password'} 
+                aria-label="Senha" 
+                className={field} 
+              />
+
+              {error && (
+                <p role="alert" className="flex items-start gap-1.5 text-[11px] text-red-600 bg-red-50 p-2 rounded-lg border border-red-100">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </p>
+              )}
+
+              {/* Termo LGPD Compacto */}
+              <label className={`flex cursor-pointer items-start gap-2 rounded-lg border p-2 text-[10px] leading-tight transition-colors ${lgpd ? 'border-orange-400 bg-orange-50/70 text-orange-950' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+                <input 
+                  type="checkbox" 
+                  checked={lgpd} 
+                  onChange={e => { setLgpd(e.target.checked); if (e.target.checked) setError(''); }} 
+                  aria-required="true" 
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-orange-500 rounded" 
+                />
+                <span>
+                  Concordo com os termos da <strong>LGPD</strong> e autorizo o tratamento dos dados pela MVA Coworking.
+                </span>
+              </label>
+
+              <button 
+                disabled={loading || !lgpd} 
+                className="w-full rounded-lg bg-orange-500 hover:bg-orange-600 py-2.5 text-xs font-bold text-white shadow-xs disabled:opacity-40 transition-all flex items-center justify-center gap-1.5 mt-1"
+              >
+                {loading ? 'Aguarde...' : register ? 'Criar conta' : 'Entrar'}
+              </button>
             </form>
           )}
-          
         </div>
       </div>
     </div>

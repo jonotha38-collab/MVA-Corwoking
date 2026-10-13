@@ -571,11 +571,11 @@ export const OwnerDashboardView: React.FC = () => {
                   const files = Array.from(e.target.files || []); e.target.value = ''
                   setPhotoError(''); setUploading(true)
                   try {
-                    const room = 6 - photos.length
+                    const room = 15 - photos.length
                     const added = await Promise.all(files.slice(0, room).map(f => uploadSpacePhoto(f, currentUser!.id)))
                     const all = [...photos, ...added]
                     setImage(all[0] || ''); setGallery(all.slice(1))
-                    if (files.length > room) setPhotoError('Limite de 6 fotos por espaço.')
+                    if (files.length > room) setPhotoError('Limite de 15 fotos por espaço.')
                   } catch (err) { setPhotoError(err instanceof Error ? err.message : 'Erro ao enviar foto.') }
                   finally { setUploading(false) }
                 }} />
@@ -583,15 +583,15 @@ export const OwnerDashboardView: React.FC = () => {
                   {photos.map((src, i) => (
                     <div key={i} className="relative h-20 rounded-lg overflow-hidden border border-slate-200">
                       <img src={src} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
-                      {i === 0 && <span className="absolute left-1 bottom-1 rounded bg-orange-500 px-1.5 text-[10px] font-bold text-white">Principal</span>}
-                      <button type="button" aria-label={`Remover foto ${i + 1}`} onClick={() => { const all = photos.filter((_, j) => j !== i); setImage(all[0] || ''); setGallery(all.slice(1)) }} className="absolute right-1 top-1 rounded-full bg-navy-900/80 p-0.5 text-white"><X className="w-3.5 h-3.5" /></button>
+                      {i === 0 && <span className="absolute left-1 bottom-1 rounded bg-slate-900 px-1.5 text-[10px] font-bold text-white">Principal</span>}
+                      <button type="button" aria-label={`Remover foto ${i + 1}`} onClick={() => { const all = photos.filter((_, j) => j !== i); setImage(all[0] || ''); setGallery(all.slice(1)) }} className="absolute right-1 top-1 rounded-full bg-slate-900/80 p-0.5 text-white hover:bg-red-500 transition-colors"><X className="w-3.5 h-3.5" /></button>
                     </div>
                   ))}
-                  {photos.length < 6 && (
-                    <button type="button" onClick={() => fileRef.current?.click()} className="h-20 rounded-lg border-2 border-dashed border-slate-300 text-[11px] font-semibold text-slate-500 hover:border-orange-500 hover:text-orange-600">{uploading ? 'Enviando...' : '+ Adicionar fotos'}</button>
+                  {photos.length < 15 && (
+                    <button type="button" onClick={() => fileRef.current?.click()} className="h-20 rounded-lg border-2 border-dashed border-slate-300 text-[11px] font-semibold text-slate-500 hover:border-slate-800 hover:text-slate-900 transition-colors bg-slate-50 hover:bg-slate-100">{uploading ? 'Enviando...' : '+ Adicionar fotos'}</button>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500">A primeira foto aparece no card do marketplace. Até 6 fotos.</p>
+                <p className="text-[11px] text-slate-500">A primeira foto aparece no card do marketplace. Até 15 fotos.</p>
                 {photoError && <p role="alert" className="text-[11px] text-red-600">{photoError}</p>}
               </div>
 

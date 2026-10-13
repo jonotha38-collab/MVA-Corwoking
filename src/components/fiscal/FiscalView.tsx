@@ -14,16 +14,26 @@ import {
   X,
   FileCheck,
   ChevronRight,
-  Calendar
+  Calendar,
+  Megaphone,
+  Shield,
+  ArrowRight,
+  Gift,
+  CheckCircle2,
+  PhoneCall,
+  MessageCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const FiscalView: React.FC = () => {
-  const { currentCompany, fiscalContracts, addFiscalContract, showToast } = useCoworking();
+  const { currentCompany, addFiscalContract, showToast } = useCoworking();
 
   const [showContractModal, setShowContractModal] = useState(false);
   const [showCertificateModal, setShowCertificateModal] = useState(false);
-  const [selectedPlanForHire, setSelectedPlanForHire] = useState('Fiscal + Correspondência VIP');
+  const [showSpecialistModal, setShowSpecialistModal] = useState(false);
+  const [selectedPlanForHire, setSelectedPlanForHire] = useState('Endereço Fiscal');
+  const [isTransferPromo, setIsTransferPromo] = useState(false);
+  const [previousCoworking, setPreviousCoworking] = useState('');
 
   // Hire Form State
   const [newCompanyName, setNewCompanyName] = useState('');
@@ -33,50 +43,89 @@ export const FiscalView: React.FC = () => {
   const [newPhone, setNewPhone] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('MVA Sede: Rua Dom José Thomaz, 565 - São José, Aracaju - SE');
 
+  // Specialist Form State
+  const [specName, setSpecName] = useState('');
+  const [specPhone, setSpecPhone] = useState('');
+  const [specEmail, setSpecEmail] = useState('');
+  const [specCount, setSpecCount] = useState('2');
+
   const plans = [
     {
-      name: 'Básico Fiscal',
-      price: 129,
-      period: 'por mês no plano anual',
-      badge: 'Essencial',
+      id: 'comercial',
+      name: 'Endereço Comercial',
+      price: 29.9,
+      totalAnnual: 358.8,
+      periodText: '12x R$ 29,90 /mês',
+      annualText: 'Preço total anual R$ 358,80',
+      description: 'Para você que precisa divulgar a sua empresa e conquistar novos mercados.',
+      icon: Megaphone,
       popular: false,
       features: [
-        'Registro de CNPJ e Inscrição Municipal na Sede MVA',
-        'Alvará de Funcionamento aprovado na Prefeitura',
-        'Recebimento de cartas comerciais e órgãos públicos',
-        'Notificação em tempo real de correspondência',
-        'Declaração de domicílio fiscal imediata',
+        'Divulgação em cartões, site e redes sociais',
+        'Recebimento e guarda de correspondências e encomendas',
+        'Notificação por e-mail e WhatsApp a cada entrega',
+        'Endereço de prestígio na Rua Dom José Thomaz, 565',
         'Desconto de 10% na reserva de salas'
       ]
     },
     {
-      name: 'Fiscal + Correspondência VIP',
-      price: 189,
-      period: 'por mês no plano anual',
-      badge: 'Mais Escolhido',
+      id: 'fiscal',
+      name: 'Endereço Fiscal',
+      price: 80,
+      totalAnnual: 960,
+      periodText: '12x R$ 80 /mês',
+      annualText: 'Preço total anual R$ 960',
+      description: 'Para você que está abrindo ou alterando empresa e quer emitir notas fiscais.',
+      icon: Shield,
       popular: true,
+      badge: 'Mais Escolhido',
       features: [
-        'Tudo do Plano Básico Fiscal',
-        'Gestão e guarda de Encomendas & Sedex',
-        'Digitalização de documentos em PDF de alta resolução',
-        'Armário/Locker exclusivo na recepção',
-        '4 horas mensais de Sala de Reunião inclusas',
-        'Recepção física e controle de visitantes',
-        'Desconto de 20% em horas avulsas de salas'
+        'Abertura de CNPJ e Inscrição Municipal oficial',
+        'Emissão de notas fiscais de serviço (ISS)',
+        'Alvará de Funcionamento aprovado na Prefeitura',
+        'Declaração oficial de domicílio fiscal imediata',
+        'Recebimento e guarda de cartas e notificações fiscais',
+        'Desconto de 20% em salas de reunião'
       ]
     },
     {
-      name: 'Combo Fiscal + 10h Reunião',
-      price: 249,
-      period: 'por mês no plano anual',
-      badge: 'Solução Completa',
+      id: 'fiscal_ie',
+      name: 'Endereço Fiscal com Inscrição Estadual',
+      price: 120,
+      totalAnnual: 1440,
+      periodText: '12x R$ 120 /mês',
+      annualText: 'Preço total anual R$ 1.440',
+      description: 'Para você que tem um comércio ou contribui com o ICMS.',
+      icon: ShieldCheck,
       popular: false,
+      badge: 'Comércio / ICMS',
       features: [
-        'Tudo do Plano Fiscal VIP',
-        '10 horas mensais de Salas de Reunião ou Atendimento',
-        'Acesso livre às áreas de Lounge e Café especial',
-        'Atendimento telefônico e recepção personalizada',
-        'Desconto de 30% em auditórios e eventos'
+        'Apto para Comércio, E-commerce e ICMS (SEFAZ)',
+        'Homologação de Inscrição Estadual garantida',
+        'Alvará com viabilidade técnica aprovada',
+        'Emissão regular de NFe de mercadorias',
+        'Gestão de encomendas e correspondências fiscais',
+        '2 horas mensais de Sala de Reunião cortesia'
+      ]
+    },
+    {
+      id: 'multi',
+      name: '2 ou mais endereços',
+      price: 0,
+      totalAnnual: 0,
+      isCustom: true,
+      periodText: 'preço',
+      annualText: 'personalizado',
+      description: 'Para quem precisa de mais Endereços Fiscais ou Comerciais, com condição especial na contratação.',
+      icon: MapPin,
+      popular: false,
+      badge: 'Condição Especial',
+      features: [
+        'Combinação de múltiplos endereços (matriz e filiais)',
+        'Descontos progressivos por quantidade de CNPJs',
+        'Faturamento unificado em boleto ou cartão',
+        'Assessoria dedicada para a documentação',
+        'Suporte prioritário com especialista MVA'
       ]
     }
   ];
@@ -96,7 +145,7 @@ export const FiscalView: React.FC = () => {
       cnpj: newCnpj,
       contactEmail: newEmail,
       contactPhone: newPhone,
-      planName: selectedPlanForHire,
+      planName: `${selectedPlanForHire}${isTransferPromo ? ' [Portabilidade 4 Meses Grátis]' : ''}`,
       coworkingProviderName: 'MVA Coworking Sede',
       unitAddress: selectedUnit,
       monthlyFee: planObj.price
@@ -104,10 +153,15 @@ export const FiscalView: React.FC = () => {
 
     if (!saved) return;
     setShowContractModal(false);
-    showToast('Contrato firmado! Seu comprovante de domicílio fiscal foi liberado.', 'success');
+    showToast(
+      isTransferPromo 
+        ? 'Contrato firmado! Promoção de 4 meses grátis de portabilidade ativada com sucesso!' 
+        : 'Contrato firmado! Seu comprovante de domicílio fiscal foi liberado.', 
+      'success'
+    );
 
     try {
-      confetti({ particleCount: 70, spread: 60 });
+      confetti({ particleCount: 80, spread: 70 });
     } catch {
       // safe fallback
     }
@@ -116,8 +170,22 @@ export const FiscalView: React.FC = () => {
   return (
     <div className="space-y-8 pb-16">
       
-      {/* Top Overview Hero - Minimalist Deep Navy & Orange */}
+      {/* Top Overview Hero - Minimalist Deep Navy & Orange com Imagem de Fundo em Degradê */}
       <div className="bg-gradient-to-br from-navy-900 to-navy-950 text-white rounded-3xl p-8 sm:p-12 border border-navy-800 shadow-2xl relative overflow-hidden">
+        
+        {/* Background Image com Degradê Suave */}
+        <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
+          <img
+            src="/hero-office.jpg"
+            alt="Sede MVA Coworking"
+            className="absolute right-0 top-0 h-full w-full md:w-3/5 lg:w-1/2 object-cover object-center opacity-30 md:opacity-40 filter contrast-105"
+          />
+          {/* Máscaras em Degradê: do azul escuro para a foto */}
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/85 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-transparent to-navy-950/40" />
+          <div className="absolute -right-20 -top-20 w-96 h-96 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
+        </div>
+
         <div className="max-w-3xl space-y-6 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 backdrop-blur-md">
             <ShieldCheck className="w-4 h-4 text-orange-400" />
@@ -135,27 +203,24 @@ export const FiscalView: React.FC = () => {
           <div className="pt-4 flex flex-col sm:flex-row flex-wrap gap-4">
             <button
               onClick={() => {
-                setSelectedPlanForHire('Fiscal + Correspondência VIP');
+                setSelectedPlanForHire('Endereço Fiscal');
+                setIsTransferPromo(false);
                 setShowContractModal(true);
               }}
-              className="px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              className="px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
               <FileCheck className="w-5 h-5" />
               Contratar Endereço Fiscal Online
             </button>
             <button
               onClick={() => setShowCertificateModal(true)}
-              className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md rounded-xl text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              className="px-6 py-3.5 bg-navy-900/80 hover:bg-navy-800 text-white border border-navy-700/80 backdrop-blur-md rounded-xl text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
               <Printer className="w-5 h-5 text-orange-400" />
               Emitir Declaração Oficial
             </button>
           </div>
         </div>
-
-        {/* Decorative background elements */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-orange-500/10 to-transparent pointer-events-none" />
-        <div className="absolute -right-20 -top-20 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl opacity-50 pointer-events-none" />
       </div>
 
       {currentCompany.id && (
@@ -294,90 +359,157 @@ export const FiscalView: React.FC = () => {
         </div>
       </div>
 
-      {/* Planos de Endereço Fiscal */}
+      {/* Promoção de Portabilidade: 4 Meses Grátis - Azul Escuro com Laranja */}
+      <div className="bg-gradient-to-br from-navy-900 via-navy-950 to-[#0a192f] rounded-3xl p-6 sm:p-8 text-white border border-navy-800 shadow-2xl relative overflow-hidden">
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-orange-500/15 border border-orange-500/30 px-3.5 py-1 rounded-full text-xs font-bold text-orange-400 tracking-wide uppercase">
+              <Gift className="w-4 h-4 text-orange-400" />
+              <span>Campanha Exclusiva de Portabilidade</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-white">
+              Já tem endereço fiscal? Mude para a MVA e ganhe <span className="text-orange-500 underline decoration-orange-500/50 decoration-2 underline-offset-4">4 MESES GRÁTIS!</span>
+            </h3>
+            <p className="text-sm text-slate-300 leading-relaxed font-normal">
+              Se sua empresa já tem endereço fiscal em outro coworking ou escritório virtual e você quer pagar menos com melhor estrutura, transfira seu CNPJ para a MVA. Você ganha <strong className="text-white">4 meses de isenção total</strong> no plano anual e nosso time orienta toda a migração junto à Prefeitura e Junta Comercial.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setIsTransferPromo(true);
+              setSelectedPlanForHire('Endereço Fiscal');
+              setShowContractModal(true);
+            }}
+            className="shrink-0 px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all flex items-center gap-2 hover:-translate-y-0.5"
+          >
+            <Sparkles className="w-4 h-4 text-white" />
+            <span>Transferir CNPJ (4 Meses Grátis)</span>
+          </button>
+        </div>
+        <div className="absolute -right-20 -top-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+      </div>
+
+      {/* Planos de Endereço Fiscal - 4 Colunas Inspiradas na Referência */}
       <div className="space-y-6">
-        <div className="text-center max-w-xl mx-auto space-y-1.5">
-          <span className="text-xs font-bold text-orange-600 tracking-wider uppercase">Planos Corporativos</span>
+        <div className="text-center max-w-2xl mx-auto space-y-1.5">
+          <span className="text-xs font-bold text-orange-600 tracking-wider uppercase">Planos Corporativos Acessíveis</span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-900">
-            Planos de Domicílio Fiscal MVA
+            Escolha o Plano Ideal para a sua Empresa
           </h2>
-          <p className="text-xs text-slate-500">
-            Contratação online simples, sem burocracia e com liberação imediata da declaração.
+          <p className="text-sm text-slate-500">
+            Planos simplificados, preços transparentes e sem burocracia para emissão do seu alvará.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative ${
-                plan.popular
-                  ? 'bg-navy-950 text-white shadow-xl ring-2 ring-orange-500'
-                  : 'bg-white text-navy-900 border border-slate-200 shadow-xs hover:shadow-md'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 bg-orange-600 text-white text-[10px] font-extrabold uppercase rounded-full shadow-md">
-                  {plan.badge}
-                </div>
-              )}
-
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-extrabold text-base">{plan.name}</h3>
-                  {!plan.popular && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 uppercase">
-                      {plan.badge}
-                    </span>
-                  )}
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xs font-semibold">R$</span>
-                    <span className="text-3xl font-black">{plan.price}</span>
-                    <span className={`text-xs ${plan.popular ? 'text-slate-400' : 'text-slate-500'}`}>
-                      /mês
-                    </span>
-                  </div>
-                  <span className={`text-[10px] ${plan.popular ? 'text-slate-400' : 'text-slate-500'}`}>
-                    {plan.period}
-                  </span>
-                </div>
-
-                <div className={`space-y-3 text-xs mb-8 border-t pt-5 ${plan.popular ? 'border-navy-800' : 'border-slate-100'}`}>
-                  {plan.features.map(f => (
-                    <div key={f} className="flex items-start gap-2.5">
-                      <Check className={`w-4 h-4 shrink-0 mt-0.5 ${plan.popular ? 'text-orange-400' : 'text-emerald-600'}`} />
-                      <span className={plan.popular ? 'text-slate-300' : 'text-slate-600'}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setSelectedPlanForHire(plan.name);
-                  setShowContractModal(true);
-                }}
-                className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {plans.map((plan) => {
+            const Icon = plan.icon;
+            return (
+              <div
+                key={plan.id}
+                className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative border ${
                   plan.popular
-                    ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-md'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                    ? 'bg-white border-orange-500 shadow-xl ring-2 ring-orange-500/30'
+                    : 'bg-white border-slate-200/90 shadow-sm hover:shadow-lg hover:border-slate-300'
                 }`}
               >
-                <span>Contratar {plan.name}</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
+                {plan.popular && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 bg-orange-500 text-white text-[10px] font-extrabold uppercase rounded-full shadow-md">
+                    {plan.badge}
+                  </div>
+                )}
+
+                <div>
+                  {/* Top Icon Circle */}
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-colors ${plan.popular ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'bg-navy-50 text-navy-900 border border-navy-100'}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-slate-900 leading-snug mb-3">
+                    {plan.name}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-slate-500 leading-relaxed mb-6 min-h-[48px]">
+                    {plan.description}
+                  </p>
+
+                  {/* Price Block */}
+                  <div className="mb-6 pt-2 border-t border-slate-100">
+                    {plan.isCustom ? (
+                      <div className="space-y-0.5">
+                        <span className="text-xs text-slate-400 block">preço</span>
+                        <div className="text-2xl font-black text-navy-900">personalizado</div>
+                        <span className="text-[11px] text-slate-400 block mt-1">sob consulta</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <div className="text-2xl font-black text-navy-900">
+                          {plan.periodText}
+                        </div>
+                        <div className="text-xs text-slate-500 font-medium">
+                          {plan.annualText}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Features list */}
+                  <div className="space-y-2.5 text-xs mb-8 border-t border-slate-100 pt-5">
+                    {plan.features.map(f => (
+                      <div key={f} className="flex items-start gap-2.5">
+                        <Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
+                        <span className="text-slate-600 leading-tight">{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Botões Uniformes: Azul Escuro com Laranja */}
+                <div>
+                  {plan.isCustom ? (
+                    <button
+                      onClick={() => setShowSpecialistModal(true)}
+                      className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-navy-900 hover:bg-orange-500 transition-all flex items-center justify-center gap-2 shadow-xs group"
+                    >
+                      <span>Fale com especialista</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setSelectedPlanForHire(plan.name);
+                        setIsTransferPromo(false);
+                        setShowContractModal(true);
+                      }}
+                      className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 group ${
+                        plan.popular
+                          ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/20 hover:shadow-orange-500/30'
+                          : 'bg-navy-900 hover:bg-orange-500 text-white shadow-xs'
+                      }`}
+                    >
+                      <span>Contratar plano</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Modal Declaração Oficial de Domicílio Fiscal */}
       {showCertificateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setShowCertificateModal(false); }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden cursor-default"
+          >
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between no-print">
               <div className="flex items-center gap-2">
                 <FileCheck className="w-5 h-5 text-orange-400" />
@@ -468,10 +600,16 @@ export const FiscalView: React.FC = () => {
         </div>
       )}
 
-      {/* Modal Nova Contratação */}
+      {/* Modal Nova Contratação com Opção de Portabilidade */}
       {showContractModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xl my-8 overflow-hidden">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setShowContractModal(false); }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xl my-8 overflow-hidden cursor-default"
+          >
             <div className="bg-navy-950 text-white p-6 relative">
               <button
                 onClick={() => setShowContractModal(false)}
@@ -487,6 +625,40 @@ export const FiscalView: React.FC = () => {
             </div>
 
             <form onSubmit={handleHireSubmit} className="p-6 space-y-4 text-xs">
+              {/* Opção / Banner de Portabilidade */}
+              <label className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 text-xs leading-relaxed transition-all ${isTransferPromo ? 'border-orange-500 bg-orange-50/80 text-orange-950 shadow-xs' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>
+                <input
+                  type="checkbox"
+                  checked={isTransferPromo}
+                  onChange={(e) => setIsTransferPromo(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-orange-600"
+                />
+                <div>
+                  <div className="flex items-center gap-1.5 font-bold text-orange-900">
+                    <Gift className="w-4 h-4 text-orange-600" />
+                    <span>Estou transferindo meu endereço de outro local (Ganhar 4 meses grátis!)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Migre seu CNPJ para a MVA e pague apenas 8 parcelas no plano anual de 12 meses.
+                  </p>
+                </div>
+              </label>
+
+              {isTransferPromo && (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    Nome do Coworking ou Endereço Atual (onde está o CNPJ hoje)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Coworking X, Centro, Aracaju..."
+                    value={previousCoworking}
+                    onChange={e => setPreviousCoworking(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Razão Social da Empresa *</label>
                 <input
@@ -581,10 +753,139 @@ export const FiscalView: React.FC = () => {
                   type="submit"
                   className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-md transition-all"
                 >
-                  Confirmar Contratação
+                  {isTransferPromo ? 'Confirmar Adesão com 4 Meses Grátis' : 'Confirmar Contratação'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Fale com Especialista (2 ou mais endereços) */}
+      {showSpecialistModal && (
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setShowSpecialistModal(false); }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg my-8 overflow-hidden cursor-default"
+          >
+            <div className="bg-navy-950 text-white p-6 relative">
+              <button
+                onClick={() => setShowSpecialistModal(false)}
+                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <span className="text-xs text-orange-400 font-bold uppercase tracking-wider">Atendimento Corporativo</span>
+              <h3 className="text-xl font-bold mt-1">2 ou mais Endereços com Desconto Especial</h3>
+              <p className="text-xs text-slate-300 mt-1">
+                Fale diretamente com nossa equipe para montar uma proposta sob medida com preços escaláveis.
+              </p>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 flex items-start gap-3">
+                <MessageCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="block text-sm">Prefere atendimento instantâneo?</strong>
+                  <p className="text-[11px] text-emerald-800 mt-0.5">
+                    Nosso especialista em domicílio fiscal responde em minutos no WhatsApp.
+                  </p>
+                  <a
+                    href="https://wa.me/5579998188188?text=Ol%C3%A1!%20Gostaria%20de%20um%20or%C3%A7amento%20personalizado%20para%202%20ou%20mais%20endere%C3%A7os%20fiscais%20na%20MVA."
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs shadow-sm transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Abrir WhatsApp Agora
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-[11px] text-slate-400 font-medium uppercase tracking-wider">
+                <span className="h-px flex-1 bg-slate-200" />
+                ou deixe seus dados para contato
+                <span className="h-px flex-1 bg-slate-200" />
+              </div>
+
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setShowSpecialistModal(false);
+                  showToast('Solicitação enviada! Nosso especialista entrará em contato em breve.', 'success');
+                }} 
+                className="space-y-3"
+              >
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Seu Nome / Responsável *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Carlos Silva"
+                    value={specName}
+                    onChange={e => setSpecName(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">WhatsApp / Telefone *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="(79) 99999-9999"
+                      value={specPhone}
+                      onChange={e => setSpecPhone(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Quantidade de Endereços</label>
+                    <select
+                      value={specCount}
+                      onChange={e => setSpecCount(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                    >
+                      <option value="2">2 Endereços</option>
+                      <option value="3">3 Endereços</option>
+                      <option value="4-5">4 a 5 Endereços</option>
+                      <option value="6+">Mais de 6 Endereços</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">E-mail corporativo</label>
+                  <input
+                    type="email"
+                    placeholder="carlos@empresa.com"
+                    value={specEmail}
+                    onChange={e => setSpecEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowSpecialistModal(false)}
+                    className="px-4 py-2 text-slate-600 hover:text-slate-800"
+                  >
+                    Fechar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-md transition-all"
+                  >
+                    Receber Proposta Personalizada
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

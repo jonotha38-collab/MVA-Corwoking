@@ -43,7 +43,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Montserrat', 'Roboto', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       }
     },
   },
