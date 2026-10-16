@@ -1,3 +1,4 @@
+import { t } from '../../lib/preferences';
 import React, { useMemo, useRef, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Space } from '../../types';
@@ -75,25 +76,23 @@ export const MarketplaceView: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/80 to-transparent pointer-events-none" />
         
         <div className="relative max-w-3xl z-10">
-          <p className="eyebrow mb-5 text-orange-300">MVA Coworking · Espaços de trabalho</p>
+          <p className="eyebrow mb-5 text-orange-300">{t("MVA Coworking · Espaços de trabalho ")}</p>
           <BlurReveal as="h1" className="hero-title" key={selectedCity}>
-            {`Espaços de coworking e salas de reunião ${selectedCity !== 'Todas' ? `em ${selectedCity}` : 'para o seu negócio'}`}
+            {`${t('Espaços de coworking e salas de reunião para o seu negócio')}${selectedCity !== 'Todas' ? ` · ${selectedCity}` : ''}`}
           </BlurReveal>
-          <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">
-            Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados.
-          </p>
+          <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados. ")}</p>
         </div>
         
         <form onSubmit={search} className="relative z-10 mt-10 grid gap-3 rounded-2xl bg-white p-3 shadow-2xl md:grid-cols-12" role="search">
-          <div className="relative md:col-span-4"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Nome, bairro ou comodidade" aria-label="Buscar espaços" className={field} /></div>
-          <div className="relative md:col-span-3"><MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} aria-label="Cidade" className={field}>{cities.map(c => <option key={c} value={c}>{c === 'Todas' ? 'Todas as cidades' : c}</option>)}</select></div>
-          <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label="Capacidade" className={field}><option value="all">Qualquer capacidade</option><option value="small">Até 4 pessoas</option><option value="medium">5 a 10 pessoas</option><option value="large">Mais de 10 pessoas</option></select></div>
-          <button className="action-primary px-5 py-3 text-sm md:col-span-2">Buscar</button>
+          <div className="relative md:col-span-4"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t("Nome, bairro ou comodidade")} aria-label={t("Buscar espaços")} className={field} /></div>
+          <div className="relative md:col-span-3"><MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} aria-label={t("Cidade")} className={field}>{cities.map(c => <option key={c} value={c}>{t(c === 'Todas' ? 'Todas as cidades' : c)}</option>)}</select></div>
+          <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label={t("Capacidade")} className={field}><option value="all">{t("Qualquer capacidade ")}</option><option value="small">{t("Até 4 pessoas ")}</option><option value="medium">{t("5 a 10 pessoas ")}</option><option value="large">{t("Mais de 10 pessoas ")}</option></select></div>
+          <button className="action-primary px-5 py-3 text-sm md:col-span-2">{t("Buscar ")}</button>
         </form>
         <ul className="relative z-10 mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-200">
-          <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-orange-400" aria-hidden />Espaços aprovados pela equipe MVA</li>
-          <li className="flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-orange-400" aria-hidden />Confirmação imediata</li>
-          <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-orange-400" aria-hidden />Endereço fiscal disponível</li>
+          <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Espaços aprovados pela equipe MVA ")}</li>
+          <li className="flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Confirmação imediata ")}</li>
+          <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-orange-400" aria-hidden />{t("Endereço fiscal disponível ")}</li>
         </ul>
       </section>
 
@@ -101,56 +100,56 @@ export const MarketplaceView: React.FC = () => {
       <section ref={results} className="scroll-mt-28" aria-labelledby="resultados">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="resultados" className="text-2xl font-bold text-navy-900">Espaços disponíveis</h2>
-            <p className="text-sm text-slate-500">{filtered.length} {filtered.length === 1 ? 'espaço encontrado' : 'espaços encontrados'}</p>
+            <h2 id="resultados" className="text-2xl font-bold text-navy-900">{t("Espaços disponíveis ")}</h2>
+            <p className="text-sm text-slate-500">{t(filtered.length)} {t(filtered.length === 1 ? 'espaço encontrado' : 'espaços encontrados')}</p>
           </div>
           <div className="flex items-center gap-3">
-            {dirty && <button onClick={clear} className="flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700"><X className="h-4 w-4" aria-hidden />Limpar filtros</button>}
-            <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)} aria-label="Ordenar" className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">
-              <option value="rating">Melhor avaliados</option><option value="priceAsc">Menor preço por hora</option><option value="priceDesc">Maior preço por hora</option><option value="capacity">Maior capacidade</option>
+            {dirty && <button onClick={clear} className="flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700"><X className="h-4 w-4" aria-hidden />{t("Limpar filtros ")}</button>}
+            <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)} aria-label={t("Ordenar")} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">
+              <option value="rating">{t("Melhor avaliados ")}</option><option value="priceAsc">{t("Menor preço por hora ")}</option><option value="priceDesc">{t("Maior preço por hora ")}</option><option value="capacity">{t("Maior capacidade ")}</option>
             </select>
           </div>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Tipo de espaço">
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={t("Tipo de espaço")}>
           {CATEGORIES.map(c => (
             <button key={c.id} role="tab" aria-selected={selectedCategory === c.id} onClick={() => setSelectedCategory(c.id)}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${selectedCategory === c.id ? 'bg-navy-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-navy-900'}`}>
-              {c.label}
+              {t(c.label)}
             </button>
           ))}
         </div>
-        {filtered.length > 0 ? (
+        {t(filtered.length > 0 ? (
           <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((s, index) => <Reveal key={s.id} delay={Math.min(index, 3) * 0.06} className="flex"><SpaceCard space={s} onSelect={setDetail} onBook={setBooking} /></Reveal>)}
           </div>
         ) : (
           <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
             <Filter className="mx-auto h-8 w-8 text-orange-500" aria-hidden />
-            <h3 className="mt-3 text-lg font-bold text-navy-900">Nenhum espaço encontrado</h3>
-            <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">Altere a cidade, o tipo de sala ou a busca para ver mais opções.</p>
-            <button onClick={clear} className="mt-5 action-primary px-5 py-2.5 text-sm">Ver todos os espaços</button>
+            <h3 className="mt-3 text-lg font-bold text-navy-900">{t("Nenhum espaço encontrado ")}</h3>
+            <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">{t("Altere a cidade, o tipo de sala ou a busca para ver mais opções. ")}</p>
+            <button onClick={clear} className="mt-5 action-primary px-5 py-2.5 text-sm">{t("Ver todos os espaços ")}</button>
           </div>
-        )}
+        ))}
         {hq && live.filter(s => !s.isMvaHeadquarters).length === 0 && (
           <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-navy-200 bg-white p-6 sm:flex-row sm:items-center">
             <div>
-              <h3 className="font-bold text-navy-900">Seja o primeiro coworking parceiro</h3>
-              <p className="text-sm text-slate-500">Hoje o marketplace reúne as salas da sede MVA. Anuncie o seu espaço e alcance novos clientes.</p>
+              <h3 className="font-bold text-navy-900">{t("Seja o primeiro coworking parceiro ")}</h3>
+              <p className="text-sm text-slate-500">{t("Hoje o marketplace reúne as salas da sede MVA. Anuncie o seu espaço e alcance novos clientes. ")}</p>
             </div>
-            <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-800"><PlusCircle className="h-4 w-4" aria-hidden />Anunciar espaço</button>
+            <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-800"><PlusCircle className="h-4 w-4" aria-hidden />{t("Anunciar espaço ")}</button>
           </div>
         )}
       </section>
 
       {/* Como funciona */}
       <section aria-labelledby="como">
-        <h2 id="como" className="text-2xl font-bold text-navy-900">Como funciona</h2>
+        <h2 id="como" className="text-2xl font-bold text-navy-900">{t("Como funciona ")}</h2>
         <ol className="mt-6 grid gap-6 md:grid-cols-3">
           {STEPS.map((s, i) => (
             <li key={s.title} className="rounded-2xl border border-slate-200 bg-white p-6">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-500 text-sm font-bold text-white">{i + 1}</span>
-              <h3 className="mt-4 font-bold text-navy-900">{s.title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-500">{s.text}</p>
+              <h3 className="mt-4 font-bold text-navy-900">{t(s.title)}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-500">{t(s.text)}</p>
             </li>
           ))}
         </ol>
@@ -158,16 +157,16 @@ export const MarketplaceView: React.FC = () => {
 
       {/* Serviços */}
       <section aria-labelledby="servicos" className="grid gap-6 md:grid-cols-2">
-        <h2 id="servicos" className="sr-only">Serviços para empresas</h2>
+        <h2 id="servicos" className="sr-only">{t("Serviços para empresas ")}</h2>
         {[
           { icon: Building2, title: 'Endereço fiscal', text: 'Use o endereço da sede MVA para o CNPJ da sua empresa, com acompanhamento do alvará.', tab: 'fiscal', cta: 'Contratar endereço fiscal' },
           { icon: Mail, title: 'Recebimento de correspondência', text: 'Cartas, encomendas e documentos recebidos, avisados e digitalizados pela recepção.', tab: 'correspondence', cta: 'Ver correspondências' },
         ].map(({ icon: Icon, title, text, tab, cta }) => (
           <div key={title} className="rounded-2xl bg-navy-950 p-8 text-white">
             <Icon className="h-7 w-7 text-orange-400" aria-hidden />
-            <h3 className="mt-4 text-xl font-bold">{title}</h3>
-            <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-300">{text}</p>
-            <button onClick={() => setActiveTab(tab)} className="mt-6 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-bold hover:bg-orange-600">{cta}</button>
+            <h3 className="mt-4 text-xl font-bold">{t(title)}</h3>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-300">{t(text)}</p>
+            <button onClick={() => setActiveTab(tab)} className="mt-6 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-bold hover:bg-orange-600">{t(cta)}</button>
           </div>
         ))}
       </section>
@@ -175,21 +174,21 @@ export const MarketplaceView: React.FC = () => {
       {/* Anunciante */}
       <section className="flex flex-col items-start justify-between gap-6 rounded-2xl border border-slate-200 bg-white p-8 md:flex-row md:items-center">
         <div className="max-w-xl">
-          <h2 className="text-2xl font-bold text-navy-900">Tem um coworking? Anuncie na MVA</h2>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">Cadastre seu espaço com fotos e endereço. Depois da análise e aprovação da equipe MVA, ele aparece para todos os visitantes.</p>
+          <h2 className="text-2xl font-bold text-navy-900">{t("Tem um coworking? Anuncie na MVA ")}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">{t("Cadastre seu espaço com fotos e endereço. Depois da análise e aprovação da equipe MVA, ele aparece para todos os visitantes. ")}</p>
         </div>
-        <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 action-primary px-6 py-3 text-sm"><LayoutGrid className="h-4 w-4" aria-hidden />Cadastrar meu espaço</button>
+        <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 action-primary px-6 py-3 text-sm"><LayoutGrid className="h-4 w-4" aria-hidden />{t("Cadastrar meu espaço ")}</button>
       </section>
 
       {/* FAQ */}
       <section aria-labelledby="faq" className="max-w-3xl">
         <Reveal>
-        <h2 id="faq" className="text-2xl font-bold text-navy-900">Perguntas frequentes</h2>
+        <h2 id="faq" className="text-2xl font-bold text-navy-900">{t("Perguntas frequentes ")}</h2>
         <div className="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
           {FAQ.map(([q, a]) => (
             <details key={q} className="group px-5 py-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-navy-900">{q}<ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" aria-hidden /></summary>
-              <p className="mt-2 text-sm leading-relaxed text-slate-500">{a}</p>
+              <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-navy-900">{t(q)}<ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" aria-hidden /></summary>
+              <p className="mt-2 text-sm leading-relaxed text-slate-500">{t(a)}</p>
             </details>
           ))}
         </div>

@@ -1,3 +1,4 @@
+import { t } from '../../lib/preferences';
 import React, { useState } from 'react';
 import { X, Building2, User, AlertCircle, MailCheck } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
@@ -61,7 +62,7 @@ export const AuthModal: React.FC = () => {
     <div 
       role="dialog" 
       aria-modal="true" 
-      aria-label={register ? 'Criar conta' : 'Entrar'} 
+      aria-label={t(register ? 'Criar conta' : 'Entrar')} 
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
@@ -75,17 +76,15 @@ export const AuthModal: React.FC = () => {
         <div className="bg-white text-slate-900 p-5 pb-3 relative border-b border-slate-100">
           <button 
             onClick={close} 
-            aria-label="Fechar" 
+            aria-label={t("Fechar")} 
             className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors bg-slate-100 hover:bg-slate-200 rounded-full p-1"
           >
             <X className="w-3.5 h-3.5" />
           </button>
           
           <div className="flex items-center gap-2 mb-2">
-            <img src="/logo-orange.png" alt="MVA" className="h-6 w-auto" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
-              Coworking Hub
-            </span>
+            <img src="/logo-orange.png" alt={t("MVA")} className="h-6 w-auto" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">{t("Coworking Hub ")}</span>
           </div>
 
           <h2 className="text-lg font-bold tracking-tight text-navy-900 min-h-[1.75rem]">
@@ -94,13 +93,13 @@ export const AuthModal: React.FC = () => {
               as="span"
               speedReveal={3}
             >
-              {register ? 'Crie sua conta' : 'Acesse sua conta'}
+              {t(register ? 'Crie sua conta' : 'Acesse sua conta')}
             </BlurReveal>
           </h2>
           <p className="text-[11px] text-slate-500 min-h-[2rem]">
-            {register
+            {t(register
               ? 'Cadastre-se para reservar salas e gerenciar espaços.'
-              : 'Entre para gerenciar suas reservas e endereços.'}
+              : 'Entre para gerenciar suas reservas e endereços.')}
           </p>
 
           {/* Abas Entrar / Criar Conta */}
@@ -108,15 +107,11 @@ export const AuthModal: React.FC = () => {
             <button 
               onClick={() => switchTab('login')} 
               className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${!register ? 'bg-navy-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
-            >
-              Entrar
-            </button>
+            >{t("Entrar ")}</button>
             <button 
               onClick={() => switchTab('register')} 
               className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${register ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
-            >
-              Criar conta
-            </button>
+            >{t("Criar conta ")}</button>
           </div>
         </div>
 
@@ -132,7 +127,7 @@ export const AuthModal: React.FC = () => {
                   className={`p-2 rounded-lg border text-left text-[11px] font-medium transition-all flex items-center gap-1.5 ${type === v ? 'border-orange-500 bg-orange-50 font-bold text-orange-950' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
                 >
                   <Icon className={`w-3.5 h-3.5 shrink-0 ${type === v ? 'text-orange-600' : 'text-slate-400'}`} />
-                  <span className="truncate">{label}</span>
+                  <span className="truncate">{t(label)}</span>
                 </button>
               ))}
             </div>
@@ -146,19 +141,17 @@ export const AuthModal: React.FC = () => {
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-40 transition-all shadow-2xs"
           >
             <GoogleLogo />
-            <span>Continuar com o Google</span>
+            <span>{t("Continuar com o Google ")}</span>
           </button>
 
           <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium uppercase tracking-wider">
-            <span className="h-px flex-1 bg-slate-200" />
-            ou com e-mail
-            <span className="h-px flex-1 bg-slate-200" />
+            <span className="h-px flex-1 bg-slate-200" />{t("ou com e-mail ")}<span className="h-px flex-1 bg-slate-200" />
           </div>
 
-          {info ? (
+          {t(info ? (
             <p role="status" className="flex items-start gap-2 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800 border border-emerald-100">
               <MailCheck className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
-              <span>{info}</span>
+              <span>{t(info)}</span>
             </p>
           ) : (
             <form onSubmit={submit} className="space-y-2">
@@ -166,39 +159,39 @@ export const AuthModal: React.FC = () => {
                 <LabelInput
                   name="name"
                   required
-                  label="Nome completo"
+                  label={t("Nome completo")}
                   autoComplete="name"
-                  aria-label="Nome completo"
+                  aria-label={t("Nome completo")}
                 />
               )}
               {register && type === 'coworking_owner' && (
                 <LabelInput
                   name="brand"
-                  label="Nome do seu coworking (opcional)"
-                  aria-label="Nome do coworking"
+                  label={t("Nome do seu coworking (opcional)")}
+                  aria-label={t("Nome do coworking")}
                 />
               )}
               <LabelInput
                 name="email"
                 type="email"
                 required
-                label="E-mail"
+                label={t("E-mail")}
                 autoComplete="email"
-                aria-label="E-mail"
+                aria-label={t("E-mail")}
               />
               <LabelInput
                 name="password"
                 type="password"
                 required
-                label="Senha"
+                label={t("Senha")}
                 autoComplete={register ? 'new-password' : 'current-password'}
-                aria-label="Senha"
+                aria-label={t("Senha")}
               />
 
               {error && (
                 <p role="alert" className="flex items-start gap-1.5 text-[11px] text-red-600 bg-red-50 p-2 rounded-lg border border-red-100">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                  <span>{error}</span>
+                  <span>{t(error)}</span>
                 </p>
               )}
 
@@ -211,19 +204,17 @@ export const AuthModal: React.FC = () => {
                   aria-required="true" 
                   className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-orange-500 rounded" 
                 />
-                <span>
-                  Concordo com os termos da <strong>LGPD</strong> e autorizo o tratamento dos dados pela MVA Coworking.
-                </span>
+                <span>{t("Concordo com os termos da ")}<strong>{t("LGPD ")}</strong>{t("e autorizo o tratamento dos dados pela MVA Coworking. ")}</span>
               </label>
 
               <button 
                 disabled={loading || !lgpd} 
                 className="w-full rounded-lg bg-orange-500 hover:bg-orange-600 py-2.5 text-xs font-bold text-white shadow-sm disabled:opacity-40 transition-all flex items-center justify-center gap-1.5 mt-1"
               >
-                {loading ? 'Aguarde...' : register ? 'Criar conta' : 'Entrar'}
+                {t(loading ? 'Aguarde...' : register ? 'Criar conta' : 'Entrar')}
               </button>
             </form>
-          )}
+          ))}
         </div>
       </div>
     </div>

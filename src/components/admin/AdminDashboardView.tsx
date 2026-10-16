@@ -1,3 +1,4 @@
+import { t } from '../../lib/preferences';
 import React, { useState, useRef } from 'react';
 import { supabase, uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
@@ -157,82 +158,66 @@ export const AdminDashboardView: React.FC = () => {
       <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-2">
-            <Sliders className="w-3.5 h-3.5" />
-            Painel Administrativo da Unidade de Coworking
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Gestão de Espaços & Serviços MVA Hub
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
-            Cadastre novas salas de reunião e atendimento para o marketplace, acompanhe o fluxo de check-ins de clientes, monitore contratos de endereço fiscal e gerencie serviços.
-          </p>
+            <Sliders className="w-3.5 h-3.5" />{t("Painel Administrativo da Unidade de Coworking ")}</div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("Gestão de Espaços & Serviços MVA Hub ")}</h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">{t("Cadastre novas salas de reunião e atendimento para o marketplace, acompanhe o fluxo de check-ins de clientes, monitore contratos de endereço fiscal e gerencie serviços. ")}</p>
         </div>
 
         <button
           onClick={handleOpenAdd}
           className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-emerald-500/25 transition-all flex items-center gap-2 shrink-0"
         >
-          <Plus className="w-4 h-4" />
-          Cadastrar Nova Sala
-        </button>
+          <Plus className="w-4 h-4" />{t("Cadastrar Nova Sala ")}</button>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Salas Cadastradas</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("Salas Cadastradas ")}</span>
             <Building2 className="w-4 h-4 text-indigo-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-slate-900">{totalSpaces}</span>
-            <span className="text-xs text-emerald-600 font-semibold">100% ativas</span>
+            <span className="text-3xl font-bold text-slate-900">{t(totalSpaces)}</span>
+            <span className="text-xs text-emerald-600 font-semibold">{t("100% ativas ")}</span>
           </div>
-          <p className="text-[11px] text-slate-500">
-            Disponíveis para agendamento online imediato
-          </p>
+          <p className="text-[11px] text-slate-500">{t("Disponíveis para agendamento online imediato ")}</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Reservas no Sistema</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("Reservas no Sistema ")}</span>
             <Calendar className="w-4 h-4 text-indigo-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-slate-900">{activeBookingsCount}</span>
-            <span className="text-xs text-indigo-600 font-semibold">confirmadas</span>
+            <span className="text-3xl font-bold text-slate-900">{t(activeBookingsCount)}</span>
+            <span className="text-xs text-indigo-600 font-semibold">{t("confirmadas ")}</span>
           </div>
-          <p className="text-[11px] text-slate-500">
-            Total histórico: {bookings.length} reservas registradas
-          </p>
+          <p className="text-[11px] text-slate-500">{t("Total histórico: ")}{t(bookings.length)}{t("reservas registradas")}</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Endereços Fiscais</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("Endereços Fiscais ")}</span>
             <ShieldCheck className="w-4 h-4 text-indigo-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-slate-900">{fiscalContracts.length}</span>
-            <span className="text-xs text-emerald-600 font-semibold">empresas sediadas</span>
+            <span className="text-3xl font-bold text-slate-900">{t(fiscalContracts.length)}</span>
+            <span className="text-xs text-emerald-600 font-semibold">{t("empresas sediadas ")}</span>
           </div>
-          <p className="text-[11px] text-slate-500">
-            Alvarás e domicílios regulares
-          </p>
+          <p className="text-[11px] text-slate-500">{t("Alvarás e domicílios regulares ")}</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Faturamento do Hub</span>
+            <span className="text-xs font-bold uppercase tracking-wider">{t("Faturamento do Hub ")}</span>
             <DollarSign className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-xs font-semibold text-slate-500">R$</span>
-            <span className="text-3xl font-bold text-slate-900">{totalRevenue.toFixed(2)}</span>
+            <span className="text-xs font-semibold text-slate-500">{t("R$ ")}</span>
+            <span className="text-3xl font-bold text-slate-900">{t(totalRevenue.toFixed(2))}</span>
           </div>
-          <p className="text-[11px] text-slate-500">
-            Salas + Assinaturas de Domicílio Fiscal
-          </p>
+          <p className="text-[11px] text-slate-500">{t("Salas + Assinaturas de Domicílio Fiscal ")}</p>
         </div>
       </div>
 
@@ -246,8 +231,7 @@ export const AdminDashboardView: React.FC = () => {
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          <Building2 className="w-4 h-4" />
-          Gerenciar Serviços & Salas ({spaces.length})
+          <Building2 className="w-4 h-4" />{t("Gerenciar Serviços & Salas ( ")}{t(spaces.length)})
         </button>
 
         <button
@@ -258,8 +242,7 @@ export const AdminDashboardView: React.FC = () => {
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          <Calendar className="w-4 h-4" />
-          Agenda & Recepção Check-in ({bookings.length})
+          <Calendar className="w-4 h-4" />{t("Agenda & Recepção Check-in ( ")}{t(bookings.length)})
         </button>
 
         <button
@@ -270,8 +253,7 @@ export const AdminDashboardView: React.FC = () => {
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          <ShieldCheck className="w-4 h-4" />
-          Empresas no Endereço Fiscal ({fiscalContracts.length})
+          <ShieldCheck className="w-4 h-4" />{t("Empresas no Endereço Fiscal ( ")}{t(fiscalContracts.length)})
         </button>
       </div>
 
@@ -279,14 +261,12 @@ export const AdminDashboardView: React.FC = () => {
       {activeAdminTab === 'spaces' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-slate-900">Salas de Reunião e Atendimento Cadastradas</h2>
+            <h2 className="text-lg font-bold text-slate-900">{t("Salas de Reunião e Atendimento Cadastradas ")}</h2>
             <button
               onClick={handleOpenAdd}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
             >
-              <Plus className="w-4 h-4" />
-              Adicionar Espaço
-            </button>
+              <Plus className="w-4 h-4" />{t("Adicionar Espaço ")}</button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -304,7 +284,7 @@ export const AdminDashboardView: React.FC = () => {
                     />
                     <div className="absolute top-3 left-3">
                       <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/80 text-white backdrop-blur-sm">
-                        {space.category}
+                        {t(space.category)}
                       </span>
                     </div>
 
@@ -320,7 +300,7 @@ export const AdminDashboardView: React.FC = () => {
                             : 'bg-amber-500/90 text-white border-amber-400'
                         }`}
                       >
-                        {space.status === 'available' ? 'Disponível' : 'Em Manutenção'}
+                        {t(space.status === 'available' ? 'Disponível' : 'Em Manutenção')}
                       </button>
                     </div>
                   </div>
@@ -335,23 +315,20 @@ export const AdminDashboardView: React.FC = () => {
                     <div className="flex items-center gap-3 text-xs text-slate-600 pt-2">
                       <span className="flex items-center gap-1 font-medium">
                         <Users className="w-3.5 h-3.5 text-slate-400" />
-                        {space.capacity} pessoas
-                      </span>
+                        {t(space.capacity)}{t("pessoas")}</span>
                       <span>•</span>
-                      <span className="font-bold text-indigo-600">
-                        R$ {space.pricePerHour},00/h
-                      </span>
+                      <span className="font-bold text-indigo-600">{t("R$ ")}{t(space.pricePerHour)}{t(",00/h")}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500">{space.city} • {space.neighborhood}</span>
+                  <span className="text-[11px] text-slate-500">{space.city} • {t(space.neighborhood)}</span>
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenEdit(space)}
                       className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-lg text-xs transition-colors"
-                      title="Editar Espaço"
+                      title={t("Editar Espaço")}
                     >
                       <Edit3 className="w-4 h-4" />
                     </button>
@@ -362,7 +339,7 @@ export const AdminDashboardView: React.FC = () => {
                         }
                       }}
                       className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg text-xs transition-colors"
-                      title="Excluir Espaço"
+                      title={t("Excluir Espaço")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -378,81 +355,70 @@ export const AdminDashboardView: React.FC = () => {
       {activeAdminTab === 'bookings' && (
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
           <div className="p-6 border-b border-slate-100">
-            <h2 className="text-lg font-bold text-slate-900">Agenda de Reservas & Recepção</h2>
-            <p className="text-xs text-slate-500">Controle de entrada e check-in presencial dos clientes</p>
+            <h2 className="text-lg font-bold text-slate-900">{t("Agenda de Reservas & Recepção ")}</h2>
+            <p className="text-xs text-slate-500">{t("Controle de entrada e check-in presencial dos clientes ")}</p>
           </div>
 
           <div className="overflow-x-auto">
             <div className="overflow-x-auto -mx-1 px-1"><table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Espaço Reservado</th>
-                  <th className="py-3.5 px-4">Empresa / Titular</th>
-                  <th className="py-3.5 px-4">Data & Horário</th>
-                  <th className="py-3.5 px-4">Opcionais</th>
-                  <th className="py-3.5 px-4">Valor</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-6 text-right">Recepção (Check-in)</th>
+                  <th className="py-3.5 px-6">{t("Espaço Reservado ")}</th>
+                  <th className="py-3.5 px-4">{t("Empresa / Titular ")}</th>
+                  <th className="py-3.5 px-4">{t("Data & Horário ")}</th>
+                  <th className="py-3.5 px-4">{t("Opcionais ")}</th>
+                  <th className="py-3.5 px-4">{t("Valor ")}</th>
+                  <th className="py-3.5 px-4">{t("Status ")}</th>
+                  <th className="py-3.5 px-6 text-right">{t("Recepção (Check-in) ")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {bookings.map(b => (
                   <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-4 px-6">
-                      <div className="font-bold text-slate-900">{b.spaceName}</div>
+                      <div className="font-bold text-slate-900">{t(b.spaceName)}</div>
                       <div className="text-[11px] text-slate-500">{b.coworkingName}</div>
                     </td>
                     <td className="py-4 px-4">
                       <div className="font-bold text-slate-800">{b.companyName}</div>
-                      <div className="text-[11px] text-slate-500">{b.responsibleName} ({b.responsiblePhone})</div>
+                      <div className="text-[11px] text-slate-500">{b.responsibleName} ({t(b.responsiblePhone)})</div>
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
-                      <div className="font-semibold text-slate-800">{b.date.split('-').reverse().join('/')}</div>
-                      <div className="text-[11px] text-slate-500">{b.startTime} às {b.endTime}</div>
+                      <div className="font-semibold text-slate-800">{t(b.date.split('-').reverse().join('/'))}</div>
+                      <div className="text-[11px] text-slate-500">{t(b.startTime)}{t("às")}{t(b.endTime)}</div>
                     </td>
                     <td className="py-4 px-4">
-                      {b.addons.length > 0 ? (
+                      {t(b.addons.length > 0 ? (
                         <span className="text-[11px] text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 block truncate max-w-xs">
-                          {b.addons.join(', ')}
+                          {t(b.addons.join(', '))}
                         </span>
                       ) : (
-                        <span className="text-slate-400">Nenhum</span>
-                      )}
+                        <span className="text-slate-400">{t("Nenhum ")}</span>
+                      ))}
                     </td>
-                    <td className="py-4 px-4 font-bold text-slate-900 whitespace-nowrap">
-                      R$ {b.totalPrice.toFixed(2)}
+                    <td className="py-4 px-4 font-bold text-slate-900 whitespace-nowrap">{t("R$ ")}{t(b.totalPrice.toFixed(2))}
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
                       {b.status === 'confirmada' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Confirmada
-                        </span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">{t("Confirmada ")}</span>
                       )}
                       {b.status === 'concluida' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                          Concluída
-                        </span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{t("Concluída ")}</span>
                       )}
                       {b.status === 'cancelada' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                          Cancelada
-                        </span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">{t("Cancelada ")}</span>
                       )}
                     </td>
                     <td className="py-4 px-6 text-right whitespace-nowrap">
-                      {b.checkIn ? (
+                      {t(b.checkIn ? (
                         <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          Check-in Efetuado
-                        </span>
+                          <CheckCircle2 className="w-3.5 h-3.5" />{t("Check-in Efetuado ")}</span>
                       ) : (
                         <button
                           onClick={() => checkInBooking(b.id)}
                           className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
-                        >
-                          Efetuar Check-in
-                        </button>
-                      )}
+                        >{t("Efetuar Check-in ")}</button>
+                      ))}
                     </td>
                   </tr>
                 ))}
@@ -466,21 +432,21 @@ export const AdminDashboardView: React.FC = () => {
       {activeAdminTab === 'companies' && (
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
           <div className="p-6 border-b border-slate-100">
-            <h2 className="text-lg font-bold text-slate-900">Empresas com Domicílio Fiscal Registrado</h2>
-            <p className="text-xs text-slate-500">Acompanhamento de conformidade, alvarás e mensalidades</p>
+            <h2 className="text-lg font-bold text-slate-900">{t("Empresas com Domicílio Fiscal Registrado ")}</h2>
+            <p className="text-xs text-slate-500">{t("Acompanhamento de conformidade, alvarás e mensalidades ")}</p>
           </div>
 
           <div className="overflow-x-auto">
             <div className="overflow-x-auto -mx-1 px-1"><table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
-                  <th className="py-3.5 px-6">Razão Social / Nome Fantasia</th>
-                  <th className="py-3.5 px-4">CNPJ</th>
-                  <th className="py-3.5 px-4">Plano Contratado</th>
-                  <th className="py-3.5 px-4">Unidade Sede</th>
-                  <th className="py-3.5 px-4">Alvará</th>
-                  <th className="py-3.5 px-4">Horas Reunião</th>
-                  <th className="py-3.5 px-6 text-right">Mensalidade</th>
+                  <th className="py-3.5 px-6">{t("Razão Social / Nome Fantasia ")}</th>
+                  <th className="py-3.5 px-4">{t("CNPJ ")}</th>
+                  <th className="py-3.5 px-4">{t("Plano Contratado ")}</th>
+                  <th className="py-3.5 px-4">{t("Unidade Sede ")}</th>
+                  <th className="py-3.5 px-4">{t("Alvará ")}</th>
+                  <th className="py-3.5 px-4">{t("Horas Reunião ")}</th>
+                  <th className="py-3.5 px-6 text-right">{t("Mensalidade ")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -494,24 +460,21 @@ export const AdminDashboardView: React.FC = () => {
                       {c.cnpj}
                     </td>
                     <td className="py-4 px-4 font-semibold text-indigo-700 whitespace-nowrap">
-                      {c.planName}
+                      {t(c.planName)}
                     </td>
                     <td className="py-4 px-4 text-slate-600 truncate max-w-xs">
                       {c.unitAddress}
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
                       <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {c.alvaraStatus === 'regular' ? 'Regular' : 'Processando'}
+                        {t(c.alvaraStatus === 'regular' ? 'Regular' : 'Processando')}
                       </span>
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
                       <span className="font-semibold text-slate-800">
-                        {c.meetingHoursUsed}h / {c.meetingHoursAllowance}h
-                      </span>
+                        {t(c.meetingHoursUsed)}{t("h /")}{t(c.meetingHoursAllowance)}{t("h")}</span>
                     </td>
-                    <td className="py-4 px-6 text-right font-bold text-slate-900 whitespace-nowrap">
-                      R$ {c.monthlyFee.toFixed(2)}/mês
-                    </td>
+                    <td className="py-4 px-6 text-right font-bold text-slate-900 whitespace-nowrap">{t("R$ ")}{t(c.monthlyFee.toFixed(2))}{t("/mês")}</td>
                   </tr>
                 ))}
               </tbody>
@@ -532,24 +495,22 @@ export const AdminDashboardView: React.FC = () => {
                 <X className="w-5 h-5" />
               </button>
               <span className="text-xs text-emerald-400 font-bold uppercase tracking-wider">
-                {editingSpace ? 'Editar Sala' : 'Novo Cadastro no Marketplace'}
+                {t(editingSpace ? 'Editar Sala' : 'Novo Cadastro no Marketplace')}
               </span>
               <h3 className="text-xl font-bold mt-1">
-                {editingSpace ? `Editar: ${editingSpace.name}` : 'Cadastrar Sala de Reunião ou Atendimento'}
+                {t(editingSpace ? `Editar: ${editingSpace.name}` : 'Cadastrar Sala de Reunião ou Atendimento')}
               </h3>
-              <p className="text-xs text-slate-300 mt-1">
-                Disponibilize seu espaço para reservas imediatas com fotos de alta qualidade e infraestrutura.
-              </p>
+              <p className="text-xs text-slate-300 mt-1">{t("Disponibilize seu espaço para reservas imediatas com fotos de alta qualidade e infraestrutura. ")}</p>
             </div>
 
             <form onSubmit={handleSaveSpace} className="p-6 space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block font-semibold text-slate-700 mb-1">Nome da Sala *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Nome da Sala * ")}</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ex: Sala de Reunião Boardroom Diamond"
+                    placeholder={t("Ex: Sala de Reunião Boardroom Diamond")}
                     value={formName}
                     onChange={e => setFormName(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -557,7 +518,7 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Unidade do Coworking *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Unidade do Coworking * ")}</label>
                   <input
                     type="text"
                     required
@@ -568,21 +529,21 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Categoria do Espaço *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Categoria do Espaço * ")}</label>
                   <select
                     value={formCategory}
                     onChange={e => setFormCategory(e.target.value as any)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
                   >
-                    <option value="reuniao">Sala de Reunião</option>
-                    <option value="atendimento">Sala de Atendimento / Consultório</option>
-                    <option value="auditorio">Auditório / Eventos</option>
-                    <option value="privada">Sala Privada / Squads</option>
+                    <option value="reuniao">{t("Sala de Reunião ")}</option>
+                    <option value="atendimento">{t("Sala de Atendimento / Consultório ")}</option>
+                    <option value="auditorio">{t("Auditório / Eventos ")}</option>
+                    <option value="privada">{t("Sala Privada / Squads ")}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Cidade *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Cidade * ")}</label>
                   <input
                     type="text"
                     required
@@ -593,7 +554,7 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Bairro *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Bairro * ")}</label>
                   <input
                     type="text"
                     required
@@ -604,7 +565,7 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block font-semibold text-slate-700 mb-1">Endereço Completo</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Endereço Completo ")}</label>
                   <input
                     type="text"
                     value={formAddress}
@@ -614,7 +575,7 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Capacidade (Pessoas) *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Capacidade (Pessoas) * ")}</label>
                   <input
                     type="number"
                     min={1}
@@ -626,7 +587,7 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Valor por Hora (R$) *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Valor por Hora (R$) * ")}</label>
                   <input
                     type="number"
                     min={10}
@@ -638,7 +599,7 @@ export const AdminDashboardView: React.FC = () => {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block font-semibold text-slate-700 mb-1">Imagem de Capa do Espaço</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Imagem de Capa do Espaço ")}</label>
                   <input 
                     ref={fileRef} 
                     type="file" 
@@ -660,9 +621,9 @@ export const AdminDashboardView: React.FC = () => {
                     }} 
                   />
                   <div className="flex items-start gap-4">
-                    {formImage ? (
+                    {t(formImage ? (
                       <div className="relative h-24 w-40 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-sm">
-                        <img src={formImage} alt="Capa" className="w-full h-full object-cover" />
+                        <img src={formImage} alt={t("Capa")} className="w-full h-full object-cover" />
                         <button 
                           type="button" 
                           onClick={() => setFormImage('')} 
@@ -678,20 +639,18 @@ export const AdminDashboardView: React.FC = () => {
                         className="h-24 w-40 rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-500 hover:border-indigo-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
                       >
                         <Plus className="w-6 h-6 mb-1" />
-                        <span className="text-[11px] font-semibold">Adicionar Foto</span>
+                        <span className="text-[11px] font-semibold">{t("Adicionar Foto ")}</span>
                       </button>
-                    )}
+                    ))}
                     <div className="flex-1 space-y-1 pt-1">
-                      <p className="text-[11px] text-slate-500">
-                        Clique na imagem para enviar do seu dispositivo. Esta foto aparecerá na capa do marketplace.
-                      </p>
-                      {photoError && <p role="alert" className="text-[11px] font-bold text-red-600">{photoError}</p>}
+                      <p className="text-[11px] text-slate-500">{t("Clique na imagem para enviar do seu dispositivo. Esta foto aparecerá na capa do marketplace. ")}</p>
+                      {photoError && <p role="alert" className="text-[11px] font-bold text-red-600">{t(photoError)}</p>}
                     </div>
                   </div>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block font-semibold text-slate-700 mb-1">Descrição Comercial</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Descrição Comercial ")}</label>
                   <textarea
                     rows={2}
                     value={formDescription}
@@ -703,11 +662,11 @@ export const AdminDashboardView: React.FC = () => {
 
               {/* Amenities tags input */}
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Comodidades Inclusas</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("Comodidades Inclusas ")}</label>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
-                    placeholder="Adicionar comodidade (ex: Projetor 4K, Café Nespresso)..."
+                    placeholder={t("Adicionar comodidade (ex: Projetor 4K, Café Nespresso)...")}
                     value={newAmenityInput}
                     onChange={e => setNewAmenityInput(e.target.value)}
                     onKeyDown={e => {
@@ -722,9 +681,7 @@ export const AdminDashboardView: React.FC = () => {
                     type="button"
                     onClick={handleAddAmenity}
                     className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold"
-                  >
-                    Adicionar
-                  </button>
+                  >{t("Adicionar ")}</button>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
@@ -733,7 +690,7 @@ export const AdminDashboardView: React.FC = () => {
                       key={amenity}
                       className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium border border-slate-200"
                     >
-                      {amenity}
+                      {t(amenity)}
                       <button
                         type="button"
                         onClick={() => handleRemoveAmenity(amenity)}
@@ -751,14 +708,12 @@ export const AdminDashboardView: React.FC = () => {
                   type="button"
                   onClick={() => setShowAddSpaceModal(false)}
                   className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                >
-                  Cancelar
-                </button>
+                >{t("Cancelar ")}</button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-md transition-all"
                 >
-                  {editingSpace ? 'Salvar Alterações' : 'Publicar Sala no Marketplace'}
+                  {t(editingSpace ? 'Salvar Alterações' : 'Publicar Sala no Marketplace')}
                 </button>
               </div>
             </form>

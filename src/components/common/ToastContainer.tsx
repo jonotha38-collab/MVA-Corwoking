@@ -1,3 +1,4 @@
+import { t } from '../../lib/preferences';
 import React from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { CheckCircle2, Info, AlertTriangle } from 'lucide-react';
@@ -26,8 +27,8 @@ export const ToastContainer: React.FC = () => {
             key={toast.id}
             className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-2xl backdrop-blur-md transition-all duration-300 animate-slideIn ${borderClass}`}
           >
-            {icon}
-            <div className="text-sm font-medium leading-relaxed">{toast.message}</div>
+            {t(icon)}
+            <div className="text-sm font-medium leading-relaxed">{t(toast.message)}</div>
           </div>
         );
       })}

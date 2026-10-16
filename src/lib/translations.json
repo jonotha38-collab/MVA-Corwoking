@@ -1,0 +1,2382 @@
+{
+  "Wi-Fi 6 de alta velocidade": [
+    "High-speed Wi-Fi 6",
+    "Wi-Fi 6 de alta velocidad"
+  ],
+  "Café espresso cortesia": [
+    "Complimentary espresso coffee",
+    "Café espresso de cortesía"
+  ],
+  "Espaço corporativo moderno com isolamento acústico de alta qualidade, ideal para reuniões e atendimentos executivos.": [
+    "Modern corporate space with high-quality soundproofing, ideal for meetings and executive appointments.",
+    "Espacio corporativo moderno con aislamiento acústico de alta calidad, ideal para reuniones y atención ejecutiva."
+  ],
+  "Nome da sala é obrigatório.": [
+    "Room name is required.",
+    "El nombre de la sala es obligatorio."
+  ],
+  "Painel Administrativo da Unidade de Coworking": [
+    "Coworking administration",
+    "Administración del coworking"
+  ],
+  "Gestão de Espaços & Serviços MVA Hub": [
+    "MVA Hub · Spaces & services",
+    "MVA Hub · Espacios y servicios"
+  ],
+  "Cadastre novas salas de reunião e atendimento para o marketplace, acompanhe o fluxo de check-ins de clientes, monitore contratos de endereço fiscal e gerencie serviços.": [
+    "Add meeting rooms to the marketplace, track check-ins, monitor registered office contracts and manage services.",
+    "Añade salas al marketplace, sigue las entradas de clientes, supervisa contratos de domicilio fiscal y gestiona servicios."
+  ],
+  "Cadastrar Nova Sala": [
+    "Add a room",
+    "Añadir sala"
+  ],
+  "Salas Cadastradas": [
+    "Registered rooms",
+    "Salas registradas"
+  ],
+  "100% ativas": [
+    "100% active",
+    "100% activas"
+  ],
+  "Disponíveis para agendamento online imediato": [
+    "Available for immediate online booking",
+    "Disponibles para reserva inmediata en línea"
+  ],
+  "Reservas no Sistema": [
+    "Bookings in the system",
+    "Reservas en el sistema"
+  ],
+  "confirmadas": [
+    "confirmed",
+    "confirmadas"
+  ],
+  "Total histórico:": [
+    "All-time total:",
+    "Total histórico:"
+  ],
+  "reservas registradas": [
+    "registered bookings",
+    "reservas registradas"
+  ],
+  "Endereços Fiscais": [
+    "Registered offices",
+    "Domicilios fiscales"
+  ],
+  "empresas sediadas": [
+    "registered companies",
+    "empresas domiciliadas"
+  ],
+  "Alvarás e domicílios regulares": [
+    "Licenses and registered offices",
+    "Licencias y domicilios regulares"
+  ],
+  "Faturamento do Hub": [
+    "Hub revenue",
+    "Facturación del hub"
+  ],
+  "Salas + Assinaturas de Domicílio Fiscal": [
+    "Rooms + registered office subscriptions",
+    "Salas + suscripciones de domicilio fiscal"
+  ],
+  "Gerenciar Serviços & Salas (": [
+    "Manage services & rooms (",
+    "Gestionar servicios y salas ("
+  ],
+  "Agenda & Recepção Check-in (": [
+    "Schedule & check-in (",
+    "Agenda y recepción ("
+  ],
+  "Empresas no Endereço Fiscal (": [
+    "Registered companies (",
+    "Empresas domiciliadas ("
+  ],
+  "Salas de Reunião e Atendimento Cadastradas": [
+    "Registered meeting and consultation rooms",
+    "Salas de reunión y consulta registradas"
+  ],
+  "Adicionar Espaço": [
+    "Add a space",
+    "Añadir espacio"
+  ],
+  "Disponível": [
+    "Available",
+    "Disponible"
+  ],
+  "Em Manutenção": [
+    "Under maintenance",
+    "En mantenimiento"
+  ],
+  "pessoas": [
+    "people",
+    "personas"
+  ],
+  "Editar Espaço": [
+    "Edit space",
+    "Editar espacio"
+  ],
+  "Excluir Espaço": [
+    "Delete space",
+    "Eliminar espacio"
+  ],
+  "Agenda de Reservas & Recepção": [
+    "Booking schedule & reception",
+    "Agenda de reservas y recepción"
+  ],
+  "Controle de entrada e check-in presencial dos clientes": [
+    "Manage arrivals and in-person check-in",
+    "Control de entradas y registro presencial"
+  ],
+  "Espaço Reservado": [
+    "Booked space",
+    "Espacio reservado"
+  ],
+  "Empresa / Titular": [
+    "Company / guest",
+    "Empresa / titular"
+  ],
+  "Data & Horário": [
+    "Date & time",
+    "Fecha y horario"
+  ],
+  "Opcionais": [
+    "Extras",
+    "Opcionales"
+  ],
+  "Valor": [
+    "Amount",
+    "Importe"
+  ],
+  "Recepção (Check-in)": [
+    "Reception (check-in)",
+    "Recepción (registro)"
+  ],
+  "às": [
+    "at",
+    "a las"
+  ],
+  "Nenhum": [
+    "None",
+    "Ninguno"
+  ],
+  "Confirmada": [
+    "Confirmed",
+    "Confirmada"
+  ],
+  "Concluída": [
+    "Completed",
+    "Completada"
+  ],
+  "Cancelada": [
+    "Cancelled",
+    "Cancelada"
+  ],
+  "Check-in Efetuado": [
+    "Checked in",
+    "Entrada registrada"
+  ],
+  "Efetuar Check-in": [
+    "Check in",
+    "Registrar entrada"
+  ],
+  "Empresas com Domicílio Fiscal Registrado": [
+    "Companies with a registered office",
+    "Empresas con domicilio fiscal registrado"
+  ],
+  "Acompanhamento de conformidade, alvarás e mensalidades": [
+    "Monitor compliance, licenses and monthly fees",
+    "Seguimiento de cumplimiento, licencias y mensualidades"
+  ],
+  "Razão Social / Nome Fantasia": [
+    "Legal name / trade name",
+    "Razón social / nombre comercial"
+  ],
+  "Plano Contratado": [
+    "Selected plan",
+    "Plan contratado"
+  ],
+  "Unidade Sede": [
+    "Headquarters",
+    "Sede"
+  ],
+  "Alvará": [
+    "Business license",
+    "Licencia de actividad"
+  ],
+  "Horas Reunião": [
+    "Meeting hours",
+    "Horas de reunión"
+  ],
+  "Mensalidade": [
+    "Monthly fee",
+    "Mensualidad"
+  ],
+  "/mês": [
+    "/month",
+    "/mes"
+  ],
+  "Editar Sala": [
+    "Edit room",
+    "Editar sala"
+  ],
+  "Novo Cadastro no Marketplace": [
+    "New marketplace listing",
+    "Nuevo anuncio en el marketplace"
+  ],
+  "Cadastrar Sala de Reunião ou Atendimento": [
+    "Add a meeting or consultation room",
+    "Registrar sala de reunión o consulta"
+  ],
+  "Disponibilize seu espaço para reservas imediatas com fotos de alta qualidade e infraestrutura.": [
+    "Make your space available with high-quality photos and facilities.",
+    "Ofrece tu espacio con fotos de calidad e infraestructura."
+  ],
+  "Nome da Sala *": [
+    "Room name *",
+    "Nombre de la sala *"
+  ],
+  "Ex: Sala de Reunião Boardroom Diamond": [
+    "E.g. Diamond Boardroom",
+    "Ej.: Sala de reuniones Diamond"
+  ],
+  "Unidade do Coworking *": [
+    "Coworking location *",
+    "Sede del coworking *"
+  ],
+  "Categoria do Espaço *": [
+    "Space category *",
+    "Categoría del espacio *"
+  ],
+  "Sala de Reunião": [
+    "Meeting room",
+    "Sala de reunión"
+  ],
+  "Sala de Atendimento / Consultório": [
+    "Consultation room / office",
+    "Sala de atención / consultorio"
+  ],
+  "Auditório / Eventos": [
+    "Auditorium / events",
+    "Auditorio / eventos"
+  ],
+  "Sala Privada / Squads": [
+    "Private office / teams",
+    "Sala privada / equipos"
+  ],
+  "Cidade *": [
+    "City *",
+    "Ciudad *"
+  ],
+  "Bairro *": [
+    "Neighborhood *",
+    "Barrio *"
+  ],
+  "Endereço Completo": [
+    "Full address",
+    "Dirección completa"
+  ],
+  "Capacidade (Pessoas) *": [
+    "Capacity (people) *",
+    "Capacidad (personas) *"
+  ],
+  "Valor por Hora (R$) *": [
+    "Hourly rate (BRL) *",
+    "Precio por hora (BRL) *"
+  ],
+  "Imagem de Capa do Espaço": [
+    "Space cover image",
+    "Imagen de portada del espacio"
+  ],
+  "Entre novamente para enviar fotos.": [
+    "Sign in again to upload photos.",
+    "Vuelve a iniciar sesión para subir fotos."
+  ],
+  "Erro ao enviar foto.": [
+    "Could not upload photo.",
+    "No se pudo subir la foto."
+  ],
+  "Adicionar Foto": [
+    "Add photo",
+    "Añadir foto"
+  ],
+  "Clique na imagem para enviar do seu dispositivo. Esta foto aparecerá na capa do marketplace.": [
+    "Click the image to upload from your device. This photo will be your listing cover.",
+    "Haz clic en la imagen para subir una foto. Será la portada del anuncio."
+  ],
+  "Descrição Comercial": [
+    "Space description",
+    "Descripción comercial"
+  ],
+  "Comodidades Inclusas": [
+    "Included amenities",
+    "Servicios incluidos"
+  ],
+  "Adicionar comodidade (ex: Projetor 4K, Café Nespresso)...": [
+    "Add an amenity (e.g. 4K projector, coffee)…",
+    "Añadir servicio (p. ej., proyector 4K, café)…"
+  ],
+  "Adicionar": [
+    "Add",
+    "Añadir"
+  ],
+  "Cancelar": [
+    "Cancel",
+    "Cancelar"
+  ],
+  "Salvar Alterações": [
+    "Save changes",
+    "Guardar cambios"
+  ],
+  "Publicar Sala no Marketplace": [
+    "Publish room",
+    "Publicar sala"
+  ],
+  "Anúncios aguardando aprovação": [
+    "Listings awaiting approval",
+    "Anuncios pendientes de aprobación"
+  ],
+  "Nenhum anúncio pendente. Novos espaços enviados por coworkings parceiros aparecem aqui.": [
+    "No pending listings. New spaces submitted by partners will appear here.",
+    "No hay anuncios pendientes. Aquí aparecerán los espacios enviados por los socios."
+  ],
+  "· enviado por": [
+    "· submitted by",
+    "· enviado por"
+  ],
+  "pessoas · R$": [
+    "people · R$",
+    "personas · R$"
+  ],
+  "foto(s)": [
+    "photo(s)",
+    "foto(s)"
+  ],
+  "Aprovar": [
+    "Approve",
+    "Aprobar"
+  ],
+  "Rejeitar": [
+    "Reject",
+    "Rechazar"
+  ],
+  "Motivo da rejeição (o anunciante verá)": [
+    "Reason for rejection (visible to the owner)",
+    "Motivo del rechazo (visible para el anunciante)"
+  ],
+  "Motivo da rejeição": [
+    "Reason for rejection",
+    "Motivo del rechazo"
+  ],
+  "Confirmar rejeição": [
+    "Confirm rejection",
+    "Confirmar rechazo"
+  ],
+  "Para continuar, confirme que está de acordo com as normas da LGPD.": [
+    "To continue, please agree to the LGPD privacy terms.",
+    "Para continuar, acepta las condiciones de la LGPD."
+  ],
+  "Algo deu errado.": [
+    "Something went wrong.",
+    "Se produjo un error."
+  ],
+  "A senha precisa ter pelo menos 6 caracteres.": [
+    "Your password must contain at least 6 characters.",
+    "La contraseña debe tener al menos 6 caracteres."
+  ],
+  "Conta criada! Enviamos um link de confirmação para o seu e-mail. Abra-o para entrar.": [
+    "Account created! Check your email for the confirmation link to sign in.",
+    "¡Cuenta creada! Revisa tu correo para confirmar e iniciar sesión."
+  ],
+  "Criar conta": [
+    "Sign up",
+    "Crear cuenta"
+  ],
+  "Crie sua conta": [
+    "Create your account",
+    "Crea tu cuenta"
+  ],
+  "Acesse sua conta": [
+    "Sign in to your account",
+    "Accede a tu cuenta"
+  ],
+  "Cadastre-se para reservar salas e gerenciar espaços.": [
+    "Sign up to book rooms and manage spaces.",
+    "Regístrate para reservar salas y gestionar espacios."
+  ],
+  "Entre para gerenciar suas reservas e endereços.": [
+    "Sign in to manage your bookings and addresses.",
+    "Accede para gestionar tus reservas y domicilios."
+  ],
+  "Entrar": [
+    "Sign in",
+    "Entrar"
+  ],
+  "Tenho coworking": [
+    "I own a coworking",
+    "Tengo un coworking"
+  ],
+  "Quero reservar": [
+    "I want to book",
+    "Quiero reservar"
+  ],
+  "Continuar com o Google": [
+    "Continue with Google",
+    "Continuar con Google"
+  ],
+  "ou com e-mail": [
+    "or with email",
+    "o con correo electrónico"
+  ],
+  "Nome completo": [
+    "Full name",
+    "Nombre completo"
+  ],
+  "Nome do seu coworking (opcional)": [
+    "Your coworking name (optional)",
+    "Nombre de tu coworking (opcional)"
+  ],
+  "Nome do coworking": [
+    "Coworking name",
+    "Nombre del coworking"
+  ],
+  "Concordo com os termos da": [
+    "I agree to the terms of the",
+    "Acepto los términos de la"
+  ],
+  "e autorizo o tratamento dos dados pela MVA Coworking.": [
+    "and authorize MVA Coworking to process my data.",
+    "y autorizo el tratamiento de mis datos por MVA Coworking."
+  ],
+  "Plataforma para empresas de coworking anunciarem seus espaços e clientes reservarem salas de reunião, atendimento e endereço fiscal com segurança.": [
+    "A platform connecting coworking spaces with people looking for meeting rooms, consultation rooms and registered office services.",
+    "Una plataforma que conecta coworkings con personas que buscan salas de reunión, consultorios y servicios de domicilio fiscal."
+  ],
+  "Rede Nacional de Coworkings Homologados": [
+    "National network of approved coworking spaces",
+    "Red nacional de coworkings homologados"
+  ],
+  "Navegação": [
+    "Navigation",
+    "Navegación"
+  ],
+  "Salas de Reunião & Atendimento": [
+    "Meeting & consultation rooms",
+    "Salas de reunión y consulta"
+  ],
+  "Cadastre seu Coworking": [
+    "List your coworking",
+    "Registra tu coworking"
+  ],
+  "Panorama de Endereço Fiscal": [
+    "Registered office overview",
+    "Información sobre domicilio fiscal"
+  ],
+  "Central de Correspondência": [
+    "Mail center",
+    "Central de correspondencia"
+  ],
+  "Minhas Reservas de Salas": [
+    "My room bookings",
+    "Mis reservas de salas"
+  ],
+  "Sede Oficial MVA": [
+    "Official MVA headquarters",
+    "Sede oficial MVA"
+  ],
+  "*O espaço físico próprio da MVA existe exclusivamente neste endereço sede. As demais salas e localidades são anunciadas por coworkings parceiros.": [
+    "*MVA operates its own physical space exclusively at this address. Other rooms and locations are listed by partner coworking spaces.",
+    "*El espacio propio de MVA existe exclusivamente en esta dirección. Las demás salas y ubicaciones son anunciadas por coworkings asociados."
+  ],
+  "Atendimento": [
+    "Contact",
+    "Atención"
+  ],
+  "Segunda a Sexta, das 08h00 às 20h00. Suporte aos gestores de coworking e clientes 24/7.": [
+    "Monday to Friday, 8 am to 8 pm. Support for coworking managers and customers 24/7.",
+    "Lunes a viernes, de 08:00 a 20:00. Soporte para gestores y clientes 24/7."
+  ],
+  "Espaços para trabalhar. Estrutura para crescer.": [
+    "Space to work. Room to grow.",
+    "Espacios para trabajar. Estructura para crecer."
+  ],
+  "Endereço fiscal": [
+    "Registered office",
+    "Domicilio fiscal"
+  ],
+  "Explorar espaços": [
+    "Explore spaces",
+    "Explorar espacios"
+  ],
+  "Correspondência": [
+    "Mail",
+    "Correspondencia"
+  ],
+  "Anunciar espaço": [
+    "List a space",
+    "Anunciar espacio"
+  ],
+  "MVA Coworking Hub - página inicial": [
+    "MVA Coworking Hub - home",
+    "MVA Coworking Hub - inicio"
+  ],
+  "Espaços · Endereço fiscal · Correspondência": [
+    "Spaces · Registered office · Mail",
+    "Espacios · Domicilio fiscal · Correspondencia"
+  ],
+  "Meus espaços": [
+    "My spaces",
+    "Mis espacios"
+  ],
+  "Minhas reservas": [
+    "My bookings",
+    "Mis reservas"
+  ],
+  "Sair": [
+    "Sign out",
+    "Salir"
+  ],
+  "Carta Simples": [
+    "Standard letter",
+    "Carta simple"
+  ],
+  "Encomenda / Sedex": [
+    "Parcel / express delivery",
+    "Paquete / envío urgente"
+  ],
+  "Documento Fiscal": [
+    "Tax document",
+    "Documento fiscal"
+  ],
+  "Notificação / Cartório": [
+    "Notice / notary",
+    "Notificación / notaría"
+  ],
+  "Central de Recepção & Triagem de Correspondências": [
+    "Mail reception & sorting center",
+    "Central de recepción y clasificación de correspondencia"
+  ],
+  "Gestão Inteligente de": [
+    "Smart management of",
+    "Gestión inteligente de"
+  ],
+  "Correspondências": [
+    "Mail",
+    "Correspondencia"
+  ],
+  "Recebimento diário pelas recepções dos coworkings, triagem protocolada, lockers protegidos e serviço de digitalização de documentos em PDF sob demanda.": [
+    "Daily reception, tracked sorting, secure lockers and on-demand PDF document scanning.",
+    "Recepción diaria, clasificación registrada, casilleros seguros y digitalización de documentos en PDF bajo demanda."
+  ],
+  "Registrar Correspondência": [
+    "Register mail",
+    "Registrar correspondencia"
+  ],
+  "Aguardando Retirada": [
+    "Awaiting collection",
+    "Pendiente de recogida"
+  ],
+  "Disponíveis": [
+    "Available",
+    "Disponibles"
+  ],
+  "Digitalizados (PDF)": [
+    "Scanned (PDF)",
+    "Digitalizados (PDF)"
+  ],
+  "Para download": [
+    "Ready to download",
+    "Para descargar"
+  ],
+  "Entregues / Resolvidos": [
+    "Delivered / resolved",
+    "Entregados / resueltos"
+  ],
+  "Finalizados": [
+    "Completed",
+    "Finalizados"
+  ],
+  "Na Recepção": [
+    "At reception",
+    "En recepción"
+  ],
+  "Buscar por código, remetente...": [
+    "Search by code, sender…",
+    "Buscar por código, remitente…"
+  ],
+  "Urgente": [
+    "Urgent",
+    "Urgente"
+  ],
+  "Remetente:": [
+    "Sender:",
+    "Remitente:"
+  ],
+  "Destinatário:": [
+    "Recipient:",
+    "Destinatario:"
+  ],
+  "Unidade:": [
+    "Location:",
+    "Sede:"
+  ],
+  "Recebido:": [
+    "Received:",
+    "Recibido:"
+  ],
+  "Recepção Principal": [
+    "Main reception",
+    "Recepción principal"
+  ],
+  "Obs: \"": [
+    "Note: \"",
+    "Nota: \""
+  ],
+  "Digitalizar em PDF": [
+    "Scan to PDF",
+    "Digitalizar en PDF"
+  ],
+  "Autorizar Terceiro": [
+    "Authorize collection",
+    "Autorizar a tercero"
+  ],
+  "Dar Baixa": [
+    "Mark delivered",
+    "Marcar como entregado"
+  ],
+  "Digitalizado em PDF": [
+    "Scanned to PDF",
+    "Digitalizado en PDF"
+  ],
+  "Visualizar PDF": [
+    "View PDF",
+    "Ver PDF"
+  ],
+  "Entregar Físico": [
+    "Deliver original",
+    "Entregar original"
+  ],
+  "Entregue no Balcão": [
+    "Collected at reception",
+    "Entregado en recepción"
+  ],
+  "Nenhuma correspondência encontrada": [
+    "No mail found",
+    "No se encontró correspondencia"
+  ],
+  "Não há correspondências cadastradas nesta categoria ou com estes termos de pesquisa.": [
+    "No mail matches this category or search.",
+    "No hay correspondencia en esta categoría o para esta búsqueda."
+  ],
+  "Visualização do Documento Escaneado": [
+    "Scanned document preview",
+    "Vista del documento digitalizado"
+  ],
+  "Remetente": [
+    "Sender",
+    "Remitente"
+  ],
+  "Protocolo": [
+    "Reference",
+    "Protocolo"
+  ],
+  "Digitalização autenticada • Arquivo de alta definição": [
+    "Authenticated scan · High-resolution file",
+    "Digitalización autenticada · Archivo de alta resolución"
+  ],
+  "Download do PDF iniciado.": [
+    "PDF download started.",
+    "Descarga del PDF iniciada."
+  ],
+  "Baixar PDF Original": [
+    "Download original PDF",
+    "Descargar PDF original"
+  ],
+  "Fechar": [
+    "Close",
+    "Cerrar"
+  ],
+  "Autorizar Retirada por Terceiro": [
+    "Authorize third-party collection",
+    "Autorizar recogida por un tercero"
+  ],
+  "Informe os dados do portador que comparecerá à recepção da unidade para retirar o pacote": [
+    "Enter the details of the person collecting the parcel at reception",
+    "Introduce los datos de la persona que recogerá el paquete en recepción"
+  ],
+  "Nome Completo do Portador *": [
+    "Collector's full name *",
+    "Nombre completo del portador *"
+  ],
+  "CPF do Portador *": [
+    "Collector's CPF *",
+    "CPF del portador *"
+  ],
+  "Gerar Autorização": [
+    "Generate authorization",
+    "Generar autorización"
+  ],
+  "Entrada de Correspondência (Recepção)": [
+    "Incoming mail (reception)",
+    "Entrada de correspondencia (recepción)"
+  ],
+  "Empresa Destinatária *": [
+    "Recipient company *",
+    "Empresa destinataria *"
+  ],
+  "Unidade / Localidade de Recebimento": [
+    "Receiving location",
+    "Lugar de recepción"
+  ],
+  "Remetente *": [
+    "Sender *",
+    "Remitente *"
+  ],
+  "Código de Rastreio": [
+    "Tracking number",
+    "Código de seguimiento"
+  ],
+  "Tipo": [
+    "Type",
+    "Tipo"
+  ],
+  "Carta": [
+    "Letter",
+    "Carta"
+  ],
+  "Doc. Fiscal": [
+    "Tax doc.",
+    "Doc. fiscal"
+  ],
+  "Notif. Judicial": [
+    "Legal notice",
+    "Notificación judicial"
+  ],
+  "Encomenda": [
+    "Parcel",
+    "Paquete"
+  ],
+  "Prioridade": [
+    "Priority",
+    "Prioridad"
+  ],
+  "Alta": [
+    "High",
+    "Alta"
+  ],
+  "Locker / Armário": [
+    "Locker / cabinet",
+    "Casillero / armario"
+  ],
+  "Observações da Recepção": [
+    "Reception notes",
+    "Observaciones de recepción"
+  ],
+  "Salvar e Notificar Cliente": [
+    "Save and notify customer",
+    "Guardar y notificar al cliente"
+  ],
+  "Empresa Ativa": [
+    "Active company",
+    "Empresa activa"
+  ],
+  "Razão Social:": [
+    "Legal name:",
+    "Razón social:"
+  ],
+  "Sede de Domicílio:": [
+    "Registered office:",
+    "Domicilio fiscal:"
+  ],
+  "Declaração Fiscal": [
+    "Registered office certificate",
+    "Declaración fiscal"
+  ],
+  "Agendar Nova Sala": [
+    "Book another room",
+    "Reservar otra sala"
+  ],
+  "Crédito de Horas": [
+    "Hour credits",
+    "Crédito de horas"
+  ],
+  "disponíveis": [
+    "available",
+    "disponibles"
+  ],
+  "h consumidas de": [
+    "h used out of",
+    "h utilizadas de"
+  ],
+  "h no ciclo atual": [
+    "h in the current cycle",
+    "h en el ciclo actual"
+  ],
+  "na recepção": [
+    "at reception",
+    "en recepción"
+  ],
+  "Visualizar e digitalizar em PDF": [
+    "View and scan to PDF",
+    "Ver y digitalizar en PDF"
+  ],
+  "Reservas Ativas": [
+    "Active bookings",
+    "Reservas activas"
+  ],
+  "agendadas": [
+    "scheduled",
+    "programadas"
+  ],
+  "Próxima:": [
+    "Next:",
+    "Próxima:"
+  ],
+  "Nenhuma próxima": [
+    "None scheduled",
+    "Ninguna próxima"
+  ],
+  "Assinatura Mensal": [
+    "Monthly subscription",
+    "Suscripción mensual"
+  ],
+  "Fatura mensal quitada": [
+    "Monthly invoice paid",
+    "Factura mensual pagada"
+  ],
+  "Sua Próxima Reunião Agendada": [
+    "Your next scheduled meeting",
+    "Tu próxima reunión"
+  ],
+  "Abrir Voucher & QR Code": [
+    "Open voucher & QR code",
+    "Abrir comprobante y código QR"
+  ],
+  "Histórico de Reservas de Espaços": [
+    "Space booking history",
+    "Historial de reservas de espacios"
+  ],
+  "Acompanhe salas de reunião e atendimento agendadas": [
+    "Track your meeting and consultation room bookings",
+    "Consulta tus reservas de salas de reunión y consulta"
+  ],
+  "Buscar mais salas": [
+    "Find more rooms",
+    "Buscar más salas"
+  ],
+  "Espaço / Coworking": [
+    "Space / coworking",
+    "Espacio / coworking"
+  ],
+  "Responsável": [
+    "Contact person",
+    "Responsable"
+  ],
+  "Investimento": [
+    "Cost",
+    "Importe"
+  ],
+  "Ações": [
+    "Actions",
+    "Acciones"
+  ],
+  "Nenhuma reserva encontrada": [
+    "No bookings found",
+    "No se encontraron reservas"
+  ],
+  "Agende salas executivas e use seus créditos mensais inclusos.": [
+    "Book executive rooms and use your included monthly credits.",
+    "Reserva salas ejecutivas y utiliza tus créditos mensuales incluidos."
+  ],
+  "Explorar Salas": [
+    "Explore rooms",
+    "Explorar salas"
+  ],
+  "Voucher de Acesso • MVA Hub": [
+    "Access voucher · MVA Hub",
+    "Comprobante de acceso · MVA Hub"
+  ],
+  "Reserva Confirmada": [
+    "Booking confirmed",
+    "Reserva confirmada"
+  ],
+  "Data": [
+    "Date",
+    "Fecha"
+  ],
+  "Horário": [
+    "Time",
+    "Horario"
+  ],
+  "Validação eletrônica": [
+    "Electronic validation",
+    "Validación electrónica"
+  ],
+  "Check-in na Recepção": [
+    "Check in at reception",
+    "Registro en recepción"
+  ],
+  "Imprimir": [
+    "Print",
+    "Imprimir"
+  ],
+  "Endereço Fiscal": [
+    "Registered Office",
+    "Domicilio Fiscal"
+  ],
+  "Endereço Comercial": [
+    "Business Address",
+    "Dirección Comercial"
+  ],
+  "12x R$ 29,90 /mês": [
+    "12 × R$29.90 /month",
+    "12 × R$29,90 /mes"
+  ],
+  "Preço total anual R$ 358,80": [
+    "Annual total R$358.80",
+    "Total anual R$358,80"
+  ],
+  "Para você que precisa divulgar a sua empresa e conquistar novos mercados.": [
+    "For businesses looking for a professional presence and new markets.",
+    "Para empresas que buscan presencia profesional y nuevos mercados."
+  ],
+  "Divulgação em cartões, site e redes sociais": [
+    "Use on business cards, websites and social media",
+    "Uso en tarjetas, sitio web y redes sociales"
+  ],
+  "Recebimento e guarda de correspondências e encomendas": [
+    "Mail and parcel reception and storage",
+    "Recepción y almacenamiento de cartas y paquetes"
+  ],
+  "Notificação por e-mail e WhatsApp a cada entrega": [
+    "Email and WhatsApp notifications for each delivery",
+    "Notificación por correo y WhatsApp con cada entrega"
+  ],
+  "Endereço de prestígio na Rua Dom José Thomaz, 565": [
+    "Prestigious address at Rua Dom José Thomaz, 565",
+    "Dirección de prestigio en Rua Dom José Thomaz, 565"
+  ],
+  "Desconto de 10% na reserva de salas": [
+    "10% discount on room bookings",
+    "10% de descuento en reservas de salas"
+  ],
+  "12x R$ 80 /mês": [
+    "12 × R$80 /month",
+    "12 × R$80 /mes"
+  ],
+  "Preço total anual R$ 960": [
+    "Annual total R$960",
+    "Total anual R$960"
+  ],
+  "Para você que está abrindo ou alterando empresa e quer emitir notas fiscais.": [
+    "For those starting or updating a company and needing to issue tax invoices.",
+    "Para quienes abren o modifican una empresa y necesitan emitir facturas fiscales."
+  ],
+  "Mais Escolhido": [
+    "Most popular",
+    "Más elegido"
+  ],
+  "Abertura de CNPJ e Inscrição Municipal oficial": [
+    "CNPJ and municipal registration",
+    "Apertura de CNPJ e inscripción municipal"
+  ],
+  "Emissão de notas fiscais de serviço (ISS)": [
+    "Service tax invoice issuance (ISS)",
+    "Emisión de facturas de servicios (ISS)"
+  ],
+  "Alvará de Funcionamento aprovado na Prefeitura": [
+    "City-approved business license",
+    "Licencia de funcionamiento aprobada por el municipio"
+  ],
+  "Declaração oficial de domicílio fiscal imediata": [
+    "Immediate registered office certificate",
+    "Declaración oficial de domicilio fiscal inmediata"
+  ],
+  "Recebimento e guarda de cartas e notificações fiscais": [
+    "Reception and storage of letters and tax notices",
+    "Recepción y custodia de cartas y notificaciones fiscales"
+  ],
+  "Desconto de 20% em salas de reunião": [
+    "20% discount on meeting rooms",
+    "20% de descuento en salas de reunión"
+  ],
+  "Endereço Fiscal com Inscrição Estadual": [
+    "Registered Office with State Registration",
+    "Domicilio Fiscal con Inscripción Estatal"
+  ],
+  "12x R$ 120 /mês": [
+    "12 × R$120 /month",
+    "12 × R$120 /mes"
+  ],
+  "Preço total anual R$ 1.440": [
+    "Annual total R$1,440",
+    "Total anual R$1.440"
+  ],
+  "Para você que tem um comércio ou contribui com o ICMS.": [
+    "For retailers and businesses subject to ICMS.",
+    "Para comercios y contribuyentes del ICMS."
+  ],
+  "Comércio / ICMS": [
+    "Retail / ICMS",
+    "Comercio / ICMS"
+  ],
+  "Apto para Comércio, E-commerce e ICMS (SEFAZ)": [
+    "Suitable for retail, e-commerce and ICMS (SEFAZ)",
+    "Apto para comercio, comercio electrónico e ICMS (SEFAZ)"
+  ],
+  "Homologação de Inscrição Estadual garantida": [
+    "Guaranteed state registration approval",
+    "Homologación de inscripción estatal garantizada"
+  ],
+  "Alvará com viabilidade técnica aprovada": [
+    "Business license with approved technical feasibility",
+    "Licencia con viabilidad técnica aprobada"
+  ],
+  "Emissão regular de NFe de mercadorias": [
+    "Regular issuance of goods invoices (NFe)",
+    "Emisión regular de facturas de mercancías (NFe)"
+  ],
+  "Gestão de encomendas e correspondências fiscais": [
+    "Parcel and tax correspondence management",
+    "Gestión de paquetes y correspondencia fiscal"
+  ],
+  "2 horas mensais de Sala de Reunião cortesia": [
+    "2 complimentary meeting room hours per month",
+    "2 horas mensuales de sala de reunión de cortesía"
+  ],
+  "2 ou mais endereços": [
+    "2 or more addresses",
+    "2 o más domicilios"
+  ],
+  "preço": [
+    "pricing",
+    "precio"
+  ],
+  "Para quem precisa de mais Endereços Fiscais ou Comerciais, com condição especial na contratação.": [
+    "Special terms for businesses needing multiple registered offices or business addresses.",
+    "Condiciones especiales para empresas que necesitan varios domicilios fiscales o comerciales."
+  ],
+  "Condição Especial": [
+    "Special terms",
+    "Condición especial"
+  ],
+  "Combinação de múltiplos endereços (matriz e filiais)": [
+    "Multiple addresses for headquarters and branches",
+    "Combinación de domicilios para sede y sucursales"
+  ],
+  "Descontos progressivos por quantidade de CNPJs": [
+    "Volume discounts based on the number of CNPJs",
+    "Descuentos progresivos según la cantidad de CNPJs"
+  ],
+  "Faturamento unificado em boleto ou cartão": [
+    "Consolidated billing by payment slip or card",
+    "Facturación unificada por boleto o tarjeta"
+  ],
+  "Assessoria dedicada para a documentação": [
+    "Dedicated documentation assistance",
+    "Asesoría dedicada para documentación"
+  ],
+  "Suporte prioritário com especialista MVA": [
+    "Priority support from an MVA specialist",
+    "Atención prioritaria con un especialista MVA"
+  ],
+  "Preencha os campos obrigatórios.": [
+    "Please complete the required fields.",
+    "Completa los campos obligatorios."
+  ],
+  "Contrato firmado! Promoção de 4 meses grátis de portabilidade ativada com sucesso!": [
+    "Contract confirmed! Your 4-month free transfer promotion is active.",
+    "¡Contrato confirmado! Promoción de traslado con 4 meses gratis activada."
+  ],
+  "Contrato firmado! Seu comprovante de domicílio fiscal foi liberado.": [
+    "Contract confirmed! Your registered office certificate is available.",
+    "¡Contrato confirmado! Tu declaración de domicilio fiscal está disponible."
+  ],
+  "Sede MVA Coworking": [
+    "MVA Coworking headquarters",
+    "Sede MVA Coworking"
+  ],
+  "Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565": [
+    "Registered office · MVA headquarters, Rua Dom José Thomaz, 565",
+    "Domicilio fiscal · Sede MVA, Rua Dom José Thomaz, 565"
+  ],
+  "Seu domicílio fiscal com segurança legal": [
+    "A professional address. A new chapter for your business.",
+    "Una dirección profesional. Una nueva etapa para tu empresa."
+  ],
+  "Abra ou regularize seu CNPJ com endereço fiscal na Sede MVA ou rede credenciada. Economize com aluguel tradicional, proteja sua privacidade residencial e garanta aprovação imediata do alvará de funcionamento.": [
+    "Establish your business at MVA headquarters or a partner location. Reduce office costs, protect your home address and bring your business services together in one place.",
+    "Establece tu empresa en MVA o en una sede asociada. Reduce costes, protege tu dirección personal y reúne los servicios de tu negocio en un solo lugar."
+  ],
+  "Contratar Endereço Fiscal Online": [
+    "Choose your registered office",
+    "Elegir domicilio fiscal"
+  ],
+  "Emitir Declaração Oficial": [
+    "View official certificate",
+    "Ver declaración oficial"
+  ],
+  "Status do Domicílio Fiscal Ativo": [
+    "Active registered office status",
+    "Estado del domicilio fiscal activo"
+  ],
+  "• Plano:": [
+    "· Plan:",
+    "· Plan:"
+  ],
+  "Regularizado na Receita": [
+    "Registered with tax authorities",
+    "Regularizado ante Hacienda"
+  ],
+  "Ver Declaração Oficial": [
+    "View official certificate",
+    "Ver declaración oficial"
+  ],
+  "Endereço Registrado": [
+    "Registered address",
+    "Dirección registrada"
+  ],
+  "Alvará & Prefeitura": [
+    "Business license & municipality",
+    "Licencia y municipio"
+  ],
+  "Aprovado (": [
+    "Approved (",
+    "Aprobado ("
+  ],
+  "Regular para emissão de notas fiscais": [
+    "Authorized to issue tax invoices",
+    "Habilitado para emitir facturas fiscales"
+  ],
+  "Vigência Contratual": [
+    "Contract term",
+    "Vigencia contractual"
+  ],
+  "a": [
+    "to",
+    "a"
+  ],
+  "Renovação anual automática": [
+    "Automatic annual renewal",
+    "Renovación anual automática"
+  ],
+  "Crédito de Reunião": [
+    "Meeting credits",
+    "Crédito de reunión"
+  ],
+  "h livres": [
+    "h available",
+    "h disponibles"
+  ],
+  "O que é Endereço Fiscal?": [
+    "What is a registered office?",
+    "¿Qué es el domicilio fiscal?"
+  ],
+  "É o endereço obrigatório registrado formalmente perante os órgãos públicos:": [
+    "The mandatory address officially registered with public authorities:",
+    "Es la dirección obligatoria registrada ante los organismos públicos:"
+  ],
+  "Receita Federal": [
+    "Federal Revenue Service",
+    "Receita Federal"
+  ],
+  "Junta Comercial": [
+    "Commercial Registry",
+    "Registro Mercantil"
+  ],
+  "e": [
+    "and",
+    "y"
+  ],
+  "Prefeitura Municipal": [
+    "City Hall",
+    "Ayuntamiento"
+  ],
+  ". Ele serve para fins tributários, alvarás e notificações legais.": [
+    ". Used for tax purposes, business licenses and legal notices.",
+    ". Se utiliza para fines tributarios, licencias y notificaciones legales."
+  ],
+  "Imprescindível para emissão do CNPJ e Inscrição Municipal": [
+    "Required for CNPJ and municipal registration",
+    "Imprescindible para el CNPJ y la inscripción municipal"
+  ],
+  "Evita expor o endereço da sua residência na internet": [
+    "Keeps your home address off the internet",
+    "Evita exponer tu dirección personal en internet"
+  ],
+  "Totalmente legalizado com declaração de domicílio oficial": [
+    "Legal registration with an official address certificate",
+    "Registro legal con declaración oficial de domicilio"
+  ],
+  "E o Endereço Comercial?": [
+    "What about a business address?",
+    "¿Y la dirección comercial?"
+  ],
+  "É o endereço corporativo de prestígio que você divulga em seus canais comerciais, cartões de visita e apresentações. Na MVA, os dois funcionam juntos: você conta com o endereço e ainda pode receber seus clientes nas salas de reunião no mesmo local.": [
+    "A professional address for your website, business cards and presentations. At MVA, you can also welcome clients in meeting rooms at the same location.",
+    "Una dirección profesional para tu sitio web, tarjetas y presentaciones. En MVA también puedes recibir clientes en salas de reunión en el mismo lugar."
+  ],
+  "Localização de prestígio na Rua Dom José Thomaz, 565": [
+    "Prestigious location at Rua Dom José Thomaz, 565",
+    "Ubicación de prestigio en Rua Dom José Thomaz, 565"
+  ],
+  "Recebimento diário de correspondências e encomendas": [
+    "Daily mail and parcel reception",
+    "Recepción diaria de cartas y paquetes"
+  ],
+  "Digitalização imediata de cartas em alta resolução (PDF)": [
+    "High-resolution letter scanning (PDF)",
+    "Digitalización de cartas en alta resolución (PDF)"
+  ],
+  "Campanha Exclusiva de Portabilidade": [
+    "Exclusive transfer offer",
+    "Oferta exclusiva de traslado"
+  ],
+  "Já tem endereço fiscal? Mude para a MVA e ganhe": [
+    "Already have a registered office? Move to MVA and get",
+    "¿Ya tienes domicilio fiscal? Cámbiate a MVA y consigue"
+  ],
+  "4 MESES GRÁTIS!": [
+    "4 MONTHS FREE!",
+    "¡4 MESES GRATIS!"
+  ],
+  "Se sua empresa já tem endereço fiscal em outro coworking ou escritório virtual e você quer pagar menos com melhor estrutura, transfira seu CNPJ para a MVA. Você ganha": [
+    "Move your company from another coworking or virtual office to MVA and enjoy",
+    "Traslada tu empresa de otro coworking u oficina virtual a MVA y disfruta de"
+  ],
+  "4 meses de isenção total": [
+    "4 months free",
+    "4 meses gratis"
+  ],
+  "no plano anual e nosso time orienta toda a migração junto à Prefeitura e Junta Comercial.": [
+    "on the annual plan, with our team's guidance throughout the transfer.",
+    "en el plan anual, con orientación de nuestro equipo durante todo el traslado."
+  ],
+  "Transferir CNPJ (4 Meses Grátis)": [
+    "Transfer my company · 4 months free",
+    "Trasladar mi empresa · 4 meses gratis"
+  ],
+  "Planos Corporativos Acessíveis": [
+    "Plans for your business",
+    "Planes para tu empresa"
+  ],
+  "Escolha o Plano Ideal para a sua Empresa": [
+    "The right foundation for your next step.",
+    "La base para tu próximo paso."
+  ],
+  "Planos simplificados, preços transparentes e sem burocracia para emissão do seu alvará.": [
+    "Clear plans, transparent pricing and support for your business.",
+    "Planes claros, precios transparentes y apoyo para tu negocio."
+  ],
+  "personalizado": [
+    "custom",
+    "personalizado"
+  ],
+  "sob consulta": [
+    "on request",
+    "bajo consulta"
+  ],
+  "Fale com especialista": [
+    "Talk to a specialist",
+    "Hablar con un especialista"
+  ],
+  "Contratar plano": [
+    "Choose plan",
+    "Elegir plan"
+  ],
+  "Declaração de Domicílio Fiscal • Sede MVA": [
+    "Registered office certificate · MVA headquarters",
+    "Declaración de domicilio fiscal · Sede MVA"
+  ],
+  "Protocolo Oficial:": [
+    "Official reference:",
+    "Protocolo oficial:"
+  ],
+  "Nome Fantasia:": [
+    "Trade name:",
+    "Nombre comercial:"
+  ],
+  "Endereço Sede Autorizado:": [
+    "Authorized headquarters address:",
+    "Dirección autorizada de la sede:"
+  ],
+  "Plano Contratado:": [
+    "Selected plan:",
+    "Plan contratado:"
+  ],
+  "Vigência:": [
+    "Valid:",
+    "Vigencia:"
+  ],
+  "Autenticação MVA": [
+    "MVA authentication",
+    "Autenticación MVA"
+  ],
+  "Código:": [
+    "Code:",
+    "Código:"
+  ],
+  "Documento assinado digitalmente": [
+    "Digitally signed document",
+    "Documento firmado digitalmente"
+  ],
+  "Diretoria Executiva": [
+    "Executive management",
+    "Dirección ejecutiva"
+  ],
+  "Imprimir ou Salvar em PDF": [
+    "Print or save as PDF",
+    "Imprimir o guardar como PDF"
+  ],
+  "Adesão Online": [
+    "Online application",
+    "Contratación en línea"
+  ],
+  "Aderir ao": [
+    "Apply for",
+    "Contratar"
+  ],
+  "Cadastre os dados da sua empresa para emissão da autorização de domicílio fiscal.": [
+    "Enter your company details to issue the registered office authorization.",
+    "Introduce los datos de tu empresa para emitir la autorización de domicilio fiscal."
+  ],
+  "Estou transferindo meu endereço de outro local (Ganhar 4 meses grátis!)": [
+    "I'm transferring from another address (get 4 months free!)",
+    "Traslado mi domicilio desde otro lugar (¡4 meses gratis!)"
+  ],
+  "Migre seu CNPJ para a MVA e pague apenas 8 parcelas no plano anual de 12 meses.": [
+    "Move your CNPJ to MVA and pay only 8 installments on the 12-month annual plan.",
+    "Traslada tu CNPJ a MVA y paga solo 8 cuotas en el plan anual de 12 meses."
+  ],
+  "Nome do Coworking ou Endereço Atual (onde está o CNPJ hoje)": [
+    "Current coworking or registered address",
+    "Coworking o dirección actual"
+  ],
+  "Razão Social da Empresa *": [
+    "Company legal name *",
+    "Razón social de la empresa *"
+  ],
+  "Nome Fantasia": [
+    "Trade name",
+    "Nombre comercial"
+  ],
+  "CNPJ (ou \"Em Abertura\") *": [
+    "CNPJ (or \"Being registered\") *",
+    "CNPJ (o «En apertura») *"
+  ],
+  "E-mail para Notificações *": [
+    "Notification email *",
+    "Correo para notificaciones *"
+  ],
+  "WhatsApp / Telefone *": [
+    "WhatsApp / phone *",
+    "WhatsApp / teléfono *"
+  ],
+  "Unidade Desejada *": [
+    "Preferred location *",
+    "Sede deseada *"
+  ],
+  "Confirmar Adesão com 4 Meses Grátis": [
+    "Confirm with 4 months free",
+    "Confirmar con 4 meses gratis"
+  ],
+  "Confirmar Contratação": [
+    "Confirm application",
+    "Confirmar contratación"
+  ],
+  "Atendimento Corporativo": [
+    "Business support",
+    "Atención corporativa"
+  ],
+  "2 ou mais Endereços com Desconto Especial": [
+    "2 or more addresses with special pricing",
+    "2 o más domicilios con descuento especial"
+  ],
+  "Fale diretamente com nossa equipe para montar uma proposta sob medida com preços escaláveis.": [
+    "Talk to our team about a tailored proposal with scalable pricing.",
+    "Habla con nuestro equipo para recibir una propuesta a medida con precios escalables."
+  ],
+  "Prefere atendimento instantâneo?": [
+    "Prefer an instant response?",
+    "¿Prefieres atención inmediata?"
+  ],
+  "Nosso especialista em domicílio fiscal responde em minutos no WhatsApp.": [
+    "Our registered office specialist responds on WhatsApp.",
+    "Nuestro especialista en domicilio fiscal te atiende por WhatsApp."
+  ],
+  "Abrir WhatsApp Agora": [
+    "Open WhatsApp",
+    "Abrir WhatsApp"
+  ],
+  "ou deixe seus dados para contato": [
+    "or leave your contact details",
+    "o deja tus datos de contacto"
+  ],
+  "Solicitação enviada! Nosso especialista entrará em contato em breve.": [
+    "Request sent! Our specialist will contact you soon.",
+    "¡Solicitud enviada! Nuestro especialista se pondrá en contacto pronto."
+  ],
+  "Seu Nome / Responsável *": [
+    "Your name / contact person *",
+    "Tu nombre / responsable *"
+  ],
+  "Quantidade de Endereços": [
+    "Number of addresses",
+    "Cantidad de domicilios"
+  ],
+  "2 Endereços": [
+    "2 addresses",
+    "2 domicilios"
+  ],
+  "3 Endereços": [
+    "3 addresses",
+    "3 domicilios"
+  ],
+  "4 a 5 Endereços": [
+    "4 to 5 addresses",
+    "4 a 5 domicilios"
+  ],
+  "Mais de 6 Endereços": [
+    "More than 6 addresses",
+    "Más de 6 domicilios"
+  ],
+  "E-mail corporativo": [
+    "Business email",
+    "Correo corporativo"
+  ],
+  "Receber Proposta Personalizada": [
+    "Request a tailored proposal",
+    "Solicitar propuesta personalizada"
+  ],
+  "Gravação da Sala & Suporte A/V": [
+    "Room recording & A/V support",
+    "Grabación de sala y soporte audiovisual"
+  ],
+  "O horário de término deve ser após o horário de início.": [
+    "End time must be after start time.",
+    "La hora de fin debe ser posterior al inicio."
+  ],
+  "Reserva de Espaço": [
+    "Book a space",
+    "Reservar espacio"
+  ],
+  "Reserva Confirmada com Sucesso!": [
+    "Booking successfully confirmed!",
+    "¡Reserva confirmada con éxito!"
+  ],
+  "Apresente este voucher ao chegar na recepção.": [
+    "Show this voucher when you arrive at reception.",
+    "Presenta este comprobante al llegar a recepción."
+  ],
+  "Voucher Oficial": [
+    "Official voucher",
+    "Comprobante oficial"
+  ],
+  "Código": [
+    "Code",
+    "Código"
+  ],
+  "Titular": [
+    "Guest",
+    "Titular"
+  ],
+  "Check-in automático na recepção": [
+    "Automatic check-in at reception",
+    "Registro automático en recepción"
+  ],
+  "Wi-Fi e suporte inclusos.": [
+    "Wi-Fi and support included.",
+    "Wi-Fi y soporte incluidos."
+  ],
+  "Imprimir Comprovante": [
+    "Print confirmation",
+    "Imprimir comprobante"
+  ],
+  "Concluir & Fechar": [
+    "Done & close",
+    "Finalizar y cerrar"
+  ],
+  "Capacidade:": [
+    "Capacity:",
+    "Capacidad:"
+  ],
+  "Valor hora:": [
+    "Hourly rate:",
+    "Precio por hora:"
+  ],
+  "Data da Reserva": [
+    "Booking date",
+    "Fecha de reserva"
+  ],
+  "Início": [
+    "Start",
+    "Inicio"
+  ],
+  "Término": [
+    "End",
+    "Fin"
+  ],
+  "Empresa Contratante": [
+    "Booking company",
+    "Empresa contratante"
+  ],
+  "Responsável no Local": [
+    "On-site contact",
+    "Responsable en el lugar"
+  ],
+  "E-mail de Confirmação": [
+    "Confirmation email",
+    "Correo de confirmación"
+  ],
+  "Telefone / WhatsApp": [
+    "Phone / WhatsApp",
+    "Teléfono / WhatsApp"
+  ],
+  "Serviços Opcionais": [
+    "Optional services",
+    "Servicios opcionales"
+  ],
+  "Gravação em alta definição da reunião na nuvem": [
+    "High-definition cloud meeting recording",
+    "Grabación de la reunión en alta definición en la nube"
+  ],
+  "h de locação)": [
+    "rental hours)",
+    "horas de alquiler)"
+  ],
+  "Valor Final": [
+    "Final amount",
+    "Importe final"
+  ],
+  "Confirmar Reserva Instantânea": [
+    "Confirm instant booking",
+    "Confirmar reserva inmediata"
+  ],
+  "Salas de reunião": [
+    "Meeting rooms",
+    "Salas de reunión"
+  ],
+  "Atendimento e consultório": [
+    "Consultation rooms",
+    "Consultorios"
+  ],
+  "Salas privadas": [
+    "Private offices",
+    "Salas privadas"
+  ],
+  "Auditórios e eventos": [
+    "Auditoriums & events",
+    "Auditorios y eventos"
+  ],
+  "Busque por cidade, tipo de sala e capacidade.": [
+    "Search by city, room type and capacity.",
+    "Busca por ciudad, tipo de sala y capacidad."
+  ],
+  "Escolha data e horário e confirme na hora.": [
+    "Choose a date and time and confirm instantly.",
+    "Elige fecha y hora y confirma al instante."
+  ],
+  "Faça o check-in na recepção e trabalhe com toda a infraestrutura.": [
+    "Check in at reception and enjoy a fully equipped workspace.",
+    "Regístrate en recepción y trabaja con toda la infraestructura."
+  ],
+  "Como reservo uma sala?": [
+    "How do I book a room?",
+    "¿Cómo reservo una sala?"
+  ],
+  "Escolha o espaço, clique em reservar, informe data, horário e seus dados. A confirmação é imediata e aparece em \"Minhas reservas\".": [
+    "Choose a space, select Book, and enter your date, time and details. Your confirmation appears in My bookings.",
+    "Elige un espacio, pulsa Reservar e indica fecha, hora y tus datos. La confirmación aparece en Mis reservas."
+  ],
+  "Posso contratar endereço fiscal?": [
+    "Can I get a registered office?",
+    "¿Puedo contratar un domicilio fiscal?"
+  ],
+  "Sim. Na página Endereço Fiscal você contrata o plano, acompanha o alvará e recebe a correspondência da sua empresa.": [
+    "Yes. On the Registered Office page, choose a plan, track your license and manage your company's mail.",
+    "Sí. En Domicilio fiscal puedes elegir un plan, seguir tu licencia y gestionar la correspondencia de tu empresa."
+  ],
+  "Tenho um coworking. Como anuncio?": [
+    "I own a coworking. How do I list it?",
+    "Tengo un coworking. ¿Cómo lo anuncio?"
+  ],
+  "Crie uma conta como coworking, cadastre o espaço com fotos e endereço e envie. A equipe MVA analisa o anúncio antes de publicá-lo.": [
+    "Create a coworking account and submit your space with photos and an address. MVA reviews it before publication.",
+    "Crea una cuenta de coworking y envía tu espacio con fotos y dirección. MVA lo revisa antes de publicarlo."
+  ],
+  "Por que meu anúncio ainda não apareceu?": [
+    "Why isn't my listing visible yet?",
+    "¿Por qué todavía no aparece mi anuncio?"
+  ],
+  "Todo espaço novo ou alterado passa por aprovação dos administradores. Você acompanha o status (em análise, aprovado ou rejeitado) no painel do anunciante.": [
+    "New and updated spaces require administrator approval. Track the review status in your owner dashboard.",
+    "Los espacios nuevos o modificados requieren aprobación. Consulta el estado de revisión en tu panel de anunciante."
+  ],
+  "MVA Coworking · Espaços de trabalho": [
+    "MVA Coworking · Workspaces",
+    "MVA Coworking · Espacios de trabajo"
+  ],
+  "para o seu negócio": [
+    "for your business",
+    "para tu negocio"
+  ],
+  "Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados.": [
+    "Book rooms at MVA headquarters, Rua Dom José Thomaz, 565, or at verified partner coworking spaces.",
+    "Reserva salas en la sede MVA, Rua Dom José Thomaz, 565, o en coworkings asociados verificados."
+  ],
+  "Nome, bairro ou comodidade": [
+    "Name, neighborhood or amenity",
+    "Nombre, barrio o servicio"
+  ],
+  "Buscar espaços": [
+    "Search spaces",
+    "Buscar espacios"
+  ],
+  "Todas as cidades": [
+    "All cities",
+    "Todas las ciudades"
+  ],
+  "Qualquer capacidade": [
+    "Any capacity",
+    "Cualquier capacidad"
+  ],
+  "Até 4 pessoas": [
+    "Up to 4 people",
+    "Hasta 4 personas"
+  ],
+  "5 a 10 pessoas": [
+    "5 to 10 people",
+    "De 5 a 10 personas"
+  ],
+  "Mais de 10 pessoas": [
+    "More than 10 people",
+    "Más de 10 personas"
+  ],
+  "Buscar": [
+    "Search",
+    "Buscar"
+  ],
+  "Espaços aprovados pela equipe MVA": [
+    "Spaces reviewed by MVA",
+    "Espacios aprobados por MVA"
+  ],
+  "Confirmação imediata": [
+    "Instant confirmation",
+    "Confirmación inmediata"
+  ],
+  "Endereço fiscal disponível": [
+    "Registered office available",
+    "Domicilio fiscal disponible"
+  ],
+  "Espaços disponíveis": [
+    "Find your next workspace.",
+    "Encuentra tu próximo espacio."
+  ],
+  "espaço encontrado": [
+    "space found",
+    "espacio encontrado"
+  ],
+  "espaços encontrados": [
+    "spaces found",
+    "espacios encontrados"
+  ],
+  "Limpar filtros": [
+    "Clear filters",
+    "Limpiar filtros"
+  ],
+  "Melhor avaliados": [
+    "Highest rated",
+    "Mejor valorados"
+  ],
+  "Menor preço por hora": [
+    "Lowest hourly rate",
+    "Menor precio por hora"
+  ],
+  "Maior preço por hora": [
+    "Highest hourly rate",
+    "Mayor precio por hora"
+  ],
+  "Maior capacidade": [
+    "Largest capacity",
+    "Mayor capacidad"
+  ],
+  "Tipo de espaço": [
+    "Space type",
+    "Tipo de espacio"
+  ],
+  "Nenhum espaço encontrado": [
+    "No spaces found",
+    "No se encontraron espacios"
+  ],
+  "Altere a cidade, o tipo de sala ou a busca para ver mais opções.": [
+    "Try a different city, room type or search to see more options.",
+    "Cambia la ciudad, el tipo de sala o la búsqueda para ver más opciones."
+  ],
+  "Ver todos os espaços": [
+    "View all spaces",
+    "Ver todos los espacios"
+  ],
+  "Seja o primeiro coworking parceiro": [
+    "Become our first coworking partner",
+    "Sé nuestro primer coworking asociado"
+  ],
+  "Hoje o marketplace reúne as salas da sede MVA. Anuncie o seu espaço e alcance novos clientes.": [
+    "The marketplace currently features MVA headquarters rooms. List your space and reach new customers.",
+    "El marketplace reúne las salas de la sede MVA. Anuncia tu espacio y llega a nuevos clientes."
+  ],
+  "Como funciona": [
+    "Your workspace in three steps.",
+    "Tu espacio en tres pasos."
+  ],
+  "Serviços para empresas": [
+    "Business services",
+    "Servicios para empresas"
+  ],
+  "Use o endereço da sede MVA para o CNPJ da sua empresa, com acompanhamento do alvará.": [
+    "Use MVA headquarters as your company's registered office and track your business license.",
+    "Utiliza la sede MVA como domicilio fiscal de tu empresa y sigue tu licencia de actividad."
+  ],
+  "Contratar endereço fiscal": [
+    "Get a registered office",
+    "Contratar domicilio fiscal"
+  ],
+  "Recebimento de correspondência": [
+    "Mail reception",
+    "Recepción de correspondencia"
+  ],
+  "Cartas, encomendas e documentos recebidos, avisados e digitalizados pela recepção.": [
+    "Reception handles letters, parcels and documents, with notifications and scanning.",
+    "Recepción gestiona cartas, paquetes y documentos, con avisos y digitalización."
+  ],
+  "Ver correspondências": [
+    "View mail",
+    "Ver correspondencia"
+  ],
+  "Tem um coworking? Anuncie na MVA": [
+    "Own a coworking? Grow with MVA.",
+    "¿Tienes un coworking? Crece con MVA."
+  ],
+  "Cadastre seu espaço com fotos e endereço. Depois da análise e aprovação da equipe MVA, ele aparece para todos os visitantes.": [
+    "Add photos and an address. Once reviewed and approved by MVA, your space becomes visible to all visitors.",
+    "Añade fotos y dirección. Tras la revisión y aprobación de MVA, tu espacio será visible para todos."
+  ],
+  "Cadastrar meu espaço": [
+    "List my space",
+    "Registrar mi espacio"
+  ],
+  "Perguntas frequentes": [
+    "Frequently asked questions",
+    "Preguntas frecuentes"
+  ],
+  "Atendimento & Consultório": [
+    "Consultation room",
+    "Consultorio"
+  ],
+  "Auditório": [
+    "Auditorium",
+    "Auditorio"
+  ],
+  "Sala Privativa": [
+    "Private office",
+    "Sala privada"
+  ],
+  "SEDE OFICIAL MVA": [
+    "MVA HEADQUARTERS",
+    "SEDE OFICIAL MVA"
+  ],
+  "Novo": [
+    "New",
+    "Nuevo"
+  ],
+  "Sede MVA": [
+    "MVA headquarters",
+    "Sede MVA"
+  ],
+  "Até": [
+    "Up to",
+    "Hasta"
+  ],
+  "pess.": [
+    "people",
+    "pers."
+  ],
+  "Valor hora": [
+    "Hourly rate",
+    "Precio por hora"
+  ],
+  "/hora": [
+    "/hour",
+    "/hora"
+  ],
+  "Ver detalhes e fotos": [
+    "View details and photos",
+    "Ver detalles y fotos"
+  ],
+  "Reservar": [
+    "Book",
+    "Reservar"
+  ],
+  "Sala de Atendimento & Consultório": [
+    "Consultation room / office",
+    "Sala de atención y consultorio"
+  ],
+  "Auditório para Eventos": [
+    "Event auditorium",
+    "Auditorio para eventos"
+  ],
+  "Escritório Privativo / Squads": [
+    "Private office / teams",
+    "Oficina privada / equipos"
+  ],
+  "SEDE OFICIAL MVA COWORKING": [
+    "MVA COWORKING HEADQUARTERS",
+    "SEDE OFICIAL MVA COWORKING"
+  ],
+  "avaliações)": [
+    "reviews)",
+    "reseñas)"
+  ],
+  "Capacidade": [
+    "Capacity",
+    "Capacidad"
+  ],
+  "Valor por hora": [
+    "Hourly rate",
+    "Precio por hora"
+  ],
+  "Turno (4h)": [
+    "Half day (4h)",
+    "Turno (4h)"
+  ],
+  "Espaço operado por:": [
+    "Space operated by:",
+    "Espacio operado por:"
+  ],
+  "Sede Oficial": [
+    "Official headquarters",
+    "Sede oficial"
+  ],
+  "Tarifa Avulsa": [
+    "Standard rate",
+    "Tarifa puntual"
+  ],
+  "Voltar": [
+    "Back",
+    "Volver"
+  ],
+  "Agendar Agora": [
+    "Book now",
+    "Reservar ahora"
+  ],
+  "Meu Coworking": [
+    "My coworking",
+    "Mi coworking"
+  ],
+  "Smart TV 4K para videoconferência": [
+    "4K smart TV for video calls",
+    "Smart TV 4K para videoconferencias"
+  ],
+  "Ar-condicionado silencioso": [
+    "Quiet air conditioning",
+    "Aire acondicionado silencioso"
+  ],
+  "Painel do Dono de Coworking": [
+    "Coworking owner dashboard",
+    "Panel del propietario de coworking"
+  ],
+  "Para cadastrar seus espaços de reunião, consultórios ou auditórios e começar a receber agendamentos de clientes, entre com sua conta Google ou faça seu cadastro.": [
+    "Sign in with Google or create an account to list meeting rooms, consultation rooms and auditoriums.",
+    "Accede con Google o crea una cuenta para anunciar salas, consultorios y auditorios."
+  ],
+  "Entrar ou Criar Conta de Coworking": [
+    "Sign in or create a coworking account",
+    "Acceder o crear cuenta de coworking"
+  ],
+  "Meu Espaço Coworking": [
+    "My coworking space",
+    "Mi espacio de coworking"
+  ],
+  "Ambiente profissional e moderno equipado com infraestrutura completa para reuniões e atendimentos de alto nível.": [
+    "A modern professional setting with everything needed for meetings and consultations.",
+    "Un entorno profesional y moderno con infraestructura completa para reuniones y consultas."
+  ],
+  "Adicione pelo menos uma foto do espaço.": [
+    "Add at least one photo of the space.",
+    "Añade al menos una foto del espacio."
+  ],
+  "Painel do Parceiro MVA": [
+    "MVA partner dashboard",
+    "Panel del socio MVA"
+  ],
+  "Conta Google": [
+    "Google account",
+    "Cuenta Google"
+  ],
+  "Empresa de Coworking Credenciada": [
+    "Approved coworking business",
+    "Empresa de coworking acreditada"
+  ],
+  "Adicionar Espaço / Sala": [
+    "Add space / room",
+    "Añadir espacio / sala"
+  ],
+  "Espaços Ativos no Marketplace": [
+    "Active marketplace spaces",
+    "Espacios activos en el marketplace"
+  ],
+  "Publicados": [
+    "Published",
+    "Publicados"
+  ],
+  "Visíveis para pessoas e empresas reservarem": [
+    "Visible to people and companies looking to book",
+    "Visibles para personas y empresas que buscan reservar"
+  ],
+  "Visualizações da Semana": [
+    "Views this week",
+    "Visualizaciones de la semana"
+  ],
+  "+18% este mês": [
+    "+18% this month",
+    "+18% este mes"
+  ],
+  "Interessados procurando na sua cidade": [
+    "People searching in your city",
+    "Personas buscando en tu ciudad"
+  ],
+  "Reservas Confirmadas": [
+    "Confirmed bookings",
+    "Reservas confirmadas"
+  ],
+  "100% pagas": [
+    "100% paid",
+    "100% pagadas"
+  ],
+  "Repasse automático sem taxa oculta": [
+    "Automatic payouts with no hidden fees",
+    "Transferencias automáticas sin cargos ocultos"
+  ],
+  "Seus Espaços Cadastrados": [
+    "Your registered spaces",
+    "Tus espacios registrados"
+  ],
+  "Gerencie fotos, preços por hora e endereços": [
+    "Manage photos, hourly rates and addresses",
+    "Gestiona fotos, precios por hora y direcciones"
+  ],
+  "Cadastrar Novo": [
+    "Add new",
+    "Registrar nuevo"
+  ],
+  "Em análise": [
+    "Under review",
+    "En revisión"
+  ],
+  "No Ar": [
+    "Live",
+    "Publicado"
+  ],
+  "Motivo:": [
+    "Reason:",
+    "Motivo:"
+  ],
+  "Hora:": [
+    "Hour:",
+    "Hora:"
+  ],
+  "Ver no Marketplace": [
+    "View on marketplace",
+    "Ver en el marketplace"
+  ],
+  "Você ainda não adicionou nenhum espaço": [
+    "You haven't added any spaces yet",
+    "Todavía no has añadido ningún espacio"
+  ],
+  "Adicione suas salas de reunião, consultórios ou auditórios com fotos reais e endereço para que clientes possam alugar.": [
+    "Add your meeting rooms, offices or auditoriums with real photos and an address so customers can book.",
+    "Añade tus salas, consultorios o auditorios con fotos reales y dirección para recibir reservas."
+  ],
+  "Adicionar Primeiro Espaço": [
+    "Add your first space",
+    "Añadir primer espacio"
+  ],
+  "Novo Espaço no Marketplace": [
+    "New marketplace space",
+    "Nuevo espacio en el marketplace"
+  ],
+  "Editar Informações do Espaço": [
+    "Edit space information",
+    "Editar información del espacio"
+  ],
+  "Cadastre sua Sala ou Espaço de Coworking": [
+    "List your room or coworking space",
+    "Registra tu sala o espacio de coworking"
+  ],
+  "Coloque fotos de qualidade e o endereço completo para que os clientes encontrem e reservem com facilidade.": [
+    "Add quality photos and a full address so customers can find and book easily.",
+    "Añade fotos de calidad y la dirección completa para facilitar las reservas."
+  ],
+  "1. Dados da Sala & Empresa": [
+    "1. Room & company details",
+    "1. Datos de la sala y empresa"
+  ],
+  "Nome do Espaço / Sala *": [
+    "Space / room name *",
+    "Nombre del espacio / sala *"
+  ],
+  "Nome do seu Coworking *": [
+    "Your coworking name *",
+    "Nombre de tu coworking *"
+  ],
+  "Tipo de Espaço *": [
+    "Space type *",
+    "Tipo de espacio *"
+  ],
+  "Sala de Reunião Executiva": [
+    "Executive meeting room",
+    "Sala de reunión ejecutiva"
+  ],
+  "Auditório / Treinamento": [
+    "Auditorium / training",
+    "Auditorio / formación"
+  ],
+  "Capacidade de Pessoas *": [
+    "Capacity *",
+    "Capacidad de personas *"
+  ],
+  "Preço por Hora (R$) *": [
+    "Hourly rate (BRL) *",
+    "Precio por hora (BRL) *"
+  ],
+  "Preço Turno 4h (R$)": [
+    "4-hour rate (BRL)",
+    "Precio por 4h (BRL)"
+  ],
+  "2. Endereço do Espaço": [
+    "2. Space address",
+    "2. Dirección del espacio"
+  ],
+  "Rua / Avenida *": [
+    "Street / avenue *",
+    "Calle / avenida *"
+  ],
+  "Número / Sala *": [
+    "Number / room *",
+    "Número / sala *"
+  ],
+  "Estado (UF) *": [
+    "State (UF) *",
+    "Estado (UF) *"
+  ],
+  "3. Fotos do Espaço": [
+    "3. Space photos",
+    "3. Fotos del espacio"
+  ],
+  "Limite de 15 fotos por espaço.": [
+    "Maximum 15 photos per space.",
+    "Máximo 15 fotos por espacio."
+  ],
+  "Principal": [
+    "Main",
+    "Principal"
+  ],
+  "+ Adicionar fotos": [
+    "+ Add photos",
+    "+ Añadir fotos"
+  ],
+  "A primeira foto aparece no card do marketplace. Até 15 fotos.": [
+    "The first photo is the marketplace cover. Up to 15 photos.",
+    "La primera foto es la portada del anuncio. Hasta 15 fotos."
+  ],
+  "4. Comodidades & Serviços Extras Oferecidos": [
+    "4. Amenities & extra services",
+    "4. Comodidades y servicios adicionales"
+  ],
+  "Este espaço oferece": [
+    "This space offers",
+    "Este espacio ofrece"
+  ],
+  "Endereço Fiscal para CNPJ": [
+    "Registered office for CNPJ",
+    "Domicilio fiscal para CNPJ"
+  ],
+  "Oferece": [
+    "Offers",
+    "Ofrece"
+  ],
+  "Recepção e Gestão de Correspondência": [
+    "Reception & mail management",
+    "Recepción y gestión de correspondencia"
+  ],
+  "Descrição": [
+    "Description",
+    "Descripción"
+  ],
+  "Publicar Espaço no Marketplace": [
+    "Publish space on marketplace",
+    "Publicar espacio en el marketplace"
+  ],
+  "Ocultar senha": [
+    "Hide password",
+    "Ocultar contraseña"
+  ],
+  "Mostrar senha": [
+    "Show password",
+    "Mostrar contraseña"
+  ],
+  "Preferências": [
+    "Preferences",
+    "Preferencias"
+  ],
+  "Idioma": [
+    "Language",
+    "Idioma"
+  ],
+  "Ativar tema claro": [
+    "Switch to light theme",
+    "Activar tema claro"
+  ],
+  "Ativar tema escuro": [
+    "Switch to dark theme",
+    "Activar tema oscuro"
+  ],
+  "Claro": [
+    "Light",
+    "Claro"
+  ],
+  "Escuro": [
+    "Dark",
+    "Oscuro"
+  ],
+  "Fiscal": [
+    "Office",
+    "Fiscal"
+  ],
+  "Explorar": [
+    "Explore",
+    "Explorar"
+  ],
+  "Correio": [
+    "Mail",
+    "Correo"
+  ],
+  "Reservas": [
+    "Bookings",
+    "Reservas"
+  ],
+  "Anunciar": [
+    "List",
+    "Anunciar"
+  ],
+  "Todos": [
+    "All",
+    "Todos"
+  ],
+  "Todas": [
+    "All",
+    "Todas"
+  ],
+  "Encontre": [
+    "Find",
+    "Encuentra"
+  ],
+  "Reserve": [
+    "Book",
+    "Reserva"
+  ],
+  "Use": [
+    "Work",
+    "Trabaja"
+  ],
+  "Cidade": [
+    "City",
+    "Ciudad"
+  ],
+  "Ordenar": [
+    "Sort",
+    "Ordenar"
+  ],
+  "Senha": [
+    "Password",
+    "Contraseña"
+  ],
+  "E-mail": [
+    "Email",
+    "Correo electrónico"
+  ],
+  "Carregando": [
+    "Loading",
+    "Cargando"
+  ],
+  "Carregando seu painel…": [
+    "Loading your dashboard…",
+    "Cargando tu panel…"
+  ],
+  "Pular para o conteúdo": [
+    "Skip to content",
+    "Saltar al contenido"
+  ],
+  "Espaços de coworking e salas de reunião para o seu negócio": [
+    "A space for every way you work.",
+    "Un espacio para cada forma de trabajar."
+  ],
+  "Seu endereço profissional. O próximo passo da sua empresa.": [
+    "A professional address. A new chapter for your business.",
+    "Una dirección profesional. Una nueva etapa para tu empresa."
+  ],
+  "Abra ou regularize seu CNPJ na sede MVA ou rede parceira. Reduza custos, preserve seu endereço residencial e reúna os serviços da sua empresa em um só lugar.": [
+    "Establish your business at MVA headquarters or a partner location. Reduce costs, protect your home address and bring your business services together in one place.",
+    "Establece tu empresa en MVA o en una sede asociada. Reduce costes, protege tu dirección personal y reúne los servicios de tu negocio en un solo lugar."
+  ],
+  "Painel administrativo MVA": [
+    "MVA administration",
+    "Administración MVA"
+  ],
+  "p/ aprovar": [
+    "pending",
+    "pendientes"
+  ],
+  "Capa": [
+    "Cover",
+    "Portada"
+  ],
+  "Aguarde...": [
+    "Please wait…",
+    "Espera…"
+  ],
+  "Carregando...": [
+    "Loading…",
+    "Cargando…"
+  ],
+  "Entre na sua conta para continuar.": [
+    "Sign in to continue.",
+    "Inicia sesión para continuar."
+  ],
+  "Você saiu da sua conta.": [
+    "You have signed out.",
+    "Has cerrado sesión."
+  ],
+  "Nome": [
+    "Name",
+    "Nombre"
+  ],
+  "Telefone": [
+    "Phone",
+    "Teléfono"
+  ],
+  "Confirmar": [
+    "Confirm",
+    "Confirmar"
+  ],
+  "Salvar": [
+    "Save",
+    "Guardar"
+  ],
+  "Detalhes": [
+    "Details",
+    "Detalles"
+  ],
+  "Bairro São José": [
+    "São José neighborhood",
+    "Barrio São José"
+  ],
+  "MVA Coworking Hub • Sede: Rua Dom José Thomaz, 565 - Aracaju/SE.": [
+    "MVA Coworking Hub · Headquarters: Rua Dom José Thomaz, 565 - Aracaju/SE.",
+    "MVA Coworking Hub · Sede: Rua Dom José Thomaz, 565 - Aracaju/SE."
+  ],
+  "DECLARAÇÃO DE DOMICÍLIO FISCAL E CONCESSÃO DE ENDEREÇO": [
+    "REGISTERED OFFICE AND ADDRESS AUTHORIZATION CERTIFICATE",
+    "DECLARACIÓN DE DOMICILIO FISCAL Y AUTORIZACIÓN DE DIRECCIÓN"
+  ],
+  "Declaramos para os devidos fins legais, perante a": [
+    "We hereby declare for legal purposes before the",
+    "Declaramos para los fines legales ante la"
+  ],
+  "Receita Federal do Brasil": [
+    "Brazilian Federal Revenue Service",
+    "Receita Federal de Brasil"
+  ],
+  "Junta Comercial do Estado": [
+    "State Commercial Registry",
+    "Registro Mercantil del Estado"
+  ],
+  "Secretaria Municipal da Fazenda": [
+    "Municipal Finance Department",
+    "Secretaría Municipal de Hacienda"
+  ],
+  ", que a sociedade empresária:": [
+    ", that the company:",
+    ", que la sociedad empresarial:"
+  ],
+  "Encontra-se devidamente autorizada a utilizar as dependências do imóvel supracitado na": [
+    "Is authorized to use the premises located at",
+    "Está autorizada a utilizar las instalaciones del inmueble situado en"
+  ],
+  "como seu": [
+    "as its",
+    "como su"
+  ],
+  "Domicílio Fiscal e Comercial": [
+    "Registered Office and Business Address",
+    "Domicilio Fiscal y Comercial"
+  ],
+  ", autorizada expressamente para alvarás e recebimento de notificações administrativas e judiciais.": [
+    ", expressly authorized for licenses and receipt of administrative and judicial notices.",
+    ", expresamente autorizada para licencias y recepción de notificaciones administrativas y judiciales."
+  ],
+  "MVA Coworking Sede": [
+    "MVA Coworking headquarters",
+    "Sede MVA Coworking"
+  ],
+  "Ex: Carlos Eduardo de Oliveira": [
+    "E.g. Carlos Eduardo de Oliveira",
+    "Ej.: Carlos Eduardo de Oliveira"
+  ],
+  "Ex: Receita Federal, Banco, Correios": [
+    "E.g. Receita Federal, Banco, Correios",
+    "Ej.: Receita Federal, Banco, Correios"
+  ],
+  "Ex: Envelope lacrado recebido pelos Correios...": [
+    "E.g. Envelope lacrado recebido pelos Correios...",
+    "Ej.: Envelope lacrado recebido pelos Correios..."
+  ],
+  "Ex: Coworking X, Centro, Aracaju...": [
+    "E.g. Coworking X, Centro, Aracaju...",
+    "Ej.: Coworking X, Centro, Aracaju..."
+  ],
+  "Ex: Tech Solutions Brasil LTDA": [
+    "E.g. Tech Solutions Brasil LTDA",
+    "Ej.: Tech Solutions Brasil LTDA"
+  ],
+  "Ex: Tech Solutions": [
+    "E.g. Tech Solutions",
+    "Ej.: Tech Solutions"
+  ],
+  "Ex: Carlos Silva": [
+    "E.g. Carlos Silva",
+    "Ej.: Carlos Silva"
+  ],
+  "Ex: Sala de Reunião Premium Alpha": [
+    "E.g. Sala de Reunião Premium Alpha",
+    "Ej.: Sala de Reunião Premium Alpha"
+  ],
+  "Ex: Espaço Inova Coworking": [
+    "E.g. Espaço Inova Coworking",
+    "Ej.: Espaço Inova Coworking"
+  ],
+  "Ex: Av. Beira Mar, Rua Dom José Thomaz...": [
+    "E.g. Av. Beira Mar, Rua Dom José Thomaz...",
+    "Ej.: Av. Beira Mar, Rua Dom José Thomaz..."
+  ],
+  "Ex: 565, Sala 201": [
+    "E.g. 565, Sala 201",
+    "Ej.: 565, Sala 201"
+  ],
+  "Ex: São José, Jardins...": [
+    "E.g. São José, Jardins...",
+    "Ej.: São José, Jardins..."
+  ],
+  "Ex: Aracaju, São Paulo...": [
+    "E.g. Aracaju, São Paulo...",
+    "Ej.: Aracaju, São Paulo..."
+  ]
+}

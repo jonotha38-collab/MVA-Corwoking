@@ -1,3 +1,4 @@
+import { t } from '../../lib/preferences';
 import React, { forwardRef, useId, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 

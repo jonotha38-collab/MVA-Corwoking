@@ -1,3 +1,4 @@
+import { t } from '../../lib/preferences';
 import React, { useState } from 'react';
 import { isAdmin } from '../../lib/auth';
 import { useCoworking } from '../../context/CoworkingContext';
@@ -119,15 +120,9 @@ export const CorrespondenceView: React.FC = () => {
       <div className="bg-gradient-to-br from-navy-900 to-navy-950 rounded-3xl p-8 sm:p-12 border border-navy-800 shadow-2xl text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative overflow-hidden">
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 backdrop-blur-md mb-4">
-            <Mail className="w-4 h-4" />
-            Central de Recepção & Triagem de Correspondências
-          </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
-            Gestão Inteligente de <br className="hidden sm:block" /> Correspondências
-          </h1>
-          <p className="text-sm sm:text-base text-slate-300 mt-4 max-w-2xl font-medium leading-relaxed">
-            Recebimento diário pelas recepções dos coworkings, triagem protocolada, lockers protegidos e serviço de digitalização de documentos em PDF sob demanda.
-          </p>
+            <Mail className="w-4 h-4" />{t("Central de Recepção & Triagem de Correspondências ")}</div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">{t("Gestão Inteligente de ")}<br className="hidden sm:block" />{t("Correspondências ")}</h1>
+          <p className="text-sm sm:text-base text-slate-300 mt-4 max-w-2xl font-medium leading-relaxed">{t("Recebimento diário pelas recepções dos coworkings, triagem protocolada, lockers protegidos e serviço de digitalização de documentos em PDF sob demanda. ")}</p>
         </div>
 
         {isAdmin(currentUser) && (
@@ -135,9 +130,7 @@ export const CorrespondenceView: React.FC = () => {
             onClick={() => setShowAddModal(true)}
             className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:-translate-y-0.5 flex items-center gap-2 shrink-0"
           >
-            <Plus className="w-5 h-5" />
-            Registrar Correspondência
-          </button>
+            <Plus className="w-5 h-5" />{t("Registrar Correspondência ")}</button>
         )}
 
         {/* Decorative background elements */}
@@ -156,16 +149,16 @@ export const CorrespondenceView: React.FC = () => {
           }`}
         >
           <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Aguardando Retirada</span>
+            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">{t("Aguardando Retirada ")}</span>
             <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
               <Clock className="w-5 h-5" />
             </div>
           </div>
           <div className="flex items-end gap-3">
             <div className="text-4xl font-bold text-navy-900 leading-none">
-              {correspondence.filter(c => c.status === 'aguardando_retirada').length}
+              {t(correspondence.filter(c => c.status === 'aguardando_retirada').length)}
             </div>
-            <span className="text-orange-600 font-bold text-xs pb-1">Disponíveis</span>
+            <span className="text-orange-600 font-bold text-xs pb-1">{t("Disponíveis ")}</span>
           </div>
         </div>
 
@@ -178,16 +171,16 @@ export const CorrespondenceView: React.FC = () => {
           }`}
         >
           <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Digitalizados (PDF)</span>
+            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">{t("Digitalizados (PDF) ")}</span>
             <div className="w-10 h-10 rounded-xl bg-navy-100 flex items-center justify-center text-navy-800">
               <FileText className="w-5 h-5" />
             </div>
           </div>
           <div className="flex items-end gap-3">
             <div className="text-4xl font-bold text-navy-900 leading-none">
-              {correspondence.filter(c => c.status === 'digitalizado').length}
+              {t(correspondence.filter(c => c.status === 'digitalizado').length)}
             </div>
-            <span className="text-navy-700 font-bold text-xs pb-1">Para download</span>
+            <span className="text-navy-700 font-bold text-xs pb-1">{t("Para download ")}</span>
           </div>
         </div>
 
@@ -200,16 +193,16 @@ export const CorrespondenceView: React.FC = () => {
           }`}
         >
           <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Entregues / Resolvidos</span>
+            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">{t("Entregues / Resolvidos ")}</span>
             <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
               <CheckCircle className="w-5 h-5" />
             </div>
           </div>
           <div className="flex items-end gap-3">
             <div className="text-4xl font-bold text-navy-900 leading-none">
-              {correspondence.filter(c => c.status === 'retirado').length}
+              {t(correspondence.filter(c => c.status === 'retirado').length)}
             </div>
-            <span className="text-emerald-600 font-bold text-xs pb-1">Finalizados</span>
+            <span className="text-emerald-600 font-bold text-xs pb-1">{t("Finalizados ")}</span>
           </div>
         </div>
       </div>
@@ -232,7 +225,7 @@ export const CorrespondenceView: React.FC = () => {
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
               }`}
             >
-              {f.label}
+              {t(f.label)}
             </button>
           ))}
         </div>
@@ -241,7 +234,7 @@ export const CorrespondenceView: React.FC = () => {
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <input
             type="text"
-            placeholder="Buscar por código, remetente..."
+            placeholder={t("Buscar por código, remetente...")}
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -250,7 +243,7 @@ export const CorrespondenceView: React.FC = () => {
       </div>
 
       {/* Correspondence Items Cards/List */}
-      {filteredList.length > 0 ? (
+      {t(filteredList.length > 0 ? (
         <div className="space-y-3.5">
           {filteredList.map((item) => {
             const config = typeConfig[item.type] || typeConfig.carta;
@@ -270,45 +263,39 @@ export const CorrespondenceView: React.FC = () => {
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold border uppercase tracking-wider ${config.color}`}>
-                        {config.label}
+                        {t(config.label)}
                       </span>
                       {item.priority === 'urgente' && (
                         <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 uppercase tracking-wider flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3 text-rose-500" />
-                          Urgente
-                        </span>
+                          <AlertTriangle className="w-3 h-3 text-rose-500" />{t("Urgente ")}</span>
                       )}
                       <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                        {item.trackingCode}
+                        {t(item.trackingCode)}
                       </span>
                     </div>
 
-                    <h3 className="font-bold text-sm sm:text-base text-navy-900">
-                      Remetente: <span className="text-slate-800">{item.sender}</span>
+                    <h3 className="font-bold text-sm sm:text-base text-navy-900">{t("Remetente: ")}<span className="text-slate-800">{t(item.sender)}</span>
                     </h3>
 
                     <div className="flex items-center gap-2 text-xs text-orange-600 font-semibold">
                       <Building className="w-3.5 h-3.5" />
-                      <span>Destinatário: {item.companyName}</span>
+                      <span>{t("Destinatário: ")}{t(item.companyName)}</span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 pt-0.5">
                       <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-slate-400" />
-                        Unidade: <strong className="text-slate-700">{item.coworkingLocation}</strong>
+                        <MapPin className="w-3 h-3 text-slate-400" />{t("Unidade: ")}<strong className="text-slate-700">{t(item.coworkingLocation)}</strong>
                       </span>
                       <span>•</span>
-                      <span>Recebido: <strong className="text-slate-700">{item.receivedDate}</strong></span>
+                      <span>{t("Recebido: ")}<strong className="text-slate-700">{t(item.receivedDate)}</strong></span>
                       <span>•</span>
                       <span className="flex items-center gap-1">
-                        <Lock className="w-3 h-3 text-slate-400" />
-                        Locker: <strong className="text-slate-700">{item.lockerNumber || 'Recepção Principal'}</strong>
+                        <Lock className="w-3 h-3 text-slate-400" />{t("Locker: ")}<strong className="text-slate-700">{item.lockerNumber || 'Recepção Principal'}</strong>
                       </span>
                     </div>
 
                     {item.notes && (
-                      <p className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 italic mt-1">
-                        Obs: "{item.notes}"
+                      <p className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 italic mt-1">{t("Obs: \" ")}{t(item.notes)}"
                       </p>
                     )}
                   </div>
@@ -318,68 +305,52 @@ export const CorrespondenceView: React.FC = () => {
                 <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-start sm:items-center gap-2 self-stretch md:self-center shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
                   {item.status === 'aguardando_retirada' && (
                     <>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">
-                        Aguardando Retirada
-                      </span>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">{t("Aguardando Retirada ")}</span>
 
                       <button
                         onClick={() => requestDigitalization(item.id)}
                         className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
                       >
-                        <FileText className="w-3.5 h-3.5 text-orange-600" />
-                        Digitalizar em PDF
-                      </button>
+                        <FileText className="w-3.5 h-3.5 text-orange-600" />{t("Digitalizar em PDF ")}</button>
 
                       <button
                         onClick={() => setAuthorizeModal(item)}
                         className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
                       >
-                        <UserCheck className="w-3.5 h-3.5" />
-                        Autorizar Terceiro
-                      </button>
+                        <UserCheck className="w-3.5 h-3.5" />{t("Autorizar Terceiro ")}</button>
 
                       {isAdmin(currentUser) && (
                         <button
                           onClick={() => markCorrespondenceAsRetrieved(item.id)}
                           className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
                         >
-                          <CheckCircle className="w-3.5 h-3.5" />
-                          Dar Baixa
-                        </button>
+                          <CheckCircle className="w-3.5 h-3.5" />{t("Dar Baixa ")}</button>
                       )}
                     </>
                   )}
 
                   {item.status === 'digitalizado' && (
                     <>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-navy-50 text-navy-900 border border-navy-200">
-                        Digitalizado em PDF
-                      </span>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-navy-50 text-navy-900 border border-navy-200">{t("Digitalizado em PDF ")}</span>
 
                       <button
                         onClick={() => setPreviewDoc(item)}
                         className="px-3.5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
                       >
-                        <Eye className="w-3.5 h-3.5" />
-                        Visualizar PDF
-                      </button>
+                        <Eye className="w-3.5 h-3.5" />{t("Visualizar PDF ")}</button>
 
                       {isAdmin(currentUser) && (
                         <button
                           onClick={() => markCorrespondenceAsRetrieved(item.id)}
                           className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors"
-                        >
-                          Entregar Físico
-                        </button>
+                        >{t("Entregar Físico ")}</button>
                       )}
                     </>
                   )}
 
                   {item.status === 'retirado' && (
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-                      Entregue no Balcão
-                    </span>
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />{t("Entregue no Balcão ")}</span>
                   )}
                 </div>
               </div>
@@ -389,12 +360,10 @@ export const CorrespondenceView: React.FC = () => {
       ) : (
         <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8 space-y-3">
           <Mail className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="text-sm font-bold text-navy-900">Nenhuma correspondência encontrada</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Não há correspondências cadastradas nesta categoria ou com estes termos de pesquisa.
-          </p>
+          <h3 className="text-sm font-bold text-navy-900">{t("Nenhuma correspondência encontrada ")}</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">{t("Não há correspondências cadastradas nesta categoria ou com estes termos de pesquisa. ")}</p>
         </div>
-      )}
+      ))}
 
       {/* Modal PDF Viewer */}
       {previewDoc && (
@@ -403,7 +372,7 @@ export const CorrespondenceView: React.FC = () => {
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-orange-400" />
-                <h3 className="font-bold text-sm">Visualização do Documento Escaneado</h3>
+                <h3 className="font-bold text-sm">{t("Visualização do Documento Escaneado ")}</h3>
               </div>
               <button onClick={() => setPreviewDoc(null)} className="text-slate-400 hover:text-white p-1">
                 <X className="w-5 h-5" />
@@ -413,12 +382,12 @@ export const CorrespondenceView: React.FC = () => {
             <div className="p-6 space-y-4 text-xs">
               <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
-                  <span className="text-slate-500 block">Remetente</span>
-                  <strong className="text-navy-900">{previewDoc.sender}</strong>
+                  <span className="text-slate-500 block">{t("Remetente ")}</span>
+                  <strong className="text-navy-900">{t(previewDoc.sender)}</strong>
                 </div>
                 <div className="text-right">
-                  <span className="text-slate-500 block">Protocolo</span>
-                  <strong className="font-mono text-orange-600">{previewDoc.trackingCode}</strong>
+                  <span className="text-slate-500 block">{t("Protocolo ")}</span>
+                  <strong className="font-mono text-orange-600">{t(previewDoc.trackingCode)}</strong>
                 </div>
               </div>
 
@@ -427,25 +396,21 @@ export const CorrespondenceView: React.FC = () => {
                   <FileText className="w-8 h-8" />
                 </div>
                 <div className="text-center">
-                  <strong className="text-sm text-navy-900 block">Documento_Oficial_Digitalizado.pdf</strong>
-                  <span className="text-xs text-slate-500">Digitalização autenticada • Arquivo de alta definição</span>
+                  <strong className="text-sm text-navy-900 block">{t("Documento_Oficial_Digitalizado.pdf ")}</strong>
+                  <span className="text-xs text-slate-500">{t("Digitalização autenticada • Arquivo de alta definição ")}</span>
                 </div>
                 <button
                   onClick={() => showToast('Download do PDF iniciado.', 'success')}
                   className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-colors"
                 >
-                  <Download className="w-4 h-4" />
-                  Baixar PDF Original
-                </button>
+                  <Download className="w-4 h-4" />{t("Baixar PDF Original ")}</button>
               </div>
 
               <div className="flex justify-end pt-2">
                 <button
                   onClick={() => setPreviewDoc(null)}
                   className="px-5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl"
-                >
-                  Fechar
-                </button>
+                >{t("Fechar ")}</button>
               </div>
             </div>
           </div>
@@ -459,7 +424,7 @@ export const CorrespondenceView: React.FC = () => {
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <UserCheck className="w-5 h-5 text-orange-400" />
-                <h3 className="font-bold text-sm">Autorizar Retirada por Terceiro</h3>
+                <h3 className="font-bold text-sm">{t("Autorizar Retirada por Terceiro ")}</h3>
               </div>
               <button onClick={() => setAuthorizeModal(null)} className="text-slate-400 hover:text-white p-1">
                 <X className="w-5 h-5" />
@@ -467,16 +432,15 @@ export const CorrespondenceView: React.FC = () => {
             </div>
 
             <form onSubmit={handleAuthorizeSubmit} className="p-6 space-y-4 text-xs">
-              <p className="text-slate-600">
-                Informe os dados do portador que comparecerá à recepção da unidade para retirar o pacote <strong>{authorizeModal.trackingCode}</strong>.
+              <p className="text-slate-600">{t("Informe os dados do portador que comparecerá à recepção da unidade para retirar o pacote ")}<strong>{t(authorizeModal.trackingCode)}</strong>.
               </p>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Nome Completo do Portador *</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("Nome Completo do Portador * ")}</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Carlos Eduardo de Oliveira"
+                  placeholder={t("Ex: Carlos Eduardo de Oliveira")}
                   value={authName}
                   onChange={e => setAuthName(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
@@ -484,11 +448,11 @@ export const CorrespondenceView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">CPF do Portador *</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("CPF do Portador * ")}</label>
                 <input
                   type="text"
                   required
-                  placeholder="000.000.000-00"
+                  placeholder={t("000.000.000-00")}
                   value={authCpf}
                   onChange={e => setAuthCpf(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
@@ -500,15 +464,11 @@ export const CorrespondenceView: React.FC = () => {
                   type="button"
                   onClick={() => setAuthorizeModal(null)}
                   className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                >
-                  Cancelar
-                </button>
+                >{t("Cancelar ")}</button>
                 <button
                   type="submit"
                   className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-sm"
-                >
-                  Gerar Autorização
-                </button>
+                >{t("Gerar Autorização ")}</button>
               </div>
             </form>
           </div>
@@ -522,7 +482,7 @@ export const CorrespondenceView: React.FC = () => {
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Plus className="w-5 h-5 text-orange-400" />
-                <h3 className="font-bold text-sm">Entrada de Correspondência (Recepção)</h3>
+                <h3 className="font-bold text-sm">{t("Entrada de Correspondência (Recepção) ")}</h3>
               </div>
               <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white p-1">
                 <X className="w-5 h-5" />
@@ -531,7 +491,7 @@ export const CorrespondenceView: React.FC = () => {
 
             <form onSubmit={handleAddSubmit} className="p-6 space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Empresa Destinatária *</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("Empresa Destinatária * ")}</label>
                 <select
                   value={formCompanyId}
                   onChange={e => setFormCompanyId(e.target.value)}
@@ -546,7 +506,7 @@ export const CorrespondenceView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Unidade / Localidade de Recebimento</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("Unidade / Localidade de Recebimento ")}</label>
                 <input
                   type="text"
                   value={formLocation}
@@ -557,11 +517,11 @@ export const CorrespondenceView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Remetente *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Remetente * ")}</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ex: Receita Federal, Banco, Correios"
+                    placeholder={t("Ex: Receita Federal, Banco, Correios")}
                     value={formSender}
                     onChange={e => setFormSender(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
@@ -569,10 +529,10 @@ export const CorrespondenceView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Código de Rastreio</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Código de Rastreio ")}</label>
                   <input
                     type="text"
-                    placeholder="BR-SEDEX-..."
+                    placeholder={t("BR-SEDEX-...")}
                     value={formTracking}
                     onChange={e => setFormTracking(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
@@ -582,34 +542,34 @@ export const CorrespondenceView: React.FC = () => {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Tipo</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Tipo ")}</label>
                   <select
                     value={formType}
                     onChange={e => setFormType(e.target.value as any)}
                     className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                   >
-                    <option value="carta">Carta</option>
-                    <option value="documento_fiscal">Doc. Fiscal</option>
-                    <option value="notificacao_judicial">Notif. Judicial</option>
-                    <option value="encomenda">Encomenda</option>
+                    <option value="carta">{t("Carta ")}</option>
+                    <option value="documento_fiscal">{t("Doc. Fiscal ")}</option>
+                    <option value="notificacao_judicial">{t("Notif. Judicial ")}</option>
+                    <option value="encomenda">{t("Encomenda ")}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Prioridade</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Prioridade ")}</label>
                   <select
                     value={formPriority}
                     onChange={e => setFormPriority(e.target.value as any)}
                     className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                   >
-                    <option value="normal">Normal</option>
-                    <option value="alta">Alta</option>
-                    <option value="urgente">Urgente</option>
+                    <option value="normal">{t("Normal ")}</option>
+                    <option value="alta">{t("Alta ")}</option>
+                    <option value="urgente">{t("Urgente ")}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Locker / Armário</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Locker / Armário ")}</label>
                   <input
                     type="text"
                     value={formLocker}
@@ -620,10 +580,10 @@ export const CorrespondenceView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Observações da Recepção</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("Observações da Recepção ")}</label>
                 <textarea
                   rows={2}
-                  placeholder="Ex: Envelope lacrado recebido pelos Correios..."
+                  placeholder={t("Ex: Envelope lacrado recebido pelos Correios...")}
                   value={formNotes}
                   onChange={e => setFormNotes(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
@@ -635,15 +595,11 @@ export const CorrespondenceView: React.FC = () => {
                   type="button"
                   onClick={() => setShowAddModal(false)}
                   className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                >
-                  Cancelar
-                </button>
+                >{t("Cancelar ")}</button>
                 <button
                   type="submit"
                   className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-sm"
-                >
-                  Salvar e Notificar Cliente
-                </button>
+                >{t("Salvar e Notificar Cliente ")}</button>
               </div>
             </form>
           </div>
