@@ -5,6 +5,8 @@ import { SpaceCard } from './SpaceCard';
 import { SpaceDetailModal } from './SpaceDetailModal';
 import { BookingModal } from './BookingModal';
 import { Search, MapPin, Users, LayoutGrid, X, PlusCircle, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
+import { BlurReveal } from '../ui/BlurReveal';
+import { Reveal } from '../ui/Reveal';
 import heroOffice from '../../assets/hero-office.jpg';
 
 const CATEGORIES = [
@@ -56,13 +58,13 @@ export const MarketplaceView: React.FC = () => {
   const dirty = searchQuery || selectedCity !== 'Todas' || selectedCategory !== 'todas' || capacity !== 'all';
   const clear = () => { setSearchQuery(''); setSelectedCity('Todas'); setSelectedCategory('todas'); setCapacity('all'); };
   const search = (e: React.FormEvent) => { e.preventDefault(); results.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
-  const field = 'w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-navy-900 focus:border-orange-500 focus:outline-hidden focus:ring-2 focus:ring-orange-500/30';
+  const field = 'w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-navy-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30';
 
   return (
     <div className="space-y-16 pb-8">
       {/* Hero com busca */}
       <section 
-        className="relative overflow-hidden rounded-3xl bg-navy-950 px-6 py-12 text-white sm:px-12 sm:py-20"
+        className="hero-shell relative overflow-hidden bg-navy-950 px-6 py-10 text-white sm:px-12 sm:py-16"
         style={{
           backgroundImage: `url(${heroOffice})`,
           backgroundSize: 'cover',
@@ -73,9 +75,10 @@ export const MarketplaceView: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/80 to-transparent pointer-events-none" />
         
         <div className="relative max-w-3xl z-10">
-          <h1 className="text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl drop-shadow-md">
-            Espaços de coworking e salas de reunião {selectedCity !== 'Todas' ? `em ${selectedCity}` : 'para o seu negócio'}
-          </h1>
+          <p className="eyebrow mb-5 text-orange-300">MVA Coworking · Espaços de trabalho</p>
+          <BlurReveal as="h1" className="hero-title" key={selectedCity}>
+            {`Espaços de coworking e salas de reunião ${selectedCity !== 'Todas' ? `em ${selectedCity}` : 'para o seu negócio'}`}
+          </BlurReveal>
           <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">
             Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados.
           </p>
@@ -85,7 +88,7 @@ export const MarketplaceView: React.FC = () => {
           <div className="relative md:col-span-4"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Nome, bairro ou comodidade" aria-label="Buscar espaços" className={field} /></div>
           <div className="relative md:col-span-3"><MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} aria-label="Cidade" className={field}>{cities.map(c => <option key={c} value={c}>{c === 'Todas' ? 'Todas as cidades' : c}</option>)}</select></div>
           <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label="Capacidade" className={field}><option value="all">Qualquer capacidade</option><option value="small">Até 4 pessoas</option><option value="medium">5 a 10 pessoas</option><option value="large">Mais de 10 pessoas</option></select></div>
-          <button className="rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white hover:bg-orange-600 md:col-span-2">Buscar</button>
+          <button className="action-primary px-5 py-3 text-sm md:col-span-2">Buscar</button>
         </form>
         <ul className="relative z-10 mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-200">
           <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-orange-400" aria-hidden />Espaços aprovados pela equipe MVA</li>
@@ -118,14 +121,14 @@ export const MarketplaceView: React.FC = () => {
         </div>
         {filtered.length > 0 ? (
           <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map(s => <SpaceCard key={s.id} space={s} onSelect={setDetail} onBook={setBooking} />)}
+            {filtered.map((s, index) => <Reveal key={s.id} delay={Math.min(index, 3) * 0.06} className="flex"><SpaceCard space={s} onSelect={setDetail} onBook={setBooking} /></Reveal>)}
           </div>
         ) : (
           <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
             <Filter className="mx-auto h-8 w-8 text-orange-500" aria-hidden />
             <h3 className="mt-3 text-lg font-bold text-navy-900">Nenhum espaço encontrado</h3>
             <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">Altere a cidade, o tipo de sala ou a busca para ver mais opções.</p>
-            <button onClick={clear} className="mt-5 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-orange-600">Ver todos os espaços</button>
+            <button onClick={clear} className="mt-5 action-primary px-5 py-2.5 text-sm">Ver todos os espaços</button>
           </div>
         )}
         {hq && live.filter(s => !s.isMvaHeadquarters).length === 0 && (
@@ -170,16 +173,17 @@ export const MarketplaceView: React.FC = () => {
       </section>
 
       {/* Anunciante */}
-      <section className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-orange-200 bg-orange-50 p-8 md:flex-row md:items-center">
+      <section className="flex flex-col items-start justify-between gap-6 rounded-2xl border border-slate-200 bg-white p-8 md:flex-row md:items-center">
         <div className="max-w-xl">
           <h2 className="text-2xl font-bold text-navy-900">Tem um coworking? Anuncie na MVA</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">Cadastre seu espaço com fotos e endereço. Depois da análise e aprovação da equipe MVA, ele aparece para todos os visitantes.</p>
         </div>
-        <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-sm font-bold text-white hover:bg-orange-600"><LayoutGrid className="h-4 w-4" aria-hidden />Cadastrar meu espaço</button>
+        <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 action-primary px-6 py-3 text-sm"><LayoutGrid className="h-4 w-4" aria-hidden />Cadastrar meu espaço</button>
       </section>
 
       {/* FAQ */}
       <section aria-labelledby="faq" className="max-w-3xl">
+        <Reveal>
         <h2 id="faq" className="text-2xl font-bold text-navy-900">Perguntas frequentes</h2>
         <div className="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
           {FAQ.map(([q, a]) => (
@@ -189,6 +193,7 @@ export const MarketplaceView: React.FC = () => {
             </details>
           ))}
         </div>
+        </Reveal>
       </section>
 
       {detail && <SpaceDetailModal space={detail} onClose={() => setDetail(null)} onOpenBooking={setBooking} />}

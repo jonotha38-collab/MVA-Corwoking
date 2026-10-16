@@ -37,7 +37,7 @@ export const PendingApprovals: React.FC = () => {
               </div>
               {rejecting === s.id && (
                 <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row">
-                  <input value={reason} onChange={e => setReason(e.target.value)} placeholder="Motivo da rejeição (o anunciante verá)" aria-label="Motivo da rejeição" className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-xs focus:outline-hidden focus:ring-2 focus:ring-orange-500" />
+                  <input value={reason} onChange={e => setReason(e.target.value)} placeholder="Motivo da rejeição (o anunciante verá)" aria-label="Motivo da rejeição" className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500" />
                   <button disabled={!reason.trim()} onClick={() => { rejectSpace(s.id, reason.trim()); setRejecting(null); }} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-40">Confirmar rejeição</button>
                 </div>
               )}

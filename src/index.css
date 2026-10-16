@@ -24,7 +24,7 @@
   .animate-slideIn { animation: slideIn .22s ease-out }
 }
 @media print { .no-print { display: none !important } }
-body { font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif; }
+body { font-family: 'Inter', system-ui, sans-serif; }
 
 /* ---------- Responsivo e acabamento ---------- */
 html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
@@ -56,4 +56,46 @@ select { text-overflow: ellipsis; }
 
 @media (pointer: coarse) {
   select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) { min-height: 44px; }
+}
+
+/* Shared visual language for public pages and the management area. */
+@layer components {
+  .hero-shell { @apply rounded-2xl border border-navy-800; }
+  .hero-title {
+    @apply text-3xl font-semibold tracking-tight sm:text-5xl;
+    line-height: 1.16;
+    text-wrap: balance;
+  }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-widest; }
+  .action-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50;
+    background: #c54b08;
+    transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  .action-primary:hover:not(:disabled) { background: #a93f06; }
+  .action-primary:active:not(:disabled) { transform: translateY(1px); }
+  .surface-card {
+    box-shadow: 0 2px 8px rgb(15 23 42 / .025);
+    transition: border-color .22s ease, box-shadow .22s ease;
+  }
+  .skip-link {
+    @apply fixed left-4 top-4 z-[100] rounded-lg bg-white px-4 py-3 font-semibold text-navy-900;
+    transform: translateY(-160%);
+  }
+  .skip-link:focus { transform: translateY(0); }
+}
+
+/* Orange remains the brand accent; solid actions use a readable darker tone. */
+button.bg-orange-500, button.bg-orange-600, .btn-primary { background-color: #c54b08; }
+button.bg-orange-500:hover, button.bg-orange-600:hover, .btn-primary:hover { background-color: #a93f06; }
+
+@media (hover: hover) {
+  .surface-card:hover { border-color: #cbd5e1; box-shadow: 0 8px 24px rgb(15 23 42 / .065); }
+}
+@media (min-width: 1024px) {
+  .hero-title { font-size: 3.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .action-primary:active:not(:disabled) { transform: none; }
+  .group:hover img { transform: none !important; }
 }

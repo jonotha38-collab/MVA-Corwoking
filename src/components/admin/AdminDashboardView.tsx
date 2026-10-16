@@ -2,28 +2,19 @@ import React, { useState, useRef } from 'react';
 import { supabase, uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { PendingApprovals } from './PendingApprovals';
-import { Space, SpaceCategory, Booking } from '../../types';
+import { Space, SpaceCategory } from '../../types';
 import { 
   Building2, 
   Plus, 
   Users, 
   Calendar, 
-  Clock, 
   DollarSign, 
   ShieldCheck, 
   Sliders, 
   CheckCircle2, 
-  AlertCircle, 
   Trash2, 
   Edit3, 
   X, 
-  MapPin, 
-  Sparkles, 
-  Layers, 
-  Check, 
-  Eye,
-  Coffee,
-  Mail
 } from 'lucide-react';
 
 export const AdminDashboardView: React.FC = () => {
@@ -34,9 +25,7 @@ export const AdminDashboardView: React.FC = () => {
     deleteSpace, 
     bookings, 
     checkInBooking, 
-    fiscalContracts, 
-    correspondence,
-    showToast 
+    fiscalContracts 
   } = useCoworking();
 
   const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies'>('spaces');
@@ -71,7 +60,6 @@ export const AdminDashboardView: React.FC = () => {
   const activeBookingsCount = bookings.filter(b => b.status === 'confirmada').length;
   const totalRevenue = bookings.reduce((acc, curr) => acc + curr.totalPrice, 0) +
     fiscalContracts.reduce((acc, curr) => acc + curr.monthlyFee, 0);
-  const pendingCorrespondenceCount = correspondence.filter(c => c.status === 'aguardando_retirada').length;
 
   const handleOpenAdd = () => {
     setEditingSpace(null);
@@ -172,7 +160,7 @@ export const AdminDashboardView: React.FC = () => {
             <Sliders className="w-3.5 h-3.5" />
             Painel Administrativo da Unidade de Coworking
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Gestão de Espaços & Serviços MVA Hub
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
@@ -191,13 +179,13 @@ export const AdminDashboardView: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-bold uppercase tracking-wider">Salas Cadastradas</span>
             <Building2 className="w-4 h-4 text-indigo-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-slate-900">{totalSpaces}</span>
+            <span className="text-3xl font-bold text-slate-900">{totalSpaces}</span>
             <span className="text-xs text-emerald-600 font-semibold">100% ativas</span>
           </div>
           <p className="text-[11px] text-slate-500">
@@ -205,13 +193,13 @@ export const AdminDashboardView: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-bold uppercase tracking-wider">Reservas no Sistema</span>
             <Calendar className="w-4 h-4 text-indigo-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-slate-900">{activeBookingsCount}</span>
+            <span className="text-3xl font-bold text-slate-900">{activeBookingsCount}</span>
             <span className="text-xs text-indigo-600 font-semibold">confirmadas</span>
           </div>
           <p className="text-[11px] text-slate-500">
@@ -219,13 +207,13 @@ export const AdminDashboardView: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-bold uppercase tracking-wider">Endereços Fiscais</span>
             <ShieldCheck className="w-4 h-4 text-indigo-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-slate-900">{fiscalContracts.length}</span>
+            <span className="text-3xl font-bold text-slate-900">{fiscalContracts.length}</span>
             <span className="text-xs text-emerald-600 font-semibold">empresas sediadas</span>
           </div>
           <p className="text-[11px] text-slate-500">
@@ -233,14 +221,14 @@ export const AdminDashboardView: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-bold uppercase tracking-wider">Faturamento do Hub</span>
             <DollarSign className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="flex items-baseline gap-1">
             <span className="text-xs font-semibold text-slate-500">R$</span>
-            <span className="text-3xl font-black text-slate-900">{totalRevenue.toFixed(2)}</span>
+            <span className="text-3xl font-bold text-slate-900">{totalRevenue.toFixed(2)}</span>
           </div>
           <p className="text-[11px] text-slate-500">
             Salas + Assinaturas de Domicílio Fiscal
@@ -254,7 +242,7 @@ export const AdminDashboardView: React.FC = () => {
           onClick={() => setActiveAdminTab('spaces')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeAdminTab === 'spaces'
-              ? 'bg-slate-900 text-white shadow-xs'
+              ? 'bg-slate-900 text-white shadow-sm'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
@@ -266,7 +254,7 @@ export const AdminDashboardView: React.FC = () => {
           onClick={() => setActiveAdminTab('bookings')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeAdminTab === 'bookings'
-              ? 'bg-slate-900 text-white shadow-xs'
+              ? 'bg-slate-900 text-white shadow-sm'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
@@ -278,7 +266,7 @@ export const AdminDashboardView: React.FC = () => {
           onClick={() => setActiveAdminTab('companies')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeAdminTab === 'companies'
-              ? 'bg-slate-900 text-white shadow-xs'
+              ? 'bg-slate-900 text-white shadow-sm'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
@@ -305,7 +293,7 @@ export const AdminDashboardView: React.FC = () => {
             {spaces.map(space => (
               <div 
                 key={space.id} 
-                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="relative h-44 w-full bg-slate-100">
@@ -315,7 +303,7 @@ export const AdminDashboardView: React.FC = () => {
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/80 text-white backdrop-blur-xs">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/80 text-white backdrop-blur-sm">
                         {space.category}
                       </span>
                     </div>
@@ -326,7 +314,7 @@ export const AdminDashboardView: React.FC = () => {
                           const nextStatus = space.status === 'available' ? 'maintenance' : 'available';
                           updateSpace(space.id, { status: nextStatus });
                         }}
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold backdrop-blur-xs border ${
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold backdrop-blur-sm border ${
                           space.status === 'available'
                             ? 'bg-emerald-500/90 text-white border-emerald-400'
                             : 'bg-amber-500/90 text-white border-amber-400'
@@ -388,7 +376,7 @@ export const AdminDashboardView: React.FC = () => {
 
       {/* TAB 2: BOOKINGS AGENDA & CHECK-IN */}
       {activeAdminTab === 'bookings' && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden space-y-4">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
           <div className="p-6 border-b border-slate-100">
             <h2 className="text-lg font-bold text-slate-900">Agenda de Reservas & Recepção</h2>
             <p className="text-xs text-slate-500">Controle de entrada e check-in presencial dos clientes</p>
@@ -460,7 +448,7 @@ export const AdminDashboardView: React.FC = () => {
                       ) : (
                         <button
                           onClick={() => checkInBooking(b.id)}
-                          className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs"
+                          className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
                         >
                           Efetuar Check-in
                         </button>
@@ -476,7 +464,7 @@ export const AdminDashboardView: React.FC = () => {
 
       {/* TAB 3: FISCAL ADDRESS CLIENTS */}
       {activeAdminTab === 'companies' && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden space-y-4">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
           <div className="p-6 border-b border-slate-100">
             <h2 className="text-lg font-bold text-slate-900">Empresas com Domicílio Fiscal Registrado</h2>
             <p className="text-xs text-slate-500">Acompanhamento de conformidade, alvarás e mensalidades</p>
@@ -534,7 +522,7 @@ export const AdminDashboardView: React.FC = () => {
 
       {/* Modal: Cadastrar ou Editar Sala */}
       {showAddSpaceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden">
             <div className="bg-slate-900 text-white p-6 relative">
               <button
@@ -564,7 +552,7 @@ export const AdminDashboardView: React.FC = () => {
                     placeholder="Ex: Sala de Reunião Boardroom Diamond"
                     value={formName}
                     onChange={e => setFormName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
 
@@ -575,7 +563,7 @@ export const AdminDashboardView: React.FC = () => {
                     required
                     value={formCoworkingName}
                     onChange={e => setFormCoworkingName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
 
@@ -584,7 +572,7 @@ export const AdminDashboardView: React.FC = () => {
                   <select
                     value={formCategory}
                     onChange={e => setFormCategory(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden bg-white"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
                   >
                     <option value="reuniao">Sala de Reunião</option>
                     <option value="atendimento">Sala de Atendimento / Consultório</option>
@@ -600,7 +588,7 @@ export const AdminDashboardView: React.FC = () => {
                     required
                     value={formCity}
                     onChange={e => setFormCity(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
 
@@ -611,7 +599,7 @@ export const AdminDashboardView: React.FC = () => {
                     required
                     value={formNeighborhood}
                     onChange={e => setFormNeighborhood(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
 
@@ -621,7 +609,7 @@ export const AdminDashboardView: React.FC = () => {
                     type="text"
                     value={formAddress}
                     onChange={e => setFormAddress(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
 
@@ -633,7 +621,7 @@ export const AdminDashboardView: React.FC = () => {
                     required
                     value={formCapacity}
                     onChange={e => setFormCapacity(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
 
@@ -645,7 +633,7 @@ export const AdminDashboardView: React.FC = () => {
                     required
                     value={formPricePerHour}
                     onChange={e => setFormPricePerHour(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
 
@@ -673,7 +661,7 @@ export const AdminDashboardView: React.FC = () => {
                   />
                   <div className="flex items-start gap-4">
                     {formImage ? (
-                      <div className="relative h-24 w-40 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-xs">
+                      <div className="relative h-24 w-40 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-sm">
                         <img src={formImage} alt="Capa" className="w-full h-full object-cover" />
                         <button 
                           type="button" 
@@ -708,7 +696,7 @@ export const AdminDashboardView: React.FC = () => {
                     rows={2}
                     value={formDescription}
                     onChange={e => setFormDescription(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
               </div>

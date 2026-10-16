@@ -8,7 +8,6 @@ import {
   CheckCircle, 
   Clock, 
   Calendar, 
-  ShieldAlert, 
   Sparkles,
   Building2,
   Layers
@@ -31,7 +30,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
+    <div role="dialog" aria-modal="true" aria-label={`Detalhes de ${space.name}`} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-3xl my-8 overflow-hidden animate-scaleUp">
         
         {/* Cover Image & Header */}
@@ -45,6 +44,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
 
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="absolute top-4 right-4 bg-navy-900/80 hover:bg-navy-900 text-white p-2.5 rounded-full backdrop-blur-md transition-colors"
           >
             <X className="w-5 h-5" />
@@ -53,7 +53,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
           <div className="absolute bottom-5 left-6 right-6 text-white">
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {space.isMvaHeadquarters ? (
-                <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-orange-600 text-white shadow-xs backdrop-blur-md flex items-center gap-1 border border-orange-400">
+                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-600 text-white shadow-sm backdrop-blur-md flex items-center gap-1 border border-orange-400">
                   <Sparkles className="w-3.5 h-3.5 text-orange-200" />
                   SEDE OFICIAL MVA COWORKING
                 </span>
@@ -70,7 +70,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
               )}
             </div>
             
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{space.name}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{space.name}</h2>
             <div className="flex items-center gap-1.5 text-xs text-slate-300 mt-1">
               <MapPin className="w-4 h-4 text-orange-400 shrink-0" />
               <span>{space.address}</span>
@@ -158,7 +158,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
             <div>
               <span className="text-[11px] text-slate-500 block uppercase">Tarifa Avulsa</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-navy-900">R$ {space.pricePerHour}</span>
+                <span className="text-2xl font-bold text-navy-900">R$ {space.pricePerHour}</span>
                 <span className="text-xs text-slate-500 font-medium">/hora</span>
               </div>
             </div>

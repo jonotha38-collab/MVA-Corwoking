@@ -122,7 +122,7 @@ export const CorrespondenceView: React.FC = () => {
             <Mail className="w-4 h-4" />
             Central de Recepção & Triagem de Correspondências
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
             Gestão Inteligente de <br className="hidden sm:block" /> Correspondências
           </h1>
           <p className="text-sm sm:text-base text-slate-300 mt-4 max-w-2xl font-medium leading-relaxed">
@@ -156,13 +156,13 @@ export const CorrespondenceView: React.FC = () => {
           }`}
         >
           <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="font-extrabold uppercase tracking-widest text-[10px] text-slate-400">Aguardando Retirada</span>
+            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Aguardando Retirada</span>
             <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
               <Clock className="w-5 h-5" />
             </div>
           </div>
           <div className="flex items-end gap-3">
-            <div className="text-4xl font-black text-navy-900 leading-none">
+            <div className="text-4xl font-bold text-navy-900 leading-none">
               {correspondence.filter(c => c.status === 'aguardando_retirada').length}
             </div>
             <span className="text-orange-600 font-bold text-xs pb-1">Disponíveis</span>
@@ -178,13 +178,13 @@ export const CorrespondenceView: React.FC = () => {
           }`}
         >
           <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="font-extrabold uppercase tracking-widest text-[10px] text-slate-400">Digitalizados (PDF)</span>
+            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Digitalizados (PDF)</span>
             <div className="w-10 h-10 rounded-xl bg-navy-100 flex items-center justify-center text-navy-800">
               <FileText className="w-5 h-5" />
             </div>
           </div>
           <div className="flex items-end gap-3">
-            <div className="text-4xl font-black text-navy-900 leading-none">
+            <div className="text-4xl font-bold text-navy-900 leading-none">
               {correspondence.filter(c => c.status === 'digitalizado').length}
             </div>
             <span className="text-navy-700 font-bold text-xs pb-1">Para download</span>
@@ -200,13 +200,13 @@ export const CorrespondenceView: React.FC = () => {
           }`}
         >
           <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="font-extrabold uppercase tracking-widest text-[10px] text-slate-400">Entregues / Resolvidos</span>
+            <span className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Entregues / Resolvidos</span>
             <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
               <CheckCircle className="w-5 h-5" />
             </div>
           </div>
           <div className="flex items-end gap-3">
-            <div className="text-4xl font-black text-navy-900 leading-none">
+            <div className="text-4xl font-bold text-navy-900 leading-none">
               {correspondence.filter(c => c.status === 'retirado').length}
             </div>
             <span className="text-emerald-600 font-bold text-xs pb-1">Finalizados</span>
@@ -215,7 +215,7 @@ export const CorrespondenceView: React.FC = () => {
       </div>
 
       {/* Filter and Search controls */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
           {[
             { id: 'all', label: 'Todas' },
@@ -228,7 +228,7 @@ export const CorrespondenceView: React.FC = () => {
               onClick={() => setActiveFilter(f.id as any)}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 activeFilter === f.id
-                  ? 'bg-navy-950 text-white shadow-xs'
+                  ? 'bg-navy-950 text-white shadow-sm'
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
               }`}
             >
@@ -244,7 +244,7 @@ export const CorrespondenceView: React.FC = () => {
             placeholder="Buscar por código, remetente..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-orange-500"
+            className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
         </div>
       </div>
@@ -358,7 +358,7 @@ export const CorrespondenceView: React.FC = () => {
 
                       <button
                         onClick={() => setPreviewDoc(item)}
-                        className="px-3.5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+                        className="px-3.5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         Visualizar PDF
@@ -398,7 +398,7 @@ export const CorrespondenceView: React.FC = () => {
 
       {/* Modal PDF Viewer */}
       {previewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden">
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -432,7 +432,7 @@ export const CorrespondenceView: React.FC = () => {
                 </div>
                 <button
                   onClick={() => showToast('Download do PDF iniciado.', 'success')}
-                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs transition-colors"
+                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-colors"
                 >
                   <Download className="w-4 h-4" />
                   Baixar PDF Original
@@ -454,7 +454,7 @@ export const CorrespondenceView: React.FC = () => {
 
       {/* Modal Autorizar Terceiro */}
       {authorizeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -479,7 +479,7 @@ export const CorrespondenceView: React.FC = () => {
                   placeholder="Ex: Carlos Eduardo de Oliveira"
                   value={authName}
                   onChange={e => setAuthName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -491,7 +491,7 @@ export const CorrespondenceView: React.FC = () => {
                   placeholder="000.000.000-00"
                   value={authCpf}
                   onChange={e => setAuthCpf(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -505,7 +505,7 @@ export const CorrespondenceView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-xs"
+                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-sm"
                 >
                   Gerar Autorização
                 </button>
@@ -517,7 +517,7 @@ export const CorrespondenceView: React.FC = () => {
 
       {/* Modal Entrada Correspondência */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden">
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -535,7 +535,7 @@ export const CorrespondenceView: React.FC = () => {
                 <select
                   value={formCompanyId}
                   onChange={e => setFormCompanyId(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                 >
                   {fiscalContracts.map(c => (
                     <option key={c.id} value={c.id}>
@@ -551,7 +551,7 @@ export const CorrespondenceView: React.FC = () => {
                   type="text"
                   value={formLocation}
                   onChange={e => setFormLocation(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -564,7 +564,7 @@ export const CorrespondenceView: React.FC = () => {
                     placeholder="Ex: Receita Federal, Banco, Correios"
                     value={formSender}
                     onChange={e => setFormSender(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
 
@@ -575,7 +575,7 @@ export const CorrespondenceView: React.FC = () => {
                     placeholder="BR-SEDEX-..."
                     value={formTracking}
                     onChange={e => setFormTracking(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -586,7 +586,7 @@ export const CorrespondenceView: React.FC = () => {
                   <select
                     value={formType}
                     onChange={e => setFormType(e.target.value as any)}
-                    className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                    className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                   >
                     <option value="carta">Carta</option>
                     <option value="documento_fiscal">Doc. Fiscal</option>
@@ -600,7 +600,7 @@ export const CorrespondenceView: React.FC = () => {
                   <select
                     value={formPriority}
                     onChange={e => setFormPriority(e.target.value as any)}
-                    className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                    className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                   >
                     <option value="normal">Normal</option>
                     <option value="alta">Alta</option>
@@ -614,7 +614,7 @@ export const CorrespondenceView: React.FC = () => {
                     type="text"
                     value={formLocker}
                     onChange={e => setFormLocker(e.target.value)}
-                    className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -626,7 +626,7 @@ export const CorrespondenceView: React.FC = () => {
                   placeholder="Ex: Envelope lacrado recebido pelos Correios..."
                   value={formNotes}
                   onChange={e => setFormNotes(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -640,7 +640,7 @@ export const CorrespondenceView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-xs"
+                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-sm"
                 >
                   Salvar e Notificar Cliente
                 </button>

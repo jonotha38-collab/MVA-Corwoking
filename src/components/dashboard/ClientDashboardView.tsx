@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Booking } from '../../types';
 import { 
-  Building2, 
   Calendar, 
   Clock, 
   Mail, 
@@ -47,7 +46,7 @@ export const ClientDashboardView: React.FC = () => {
       {/* Profile Header Banner - Minimalist Deep Navy */}
       <div className="bg-navy-950 text-white rounded-3xl p-6 sm:p-8 border border-navy-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/20">
+          <div className="w-14 h-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-orange-500/20">
             {currentCompany.tradingName.substring(0, 2).toUpperCase()}
           </div>
           <div>
@@ -89,13 +88,13 @@ export const ClientDashboardView: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
         
         {/* Hours Balance */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
             <span className="font-bold uppercase tracking-wider text-[11px]">Crédito de Horas</span>
             <Clock className="w-4 h-4 text-orange-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-navy-900">
+            <span className="text-3xl font-bold text-navy-900">
               {currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed}h
             </span>
             <span className="text-xs text-slate-500">disponíveis</span>
@@ -108,14 +107,14 @@ export const ClientDashboardView: React.FC = () => {
         {/* Pending Correspondence */}
         <div 
           onClick={() => setActiveTab('correspondence')}
-          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2 cursor-pointer hover:border-orange-400 transition-colors"
+          className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2 cursor-pointer hover:border-orange-400 transition-colors"
         >
           <div className="flex items-center justify-between text-slate-500">
             <span className="font-bold uppercase tracking-wider text-[11px]">Correspondências</span>
             <Mail className="w-4 h-4 text-orange-500" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-navy-900">{pendingMails.length}</span>
+            <span className="text-3xl font-bold text-navy-900">{pendingMails.length}</span>
             <span className="text-xs text-orange-600 font-semibold">na recepção</span>
           </div>
           <p className="text-[11px] text-slate-400 flex items-center gap-1">
@@ -125,13 +124,13 @@ export const ClientDashboardView: React.FC = () => {
         </div>
 
         {/* Active Bookings Count */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
             <span className="font-bold uppercase tracking-wider text-[11px]">Reservas Ativas</span>
             <Calendar className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-navy-900">
+            <span className="text-3xl font-bold text-navy-900">
               {clientBookings.filter(b => b.status === 'confirmada').length}
             </span>
             <span className="text-xs text-slate-500">agendadas</span>
@@ -142,14 +141,14 @@ export const ClientDashboardView: React.FC = () => {
         </div>
 
         {/* Monthly Subscription */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
             <span className="font-bold uppercase tracking-wider text-[11px]">Assinatura Mensal</span>
             <CreditCard className="w-4 h-4 text-navy-900" />
           </div>
           <div className="flex items-baseline gap-1">
             <span className="text-xs font-semibold text-slate-500">R$</span>
-            <span className="text-3xl font-black text-navy-900">{currentCompany.monthlyFee.toFixed(2)}</span>
+            <span className="text-3xl font-bold text-navy-900">{currentCompany.monthlyFee.toFixed(2)}</span>
           </div>
           <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold">
             <CheckCircle2 className="w-3.5 h-3.5" />
@@ -197,7 +196,7 @@ export const ClientDashboardView: React.FC = () => {
       )}
 
       {/* Bookings History and Management */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-navy-900">Histórico de Reservas de Espaços</h2>
@@ -304,7 +303,7 @@ export const ClientDashboardView: React.FC = () => {
 
       {/* Voucher Modal */}
       {selectedVoucher && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-scaleUp">
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between no-print">
               <span className="font-bold text-sm">Voucher de Acesso • MVA Hub</span>

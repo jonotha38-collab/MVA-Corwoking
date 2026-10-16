@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useId, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 type RingColor = 'orange' | 'navy' | 'blue' | 'muted';
@@ -22,7 +22,9 @@ interface LabelInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElemen
  * Supports password type with eye-toggle.
  */
 export const LabelInput = forwardRef<HTMLInputElement, LabelInputProps>(
-  ({ label, type = 'text', ringColor = 'orange', containerClassName = '', className = '', ...props }, ref) => {
+  ({ label, type = 'text', ringColor = 'orange', containerClassName = '', className = '', id, ...props }, ref) => {
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
     const [showPwd, setShowPwd] = useState(false);
     const isPassword = type === 'password';
     const inputType = isPassword ? (showPwd ? 'text' : 'password') : type;
@@ -30,6 +32,7 @@ export const LabelInput = forwardRef<HTMLInputElement, LabelInputProps>(
     return (
       <div className={`group relative w-full ${containerClassName}`}>
         <input
+          id={inputId}
           ref={ref}
           type={inputType}
           placeholder=" "
@@ -49,6 +52,7 @@ export const LabelInput = forwardRef<HTMLInputElement, LabelInputProps>(
 
         {/* Floating label */}
         <label
+          htmlFor={inputId}
           className={[
             'pointer-events-none absolute left-[11px] bg-white px-1',
             'text-xs text-slate-400 font-medium text-nowrap',
@@ -67,7 +71,7 @@ export const LabelInput = forwardRef<HTMLInputElement, LabelInputProps>(
         {isPassword && (
           <button
             type="button"
-            tabIndex={-1}
+            aria-pressed={showPwd}
             aria-label={showPwd ? 'Ocultar senha' : 'Mostrar senha'}
             onClick={() => setShowPwd(v => !v)}
             className="absolute inset-y-0 right-0 flex h-full w-9 items-center justify-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"

@@ -1,65 +1,124 @@
-import React, { useEffect, useRef, useState } from 'react';
+"use client"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
+import type React from "react"
 
-interface BlurRevealProps {
-  text: string;
-  className?: string;
-  delay?: number;       // ms before animation starts
-  duration?: number;    // ms per character
-  stagger?: number;     // ms between characters
+/** Spell UI — https://spell.sh/r/blur-reveal.json (MIT).
+ * Adapted for reduced motion and a compact corporate reveal.
+ */
+export interface BlurRevealProps {
+  children: string
+  className?: string
+  delay?: number
+  speedReveal?: number
+  speedSegment?: number
+  trigger?: boolean
+  onAnimationComplete?: () => void
+  onAnimationStart?: () => void
+  as?: keyof React.JSX.IntrinsicElements
+  style?: React.CSSProperties
+  inView?: boolean
+  once?: boolean
+  letterSpacing?: string | number
 }
 
-/**
- * BlurReveal – Spell UI inspired text animation.
- * Each character fades in + unblurs with a staggered delay.
- */
-export const BlurReveal: React.FC<BlurRevealProps> = ({
-  text,
-  className = '',
+export function BlurReveal({
+  children,
+  className,
   delay = 0,
-  duration = 400,
-  stagger = 30,
-}) => {
-  const [visible, setVisible] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  speedReveal = 3,
+  speedSegment = 1,
+  trigger = true,
+  onAnimationComplete,
+  onAnimationStart,
+  as = "p",
+  style,
+  inView = false,
+  once = true,
+  letterSpacing,
+}: BlurRevealProps) {
+  const reducedMotion = useReducedMotion()
+  const MotionTag = motion[as as keyof typeof motion] as typeof motion.div
 
-  useEffect(() => {
-    timerRef.current = setTimeout(() => setVisible(true), delay);
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [delay, text]);
+  const stagger = 0.03 / speedReveal
+  const baseDuration = 0.3 / speedSegment
 
-  // Reset when text changes (tab switch)
-  useEffect(() => {
-    setVisible(false);
-    timerRef.current = setTimeout(() => setVisible(true), delay + 20);
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: stagger,
+        delayChildren: delay,
+      },
+    },
+    exit: {
+      transition: {
+        staggerChildren: stagger,
+        staggerDirection: -1,
+      },
+    },
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, filter: "blur(4px)", y: 6 },
+    visible: {
+      opacity: 1,
+      filter: "blur(0px)",
+      y: 0,
+      transition: {
+        duration: baseDuration,
+      },
+    },
+    exit: { opacity: 0, filter: "blur(4px)", y: 6 },
+  }
+
+  if (reducedMotion) {
+    const Tag = as
+    return trigger ? <Tag className={className} style={style}>{children}</Tag> : null
+  }
 
   return (
-    <span className={className} aria-label={text}>
-      {text.split('').map((char, i) => (
-        <span
-          key={i}
-          aria-hidden="true"
-          style={{
-            display: 'inline-block',
-            marginRight: char === ' ' ? '0.25em' : undefined,
-            opacity: visible ? 1 : 0,
-            filter: visible ? 'blur(0px)' : 'blur(10px)',
-            transform: visible ? 'translateY(0)' : 'translateY(8px)',
-            transition: visible
-              ? `opacity ${duration}ms ease, filter ${duration}ms ease, transform ${duration}ms ease`
-              : 'none',
-            transitionDelay: visible ? `${i * stagger}ms` : '0ms',
-            whiteSpace: char === ' ' ? 'pre' : undefined,
-          }}
+    <AnimatePresence mode="popLayout">
+      {trigger && (
+        <MotionTag
+          initial="hidden"
+          whileInView={inView ? "visible" : undefined}
+          animate={inView ? undefined : "visible"}
+          exit="exit"
+          variants={containerVariants}
+          viewport={{ once }}
+          className={className}
+          onAnimationComplete={onAnimationComplete}
+          onAnimationStart={onAnimationStart}
+          style={style}
         >
-          {char === ' ' ? '\u00A0' : char}
-        </span>
-      ))}
-    </span>
-  );
-};
+          <span className="sr-only">{children}</span>
+          {children &&
+            children.split(" ").map((word, wordIndex, wordsArray) => (
+              <span key={`word-${wordIndex}`} className="inline-block whitespace-nowrap" aria-hidden="true">
+                {Array.from(word).map((char, charIndex) => (
+                  <motion.span
+                    key={`char-${wordIndex}-${charIndex}`}
+                    variants={itemVariants}
+                    className="inline-block"
+                    style={letterSpacing ? { marginRight: letterSpacing } : undefined}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+                {wordIndex < wordsArray.length - 1 && (
+                  <motion.span
+                    key={`space-${wordIndex}`}
+                    variants={itemVariants}
+                    className="inline-block"
+                  >
+                    &nbsp;
+                  </motion.span>
+                )}
+              </span>
+            ))}
+        </MotionTag>
+      )}
+    </AnimatePresence>
+  )
+}

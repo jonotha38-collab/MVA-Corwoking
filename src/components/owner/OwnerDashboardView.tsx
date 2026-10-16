@@ -7,20 +7,11 @@ import {
   Building2, 
   Plus, 
   MapPin, 
-  Image, 
-  Users, 
-  Clock, 
-  Check, 
   X, 
   Edit3, 
   Trash2, 
   Sparkles, 
   Eye, 
-  ShieldCheck, 
-  Calendar, 
-  DollarSign,
-  UploadCloud,
-  ChevronRight
 } from 'lucide-react';
 
 export const OwnerDashboardView: React.FC = () => {
@@ -67,7 +58,6 @@ export const OwnerDashboardView: React.FC = () => {
     'Ar-condicionado silencioso',
     'Café espresso cortesia'
   ]);
-  const [newAmenity, setNewAmenity] = useState('');
 
 
   // If user is not logged in, prompt to log in with Google
@@ -232,28 +222,28 @@ export const OwnerDashboardView: React.FC = () => {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs text-slate-500 font-medium block">Espaços Ativos no Marketplace</span>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-extrabold text-navy-900">{mySpaces.length}</span>
+            <span className="text-3xl font-bold text-navy-900">{mySpaces.length}</span>
             <span className="text-xs text-emerald-600 font-semibold">Publicados</span>
           </div>
           <span className="text-[11px] text-slate-400 block mt-1">Visíveis para pessoas e empresas reservarem</span>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs text-slate-500 font-medium block">Visualizações da Semana</span>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-extrabold text-navy-900">412</span>
+            <span className="text-3xl font-bold text-navy-900">412</span>
             <span className="text-xs text-orange-600 font-semibold">+18% este mês</span>
           </div>
           <span className="text-[11px] text-slate-400 block mt-1">Interessados procurando na sua cidade</span>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs text-slate-500 font-medium block">Reservas Confirmadas</span>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-extrabold text-navy-900">{bookings.length}</span>
+            <span className="text-3xl font-bold text-navy-900">{bookings.length}</span>
             <span className="text-xs text-emerald-600 font-semibold">100% pagas</span>
           </div>
           <span className="text-[11px] text-slate-400 block mt-1">Repasse automático sem taxa oculta</span>
@@ -281,7 +271,7 @@ export const OwnerDashboardView: React.FC = () => {
             {mySpaces.map(space => (
               <div 
                 key={space.id}
-                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:border-orange-300 transition-all flex flex-col justify-between"
+                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:border-orange-300 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="relative h-44 w-full bg-slate-100">
@@ -291,7 +281,7 @@ export const OwnerDashboardView: React.FC = () => {
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-navy-900/80 text-white backdrop-blur-xs uppercase">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-navy-900/80 text-white backdrop-blur-sm uppercase">
                         {space.category}
                       </span>
                     </div>
@@ -384,7 +374,7 @@ export const OwnerDashboardView: React.FC = () => {
 
       {/* Modal de Cadastro de Espaço */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden animate-scaleUp">
             
             {/* Header */}
@@ -427,7 +417,7 @@ export const OwnerDashboardView: React.FC = () => {
                       placeholder="Ex: Sala de Reunião Premium Alpha"
                       value={name}
                       onChange={e => setName(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
@@ -439,7 +429,7 @@ export const OwnerDashboardView: React.FC = () => {
                       placeholder="Ex: Espaço Inova Coworking"
                       value={coworkingName}
                       onChange={e => setCoworkingName(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
@@ -448,7 +438,7 @@ export const OwnerDashboardView: React.FC = () => {
                     <select
                       value={category}
                       onChange={e => setCategory(e.target.value as any)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                     >
                       <option value="reuniao">Sala de Reunião Executiva</option>
                       <option value="atendimento">Sala de Atendimento / Consultório</option>
@@ -465,7 +455,7 @@ export const OwnerDashboardView: React.FC = () => {
                       required
                       value={capacity}
                       onChange={e => setCapacity(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
@@ -477,7 +467,7 @@ export const OwnerDashboardView: React.FC = () => {
                       required
                       value={pricePerHour}
                       onChange={e => setPricePerHour(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
@@ -488,7 +478,7 @@ export const OwnerDashboardView: React.FC = () => {
                       min={0}
                       value={pricePerShift}
                       onChange={e => setPricePerShift(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -509,7 +499,7 @@ export const OwnerDashboardView: React.FC = () => {
                       placeholder="Ex: Av. Beira Mar, Rua Dom José Thomaz..."
                       value={street}
                       onChange={e => setStreet(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
@@ -521,7 +511,7 @@ export const OwnerDashboardView: React.FC = () => {
                       placeholder="Ex: 565, Sala 201"
                       value={number}
                       onChange={e => setNumber(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
@@ -533,7 +523,7 @@ export const OwnerDashboardView: React.FC = () => {
                       placeholder="Ex: São José, Jardins..."
                       value={neighborhood}
                       onChange={e => setNeighborhood(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
@@ -545,7 +535,7 @@ export const OwnerDashboardView: React.FC = () => {
                       placeholder="Ex: Aracaju, São Paulo..."
                       value={city}
                       onChange={e => setCity(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
@@ -558,7 +548,7 @@ export const OwnerDashboardView: React.FC = () => {
                       placeholder="SE, SP, RJ..."
                       value={state}
                       onChange={e => setState(e.target.value.toUpperCase())}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden uppercase"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none uppercase"
                     />
                   </div>
                 </div>
@@ -629,7 +619,7 @@ export const OwnerDashboardView: React.FC = () => {
                     rows={2}
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
               </div>

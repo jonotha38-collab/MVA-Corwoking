@@ -1,3 +1,5 @@
+import { BlurReveal } from '../ui/BlurReveal';
+import { Reveal } from '../ui/Reveal';
 import React, { useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { 
@@ -13,14 +15,11 @@ import {
   Lock, 
   X,
   FileCheck,
-  ChevronRight,
   Calendar,
   Megaphone,
   Shield,
   ArrowRight,
   Gift,
-  CheckCircle2,
-  PhoneCall,
   MessageCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -161,27 +160,27 @@ export const FiscalView: React.FC = () => {
     );
 
     try {
-      confetti({ particleCount: 80, spread: 70 });
+      confetti({ particleCount: 45, spread: 55, disableForReducedMotion: true });
     } catch {
       // safe fallback
     }
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-12 pb-12">
       
       {/* Top Overview Hero - Minimalist Deep Navy & Orange com Imagem de Fundo em Degradê */}
-      <div className="bg-gradient-to-br from-navy-900 to-navy-950 text-white rounded-3xl p-8 sm:p-12 border border-navy-800 shadow-2xl relative overflow-hidden">
+      <div className="hero-shell bg-navy-950 text-white p-6 py-10 sm:p-12 sm:py-16 relative overflow-hidden">
         
         {/* Background Image com Degradê Suave */}
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
           <img
             src="/hero-office.jpg"
             alt="Sede MVA Coworking"
-            className="absolute right-0 top-0 h-full w-full md:w-3/5 lg:w-1/2 object-cover object-center opacity-30 md:opacity-40 filter contrast-105"
+            className="absolute right-0 top-0 h-full w-full md:w-3/5 lg:w-1/2 object-cover object-center opacity-50 md:opacity-70 filter contrast-105"
           />
           {/* Máscaras em Degradê: do azul escuro para a foto */}
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/85 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/90 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-transparent to-navy-950/40" />
           <div className="absolute -right-20 -top-20 w-96 h-96 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
         </div>
@@ -192,9 +191,9 @@ export const FiscalView: React.FC = () => {
             <span>Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-            Seu Domicílio Fiscal <br className="hidden sm:block" /> com Segurança Legal
-          </h1>
+          <BlurReveal as="h1" className="hero-title max-w-2xl">
+            Seu domicílio fiscal com segurança legal
+          </BlurReveal>
 
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-medium">
             Abra ou regularize seu CNPJ com endereço fiscal na Sede MVA ou rede credenciada. Economize com aluguel tradicional, proteja sua privacidade residencial e garanta aprovação imediata do alvará de funcionamento.
@@ -207,7 +206,7 @@ export const FiscalView: React.FC = () => {
                 setIsTransferPromo(false);
                 setShowContractModal(true);
               }}
-              className="px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              className="action-primary px-6 py-3.5 text-sm"
             >
               <FileCheck className="w-5 h-5" />
               Contratar Endereço Fiscal Online
@@ -234,10 +233,10 @@ export const FiscalView: React.FC = () => {
               <Building2 className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-[10px] font-extrabold text-orange-600 uppercase tracking-widest block mb-1">
+              <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest block mb-1">
                 Status do Domicílio Fiscal Ativo
               </span>
-              <h2 className="text-2xl font-black text-navy-900 tracking-tight">{currentCompany.companyName}</h2>
+              <h2 className="text-2xl font-bold text-navy-900 tracking-tight">{currentCompany.companyName}</h2>
               <p className="text-sm text-slate-500 mt-0.5">
                 CNPJ: <span className="font-mono">{currentCompany.cnpj}</span> • Plano: <strong className="text-slate-700">{currentCompany.planName}</strong>
               </p>
@@ -262,7 +261,7 @@ export const FiscalView: React.FC = () => {
         {/* 4 Pillars Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-sm relative z-10">
           <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Endereço Registrado</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Endereço Registrado</span>
             <div className="text-sm font-bold text-navy-900 flex items-start gap-2">
               <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
               <span className="leading-tight">{currentCompany.unitAddress}</span>
@@ -270,7 +269,7 @@ export const FiscalView: React.FC = () => {
           </div>
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-emerald-300 transition-colors">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Alvará & Prefeitura</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Alvará & Prefeitura</span>
             <div className="text-sm font-bold text-emerald-700 flex items-center gap-2">
               <Check className="w-5 h-5 text-emerald-500 bg-emerald-100 rounded-full p-0.5" />
               <span>Aprovado ({currentCompany.alvaraProtocol})</span>
@@ -279,7 +278,7 @@ export const FiscalView: React.FC = () => {
           </div>
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-navy-300 transition-colors">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Vigência Contratual</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Vigência Contratual</span>
             <div className="text-sm font-bold text-navy-900 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-navy-400" />
               <span>{currentCompany.startDate.split('-').reverse().join('/')} a {currentCompany.renewalDate.split('-').reverse().join('/')}</span>
@@ -289,10 +288,10 @@ export const FiscalView: React.FC = () => {
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors flex flex-col justify-between">
             <div>
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Crédito de Reunião</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Crédito de Reunião</span>
               <div className="text-sm font-bold text-navy-900 flex items-center justify-between">
                 <span>{currentCompany.meetingHoursUsed}h / {currentCompany.meetingHoursAllowance}h</span>
-                <span className="text-orange-600 font-black">
+                <span className="text-orange-600 font-bold">
                   {currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed}h livres
                 </span>
               </div>
@@ -360,14 +359,14 @@ export const FiscalView: React.FC = () => {
       </div>
 
       {/* Promoção de Portabilidade: 4 Meses Grátis - Azul Escuro com Laranja */}
-      <div className="bg-gradient-to-br from-navy-900 via-navy-950 to-[#0a192f] rounded-3xl p-6 sm:p-8 text-white border border-navy-800 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-navy-900 via-navy-950 to-[#0a192f] rounded-3xl p-6 sm:p-8 text-white border border-navy-800 shadow-lg relative overflow-hidden">
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-orange-500/15 border border-orange-500/30 px-3.5 py-1 rounded-full text-xs font-bold text-orange-400 tracking-wide uppercase">
               <Gift className="w-4 h-4 text-orange-400" />
               <span>Campanha Exclusiva de Portabilidade</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-white">
+            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-white">
               Já tem endereço fiscal? Mude para a MVA e ganhe <span className="text-orange-500 underline decoration-orange-500/50 decoration-2 underline-offset-4">4 MESES GRÁTIS!</span>
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed font-normal">
@@ -391,30 +390,30 @@ export const FiscalView: React.FC = () => {
 
       {/* Planos de Endereço Fiscal - 4 Colunas Inspiradas na Referência */}
       <div className="space-y-6">
-        <div className="text-center max-w-2xl mx-auto space-y-1.5">
+        <Reveal className="text-center max-w-2xl mx-auto space-y-3">
           <span className="text-xs font-bold text-orange-600 tracking-wider uppercase">Planos Corporativos Acessíveis</span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-900">
+          <h2 className="text-2xl sm:text-3xl font-bold text-navy-900">
             Escolha o Plano Ideal para a sua Empresa
           </h2>
           <p className="text-sm text-slate-500">
             Planos simplificados, preços transparentes e sem burocracia para emissão do seu alvará.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (
               <div
                 key={plan.id}
-                className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative border ${
+                className={`surface-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative border ${
                   plan.popular
-                    ? 'bg-white border-orange-500 shadow-xl ring-2 ring-orange-500/30'
+                    ? 'bg-white border-orange-600 shadow-sm ring-1 ring-orange-600/20'
                     : 'bg-white border-slate-200/90 shadow-sm hover:shadow-lg hover:border-slate-300'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 bg-orange-500 text-white text-[10px] font-extrabold uppercase rounded-full shadow-md">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 bg-orange-500 text-white text-[10px] font-bold uppercase rounded-full shadow-md">
                     {plan.badge}
                   </div>
                 )}
@@ -440,12 +439,12 @@ export const FiscalView: React.FC = () => {
                     {plan.isCustom ? (
                       <div className="space-y-0.5">
                         <span className="text-xs text-slate-400 block">preço</span>
-                        <div className="text-2xl font-black text-navy-900">personalizado</div>
+                        <div className="text-2xl font-bold text-navy-900">personalizado</div>
                         <span className="text-[11px] text-slate-400 block mt-1">sob consulta</span>
                       </div>
                     ) : (
                       <div className="space-y-0.5">
-                        <div className="text-2xl font-black text-navy-900">
+                        <div className="text-2xl font-bold text-navy-900">
                           {plan.periodText}
                         </div>
                         <div className="text-xs text-slate-500 font-medium">
@@ -471,7 +470,7 @@ export const FiscalView: React.FC = () => {
                   {plan.isCustom ? (
                     <button
                       onClick={() => setShowSpecialistModal(true)}
-                      className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-navy-900 hover:bg-orange-500 transition-all flex items-center justify-center gap-2 shadow-xs group"
+                      className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-navy-900 hover:bg-orange-500 transition-all flex items-center justify-center gap-2 shadow-sm group"
                     >
                       <span>Fale com especialista</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -486,7 +485,7 @@ export const FiscalView: React.FC = () => {
                       className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 group ${
                         plan.popular
                           ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/20 hover:shadow-orange-500/30'
-                          : 'bg-navy-900 hover:bg-orange-500 text-white shadow-xs'
+                          : 'bg-navy-900 hover:bg-orange-500 text-white shadow-sm'
                       }`}
                     >
                       <span>Contratar plano</span>
@@ -504,11 +503,11 @@ export const FiscalView: React.FC = () => {
       {showCertificateModal && (
         <div 
           onClick={(e) => { if (e.target === e.currentTarget) setShowCertificateModal(false); }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto cursor-pointer"
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden cursor-default"
+            className="bg-white rounded-3xl shadow-lg border border-slate-200 w-full max-w-2xl my-8 overflow-hidden cursor-default"
           >
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between no-print">
               <div className="flex items-center gap-2">
@@ -522,7 +521,7 @@ export const FiscalView: React.FC = () => {
 
             <div className="p-8 sm:p-10 space-y-6 text-slate-800 font-serif leading-relaxed text-xs sm:text-sm">
               <div className="text-center border-b border-slate-300 pb-5 space-y-1">
-                <div className="font-sans text-xl font-extrabold tracking-tight text-navy-900">
+                <div className="font-sans text-xl font-bold tracking-tight text-navy-900">
                   MVA COWORKING & BUSINESS CENTER
                 </div>
                 <div className="text-[11px] font-sans text-orange-600 uppercase tracking-widest font-bold">
@@ -590,7 +589,7 @@ export const FiscalView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="px-5 py-2 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-xs flex items-center gap-2"
+                className="px-5 py-2 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-sm flex items-center gap-2"
               >
                 <Printer className="w-4 h-4" />
                 Imprimir ou Salvar em PDF
@@ -604,11 +603,11 @@ export const FiscalView: React.FC = () => {
       {showContractModal && (
         <div 
           onClick={(e) => { if (e.target === e.currentTarget) setShowContractModal(false); }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto cursor-pointer"
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xl my-8 overflow-hidden cursor-default"
+            className="bg-white rounded-3xl shadow-lg border border-slate-200 w-full max-w-xl my-8 overflow-hidden cursor-default"
           >
             <div className="bg-navy-950 text-white p-6 relative">
               <button
@@ -626,7 +625,7 @@ export const FiscalView: React.FC = () => {
 
             <form onSubmit={handleHireSubmit} className="p-6 space-y-4 text-xs">
               {/* Opção / Banner de Portabilidade */}
-              <label className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 text-xs leading-relaxed transition-all ${isTransferPromo ? 'border-orange-500 bg-orange-50/80 text-orange-950 shadow-xs' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>
+              <label className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 text-xs leading-relaxed transition-all ${isTransferPromo ? 'border-orange-500 bg-orange-50/80 text-orange-950 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>
                 <input
                   type="checkbox"
                   checked={isTransferPromo}
@@ -654,7 +653,7 @@ export const FiscalView: React.FC = () => {
                     placeholder="Ex: Coworking X, Centro, Aracaju..."
                     value={previousCoworking}
                     onChange={e => setPreviousCoworking(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
               )}
@@ -667,7 +666,7 @@ export const FiscalView: React.FC = () => {
                   placeholder="Ex: Tech Solutions Brasil LTDA"
                   value={newCompanyName}
                   onChange={e => setNewCompanyName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -679,7 +678,7 @@ export const FiscalView: React.FC = () => {
                     placeholder="Ex: Tech Solutions"
                     value={newTradingName}
                     onChange={e => setNewTradingName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
 
@@ -691,7 +690,7 @@ export const FiscalView: React.FC = () => {
                     placeholder="00.000.000/0001-00"
                     value={newCnpj}
                     onChange={e => setNewCnpj(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -705,7 +704,7 @@ export const FiscalView: React.FC = () => {
                     placeholder="contato@empresa.com"
                     value={newEmail}
                     onChange={e => setNewEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
 
@@ -717,7 +716,7 @@ export const FiscalView: React.FC = () => {
                     placeholder="(79) 99999-9999"
                     value={newPhone}
                     onChange={e => setNewPhone(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -727,7 +726,7 @@ export const FiscalView: React.FC = () => {
                 <select
                   value={selectedUnit}
                   onChange={e => setSelectedUnit(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                 >
                   <option value="MVA Sede: Rua Dom José Thomaz, 565 - São José, Aracaju - SE">
                     MVA Coworking (Sede Oficial) - Rua Dom José Thomaz, 565 - Aracaju/SE
@@ -765,11 +764,11 @@ export const FiscalView: React.FC = () => {
       {showSpecialistModal && (
         <div 
           onClick={(e) => { if (e.target === e.currentTarget) setShowSpecialistModal(false); }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto cursor-pointer"
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg my-8 overflow-hidden cursor-default"
+            className="bg-white rounded-3xl shadow-lg border border-slate-200 w-full max-w-lg my-8 overflow-hidden cursor-default"
           >
             <div className="bg-navy-950 text-white p-6 relative">
               <button
@@ -827,7 +826,7 @@ export const FiscalView: React.FC = () => {
                     placeholder="Ex: Carlos Silva"
                     value={specName}
                     onChange={e => setSpecName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
 
@@ -840,7 +839,7 @@ export const FiscalView: React.FC = () => {
                       placeholder="(79) 99999-9999"
                       value={specPhone}
                       onChange={e => setSpecPhone(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -848,7 +847,7 @@ export const FiscalView: React.FC = () => {
                     <select
                       value={specCount}
                       onChange={e => setSpecCount(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                     >
                       <option value="2">2 Endereços</option>
                       <option value="3">3 Endereços</option>
@@ -865,7 +864,7 @@ export const FiscalView: React.FC = () => {
                     placeholder="carlos@empresa.com"
                     value={specEmail}
                     onChange={e => setSpecEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                 </div>
 

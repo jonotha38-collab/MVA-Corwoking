@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import { useCoworking } from './context/CoworkingContext'
 import { isAdmin } from './lib/auth'
@@ -8,10 +8,12 @@ import { ToastContainer } from './components/common/ToastContainer'
 import { AuthModal } from './components/auth/AuthModal'
 import { MarketplaceView } from './components/marketplace/MarketplaceView'
 import { FiscalView } from './components/fiscal/FiscalView'
-import { CorrespondenceView } from './components/correspondence/CorrespondenceView'
-import { OwnerDashboardView } from './components/owner/OwnerDashboardView'
-import { ClientDashboardView } from './components/dashboard/ClientDashboardView'
-import { AdminDashboardView } from './components/admin/AdminDashboardView'
+
+// Management screens are fetched only when opened.
+const CorrespondenceView = lazy(() => import('./components/correspondence/CorrespondenceView').then(m => ({ default: m.CorrespondenceView })))
+const OwnerDashboardView = lazy(() => import('./components/owner/OwnerDashboardView').then(m => ({ default: m.OwnerDashboardView })))
+const ClientDashboardView = lazy(() => import('./components/dashboard/ClientDashboardView').then(m => ({ default: m.ClientDashboardView })))
+const AdminDashboardView = lazy(() => import('./components/admin/AdminDashboardView').then(m => ({ default: m.AdminDashboardView })))
 
 const PRIVATE = ['owner-dashboard', 'client-dashboard', 'correspondence', 'admin']
 
@@ -38,7 +40,8 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+    <div className="flex min-h-dvh flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] xl:pb-0">
+      <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
       <Navbar />
       {admin && (
         <div className="border-b border-navy-200 bg-white">
@@ -49,13 +52,15 @@ export default function App() {
           </div>
         </div>
       )}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-8 sm:py-8">
+      <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-8 sm:py-10">
+        <Suspense fallback={<div className="grid min-h-[50vh] place-items-center text-sm text-navy-600" role="status">Carregando seu painel…</div>}>
         {activeTab === 'marketplace' && <MarketplaceView />}
         {activeTab === 'fiscal' && <FiscalView />}
         {!blocked && activeTab === 'correspondence' && <CorrespondenceView />}
         {!blocked && activeTab === 'owner-dashboard' && <OwnerDashboardView />}
         {!blocked && activeTab === 'client-dashboard' && <ClientDashboardView />}
         {!blocked && activeTab === 'admin' && <AdminDashboardView />}
+        </Suspense>
       </main>
       <Footer />
       <AuthModal />

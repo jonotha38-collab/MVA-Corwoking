@@ -1,38 +1,51 @@
 # MVA Coworking Hub
 
-Veja `SUPABASE_SETUP.md` para configurar o banco de dados.
+Aplicação React + TypeScript + Vite para espaços de coworking, endereço fiscal,
+reservas e correspondências. Mantém a identidade azul e laranja da MVA.
 
----
+## Executar
 
-# React + TypeScript + Vite
+Requer Node.js 22.12+ (ou 24 LTS) e npm.
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm ci
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Abra o endereço informado pelo Vite. Para conferir a versão de produção:
+
+```bash
+npm run build
+npm run preview
+```
+
+`npm run lint` verifica o código da aplicação. `dist/` contém a versão compilada;
+utilize um servidor HTTP para acessá-la, em vez de abrir o HTML diretamente.
+
+## Integração
+
+Veja `SUPABASE_SETUP.md` para configurar autenticação, banco e armazenamento.
+A revisão visual não altera regras de autenticação, reservas ou contratos.
+
+## Revisão visual
+
+- Tipografia Inter, títulos com pesos consistentes e hierarquia mais legível.
+- Azul escuro institucional, laranja como destaque e botões sólidos com maior contraste.
+- Menos sombras decorativas; cartões, formulários e seções com acabamento consistente.
+- Navegação adaptada a celular, tablet e desktop, sem excesso de itens no cabeçalho.
+- Blur Reveal do registro oficial Spell UI nos títulos; entradas curtas nas seções e cartões.
+- Preferência de movimento reduzido respeitada e texto de orientação dos formulários imediato.
+- Campos com associação entre label e input; fotos e nomes das salas acessíveis por teclado.
+- Painéis internos carregados sob demanda e lint limitado ao código do projeto.
+
+A origem e a licença do componente Spell UI estão em `THIRD_PARTY_NOTICES.md`.
+
+## Validação desta revisão
+
+TypeScript, build de produção e lint. Revisão em Chromium das páginas públicas
+em 1440, 1024, 768, 390 e 320 px, além de busca, filtros, estado vazio, detalhes
+de sala, formulário de conta, visibilidade da senha e movimento reduzido.
+
+Os testes de interface usam respostas locais simuladas do banco. Login real,
+pagamentos e gravação de reservas/contratos no Supabase não foram validados.
+O build informa um aviso de tamanho do bundle principal; isso não impede a compilação.

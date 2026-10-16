@@ -3,7 +3,6 @@ import { X, Building2, User, AlertCircle, MailCheck } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInEmail, signInGoogle, signUpEmail } from '../../lib/auth';
 import { BlurReveal } from '../ui/BlurReveal';
-import { TypewriterText } from '../ui/TypewriterText';
 import { LabelInput } from '../ui/LabelInput';
 
 const GoogleLogo = () => (
@@ -89,37 +88,32 @@ export const AuthModal: React.FC = () => {
             </span>
           </div>
 
-          <h2 className="text-lg font-extrabold tracking-tight text-navy-900 min-h-[1.75rem]">
+          <h2 className="text-lg font-bold tracking-tight text-navy-900 min-h-[1.75rem]">
             <BlurReveal
               key={register ? 'register-title' : 'login-title'}
-              text={register ? 'Crie sua conta' : 'Acesse sua conta'}
-              stagger={35}
-              duration={380}
-            />
+              as="span"
+              speedReveal={3}
+            >
+              {register ? 'Crie sua conta' : 'Acesse sua conta'}
+            </BlurReveal>
           </h2>
           <p className="text-[11px] text-slate-500 min-h-[2rem]">
-            <TypewriterText
-              key={register ? 'register-sub' : 'login-sub'}
-              text={register
-                ? 'Cadastre-se para reservar salas e gerenciar espaços.'
-                : 'Entre para gerenciar suas reservas e endereços.'}
-              speed={28}
-              delay={200}
-              cursor={true}
-            />
+            {register
+              ? 'Cadastre-se para reservar salas e gerenciar espaços.'
+              : 'Entre para gerenciar suas reservas e endereços.'}
           </p>
 
           {/* Abas Entrar / Criar Conta */}
           <div className="flex bg-slate-100 p-0.5 rounded-lg mt-3 border border-slate-200">
             <button 
               onClick={() => switchTab('login')} 
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${!register ? 'bg-navy-900 text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${!register ? 'bg-navy-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
             >
               Entrar
             </button>
             <button 
               onClick={() => switchTab('register')} 
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${register ? 'bg-orange-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${register ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
             >
               Criar conta
             </button>
@@ -224,7 +218,7 @@ export const AuthModal: React.FC = () => {
 
               <button 
                 disabled={loading || !lgpd} 
-                className="w-full rounded-lg bg-orange-500 hover:bg-orange-600 py-2.5 text-xs font-bold text-white shadow-xs disabled:opacity-40 transition-all flex items-center justify-center gap-1.5 mt-1"
+                className="w-full rounded-lg bg-orange-500 hover:bg-orange-600 py-2.5 text-xs font-bold text-white shadow-sm disabled:opacity-40 transition-all flex items-center justify-center gap-1.5 mt-1"
               >
                 {loading ? 'Aguarde...' : register ? 'Criar conta' : 'Entrar'}
               </button>

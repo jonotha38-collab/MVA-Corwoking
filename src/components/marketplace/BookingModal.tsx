@@ -102,7 +102,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden animate-scaleUp">
         
         {/* Header */}
@@ -148,7 +148,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase font-semibold block">Código</span>
-                  <div className="font-mono text-base font-bold text-navy-900 bg-white px-3 py-1 rounded-md border border-orange-200 shadow-xs">
+                  <div className="font-mono text-base font-bold text-navy-900 bg-white px-3 py-1 rounded-md border border-orange-200 shadow-sm">
                     {confirmedBooking.id.toUpperCase()}
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+                  className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
                 >
                   <Printer className="w-4 h-4 text-orange-600" />
                   Imprimir Comprovante
@@ -230,7 +230,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                   required
                   value={date}
                   onChange={e => setDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -242,7 +242,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 <select
                   value={startTime}
                   onChange={e => setStartTime(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                 >
                   {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(t => (
                     <option key={t} value={t}>{t}</option>
@@ -258,7 +258,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 <select
                   value={endTime}
                   onChange={e => setEndTime(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-hidden bg-white"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                 >
                   {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'].map(t => (
                     <option key={t} value={t}>{t}</option>
@@ -278,7 +278,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                   required
                   value={companyName}
                   onChange={e => setCompanyName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -291,7 +291,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                   required
                   value={responsibleName}
                   onChange={e => setResponsibleName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -304,7 +304,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                   required
                   value={responsibleEmail}
                   onChange={e => setResponsibleEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -317,7 +317,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                   required
                   value={responsiblePhone}
                   onChange={e => setResponsiblePhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -343,7 +343,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                       onClick={() => toggleAddon(addon.name)}
                       className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
                         isChecked
-                          ? 'border-orange-500 bg-orange-50/40 shadow-xs'
+                          ? 'border-orange-500 bg-orange-50/40 shadow-sm'
                           : 'border-slate-200 hover:border-slate-300 bg-white'
                       }`}
                     >
@@ -380,7 +380,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-orange-400 uppercase font-semibold block">Valor Final</span>
-                <div className="text-2xl font-black text-orange-400">
+                <div className="text-2xl font-bold text-orange-400">
                   R$ {totalPrice.toFixed(2)}
                 </div>
               </div>

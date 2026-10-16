@@ -6,9 +6,9 @@ export const Footer: React.FC = () => {
   const { setActiveTab } = useCoworking();
 
   return (
-    <footer className="bg-navy-950 text-slate-400 text-xs border-t border-navy-800 no-print">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+    <footer className="bg-navy-950 text-slate-400 text-sm border-t border-navy-800 no-print">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           
           {/* Brand Col */}
           <div className="space-y-3">
@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
               <img src="/logo.png" alt="MVA" className="h-8 w-auto" />
               <span className="font-bold text-base tracking-tight text-slate-100">Coworking Hub</span>
             </div>
-            <p className="text-slate-400 text-xs leading-relaxed">
+            <p className="text-slate-400 text-sm leading-relaxed">
               Plataforma para empresas de coworking anunciarem seus espaços e clientes reservarem salas de reunião, atendimento e endereço fiscal com segurança.
             </p>
             <div className="flex items-center gap-1.5 text-orange-400 font-semibold text-[11px]">
@@ -92,7 +92,7 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-orange-400" />
-                <span>contato@mvacoworking.com.br</span>
+                <span className="min-w-0 break-all">contato@mvacoworking.com.br</span>
               </div>
             </div>
           </div>
@@ -104,7 +104,7 @@ export const Footer: React.FC = () => {
             © {new Date().getFullYear()} MVA Coworking Hub • Sede: Rua Dom José Thomaz, 565 - Aracaju/SE.
           </div>
           <div>
-            Desenvolvido com design minimalista corporativo (Azul Escuro & Laranja MVA)
+            Espaços para trabalhar. Estrutura para crescer.
           </div>
         </div>
       </div>
