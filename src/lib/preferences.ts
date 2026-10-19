@@ -6,7 +6,7 @@ const read = (key: string) => { try { return localStorage.getItem(key); } catch 
 let language: Language = (['pt','en','es'].includes(read('mva-language') || '') ? read('mva-language') : 'pt') as Language;
 let theme: Theme = (read('mva-theme') === 'light' || read('mva-theme') === 'dark' ? read('mva-theme') : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') as Theme;
 const listeners = new Set<() => void>();
-function apply() { document.documentElement.dataset.theme = theme; document.documentElement.lang = language === 'pt' ? 'pt-BR' : language; document.documentElement.style.colorScheme = theme; }
+function apply() { document.documentElement.dataset.theme = theme; document.documentElement.classList.toggle('dark', theme === 'dark'); document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0b1320' : '#f6f7f9'); document.documentElement.lang = language === 'pt' ? 'pt-BR' : language; document.documentElement.style.colorScheme = theme; }
 apply();
 const subscribe = (fn: () => void) => { listeners.add(fn); return () => { listeners.delete(fn); }; };
 export function usePreferences() { useSyncExternalStore(subscribe, () => `${language}:${theme}`); return { language, theme, setLanguage, setTheme }; }

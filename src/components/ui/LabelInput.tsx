@@ -31,19 +31,17 @@ export const LabelInput = forwardRef<HTMLInputElement, LabelInputProps>(
     const inputType = isPassword ? (showPwd ? 'text' : 'password') : type;
 
     return (
-      <div className={`group relative w-full ${containerClassName}`}>
+      <div className={`floating-field group relative w-full ${containerClassName}`}>
         <input
           id={inputId}
           ref={ref}
           type={inputType}
           placeholder=" "
           className={[
-            'peer block w-full outline-none',
+            'floating-field-input peer block w-full outline-none',
             'px-3.5 pt-3.5 pb-2 text-sm rounded-lg border border-slate-200',
-            'bg-slate-50/70 text-slate-800',
-            'transition-all duration-150',
-            'focus:ring-2 focus:bg-white',
-            'autofill:shadow-[inset_0_0_0px_1000px_#f8fafc]',
+                        'transition-all duration-150',
+            'focus:ring-2',
             isPassword ? 'pr-9' : '',
             ringMap[ringColor],
             className,
@@ -55,8 +53,8 @@ export const LabelInput = forwardRef<HTMLInputElement, LabelInputProps>(
         <label
           htmlFor={inputId}
           className={[
-            'pointer-events-none absolute left-[11px] bg-white px-1',
-            'text-xs text-slate-400 font-medium text-nowrap',
+            'floating-field-label pointer-events-none absolute left-[11px] px-1',
+            'text-xs font-medium text-nowrap',
             'transition-all duration-200 origin-top-left will-change-transform',
             // When placeholder-shown (empty + not focused): label sits inside field
             'peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:top-[10px] peer-placeholder-shown:text-slate-400',
@@ -73,7 +71,7 @@ export const LabelInput = forwardRef<HTMLInputElement, LabelInputProps>(
           <button
             type="button"
             aria-pressed={showPwd}
-            aria-label={showPwd ? 'Ocultar senha' : 'Mostrar senha'}
+            aria-label={t(showPwd ? 'Ocultar senha' : 'Mostrar senha')}
             onClick={() => setShowPwd(v => !v)}
             className="absolute inset-y-0 right-0 flex h-full w-9 items-center justify-center text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
           >

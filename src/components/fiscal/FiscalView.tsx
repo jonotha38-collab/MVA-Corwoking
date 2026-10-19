@@ -337,7 +337,7 @@ export const FiscalView: React.FC = () => {
         <Reveal className="text-center max-w-2xl mx-auto space-y-3">
           <span className="text-xs font-bold text-orange-600 tracking-wider uppercase">{t("Planos Corporativos Acessíveis ")}</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-navy-900">{t("Escolha o Plano Ideal para a sua Empresa ")}</h2>
-          <p className="text-sm text-slate-500">{t("Valores mensais equivalentes. Contratação de 12 meses com pagamento anual à vista. ")}</p>
+          <p className="text-sm text-slate-500">{t("Escolha 1 mês ou 12 meses no checkout. Na transferência anual, pague 8 meses e use 12. ")}</p>
         </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">

@@ -24,7 +24,7 @@ export async function body(req: Request) {
 }
 export const uuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 export function publicOrder(o: Record<string, unknown>) {
-  return { id: o.id, status: o.status, amount: o.amount, currency: o.currency, plan_id: o.plan_id, contract_id: o.contract_id, livemode: o.livemode, transfer: o.transfer };
+  return { id: o.id, status: o.status, amount: o.amount, currency: o.currency, plan_id: o.plan_id, contract_id: o.contract_id, livemode: o.livemode, transfer: o.transfer, term_months: o.term_months };
 }
 export function endpoint(handler: (req: Request) => Promise<Response>) {
   return async (req: Request) => {
@@ -35,7 +35,7 @@ export function endpoint(handler: (req: Request) => Promise<Response>) {
       return await handler(req);
     } catch (e) {
       const message = e instanceof Error ? e.message : '';
-      const safe = ['Entre na sua conta para continuar.','Plano inválido.','Confira os dados da empresa.','Informe os dados da empresa.','Confira a razão social, o CNPJ, o e-mail e o telefone.','Pedido não encontrado.','Esta declaração ainda não está disponível.','Confira os dados e aceite as condições para continuar.','Uma tentativa anterior já usa este pedido. Reabra o checkout.'];
+      const safe = ['Escolha um período de 1 ou 12 meses.','Entre na sua conta para continuar.','Plano inválido.','Confira os dados da empresa.','Informe os dados da empresa.','Confira a razão social, o CNPJ, o e-mail e o telefone.','Pedido não encontrado.','Esta declaração ainda não está disponível.','Confira os dados e aceite as condições para continuar.','Uma tentativa anterior já usa este pedido. Reabra o checkout.'];
       try { return json(req, { error: safe.includes(message) ? message : 'Não foi possível concluir esta etapa. Tente novamente.' }, message.startsWith('Entre na sua conta') ? 401 : safe.includes(message) ? 400 : 503); }
       catch { return new Response('Not available', { status: 403 }); }
     }

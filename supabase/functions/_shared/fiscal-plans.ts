@@ -11,8 +11,15 @@ export function getPlan(id: unknown): FiscalPlan {
   if (typeof id !== 'string' || !Object.hasOwn(FISCAL_PLANS, id)) throw new Error('Plano inválido.');
   return FISCAL_PLANS[id as FiscalPlanId];
 }
-export function quotePlan(plan: FiscalPlan, transfer: boolean) {
-  return { amount: plan.monthlyCents * (transfer ? 8 : 12), fullAmount: plan.monthlyCents * 12, discount: transfer ? plan.monthlyCents * 4 : 0, currency: 'brl' as const };
+export type FiscalTermMonths = 1 | 12;
+export function getTermMonths(value: unknown = 12): FiscalTermMonths {
+  if (value !== 1 && value !== 12) throw new Error('Escolha um período de 1 ou 12 meses.');
+  return value;
+}
+export function quotePlan(plan: FiscalPlan, termMonths: FiscalTermMonths, transfer: boolean) {
+  const months = getTermMonths(termMonths);
+  const freeMonths = months === 12 && transfer ? 4 : 0;
+  return { amount: plan.monthlyCents * (months - freeMonths), fullAmount: plan.monthlyCents * months, discount: plan.monthlyCents * freeMonths, termMonths: months, freeMonths, currency: 'brl' as const };
 }
 export interface FiscalCompanyInput { companyName: string; tradingName: string; cnpj: string; contactEmail: string; contactPhone: string; }
 export function validCnpj(value: string): boolean {

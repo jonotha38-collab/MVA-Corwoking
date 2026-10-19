@@ -44,7 +44,7 @@ export const rowToBooking = (r: Row): Booking => ({
 });
 
 export const rowToFiscal = (r: Row): FiscalContract => ({
-  id: r.id, userId: r.user_id, planId: r.plan_id, paymentStatus: r.payment_status ?? 'unpaid', paymentIsLive: r.payment_is_live === true, paymentOrderId: r.payment_order_id, certificateNumber: r.certificate_number, companyName: r.company_name, tradingName: r.trading_name, cnpj: r.cnpj,
+  id: r.id, userId: r.user_id, planId: r.plan_id, termMonths: r.term_months === 1 ? 1 : 12, paymentStatus: r.payment_status ?? 'unpaid', paymentIsLive: r.payment_is_live === true, paymentOrderId: r.payment_order_id, certificateNumber: r.certificate_number, companyName: r.company_name, tradingName: r.trading_name, cnpj: r.cnpj,
   contactEmail: r.contact_email, contactPhone: r.contact_phone, planName: r.plan_name, status: r.status,
   startDate: r.start_date, renewalDate: r.renewal_date, coworkingProviderName: r.coworking_provider_name,
   unitAddress: r.unit_address, monthlyFee: Number(r.monthly_fee), alvaraStatus: r.alvara_status,

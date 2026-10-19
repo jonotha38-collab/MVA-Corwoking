@@ -2918,5 +2918,73 @@
   "Demonstração visual. No pagamento, a Stripe identifica a bandeira automaticamente.": [
     "Visual demonstration. During payment, Stripe identifies the card brand automatically.",
     "Demostración visual. Durante el pago, Stripe identifica la marca automáticamente."
+  ],
+  "1 mês": [
+    "1 month",
+    "1 mes"
+  ],
+  "Plano de 1 mês": [
+    "1-month plan",
+    "Plan de 1 mes"
+  ],
+  "Plano de 12 meses": [
+    "12-month plan",
+    "Plan de 12 meses"
+  ],
+  "Período de contratação": [
+    "Contract period",
+    "Período de contratación"
+  ],
+  "Pagamento de um mês": [
+    "One month's payment",
+    "Pago de un mes"
+  ],
+  "Pague 8 e use 12 meses": [
+    "Pay for 8 and use 12 months",
+    "Paga 8 y usa 12 meses"
+  ],
+  "4 meses grátis na transferência": [
+    "4 months free when transferring",
+    "4 meses gratis al trasladar"
+  ],
+  "Já tenho endereço fiscal e quero transferir": [
+    "I already have a registered office and want to transfer",
+    "Ya tengo domicilio fiscal y quiero trasladarlo"
+  ],
+  "4 meses grátis no plano de 12 meses. Informe seu endereço atual.": [
+    "4 months free on the 12-month plan. Enter your current address.",
+    "4 meses gratis en el plan de 12 meses. Indica tu dirección actual."
+  ],
+  "No plano de 1 mês, a transferência não recebe os 4 meses grátis.": [
+    "Transfers on the 1-month plan do not receive the 4 free months.",
+    "Los traslados del plan de 1 mes no reciben los 4 meses gratis."
+  ],
+  "Pagamento único de 1 mês, à vista no cartão. Sem renovação automática.": [
+    "One card payment for 1 month. No automatic renewal.",
+    "Pago único con tarjeta por 1 mes. Sin renovación automática."
+  ],
+  "Pagamento único de 12 meses, à vista no cartão. Sem renovação automática.": [
+    "One card payment for 12 months. No automatic renewal.",
+    "Pago único con tarjeta por 12 meses. Sin renovación automática."
+  ],
+  "Confirmo meus dados e aceito contratar 1 mês pelo valor total exibido. O uso do endereço e a declaração dependem do pagamento confirmado.": [
+    "I confirm my details and agree to a 1-month contract at the total shown. Address use and the certificate require confirmed payment.",
+    "Confirmo mis datos y acepto contratar 1 mes por el total indicado. El uso del domicilio y la declaración requieren el pago confirmado."
+  ],
+  "Confirmo meus dados e aceito contratar 12 meses pelo valor total exibido. O uso do endereço e a declaração dependem do pagamento confirmado.": [
+    "I confirm my details and agree to a 12-month contract at the total shown. Address use and the certificate require confirmed payment.",
+    "Confirmo mis datos y acepto contratar 12 meses por el total indicado. El uso del domicilio y la declaración requieren el pago confirmado."
+  ],
+  "Escolha 1 mês ou 12 meses no checkout. Na transferência anual, pague 8 meses e use 12.": [
+    "Choose 1 or 12 months at checkout. With an annual transfer, pay for 8 months and use 12.",
+    "Elige 1 o 12 meses en el checkout. Con el traslado anual, paga 8 meses y usa 12."
+  ],
+  "Escolha um período de 1 ou 12 meses.": [
+    "Choose a 1-month or 12-month period.",
+    "Elige un período de 1 o 12 meses."
+  ],
+  "O valor ou o período retornado não corresponde à sua escolha. Atualize a integração antes de pagar.": [
+    "The returned amount or period does not match your choice. Update the integration before paying.",
+    "El importe o el período no coincide con tu elección. Actualiza la integración antes de pagar."
   ]
 }

@@ -4,15 +4,22 @@ const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
 const load = file => { const compiled = ts.transpileModule(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2023}}).outputText; const m={exports:{}};new Function('module','exports',compiled)(m,m.exports);return m.exports; };
-const { getPlan, quotePlan, validCnpj, validateCompany } = load('supabase/functions/_shared/fiscal-plans.ts');
+const { getPlan, getTermMonths, quotePlan, validCnpj, validateCompany } = load('supabase/functions/_shared/fiscal-plans.ts');
 const { canIssueCertificate } = load('src/lib/fiscal-eligibility.ts');
 
-test('canonical annual totals and transfer discount use integer cents',()=>{
- assert.equal(quotePlan(getPlan('comercial'),false).amount,35880);
- assert.equal(quotePlan(getPlan('fiscal'),false).amount,96000);
- assert.equal(quotePlan(getPlan('fiscal_ie'),false).amount,144000);
- assert.equal(quotePlan(getPlan('fiscal'),true).amount,64000);
- assert.equal(quotePlan(getPlan('fiscal_ie'),true).amount,96000);
+test('monthly and annual quotes: only annual transfers receive four free months',()=>{
+ assert.equal(quotePlan(getPlan('comercial'),12,false).amount,35880);
+ assert.equal(quotePlan(getPlan('fiscal'),12,false).amount,96000);
+ assert.equal(quotePlan(getPlan('fiscal_ie'),12,false).amount,144000);
+ assert.equal(quotePlan(getPlan('fiscal'),12,true).amount,64000);
+ assert.equal(quotePlan(getPlan('fiscal_ie'),12,true).amount,96000);
+ for(const [id,monthly] of [['comercial',2990],['fiscal',8000],['fiscal_ie',12000]]) {
+  for(const transfer of [false,true]) { const q=quotePlan(getPlan(id),1,transfer); assert.equal(q.amount,monthly); assert.equal(q.discount,0); }
+  assert.equal(quotePlan(getPlan(id),12,true).amount,monthly*8);
+  assert.equal(quotePlan(getPlan(id),12,false).amount,monthly*12);
+ }
+ assert.equal(getTermMonths(undefined),12);
+ for(const bad of [0,2,6,24,'1','12',null,false]) assert.throws(()=>getTermMonths(bad));
  for(const id of ['__proto__','constructor','multi','free',null])assert.throws(()=>getPlan(id));
 });
 test('accepts numeric/alphanumeric CNPJ with correct check digits; rejects malformed IDs',()=>{

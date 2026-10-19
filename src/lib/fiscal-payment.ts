@@ -1,8 +1,8 @@
 import { supabase } from './supabase';
-export { FISCAL_PLANS, HEADQUARTERS, getPlan, quotePlan, validCnpj, validateCompany } from '../../supabase/functions/_shared/fiscal-plans';
-export type { FiscalPlanId, FiscalPlan, FiscalCompanyInput } from '../../supabase/functions/_shared/fiscal-plans';
+export { FISCAL_PLANS, HEADQUARTERS, getPlan, getTermMonths, quotePlan, validCnpj, validateCompany } from '../../supabase/functions/_shared/fiscal-plans';
+export type { FiscalPlanId, FiscalPlan, FiscalCompanyInput, FiscalTermMonths } from '../../supabase/functions/_shared/fiscal-plans';
 export { canIssueCertificate } from './fiscal-eligibility';
-export interface PaymentOrder { id: string; status: 'pending' | 'paid' | 'refunded' | 'disputed' | 'canceled'; amount: number; currency: string; plan_id: string; contract_id: string | null; livemode: boolean; transfer: boolean; }
+export interface PaymentOrder { id: string; status: 'pending' | 'paid' | 'refunded' | 'disputed' | 'canceled'; amount: number; currency: string; plan_id: string; contract_id: string | null; livemode: boolean; transfer: boolean; term_months: 1 | 12; }
 export interface PaymentSession { clientSecret: string; order: PaymentOrder; }
 export const paymentConfigured = /^pk_(test|live)_/.test(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 export async function callPayment<T>(name: string, body: Record<string, unknown>): Promise<T> {

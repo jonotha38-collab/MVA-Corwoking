@@ -20,12 +20,14 @@ test('database protects activation, idempotent settlement, refunds and test-mode
  await db.exec('alter table public.fiscal_contracts enable row level security;');
  const migration=fs.readFileSync(path.join(__dirname,'../supabase/migrations/202610190001_fiscal_payments.sql'),'utf8');
  await db.exec(migration);
+ const periodMigration=fs.readFileSync(path.join(__dirname,'../supabase/migrations',fs.readdirSync(path.join(__dirname,'../supabase/migrations')).find(file=>file.endsWith('_fiscal_term_months.sql'))),'utf8');
  const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
  await db.query('insert into profiles(id)values($1)',[user]);
- await db.exec(`set request.jwt.claim.role='service_role';`);
+ await db.exec(periodMigration);
+ await db.exec(`set request.jwt.claim.role='service_role';set role service_role;`);
  const company=JSON.stringify({companyName:'Empresa de teste',tradingName:'',cnpj:'11.222.333/0001-81',contactEmail:'test@example.com',contactPhone:'79999999999'});
- async function order(id,live=true,plan='fiscal') {
-  await db.query(`insert into fiscal_payment_orders(id,user_id,request_key,plan_id,plan_name,monthly_cents,amount,company,livemode,stripe_payment_intent)values($1,$2,$1,$3,'Endereço Fiscal',8000,96000,$4,$5,$6)`,[id,user,plan,company,live,'pi_'+id]);
+ async function order(id,live=true,plan='fiscal',months=12,transfer=false,amount=8000*(months-(transfer&&months===12?4:0))) {
+  await db.query(`insert into fiscal_payment_orders(id,user_id,request_key,plan_id,plan_name,monthly_cents,amount,company,livemode,stripe_payment_intent,term_months,transfer,previous_address)values($1,$2,$1,$3,'Endereço Fiscal',8000,$10,$4,$5,$6,$7,$8,$9)`,[id,user,plan,company,live,'pi_'+id,months,transfer,transfer?'Endereço anterior de teste':'',amount]);
  }
  const id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
  await order(id);
@@ -43,6 +45,17 @@ test('database protects activation, idempotent settlement, refunds and test-mode
  contracts=(await db.query('select * from fiscal_contracts')).rows;
  assert.equal(contracts[0].payment_status,'refunded');assert.equal(contracts[0].status,'pendente_documento');
  assert.equal((await db.query('select status from fiscal_payment_orders where id=$1',[id])).rows[0].status,'refunded');
+ const monthlyId='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';await order(monthlyId,true,'fiscal',1,true);
+ await settle(monthlyId,'evt_monthly','paid',8000);
+ const monthly=(await db.query("select *,renewal_date=(start_date+interval '1 month')::date as correct_end from fiscal_contracts where payment_order_id=$1",[monthlyId])).rows[0];
+ assert.equal(monthly.term_months,1);assert.equal(monthly.correct_end,true);
+ const annualTransferId='ffffffff-ffff-4fff-8fff-ffffffffffff';await order(annualTransferId,true,'fiscal',12,true);
+ await settle(annualTransferId,'evt_annual_transfer','paid',64000);
+ const annual=(await db.query("select *,renewal_date=(start_date+interval '12 months')::date as correct_end from fiscal_contracts where payment_order_id=$1",[annualTransferId])).rows[0];
+ assert.equal(annual.term_months,12);assert.equal(annual.correct_end,true);
+ await assert.rejects(order('11111111-1111-4111-8111-111111111111',true,'fiscal',1,true,0));
+ await assert.rejects(order('22222222-2222-4222-8222-222222222222',true,'fiscal',1,true,64000));
+ await assert.rejects(order('33333333-3333-4333-8333-333333333333',true,'fiscal',6,false,48000));
  const testId='cccccccc-cccc-4ccc-8ccc-cccccccccccc';await order(testId,false);await settle(testId,'evt_test','paid',96000,false);
  const testContract=(await db.query('select * from fiscal_contracts where payment_order_id=$1',[testId])).rows[0];
  assert.equal(testContract.payment_is_live,false);assert.equal(testContract.status,'em_aprovacao');
@@ -54,7 +67,7 @@ test('database protects activation, idempotent settlement, refunds and test-mode
  await assert.rejects(db.query('insert into fiscal_payment_events(id,order_id)values($1,$2)',['forged',id]));
  await db.exec('reset role');
  // Re-running the migration is safe and does not reset verified statuses.
- await db.exec(migration);
+ await db.exec(periodMigration);
  assert.equal((await db.query('select payment_status from fiscal_contracts where id=$1',[contractId])).rows[0].payment_status,'refunded');
  await db.close();
 });

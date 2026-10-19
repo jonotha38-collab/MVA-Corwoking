@@ -56,6 +56,7 @@ export interface Correspondence {
 }
 
 export interface FiscalContract {
+  termMonths?: 1 | 12;
   planId?: string;
   paymentStatus?: 'unpaid' | 'paid' | 'refunded' | 'disputed';
   paymentIsLive?: boolean;

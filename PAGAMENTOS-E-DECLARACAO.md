@@ -4,7 +4,9 @@
 
 Ao selecionar um plano, o cliente vê o checkout com resumo, preço, vigência e dados da empresa. Após entrar na conta, informa o cartão dentro dos campos isolados do Stripe Payment Element. O número e o CVC não passam pelo React, banco MVA ou Edge Functions.
 
-O servidor escolhe o preço a partir do ID do plano; valores enviados pelo navegador não são usados. O plano é anual, com pagamento único à vista: R$ 358,80 (comercial), R$ 960 (fiscal) ou R$ 1.440 (fiscal com inscrição estadual). O valor mensal exibido é equivalente, sem parcelamento ou renovação automática nesta implementação. A oferta de portabilidade preexistente desconta quatro mensalidades do total anual e exige o endereço anterior. A oferta é calculada no servidor.
+O cliente escolhe 1 mês ou 12 meses. O servidor calcula o preço pelo ID do plano e pelo período; valores enviados pelo navegador não são usados. O pagamento é único, à vista no cartão, sem parcelamento ou renovação automática. No plano fiscal de R$ 80 por mês: 1 mês custa R$ 80; 12 meses custam R$ 960; 12 meses com transferência custam R$ 640, com 4 meses grátis. A transferência exige o endereço anterior. No período de 1 mês, não há desconto de transferência.
+
+A mesma regra de período acompanha os demais planos: comercial R$ 29,90/mês e fiscal com inscrição estadual R$ 120/mês. `term_months` é persistido no pedido e no contrato. A vigência começa na data de confirmação e termina 1 ou 12 meses depois; a gratuidade anual reduz o preço sem reduzir os 12 meses de uso. Pedidos e contratos anteriores recebem o período de 12 meses, preservando valores e datas já registrados. O frontend recusa um pedido cujo período, plano, transferência ou valor não corresponda à escolha atual.
 
 O contrato só é criado quando o pagamento é confirmado pela Stripe. O webhook assinado atualiza o pedido e o contrato em uma única transação. A consulta de status também reconcilia o pedido diretamente com a API da Stripe, caso o webhook esteja atrasado. A volta do navegador, o clique no botão e o localStorage nunca confirmam pagamentos.
 
@@ -15,7 +17,7 @@ O PDF usa os dados reais do contrato, um número de registro persistente e os da
 ## Ativar em homologação
 
 1. Faça backup do banco. Confira a estrutura de `fiscal_contracts`: esta atualização usa o esquema atual de `supabase/schema.sql`, que possui `user_id`. A migração histórica `000000_init.sql` é incompatível com essa base; **não use `supabase db reset` nem aplique as duas bases juntas**.
-2. No SQL Editor, execute **somente** `supabase/migrations/202610190001_fiscal_payments.sql` sobre o banco atual. Se instalar do zero, execute primeiro `supabase/schema.sql` e depois essa nova migração.
+2. No SQL Editor, aplique, nesta ordem, `supabase/migrations/202610190001_fiscal_payments.sql` (caso ainda não aplicada) e `supabase/migrations/20261019201910_fiscal_term_months.sql`. A segunda migração adiciona os períodos, valida os preços e atualiza a liquidação do contrato. Se instalar do zero, execute primeiro `supabase/schema.sql`, depois essas duas migrações. Publique as funções atualizadas antes do novo frontend; somente a versão anterior do backend não oferece o pagamento mensal.
 3. Configure no servidor os secrets de `supabase/functions/.env.example` com os dados reais. Use `sk_test_...` inicialmente. `SUPABASE_SERVICE_ROLE_KEY` deve permanecer exclusivamente no servidor.
 4. Publique as funções, mantendo `supabase/config.toml`:
 
@@ -51,6 +53,7 @@ Os contratos anteriores permanecem com `payment_status='unpaid'`: eles não são
 - `supabase/functions/fiscal-webhook`: recebe notificações assinadas.
 - `supabase/functions/fiscal-certificate`: verifica direito de emissão e gera PDF.
 - `supabase/migrations/202610190001_fiscal_payments.sql`: pedidos, permissões e liquidação transacional.
+- `supabase/migrations/20261019201910_fiscal_term_months.sql`: períodos de 1/12 meses, desconto anual e vencimento do contrato.
 
 ## Referências de implementação
 
@@ -72,3 +75,10 @@ A representação mantém número, validade e CVC sempre mascarados. O nome do t
 Sem configuração de pagamento, há uma demonstração identificada como **Exemplo visual**, com botões Visa, Mastercard e Amex. Esses botões alteram somente a ilustração: não selecionam uma bandeira de cobrança e não aprovam pagamentos. Os campos de cartão continuam desabilitados.
 
 Os eventos são recebidos da Stripe.js carregada diretamente do provedor. Se não houver identificação, a interface usa o símbolo genérico de cartão. Documentação da interface oficial: https://github.com/stripe/stripe-js/blob/master/types/stripe-js/elements/payment.d.ts
+
+
+## Temas e validação desta atualização
+
+`src/theme.css` centraliza cores de superfícies, texto, campos, bordas e estados. Inclui fundos semitransparentes, gradientes, hover/foco e preenchimento automático do navegador. As etiquetas flutuantes dos formulários acompanham os campos nos dois temas. A preferência também sincroniza a classe `dark`, `color-scheme` e a cor do navegador. A identidade azul-marinho/cobre foi preservada.
+
+Os testes locais verificam valores mensais e anuais, transferência sem desconto mensal, restrições de preço no banco, vencimento de 1/12 meses, idempotência e bloqueios de acesso. A interface foi conferida em 18 combinações de largura, idioma e tema, além do envio do período mensal e bloqueio de resposta incompatível. Os testes de pagamento usam respostas controladas; não substituem homologação real com Stripe e Supabase.
