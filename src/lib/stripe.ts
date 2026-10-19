@@ -3,6 +3,8 @@ export interface SecurePaymentElement {
   mount(node: HTMLElement): void;
   destroy(): void;
   on(event: 'ready', callback: () => void): void;
+  on(event: 'carddetailschange', callback: (event: { loading: boolean; details?: { brands: string[] | null; funding: string | null } }) => void): void;
+  on(event: 'change', callback: (event: { empty: boolean; complete: boolean; value: { type: string } }) => void): void;
   on(event: 'loaderror', callback: (event: { error?: { message?: string } }) => void): void;
 }
 export interface SecureElements {

@@ -2842,5 +2842,81 @@
   "Pagamento de teste": [
     "Test payment",
     "Pago de prueba"
+  ],
+  "Exemplo visual": [
+    "Visual example",
+    "Ejemplo visual"
+  ],
+  "Identificando bandeira…": [
+    "Identifying card brand…",
+    "Identificando la marca…"
+  ],
+  "Bandeiras identificadas": [
+    "Card brands identified",
+    "Marcas identificadas"
+  ],
+  "Bandeira identificada": [
+    "Card brand identified",
+    "Marca identificada"
+  ],
+  "A bandeira aparece ao preencher o cartão": [
+    "Your card brand appears as you enter card details",
+    "La marca aparece al introducir los datos"
+  ],
+  "PRÉVIA DO CARTÃO": [
+    "CARD PREVIEW",
+    "VISTA PREVIA DE LA TARJETA"
+  ],
+  "SEU CARTÃO": [
+    "YOUR CARD",
+    "TU TARJETA"
+  ],
+  "Campos seguros": [
+    "Secure fields",
+    "Campos seguros"
+  ],
+  "Número protegido": [
+    "Protected card number",
+    "Número protegido"
+  ],
+  "TITULAR DO CARTÃO": [
+    "CARDHOLDER",
+    "TITULAR DE LA TARJETA"
+  ],
+  "SEU NOME": [
+    "YOUR NAME",
+    "TU NOMBRE"
+  ],
+  "VALIDADE": [
+    "VALID THRU",
+    "VENCIMIENTO"
+  ],
+  "O código de segurança fica somente nos campos da Stripe.": [
+    "The security code stays within Stripe fields.",
+    "El código de seguridad permanece en los campos de Stripe."
+  ],
+  "Ver frente do cartão": [
+    "View card front",
+    "Ver frente de la tarjeta"
+  ],
+  "Ver verso do cartão": [
+    "View card back",
+    "Ver reverso de la tarjeta"
+  ],
+  "Frente": [
+    "Front",
+    "Frente"
+  ],
+  "Verso": [
+    "Back",
+    "Reverso"
+  ],
+  "Exemplos de bandeiras": [
+    "Card brand examples",
+    "Ejemplos de marcas"
+  ],
+  "Demonstração visual. No pagamento, a Stripe identifica a bandeira automaticamente.": [
+    "Visual demonstration. During payment, Stripe identifies the card brand automatically.",
+    "Demostración visual. Durante el pago, Stripe identifica la marca automáticamente."
   ]
 }

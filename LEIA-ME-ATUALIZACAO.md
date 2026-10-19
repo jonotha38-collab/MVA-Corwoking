@@ -1,5 +1,11 @@
 # MVA Coworking — design, pagamento e declaração
 
+## Cartão visual animado
+
+O checkout agora inclui um cartão ilustrado com Motion: nome do titular, bandeira recebida da Stripe, troca animada e frente/verso. O visual acompanha os temas claro e escuro e os três idiomas. Sem a Stripe configurada, há exemplos identificados de Visa, Mastercard e Amex.
+
+Número, validade e código de segurança permanecem mascarados na ilustração. Os dados de cartão continuam restritos aos campos seguros do provedor. Os testes locais cobriram troca e limpeza de bandeiras, carregamento, múltiplas bandeiras, tipos desconhecidos, nome do titular, frente/verso e preferência de movimento reduzido, usando eventos controlados; nenhuma cobrança real foi realizada.
+
 ## Atualização de 19/10/2026
 
 O checkout e a emissão de declaração foram refeitos. Consulte **PAGAMENTOS-E-DECLARACAO.md** para configurar a Stripe, aplicar a migração e ativar o fluxo. Sem essas configurações não há cobrança nem liberação oficial. O pagamento deste checkout é anual, à vista no cartão.

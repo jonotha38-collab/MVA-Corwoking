@@ -5,6 +5,8 @@ import { t, usePreferences } from '../../lib/preferences';
 import { callPayment, getPlan, quotePlan, HEADQUARTERS, money, paymentConfigured, rememberOrder, validateCompany, type FiscalPlanId, type FiscalCompanyInput, type PaymentOrder, type PaymentSession } from '../../lib/fiscal-payment';
 import { loadStripeClient, paymentAppearance, type SecureElements, type StripeClient } from '../../lib/stripe';
 import { Dialog } from '../ui/Dialog';
+import { AnimatedPaymentCard } from './AnimatedPaymentCard';
+import { displayCardBrands, type CardBrand } from '../../lib/card-presentation';
 
 export function FiscalCheckout({ planId, transfer = false, resumeOrderId, onClose, onPaid }: { planId: FiscalPlanId; transfer?: boolean; resumeOrderId?: string; onClose: () => void; onPaid: () => void }) {
   const { currentUser, setAuthModalOpen, setAuthModalTab, refreshFiscalContracts } = useCoworking();
@@ -22,6 +24,8 @@ export function FiscalCheckout({ planId, transfer = false, resumeOrderId, onClos
   const [order, setOrder] = useState<PaymentOrder | null>(null);
   const [busy, setBusy] = useState(false);
   const [cardReady, setCardReady] = useState(false);
+  const [cardBrands, setCardBrands] = useState<CardBrand[]>([]);
+  const [identifyingCard, setIdentifyingCard] = useState(false);
   const [error, setError] = useState('');
   const [pollAgain, setPollAgain] = useState(0);
   const [waiting, setWaiting] = useState(false);
@@ -41,7 +45,7 @@ export function FiscalCheckout({ planId, transfer = false, resumeOrderId, onClos
     if (step !== 'card' || !session || !mount.current) return;
     let canceled = false;
     let destroy: (() => void) | undefined;
-    setInitializing(true); setCardReady(false);
+    setInitializing(true); setCardReady(false); setCardBrands([]); setIdentifyingCard(false);
     loadStripeClient().then(client => {
       if (canceled || !mount.current) return;
       stripe.current = client;
@@ -50,6 +54,14 @@ export function FiscalCheckout({ planId, transfer = false, resumeOrderId, onClos
       const element = group.create('payment', { layout: 'tabs', defaultValues: { billingDetails: { email: company.contactEmail, name: holder } } });
       element.on('ready', () => { if (!canceled) { setCardReady(true); setInitializing(false); } });
       element.on('loaderror', () => { if (!canceled) { setInitializing(false); setError('Não foi possível carregar o pagamento seguro.'); } });
+      element.on('carddetailschange', event => {
+        if (canceled) return;
+        setIdentifyingCard(event.loading);
+        setCardBrands(event.loading ? [] : displayCardBrands(event.details?.brands));
+      });
+      element.on('change', event => {
+        if (!canceled && (event.empty || event.value.type !== 'card')) { setCardBrands([]); setIdentifyingCard(false); }
+      });
       element.mount(mount.current);
       destroy = () => { element.destroy(); elements.current = null; };
     }).catch(e => { if (!canceled) { setInitializing(false); setError(e.message); } });
@@ -146,12 +158,13 @@ export function FiscalCheckout({ planId, transfer = false, resumeOrderId, onClos
           {!paymentConfigured && <div className="checkout-notice" role="status"><Info size={18} /><div><strong>{t('Pagamentos disponíveis em breve')}</strong><p>{t('Você já pode conhecer o fluxo de contratação. Os campos de cartão serão liberados quando o pagamento seguro estiver disponível.')}</p></div></div>}
           {error && <p role="alert" className="checkout-error">{t(error)}</p>}
           {!currentUser ? <button type="button" className="action-primary checkout-submit" onClick={() => { setAuthModalTab('login'); setAuthModalOpen(true); }}>{t('Entrar para continuar')}<ArrowRight size={17} /></button> : <button className="action-primary checkout-submit" disabled={busy || !paymentConfigured}>{busy ? <LoaderCircle className="animate-spin" size={18} /> : <LockKeyhole size={17} />}{t(busy ? 'Preparando pagamento…' : 'Continuar para pagamento')}<ArrowRight size={17} /></button>}
-          {!paymentConfigured && <div className="checkout-card-preview" aria-label={t('Prévia do pagamento com cartão')}><div className="checkout-section-title"><CreditCard size={20} /><h3>{t('Pagamento com cartão')}</h3></div><label className="checkout-field"><span>{t('Número do cartão')}</span><input disabled placeholder="•••• •••• •••• ••••" /></label><div className="checkout-field-row"><label className="checkout-field"><span>{t('Validade')}</span><input disabled placeholder="MM / AA" /></label><label className="checkout-field"><span>CVC</span><input disabled placeholder="•••" /></label></div><small>{t('Prévia visual. Nenhum dado de cartão é coletado nesta etapa.')}</small></div>}
+          {!paymentConfigured && <div className="checkout-card-preview" aria-label={t('Prévia do pagamento com cartão')}><div className="checkout-section-title"><CreditCard size={20} /><h3>{t('Pagamento com cartão')}</h3></div><AnimatedPaymentCard demo /><label className="checkout-field"><span>{t('Número do cartão')}</span><input disabled placeholder="•••• •••• •••• ••••" /></label><div className="checkout-field-row"><label className="checkout-field"><span>{t('Validade')}</span><input disabled placeholder="MM / AA" /></label><label className="checkout-field"><span>CVC</span><input disabled placeholder="•••" /></label></div><small>{t('Prévia visual. Nenhum dado de cartão é coletado nesta etapa.')}</small></div>}
         </form>}
         {step === 'card' && <form onSubmit={pay} className="checkout-form">
           <div className="checkout-section-title"><span className="checkout-icon"><CreditCard size={21} /></span><div><h3>{t('Pagamento com cartão')}</h3><p>{t('Preencha os dados nos campos seguros abaixo.')}</p></div></div>
           {!order?.livemode && <div className="checkout-notice"><Info size={18} /><span>{t('Ambiente de teste: não há cobrança real nem liberação de endereço fiscal.')}</span></div>}
           <div className="checkout-contact"><span>{t('Empresa')}</span><strong>{company.companyName}</strong><small>{company.contactEmail}</small></div>
+          <AnimatedPaymentCard holder={holder} brands={cardBrands} identifying={identifyingCard} />
           <label className="checkout-field"><span>{t('Nome do titular do cartão')}</span><input required autoComplete="cc-name" maxLength={180} value={holder} onChange={e => setHolder(e.target.value)} /></label>
           {initializing && <p className="checkout-loading" role="status"><LoaderCircle className="animate-spin" size={19} />{t('Carregando campos seguros…')}</p>}
           <div ref={mount} className="secure-card-fields" />

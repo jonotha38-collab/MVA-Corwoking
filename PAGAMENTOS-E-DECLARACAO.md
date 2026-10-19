@@ -59,3 +59,16 @@ Os contratos anteriores permanecem com `payment_status='unpaid'`: eles não são
 - Stripe Webhooks: https://docs.stripe.com/webhooks
 - Supabase Stripe Webhooks: https://supabase.com/docs/guides/functions/examples/stripe-webhooks
 - CNPJ numérico/alfanumérico: https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj
+
+
+## Cartão visual animado
+
+O checkout inclui `AnimatedPaymentCard`, com Motion, cores da MVA, temas claro/escuro, nome do titular, troca animada de bandeira e botão para ver frente/verso. Respeita a preferência de movimento reduzido.
+
+No pagamento, o evento oficial `carddetailschange` do Payment Element fornece `details.brands` e o indicador `loading`. O evento `change` limpa a ilustração quando os campos são apagados ou quando o método deixa de ser cartão. Bandeiras desconhecidas mantêm o cartão genérico; não há tentativa de descobrir a bandeira lendo o número no React. Em cartões com mais de uma bandeira, o componente exibe as bandeiras informadas pelo provedor, sem escolher a rede de processamento por conta própria.
+
+A representação mantém número, validade e CVC sempre mascarados. O nome do titular é o mesmo campo não sensível já presente no formulário. O verso é alternado pelo próprio cliente; não se tenta acessar o foco do CVC dentro do iframe.
+
+Sem configuração de pagamento, há uma demonstração identificada como **Exemplo visual**, com botões Visa, Mastercard e Amex. Esses botões alteram somente a ilustração: não selecionam uma bandeira de cobrança e não aprovam pagamentos. Os campos de cartão continuam desabilitados.
+
+Os eventos são recebidos da Stripe.js carregada diretamente do provedor. Se não houver identificação, a interface usa o símbolo genérico de cartão. Documentação da interface oficial: https://github.com/stripe/stripe-js/blob/master/types/stripe-js/elements/payment.d.ts
