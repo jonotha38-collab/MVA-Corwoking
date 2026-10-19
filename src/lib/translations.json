@@ -2378,5 +2378,469 @@
   "Ex: Aracaju, São Paulo...": [
     "E.g. Aracaju, São Paulo...",
     "Ej.: Aracaju, São Paulo..."
+  ],
+  "Contratação de endereço": [
+    "Address services checkout",
+    "Contratación de domicilio"
+  ],
+  "SEU PRÓXIMO PASSO": [
+    "YOUR NEXT STEP",
+    "TU PRÓXIMO PASO"
+  ],
+  "Um endereço à altura da sua empresa.": [
+    "An address worthy of your business.",
+    "Una dirección a la altura de tu empresa."
+  ],
+  "Estrutura profissional, contratação simples e tudo em um só lugar.": [
+    "Professional facilities, a simple process and everything in one place.",
+    "Estructura profesional, contratación sencilla y todo en un solo lugar."
+  ],
+  "Plano selecionado": [
+    "Selected plan",
+    "Plan seleccionado"
+  ],
+  "Vigência": [
+    "Contract term",
+    "Vigencia"
+  ],
+  "12 meses": [
+    "12 months",
+    "12 meses"
+  ],
+  "Plano anual": [
+    "Annual plan",
+    "Plan anual"
+  ],
+  "Portabilidade · 4 meses grátis": [
+    "Transfer · 4 months free",
+    "Traslado · 4 meses gratis"
+  ],
+  "Total a pagar": [
+    "Total due",
+    "Total a pagar"
+  ],
+  "Pagamento único do plano anual, à vista no cartão. Sem renovação automática ou cobrança mensal neste checkout.": [
+    "One card payment for the annual plan. No automatic renewal or monthly charges in this checkout.",
+    "Pago único con tarjeta del plan anual. Sin renovación automática ni cargos mensuales en este checkout."
+  ],
+  "Recepção e gestão de correspondências": [
+    "Mail reception and management",
+    "Recepción y gestión de correspondencia"
+  ],
+  "Endereço comercial profissional": [
+    "Professional business address",
+    "Dirección comercial profesional"
+  ],
+  "Declaração após confirmação do pagamento": [
+    "Certificate after payment confirmation",
+    "Declaración tras confirmar el pago"
+  ],
+  "Uso comercial do endereço": [
+    "Business use of the address",
+    "Uso comercial de la dirección"
+  ],
+  "Dados do cartão protegidos pelo provedor de pagamento.": [
+    "Card details secured by the payment provider.",
+    "Datos de tarjeta protegidos por el proveedor de pagos."
+  ],
+  "Etapas da contratação": [
+    "Checkout steps",
+    "Etapas de contratación"
+  ],
+  "Empresa": [
+    "Company",
+    "Empresa"
+  ],
+  "Pagamento": [
+    "Payment",
+    "Pago"
+  ],
+  "Confirmação": [
+    "Confirmation",
+    "Confirmación"
+  ],
+  "Vamos conhecer sua empresa": [
+    "Tell us about your company",
+    "Cuéntanos sobre tu empresa"
+  ],
+  "Esses dados serão usados no contrato e na declaração.": [
+    "These details will appear on your contract and certificate.",
+    "Estos datos se utilizarán en el contrato y la declaración."
+  ],
+  "Razão social": [
+    "Legal company name",
+    "Razón social"
+  ],
+  "Nome registrado da empresa": [
+    "Registered company name",
+    "Nombre registrado de la empresa"
+  ],
+  "Nome fantasia (opcional)": [
+    "Trading name (optional)",
+    "Nombre comercial (opcional)"
+  ],
+  "00.000.000/0001-00 ou Em abertura": [
+    "00.000.000/0001-00 or Em abertura",
+    "00.000.000/0001-00 o Em abertura"
+  ],
+  "E-mail de contato": [
+    "Contact email",
+    "Correo de contacto"
+  ],
+  "Estou transferindo meu endereço": [
+    "I'm transferring my address",
+    "Estoy trasladando mi domicilio"
+  ],
+  "4 meses de desconto no pagamento do plano anual.": [
+    "4 months off your annual plan payment.",
+    "4 meses de descuento en el pago del plan anual."
+  ],
+  "Coworking ou endereço atual": [
+    "Current coworking or address",
+    "Coworking o dirección actual"
+  ],
+  "Confirmo os dados informados e aceito a contratação anual pelo valor total exibido. O uso do endereço e a declaração dependem do pagamento confirmado.": [
+    "I confirm my details and agree to the annual plan at the total shown. Address use and certificate issuance require confirmed payment.",
+    "Confirmo mis datos y acepto la contratación anual por el total indicado. El uso del domicilio y la declaración requieren el pago confirmado."
+  ],
+  "Pagamentos disponíveis em breve": [
+    "Payments coming soon",
+    "Pagos disponibles próximamente"
+  ],
+  "Você já pode conhecer o fluxo de contratação. Os campos de cartão serão liberados quando o pagamento seguro estiver disponível.": [
+    "You can explore the checkout. Card fields will become available when secure payments are enabled.",
+    "Ya puedes conocer el proceso. Los campos de tarjeta estarán disponibles cuando se active el pago seguro."
+  ],
+  "Entrar para continuar": [
+    "Sign in to continue",
+    "Acceder para continuar"
+  ],
+  "Preparando pagamento…": [
+    "Preparing payment…",
+    "Preparando el pago…"
+  ],
+  "Continuar para pagamento": [
+    "Continue to payment",
+    "Continuar al pago"
+  ],
+  "Prévia do pagamento com cartão": [
+    "Card payment preview",
+    "Vista previa del pago con tarjeta"
+  ],
+  "Pagamento com cartão": [
+    "Card payment",
+    "Pago con tarjeta"
+  ],
+  "Número do cartão": [
+    "Card number",
+    "Número de tarjeta"
+  ],
+  "Validade": [
+    "Expiry date",
+    "Vencimiento"
+  ],
+  "Prévia visual. Nenhum dado de cartão é coletado nesta etapa.": [
+    "Visual preview. No card data is collected at this stage.",
+    "Vista previa. En esta etapa no se recogen datos de tarjeta."
+  ],
+  "Preencha os dados nos campos seguros abaixo.": [
+    "Enter your details in the secure fields below.",
+    "Introduce los datos en los campos seguros."
+  ],
+  "Ambiente de teste: não há cobrança real nem liberação de endereço fiscal.": [
+    "Test mode: no real charge or registered office activation.",
+    "Modo de prueba: sin cobro real ni activación de domicilio fiscal."
+  ],
+  "Nome do titular do cartão": [
+    "Cardholder name",
+    "Nombre del titular de la tarjeta"
+  ],
+  "Carregando campos seguros…": [
+    "Loading secure fields…",
+    "Cargando campos seguros…"
+  ],
+  "Confirmando pagamento…": [
+    "Confirming payment…",
+    "Confirmando pago…"
+  ],
+  "Pagar com segurança": [
+    "Pay securely",
+    "Pagar de forma segura"
+  ],
+  "A MVA não armazena o número do cartão nem o código de segurança.": [
+    "MVA does not store your card number or security code.",
+    "MVA no almacena el número de tarjeta ni el código de seguridad."
+  ],
+  "Voltar aos dados da empresa": [
+    "Back to company details",
+    "Volver a los datos de la empresa"
+  ],
+  "Confirmando seu pagamento": [
+    "Confirming your payment",
+    "Confirmando tu pago"
+  ],
+  "Estamos aguardando a confirmação do pagamento. Sua declaração será liberada somente após a aprovação.": [
+    "We are waiting for payment confirmation. Your certificate is released only after approval.",
+    "Esperamos la confirmación del pago. Tu declaración se libera únicamente tras la aprobación."
+  ],
+  "Você pode fechar esta tela. O status será consultado novamente ao retornar.": [
+    "You can close this screen. We will check the status again when you return.",
+    "Puedes cerrar esta pantalla. Consultaremos el estado cuando regreses."
+  ],
+  "Verificar pagamento novamente": [
+    "Check payment again",
+    "Verificar pago de nuevo"
+  ],
+  "Voltar ao site": [
+    "Back to website",
+    "Volver al sitio"
+  ],
+  "TUDO CERTO": [
+    "ALL SET",
+    "TODO LISTO"
+  ],
+  "Pagamento confirmado!": [
+    "Payment confirmed!",
+    "¡Pago confirmado!"
+  ],
+  "Pagamento de teste confirmado": [
+    "Test payment confirmed",
+    "Pago de prueba confirmado"
+  ],
+  "Este teste não libera o endereço fiscal ou a emissão de uma declaração oficial.": [
+    "This test does not activate a registered office or authorize an official certificate.",
+    "Esta prueba no activa el domicilio fiscal ni autoriza una declaración oficial."
+  ],
+  "Seu endereço fiscal está ativo. Você já pode gerar sua declaração oficial na área de endereço fiscal.": [
+    "Your registered office is active. You can now generate your official certificate on the registered office page.",
+    "Tu domicilio fiscal está activo. Ya puedes generar tu declaración oficial en la sección de domicilio fiscal."
+  ],
+  "Seu endereço comercial está ativo. Este plano não inclui domicílio fiscal para o CNPJ.": [
+    "Your business address is active. This plan does not include a registered office for your CNPJ.",
+    "Tu dirección comercial está activa. Este plan no incluye domicilio fiscal para el CNPJ."
+  ],
+  "Ir para meu endereço": [
+    "Go to my address",
+    "Ir a mi domicilio"
+  ],
+  "Pagamento não disponível": [
+    "Payment unavailable",
+    "Pago no disponible"
+  ],
+  "Este pagamento foi cancelado, estornado ou está em contestação. Nenhuma declaração pode ser emitida por este pedido.": [
+    "This payment was canceled, refunded or disputed. No certificate can be issued for this order.",
+    "Este pago fue cancelado, reembolsado o impugnado. No se puede emitir una declaración para este pedido."
+  ],
+  "DOCUMENTOS DA EMPRESA": [
+    "COMPANY DOCUMENTS",
+    "DOCUMENTOS DE LA EMPRESA"
+  ],
+  "Sua declaração oficial, no momento certo.": [
+    "Your official certificate, when you need it.",
+    "Tu declaración oficial, en el momento adecuado."
+  ],
+  "A emissão fica disponível para contratos fiscais ativos com pagamento confirmado.": [
+    "Available for active registered office contracts with confirmed payment.",
+    "Disponible para contratos fiscales activos con pago confirmado."
+  ],
+  "Emissão disponível": [
+    "Issuance available",
+    "Emisión disponible"
+  ],
+  "Emissão bloqueada": [
+    "Issuance locked",
+    "Emisión bloqueada"
+  ],
+  "Entre na sua conta para consultar seu contrato e o pagamento.": [
+    "Sign in to view your contract and payment.",
+    "Accede para consultar tu contrato y el pago."
+  ],
+  "Seu pagamento foi confirmado. Os dados serão conferidos novamente antes de gerar o documento.": [
+    "Your payment is confirmed. We will verify your details again before generating the document.",
+    "Tu pago está confirmado. Verificaremos los datos antes de generar el documento."
+  ],
+  "O plano comercial não inclui declaração de domicílio fiscal. Escolha um dos planos fiscais.": [
+    "The business address plan does not include a registered office certificate. Choose a registered office plan.",
+    "El plan comercial no incluye declaración de domicilio fiscal. Elige un plan fiscal."
+  ],
+  "Pagamentos de teste não autorizam o uso do endereço nem a emissão oficial.": [
+    "Test payments do not authorize address use or official certificate issuance.",
+    "Los pagos de prueba no autorizan el uso del domicilio ni la emisión oficial."
+  ],
+  "Conclua o pagamento de um plano fiscal para liberar o uso do endereço e a emissão.": [
+    "Complete payment for a registered office plan to activate your address and certificate.",
+    "Completa el pago de un plan fiscal para activar tu domicilio y la emisión."
+  ],
+  "Endereço autorizado": [
+    "Authorized address",
+    "Dirección autorizada"
+  ],
+  "Declaração gerada com os dados do seu contrato.": [
+    "Certificate generated with your contract details.",
+    "Declaración generada con los datos de tu contrato."
+  ],
+  "Baixar declaração em PDF": [
+    "Download certificate PDF",
+    "Descargar declaración en PDF"
+  ],
+  "Gerando declaração…": [
+    "Generating certificate…",
+    "Generando declaración…"
+  ],
+  "Gerar declaração oficial": [
+    "Generate official certificate",
+    "Generar declaración oficial"
+  ],
+  "Entrar para consultar": [
+    "Sign in to view",
+    "Acceder para consultar"
+  ],
+  "Escolher plano fiscal": [
+    "Choose registered office plan",
+    "Elegir plan fiscal"
+  ],
+  "Liberação vinculada ao pagamento e à vigência do contrato.": [
+    "Availability depends on confirmed payment and a valid contract.",
+    "La disponibilidad depende del pago confirmado y de la vigencia del contrato."
+  ],
+  "Emitir declaração oficial": [
+    "Issue official certificate",
+    "Emitir declaración oficial"
+  ],
+  "Disponível para seu contrato": [
+    "Available for your contract",
+    "Disponible para tu contrato"
+  ],
+  "Disponível após pagamento": [
+    "Available after payment",
+    "Disponible tras el pago"
+  ],
+  "Meu contrato de endereço": [
+    "My address contract",
+    "Mi contrato de domicilio"
+  ],
+  "Endereço fiscal ativo": [
+    "Registered office active",
+    "Domicilio fiscal activo"
+  ],
+  "Endereço comercial ativo": [
+    "Business address active",
+    "Dirección comercial activa"
+  ],
+  "Aguardando liberação": [
+    "Awaiting activation",
+    "Pendiente de activación"
+  ],
+  "Regularizado": [
+    "Approved",
+    "Regularizado"
+  ],
+  "Em processamento": [
+    "In progress",
+    "En trámite"
+  ],
+  "Consulte a situação com a equipe MVA": [
+    "Check the status with the MVA team",
+    "Consulta el estado con el equipo MVA"
+  ],
+  "Vigência conforme o contrato": [
+    "Term as stated in the contract",
+    "Vigencia según el contrato"
+  ],
+  "Valores mensais equivalentes. Contratação de 12 meses com pagamento anual à vista.": [
+    "Monthly equivalent prices. A 12-month contract paid annually in one payment.",
+    "Precios mensuales equivalentes. Contrato de 12 meses con pago anual único."
+  ],
+  "R$ 29,90 /mês": [
+    "R$29.90 /month",
+    "R$29,90 /mes"
+  ],
+  "R$ 80 /mês": [
+    "R$80 /month",
+    "R$80 /mes"
+  ],
+  "R$ 120 /mês": [
+    "R$120 /month",
+    "R$120 /mes"
+  ],
+  "R$ 358,80 no pagamento anual à vista": [
+    "R$358.80 paid annually upfront",
+    "R$358,80 con pago anual único"
+  ],
+  "R$ 960 no pagamento anual à vista": [
+    "R$960 paid annually upfront",
+    "R$960 con pago anual único"
+  ],
+  "R$ 1.440 no pagamento anual à vista": [
+    "R$1,440 paid annually upfront",
+    "R$1.440 con pago anual único"
+  ],
+  "Status do pagamento atualizado.": [
+    "Payment status updated.",
+    "Estado del pago actualizado."
+  ],
+  "Confira os dados e aceite as condições para continuar.": [
+    "Check your details and accept the terms to continue.",
+    "Revisa tus datos y acepta las condiciones para continuar."
+  ],
+  "Não foi possível concluir esta etapa. Tente novamente.": [
+    "Unable to complete this step. Please try again.",
+    "No se pudo completar esta etapa. Inténtalo de nuevo."
+  ],
+  "Não foi possível carregar o pagamento seguro.": [
+    "Unable to load secure payment.",
+    "No se pudo cargar el pago seguro."
+  ],
+  "Pagamento não aprovado. Confira os dados ou use outro cartão.": [
+    "Payment not approved. Check your details or use another card.",
+    "Pago no aprobado. Revisa los datos o utiliza otra tarjeta."
+  ],
+  "Não foi possível confirmar o pagamento. Confira o status antes de tentar novamente.": [
+    "Unable to confirm payment. Check its status before trying again.",
+    "No se pudo confirmar el pago. Consulta el estado antes de intentarlo de nuevo."
+  ],
+  "Pedido não encontrado.": [
+    "Order not found.",
+    "Pedido no encontrado."
+  ],
+  "Esta declaração ainda não está disponível.": [
+    "This certificate is not available yet.",
+    "Esta declaración aún no está disponible."
+  ],
+  "Uma tentativa anterior já usa este pedido. Reabra o checkout.": [
+    "This order is already in use. Reopen checkout.",
+    "Este pedido ya está en uso. Vuelve a abrir el checkout."
+  ],
+  "Confira a razão social, o CNPJ, o e-mail e o telefone.": [
+    "Check the legal name, CNPJ, email and phone number.",
+    "Revisa la razón social, CNPJ, correo y teléfono."
+  ],
+  "Plano inválido.": [
+    "Invalid plan.",
+    "Plan inválido."
+  ],
+  "Confira os dados da empresa.": [
+    "Check the company details.",
+    "Revisa los datos de la empresa."
+  ],
+  "Informe os dados da empresa.": [
+    "Enter the company details.",
+    "Introduce los datos de la empresa."
+  ],
+  "Endereço ativo": [
+    "Address active",
+    "Domicilio activo"
+  ],
+  "Equivalente mensal": [
+    "Monthly equivalent",
+    "Equivalente mensual"
+  ],
+  "Pagamento anual confirmado": [
+    "Annual payment confirmed",
+    "Pago anual confirmado"
+  ],
+  "Pagamento de teste": [
+    "Test payment",
+    "Pago de prueba"
   ]
 }

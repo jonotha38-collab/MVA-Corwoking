@@ -28,6 +28,8 @@ export const ClientDashboardView: React.FC = () => {
     setActiveTab, 
   } = useCoworking();
 
+  const day = new Date().toISOString().slice(0, 10);
+  const addressActive = currentCompany.paymentStatus === 'paid' && currentCompany.paymentIsLive && currentCompany.status === 'ativo' && currentCompany.startDate <= day && currentCompany.renewalDate >= day;
   const [selectedVoucher, setSelectedVoucher] = useState<Booking | null>(null);
 
   // Filter bookings
@@ -48,12 +50,12 @@ export const ClientDashboardView: React.FC = () => {
       <div className="bg-navy-950 text-white rounded-3xl p-6 sm:p-8 border border-navy-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-orange-500/20">
-            {t(currentCompany.tradingName.substring(0, 2).toUpperCase())}
+            {t((currentCompany.tradingName || currentUser?.name || 'MVA').substring(0, 2).toUpperCase())}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{currentCompany.tradingName}</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{t("Empresa Ativa ")}</span>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{currentCompany.tradingName || currentUser?.name}</h1>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{t(addressActive ? 'Endereço ativo' : 'Aguardando liberação')}</span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">{t("Razão Social: ")}<strong>{currentCompany.companyName}</strong>{t("• CNPJ: ")}<span className="font-mono">{currentCompany.cnpj}</span>
             </p>
@@ -89,7 +91,7 @@ export const ClientDashboardView: React.FC = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-navy-900">
-              {currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed}{t("h")}</span>
+              {addressActive ? Math.max(0, currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed) : 0}{t("h")}</span>
             <span className="text-xs text-slate-500">{t("disponíveis ")}</span>
           </div>
           <p className="text-[11px] text-slate-400">
@@ -134,7 +136,7 @@ export const ClientDashboardView: React.FC = () => {
         {/* Monthly Subscription */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Assinatura Mensal ")}</span>
+            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Equivalente mensal ")}</span>
             <CreditCard className="w-4 h-4 text-navy-900" />
           </div>
           <div className="flex items-baseline gap-1">
@@ -143,7 +145,7 @@ export const ClientDashboardView: React.FC = () => {
           </div>
           <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>{t("Fatura mensal quitada ")}</span>
+            <span>{t(addressActive ? 'Pagamento anual confirmado' : currentCompany.paymentStatus === 'paid' && !currentCompany.paymentIsLive ? 'Pagamento de teste' : 'Aguardando liberação')}</span>
           </div>
         </div>
 

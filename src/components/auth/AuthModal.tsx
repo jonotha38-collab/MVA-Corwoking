@@ -66,7 +66,7 @@ export const AuthModal: React.FC = () => {
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-navy-950/70 backdrop-blur-sm cursor-pointer"
+      className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-navy-950/70 backdrop-blur-sm cursor-pointer"
     >
       <div 
         onClick={(e) => e.stopPropagation()} 

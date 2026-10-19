@@ -1,0 +1,60 @@
+const { test }=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const { PGlite }=require('@electric-sql/pglite');
+
+test('database protects activation, idempotent settlement, refunds and test-mode entitlements',async()=>{
+ const db=new PGlite();
+ await db.exec(`create schema auth;
+ create role anon;create role authenticated;create role service_role bypassrls;
+ create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+ create function auth.role() returns text language sql as $$select current_setting('request.jwt.claim.role',true)$$;
+ grant usage on schema auth to public;grant execute on all functions in schema auth to public;
+ create table public.profiles(id uuid primary key);
+ create function public.is_admin() returns boolean language sql as $$ select false $$;`);
+ const schema=fs.readFileSync(path.join(__dirname,'../supabase/schema.sql'),'utf8');
+ const start=schema.indexOf('create table if not exists public.fiscal_contracts');
+ const end=schema.indexOf('\ncreate index',start);
+ await db.exec(schema.slice(start,end));
+ await db.exec('alter table public.fiscal_contracts enable row level security;');
+ const migration=fs.readFileSync(path.join(__dirname,'../supabase/migrations/202610190001_fiscal_payments.sql'),'utf8');
+ await db.exec(migration);
+ const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ await db.query('insert into profiles(id)values($1)',[user]);
+ await db.exec(`set request.jwt.claim.role='service_role';`);
+ const company=JSON.stringify({companyName:'Empresa de teste',tradingName:'',cnpj:'11.222.333/0001-81',contactEmail:'test@example.com',contactPhone:'79999999999'});
+ async function order(id,live=true,plan='fiscal') {
+  await db.query(`insert into fiscal_payment_orders(id,user_id,request_key,plan_id,plan_name,monthly_cents,amount,company,livemode,stripe_payment_intent)values($1,$2,$1,$3,'Endereço Fiscal',8000,96000,$4,$5,$6)`,[id,user,plan,company,live,'pi_'+id]);
+ }
+ const id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ await order(id);
+ const settle=(orderId,event,state='paid',amount=96000,live=true)=>db.query('select settle_fiscal_payment($1,$2,$3,$4,$5,$6,$7) as contract',[orderId,event,'pi_'+orderId,amount,'brl',live,state]);
+ assert.equal((await db.query('select count(*)::int as n from fiscal_contracts')).rows[0].n,0);
+ await assert.rejects(settle(id,'bad-amount','paid',1));
+ assert.equal((await db.query('select count(*)::int as n from fiscal_contracts')).rows[0].n,0);
+ await assert.rejects(settle(id,'bad-mode','paid',96000,false));
+ const result=await settle(id,'evt_paid');const contractId=result.rows[0].contract;
+ assert.ok(contractId);
+ await settle(id,'evt_paid');await settle(id,'evt_paid_again');
+ let contracts=(await db.query('select * from fiscal_contracts')).rows;
+ assert.equal(contracts.length,1);assert.equal(contracts[0].payment_status,'paid');assert.equal(contracts[0].payment_is_live,true);assert.equal(contracts[0].status,'ativo');assert.equal(contracts[0].alvara_status,'em_processamento');assert.equal(contracts[0].alvara_protocol,'');assert.ok(contracts[0].certificate_number);
+ await settle(id,'evt_refund','refunded');await settle(id,'evt_delayed_paid');
+ contracts=(await db.query('select * from fiscal_contracts')).rows;
+ assert.equal(contracts[0].payment_status,'refunded');assert.equal(contracts[0].status,'pendente_documento');
+ assert.equal((await db.query('select status from fiscal_payment_orders where id=$1',[id])).rows[0].status,'refunded');
+ const testId='cccccccc-cccc-4ccc-8ccc-cccccccccccc';await order(testId,false);await settle(testId,'evt_test','paid',96000,false);
+ const testContract=(await db.query('select * from fiscal_contracts where payment_order_id=$1',[testId])).rows[0];
+ assert.equal(testContract.payment_is_live,false);assert.equal(testContract.status,'em_aprovacao');
+ const cancelId='dddddddd-dddd-4ddd-8ddd-dddddddddddd';await order(cancelId);await settle(cancelId,'evt_cancel','canceled');await settle(cancelId,'evt_after_cancel');
+ assert.equal((await db.query('select contract_id from fiscal_payment_orders where id=$1',[cancelId])).rows[0].contract_id,null);
+ await db.exec("set request.jwt.claim.role='authenticated';set role authenticated;");
+ await assert.rejects(db.query('update fiscal_contracts set payment_status=\'paid\' where id=$1',[contractId]));
+ await assert.rejects(settle(id,'evt_forged'));
+ await assert.rejects(db.query('insert into fiscal_payment_events(id,order_id)values($1,$2)',['forged',id]));
+ await db.exec('reset role');
+ // Re-running the migration is safe and does not reset verified statuses.
+ await db.exec(migration);
+ assert.equal((await db.query('select payment_status from fiscal_contracts where id=$1',[contractId])).rows[0].payment_status,'refunded');
+ await db.close();
+});

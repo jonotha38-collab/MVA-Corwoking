@@ -1,0 +1,11 @@
+# Each authenticated endpoint validates the user's bearer token with auth.getUser.
+# Gateway JWT verification is disabled to support Supabase's current signing keys.
+[functions.fiscal-create-payment]
+verify_jwt = false
+[functions.fiscal-payment-status]
+verify_jwt = false
+[functions.fiscal-certificate]
+verify_jwt = false
+# Public callback: validates Stripe's signature against the raw request body.
+[functions.fiscal-webhook]
+verify_jwt = false

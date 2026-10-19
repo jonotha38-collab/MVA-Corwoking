@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint src",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:payments": "node --test tests/payment-*.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
@@ -20,6 +21,7 @@
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",

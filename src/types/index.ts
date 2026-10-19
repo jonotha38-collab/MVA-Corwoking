@@ -56,6 +56,11 @@ export interface Correspondence {
 }
 
 export interface FiscalContract {
+  planId?: string;
+  paymentStatus?: 'unpaid' | 'paid' | 'refunded' | 'disputed';
+  paymentIsLive?: boolean;
+  paymentOrderId?: string;
+  certificateNumber?: string;
   id: string;
   userId?: string;
   companyName: string;

@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { canIssueCertificate } from '../lib/fiscal-eligibility';
 import { isAdmin, profileToUser } from '../lib/auth';
 import { formatAddress, rowToBooking, rowToCorrespondence, rowToFiscal, rowToSpace, spaceToRow } from '../lib/mappers';
 import type { Booking, Correspondence, FiscalContract, Space, UserAccount } from '../types';
@@ -43,10 +44,7 @@ interface CoworkingContextType {
   }) => Promise<void>;
   requestDigitalization: (id: string) => Promise<void>;
   markCorrespondenceAsRetrieved: (id: string) => Promise<void>;
-  addFiscalContract: (data: {
-    companyName: string; tradingName: string; cnpj: string; contactEmail: string; contactPhone: string;
-    planName: string; coworkingProviderName: string; unitAddress: string; monthlyFee: number;
-  }) => Promise<boolean>;
+  refreshFiscalContracts: () => Promise<void>;
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
 }
 
@@ -264,21 +262,13 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     patchCorr(id, { status: 'retirado' }, 'Retirada registrada.');
 
   /* ---------- endereço fiscal ---------- */
-  const addFiscalContract: CoworkingContextType['addFiscalContract'] = async (d) => {
-    if (!currentUser) { requireLogin(); return false; }
-    const { data, error } = await supabase.from('fiscal_contracts').insert({
-      user_id: currentUser.id, company_name: d.companyName, trading_name: d.tradingName, cnpj: d.cnpj,
-      contact_email: d.contactEmail, contact_phone: d.contactPhone, plan_name: d.planName,
-      coworking_provider_name: d.coworkingProviderName, unit_address: d.unitAddress, monthly_fee: d.monthlyFee,
-      alvara_protocol: `ALV-${new Date().getFullYear()}/${Math.floor(100000 + Math.random() * 900000)}`,
-      meeting_hours_allowance: d.planName.includes('Combo') ? 10 : d.planName.includes('VIP') ? 4 : 0,
-    }).select().single();
-    if (error) { fail('Não foi possível registrar o contrato', error); return false; }
-    setFiscalContracts(prev => [rowToFiscal(data), ...prev]);
-    return true;
-  };
+  const refreshFiscalContracts = useCallback(async () => {
+    const { data, error } = await supabase.from('fiscal_contracts').select('*').order('created_at', { ascending: false });
+    if (error) throw new Error('Não foi possível atualizar os contratos.');
+    setFiscalContracts((data || []).map(rowToFiscal));
+  }, []);
 
-  const currentCompany = fiscalContracts.find(c => c.userId === currentUser?.id) || EMPTY_COMPANY;
+  const currentCompany = fiscalContracts.find(c => c.userId === currentUser?.id && canIssueCertificate(c)) || fiscalContracts.find(c => c.userId === currentUser?.id) || EMPTY_COMPANY;
 
   return (
     <CoworkingContext.Provider value={{
@@ -286,7 +276,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       selectedCity, selectedCategory, toasts, authModalOpen, authModalTab, setActiveTab, setSearchQuery, setSelectedCity,
       setSelectedCategory, setAuthModalOpen, setAuthModalTab, logout, addSpace, updateSpace, deleteSpace, approveSpace,
       rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization,
-      markCorrespondenceAsRetrieved, addFiscalContract, showToast,
+      markCorrespondenceAsRetrieved, refreshFiscalContracts, showToast,
     }}>
       {children}
     </CoworkingContext.Provider>
