@@ -27,7 +27,7 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
-              {t("Plataforma para espaços de coworking, reservas e correspondências. Mantemos a identidade azul e laranja da MVA.")}
+              {t("Plataforma para espaços de coworking, reservas e correspondências.")}
             </p>
             <div className="flex items-center gap-1.5 text-orange-400 font-semibold text-[11px]">
               <ShieldCheck className="w-4 h-4 text-orange-400" />
@@ -115,7 +115,7 @@ export const Footer: React.FC = () => {
           <div className="space-y-2.5">
             <h4 className="font-bold text-slate-200 text-xs uppercase tracking-wider">{t("Atendimento ")}</h4>
             <p className="text-slate-400 text-xs">
-              {t("Segunda a Sexta, das 08h00 às 20h00. Suporte aos gestores de coworking e clientes 24/7. ")}
+              {t("Segunda a Sexta, das 08h00 às 18h00. Suporte aos gestores de coworking e clientes 24/7. ")}
             </p>
             <div className="space-y-1 text-slate-300">
               <div className="flex items-center gap-2">
