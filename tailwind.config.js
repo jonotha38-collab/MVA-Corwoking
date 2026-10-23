@@ -40,13 +40,12 @@ export default {
           700: '#c2410c',
           800: '#9a3412',
           900: '#7c2d12',
-        }
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-      }
+      },
     },
   },
   plugins: [],
-}
-
+};

@@ -9,6 +9,7 @@ import { ToastContainer } from './components/common/ToastContainer'
 import { AuthModal } from './components/auth/AuthModal'
 import { MarketplaceView } from './components/marketplace/MarketplaceView'
 import { FiscalView } from './components/fiscal/FiscalView'
+import { LegalPage } from './components/legal/LegalPage';
 
 // Management screens are fetched only when opened.
 const CorrespondenceView = lazy(() => import('./components/correspondence/CorrespondenceView').then(m => ({ default: m.CorrespondenceView })))
@@ -64,6 +65,7 @@ export default function App() {
         {!blocked && activeTab === 'owner-dashboard' && <OwnerDashboardView />}
         {!blocked && activeTab === 'client-dashboard' && <ClientDashboardView />}
         {!blocked && activeTab === 'admin' && <AdminDashboardView />}
+  {activeTab === 'legal' && <LegalPage />}
         </Suspense>
       </main>
       <Footer />
