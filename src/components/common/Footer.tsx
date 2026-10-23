@@ -143,6 +143,16 @@ export const Footer: React.FC = () => {
             >
               {t("Políticas e LGPD")}
             </button>
+            <span>•</span>
+            <button
+              onClick={() => {
+                localStorage.removeItem('mva:cookie-consent');
+                window.location.reload();
+              }}
+              className="hover:text-slate-300 transition-colors underline-offset-4 hover:underline"
+            >
+              {t("Preferências de Cookies")}
+            </button>
           </div>
         </div>
       </div>

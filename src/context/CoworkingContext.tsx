@@ -182,7 +182,8 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const current = spaces.find(s => s.id === id);
     if (!current) return false;
     const admin = isAdmin(currentUser);
-    const resubmit = !admin && !('approval' in fields) && !current.isMvaHeadquarters;
+    const isStatusOnly = Object.keys(fields).length === 1 && 'status' in fields;
+    const resubmit = !admin && !('approval' in fields) && !isStatusOnly && !current.isMvaHeadquarters;
     const merged = { ...current, ...fields };
     const row: Record<string, unknown> = { ...spaceToRow(fields) };
     if (['street', 'number', 'neighborhood', 'city', 'state'].some(k => k in fields)) row.address = formatAddress(merged);
@@ -190,7 +191,10 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const { data, error } = await supabase.from('spaces').update(row).eq('id', id).select().single();
     if (error) { fail('Não foi possível atualizar o espaço', error); return false; }
     setSpaces(prev => prev.map(s => (s.id === id ? rowToSpace(data) : s)));
-    showToast(resubmit ? 'Alterações enviadas para nova aprovação da equipe MVA.' : 'Espaço atualizado com sucesso.', 'info');
+    const toastMsg = isStatusOnly
+      ? (fields.status === 'available' ? 'Espaço marcado como disponível para reservas.' : 'Espaço pausado/indisponível.')
+      : (resubmit ? 'Alterações enviadas para nova aprovação da equipe MVA.' : 'Espaço atualizado com sucesso.');
+    showToast(toastMsg, 'info');
     return true;
   };
 

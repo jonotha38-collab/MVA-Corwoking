@@ -10,6 +10,7 @@ import { AuthModal } from './components/auth/AuthModal'
 import { MarketplaceView } from './components/marketplace/MarketplaceView'
 import { FiscalView } from './components/fiscal/FiscalView'
 import { LegalPage } from './components/legal/LegalPage';
+import { CookieBanner } from './components/common/CookieBanner';
 
 // Management screens are fetched only when opened.
 const CorrespondenceView = lazy(() => import('./components/correspondence/CorrespondenceView').then(m => ({ default: m.CorrespondenceView })))
@@ -71,6 +72,7 @@ export default function App() {
       <Footer />
       <AuthModal />
       <ToastContainer />
+      <CookieBanner />
     </div>
   )
 }
