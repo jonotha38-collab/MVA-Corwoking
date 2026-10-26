@@ -6,7 +6,6 @@ import { SpaceCard } from './SpaceCard';
 import { SpaceDetailModal } from './SpaceDetailModal';
 import { BookingModal } from './BookingModal';
 import { Search, MapPin, Users, LayoutGrid, X, PlusCircle, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
-import { BlurReveal } from '../ui/BlurReveal';
 import { Reveal } from '../ui/Reveal';
 import heroOffice from '../../assets/hero-office.jpg';
 
@@ -39,7 +38,7 @@ export const MarketplaceView: React.FC = () => {
   const [booking, setBooking] = useState<Space | null>(null);
   const results = useRef<HTMLElement>(null);
 
-  const live = useMemo(() => spaces.filter(s => (s.approval ?? 'aprovado') === 'aprovado'), [spaces]);
+  const live = useMemo(() => spaces.filter(s => (s.approval ?? 'aprovado') === 'aprovado' && s.status !== 'hidden'), [spaces]);
   const cities = useMemo(() => ['Todas', ...Array.from(new Set(live.map(s => s.city)))], [live]);
   const hq = live.find(s => s.isMvaHeadquarters);
 
@@ -77,9 +76,9 @@ export const MarketplaceView: React.FC = () => {
         
         <div className="relative max-w-3xl z-10">
           <p className="eyebrow mb-5 text-orange-300">{t("MVA Coworking · Espaços de trabalho ")}</p>
-          <BlurReveal as="h1" className="hero-title" key={selectedCity}>
+          <h1 className="hero-title">
             {`${t('Espaços de coworking e salas de reunião para o seu negócio')}${selectedCity !== 'Todas' ? ` · ${selectedCity}` : ''}`}
-          </BlurReveal>
+          </h1>
           <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados. ")}</p>
         </div>
         
