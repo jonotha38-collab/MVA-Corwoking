@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { canIssueCertificate } from '../lib/fiscal-eligibility';
+import { calendarEnabled, removeGoogleCalendarEvent } from '../lib/google-calendar';
 import { isAdmin, profileToUser } from '../lib/auth';
 import { formatAddress, rowToBooking, rowToCorrespondence, rowToFiscal, rowToSpace, spaceToRow } from '../lib/mappers';
 import type { Booking, Correspondence, FiscalContract, Space, UserAccount } from '../types';
@@ -268,9 +269,16 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (error) return fail('Não foi possível atualizar a reserva', error);
     setBookings(prev => prev.map(x => (x.id === id ? rowToBooking(data) : x)));
     showToast(ok, 'info');
+    return true;
   };
-  const cancelBooking = (id: string) => patchBooking(id, { status: 'cancelada' }, 'Reserva cancelada.');
-  const checkInBooking = (id: string) => patchBooking(id, { check_in: true }, 'Check-in realizado com sucesso!');
+  const cancelBooking = async (id: string) => {
+    const canceled = await patchBooking(id, { status: 'cancelada' }, 'Reserva cancelada.');
+    if (canceled && currentUser && calendarEnabled(currentUser.id)) {
+      const removed = await removeGoogleCalendarEvent(id, currentUser.id);
+      if (!removed) showToast('A reserva foi cancelada, mas confirme também a remoção do evento na sua conta Google Agenda.', 'info');
+    }
+  };
+  const checkInBooking = async (id: string) => { await patchBooking(id, { check_in: true }, 'Check-in realizado com sucesso!'); };
 
   /* ---------- correspondência ---------- */
   const addCorrespondence: CoworkingContextType['addCorrespondence'] = async (i) => {
