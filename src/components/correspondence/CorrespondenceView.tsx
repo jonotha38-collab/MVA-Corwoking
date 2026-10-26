@@ -308,10 +308,12 @@ export const CorrespondenceView: React.FC = () => {
                       <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">{t("Aguardando Retirada ")}</span>
 
                       <button
-                        onClick={() => requestDigitalization(item.id)}
-                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                        type="button"
+                        onClick={() => void requestDigitalization(item.id)}
+                        disabled={item.digitalizationRequested}
+                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:cursor-default disabled:bg-emerald-50 disabled:text-emerald-800"
                       >
-                        <FileText className="w-3.5 h-3.5 text-orange-600" />{t("Digitalizar em PDF ")}</button>
+                        <FileText className="w-3.5 h-3.5 text-orange-600" />{t(item.digitalizationRequested ? 'Solicitação enviada' : 'Solicitar digitalização')}</button>
 
                       <button
                         onClick={() => setAuthorizeModal(item)}
