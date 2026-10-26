@@ -16,18 +16,19 @@ import { CookieBanner } from './components/common/CookieBanner';
 const CorrespondenceView = lazy(() => import('./components/correspondence/CorrespondenceView').then(m => ({ default: m.CorrespondenceView })))
 const OwnerDashboardView = lazy(() => import('./components/owner/OwnerDashboardView').then(m => ({ default: m.OwnerDashboardView })))
 const ClientDashboardView = lazy(() => import('./components/dashboard/ClientDashboardView').then(m => ({ default: m.ClientDashboardView })))
+const InternRoomsView = lazy(() => import('./components/intern/InternRoomsView').then(m => ({ default: m.InternRoomsView })))
 const AdminDashboardView = lazy(() => import('./components/admin/AdminDashboardView').then(m => ({ default: m.AdminDashboardView })))
 
-const PRIVATE = ['owner-dashboard', 'client-dashboard', 'correspondence', 'admin']
+const PRIVATE = ['owner-dashboard', 'client-dashboard', 'correspondence', 'admin', 'intern-rooms']
 
 import { usePreferences } from './lib/preferences';
 
 export default function App() {
   usePreferences();
-  const { ready, activeTab, setActiveTab, currentUser, setAuthModalOpen, setAuthModalTab, spaces } = useCoworking()
+  const { ready, activeTab, setActiveTab, currentUser, internAuthorized, setAuthModalOpen, setAuthModalTab, spaces } = useCoworking()
   const pending = spaces.filter(s => s.approval === 'pendente').length
   const admin = isAdmin(currentUser)
-  const blocked = PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin))
+  const blocked = PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin) || (activeTab === 'intern-rooms' && !internAuthorized))
 
   useEffect(() => {
     if (blocked) {
@@ -66,6 +67,7 @@ export default function App() {
         {!blocked && activeTab === 'owner-dashboard' && <OwnerDashboardView />}
         {!blocked && activeTab === 'client-dashboard' && <ClientDashboardView />}
         {!blocked && activeTab === 'admin' && <AdminDashboardView />}
+        {!blocked && activeTab === 'intern-rooms' && <InternRoomsView />}
   {activeTab === 'legal' && <LegalPage />}
         </Suspense>
       </main>
