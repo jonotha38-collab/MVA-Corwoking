@@ -1,7 +1,8 @@
 import { t } from '../../lib/preferences';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Booking } from '../../types';
+import { calendarEnabled, connectGoogleCalendar, manualGoogleCalendarLink, recordedCalendarEventUrl } from '../../lib/google-calendar';
 import { 
   Calendar, 
   Clock, 
@@ -15,7 +16,10 @@ import {
   ArrowUpRight, 
   QrCode, 
   X,
-  Sparkles
+  Sparkles,
+  CalendarPlus,
+  Bell,
+  ExternalLink
 } from 'lucide-react';
 
 export const ClientDashboardView: React.FC = () => {
@@ -25,12 +29,25 @@ export const ClientDashboardView: React.FC = () => {
     bookings, 
     correspondence, 
     cancelBooking, 
-    setActiveTab, 
+    setActiveTab,
+    showToast,
   } = useCoworking();
 
   const day = new Date().toISOString().slice(0, 10);
   const addressActive = currentCompany.paymentStatus === 'paid' && currentCompany.paymentIsLive && currentCompany.status === 'ativo' && currentCompany.startDate <= day && currentCompany.renewalDate >= day;
   const [selectedVoucher, setSelectedVoucher] = useState<Booking | null>(null);
+  const [clock, setClock] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setClock(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const connectCalendar = () => {
+    if (!currentUser) return;
+    void connectGoogleCalendar(currentUser).catch(error => {
+      showToast(error instanceof Error ? error.message : 'Não foi possível conectar o Google Agenda.', 'error');
+    });
+  };
 
   // Filter bookings
   const clientBookings = bookings.filter(b => b.userId === currentUser?.id);
@@ -41,7 +58,12 @@ export const ClientDashboardView: React.FC = () => {
   );
 
   // Next upcoming booking
-  const upcomingBooking = clientBookings.find(b => b.status === 'confirmada');
+  const upcomingBooking = clientBookings
+    .filter(b => b.status === 'confirmada' && new Date(`${b.date}T${b.endTime.slice(0, 5)}:00-03:00`).getTime() > clock)
+    .sort((a, b) => `${a.date}T${a.startTime}`.localeCompare(`${b.date}T${b.startTime}`))[0];
+  const minutesUntil = upcomingBooking
+    ? Math.ceil((new Date(`${upcomingBooking.date}T${upcomingBooking.startTime.slice(0, 5)}:00-03:00`).getTime() - clock) / 60_000)
+    : null;
 
   return (
     <div className="space-y-8 pb-16">
@@ -151,6 +173,43 @@ export const ClientDashboardView: React.FC = () => {
 
       </div>
 
+      {/* Google Agenda: consentimento separado do login, sem senha ou token persistido aqui. */}
+      {currentUser && (
+        <section aria-label="Google Agenda" className="flex flex-col gap-3 rounded-2xl border border-blue-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <CalendarPlus className="mt-0.5 h-6 w-6 shrink-0 text-blue-700" />
+            <div>
+              <h2 className="text-sm font-bold text-navy-900">Suas reservas no Google Agenda</h2>
+              <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                {calendarEnabled(currentUser.id)
+                  ? 'Sincronização ativada. Novos agendamentos serão enviados ao Google quando a autorização estiver válida.'
+                  : 'Conecte sua conta Google para salvar agendamentos e receber avisos 1 hora antes por e-mail e 30 minutos antes no Google Agenda.'}
+              </p>
+            </div>
+          </div>
+          {currentUser.provider === 'google' && (
+            <button type="button" onClick={connectCalendar}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 py-2.5 text-xs font-semibold text-white hover:bg-navy-800">
+              <CalendarPlus className="h-4 w-4" />
+              {calendarEnabled(currentUser.id) ? 'Renovar autorização' : 'Conectar Google Agenda'}
+            </button>
+          )}
+        </section>
+      )}
+      {upcomingBooking && minutesUntil !== null && minutesUntil >= 0 && minutesUntil <= 60 && (
+        <section role="status" aria-live="polite" className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <Bell className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+          <div>
+            <h2 className="text-sm font-bold text-amber-900">Seu agendamento está chegando</h2>
+            <p className="mt-1 text-sm text-amber-900">
+              {upcomingBooking.spaceName} começa {minutesUntil <= 1 ? 'em instantes' : `em ${minutesUntil} minutos`}
+              {' · '}{upcomingBooking.startTime.slice(0, 5)}.
+            </p>
+            <p className="mt-1 text-xs text-amber-800">Este aviso aparece ao acessar suas reservas. Para receber alertas fora do site, use o Google Agenda.</p>
+          </div>
+        </section>
+      )}
+
       {/* Upcoming Highlight Card */}
       {upcomingBooking && (
         <div className="bg-gradient-to-r from-navy-900 via-navy-950 to-navy-900 text-white rounded-3xl p-6 sm:p-7 shadow-sm border border-navy-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -244,6 +303,14 @@ export const ClientDashboardView: React.FC = () => {
                           onClick={() => setSelectedVoucher(b)}
                           className="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-lg transition-colors"
                         >{t("Voucher ")}</button>
+                        {b.status === 'confirmada' && (
+                          <a href={recordedCalendarEventUrl(currentUser?.id || '', b.id) || manualGoogleCalendarLink(b)}
+                            target="_blank" rel="noopener noreferrer"
+                            aria-label={`Adicionar ${b.spaceName} ao Google Agenda`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-blue-800 hover:bg-blue-50 rounded-lg border border-blue-100">
+                            <ExternalLink className="h-3.5 w-3.5" /> Google Agenda
+                          </a>
+                        )}
                         {b.status === 'confirmada' && (
                           <button
                             onClick={() => {
