@@ -1,7 +1,7 @@
 import { t } from '../../lib/preferences';
 import React from 'react';
 import { Space } from '../../types';
-import { Users, MapPin, Star, Calendar, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Users, MapPin, Star, Calendar, ArrowUpRight, Building2 } from 'lucide-react';
 
 interface SpaceCardProps {
   space: Space;
@@ -39,7 +39,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ space, onSelect, onBook })
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-1">
           {t(space.isMvaHeadquarters ? (
             <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide bg-orange-600 text-white shadow-sm backdrop-blur-md flex items-center gap-1 border border-orange-400">
-              <Sparkles className="w-3 h-3 text-orange-200" />{t("SEDE OFICIAL MVA ")}</span>
+              <Building2 className="w-3 h-3 text-orange-200" />{t("SEDE OFICIAL MVA ")}</span>
           ) : (
             <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide bg-navy-900/90 text-white shadow-sm backdrop-blur-md border border-navy-700">
               {categoryLabels[space.category]}
