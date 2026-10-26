@@ -69,5 +69,7 @@ export async function signInGoogle(accountType: UserAccount['accountType']) {
 }
 
 export async function signOut() {
-  await supabase.auth.signOut();
+  // Troca de conta encerra apenas a sessão neste navegador.
+  const { error } = await supabase.auth.signOut({ scope: 'local' });
+  if (error) throw new Error('Não foi possível encerrar a conta atual. Tente novamente.');
 }
