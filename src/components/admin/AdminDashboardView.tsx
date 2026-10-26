@@ -13,7 +13,6 @@ import {
   DollarSign, 
   ShieldCheck, 
   Sliders, 
-  CheckCircle2, 
   Trash2, 
   Edit3, 
   X, 
@@ -26,7 +25,6 @@ export const AdminDashboardView: React.FC = () => {
     updateSpace, 
     deleteSpace, 
     bookings, 
-    checkInBooking, 
     fiscalContracts 
   } = useCoworking();
 
