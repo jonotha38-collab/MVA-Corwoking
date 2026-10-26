@@ -291,7 +291,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast(ok, 'success');
   };
   const requestDigitalization = (id: string) =>
-    patchCorr(id, { digitalization_requested: true, status: 'digitalizado' }, 'Digitalização solicitada.');
+    patchCorr(id, { digitalization_requested: true }, 'Solicitação de digitalização registrada.');
   const markCorrespondenceAsRetrieved = (id: string) =>
     patchCorr(id, { status: 'retirado' }, 'Retirada registrada.');
 
