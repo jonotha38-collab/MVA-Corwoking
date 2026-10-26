@@ -12,7 +12,11 @@ import {
   Edit3, 
   Trash2, 
   Sparkles, 
-  Eye, 
+  Eye,
+  EyeOff,
+  PauseCircle,
+  PlayCircle,
+  Wrench,
 } from 'lucide-react';
 
 export const OwnerDashboardView: React.FC = () => {
@@ -29,6 +33,7 @@ export const OwnerDashboardView: React.FC = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
   // Form State
   const [name, setName] = useState('');
@@ -81,6 +86,17 @@ export const OwnerDashboardView: React.FC = () => {
 
   // Spaces belonging to this user or all third-party spaces
   const mySpaces = spaces.filter(s => isAdmin(currentUser) || s.ownerId === currentUser.id);
+  const activeSpaces = mySpaces.filter(s => s.approval === 'aprovado' && s.status === 'available').length;
+
+  const changeSpaceStatus = async (space: Space, status: Space['status']) => {
+    if (updatingStatusId) return;
+    setUpdatingStatusId(space.id);
+    try {
+      await updateSpace(space.id, { status });
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  };
 
   const handleOpenAdd = () => {
     setEditingId(null);
@@ -218,7 +234,7 @@ export const OwnerDashboardView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs text-slate-500 font-medium block">{t("Espaços Ativos no Marketplace ")}</span>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-bold text-navy-900">{t(mySpaces.length)}</span>
+            <span className="text-3xl font-bold text-navy-900">{t(activeSpaces)}</span>
             <span className="text-xs text-emerald-600 font-semibold">{t("Publicados ")}</span>
           </div>
           <span className="text-[11px] text-slate-400 block mt-1">{t("Visíveis para pessoas e empresas reservarem ")}</span>
@@ -281,8 +297,14 @@ export const OwnerDashboardView: React.FC = () => {
                       <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
                         space.approval === 'pendente' ? 'bg-amber-50 text-amber-700 border-amber-200'
                         : space.approval === 'rejeitado' ? 'bg-red-50 text-red-700 border-red-200'
-                        : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
-                        {t(space.approval === 'pendente' ? 'Em análise' : space.approval === 'rejeitado' ? 'Rejeitado' : space.status === 'available' ? 'No Ar' : 'Pausado')}
+                        : space.status === 'available' ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : space.status === 'maintenance' ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : 'bg-slate-100 text-slate-700 border-slate-200'
+                      }`}>
+                        {t(space.approval === 'pendente' ? 'Em análise' : space.approval === 'rejeitado' ? 'Rejeitado'
+                          : space.status === 'available' ? 'No ar'
+                          : space.status === 'maintenance' ? 'Em manutenção'
+                          : space.status === 'hidden' ? 'Pausado' : 'Indisponível')}
                       </span>
                       {space.approval === 'rejeitado' && space.rejectionReason && (
                         <p className="mt-1 max-w-[220px] rounded-md bg-red-50 px-2 py-1 text-[10px] text-red-700">{t("Motivo: ")}{t(space.rejectionReason)}</p>
@@ -311,32 +333,77 @@ export const OwnerDashboardView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <button
-                    onClick={() => setActiveTab('marketplace')}
-                    className="text-[11px] font-semibold text-navy-900 hover:text-orange-600 flex items-center gap-1 transition-colors"
-                  >
-                    <Eye className="w-3.5 h-3.5" />{t("Ver no Marketplace ")}</button>
-
-                  <div className="flex items-center gap-1">
+                <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
+                  {space.approval === 'aprovado' && space.status === 'available' ? (
                     <button
-                      onClick={() => handleOpenEdit(space)}
-                      className="p-1.5 text-slate-600 hover:text-navy-900 hover:bg-slate-200 rounded-lg transition-colors"
-                      title={t("Editar Espaço")}
+                      type="button"
+                      onClick={() => setActiveTab('marketplace')}
+                      className="text-xs font-semibold text-navy-900 hover:text-orange-600 inline-flex items-center gap-1.5"
                     >
-                      <Edit3 className="w-4 h-4" />
+                      <Eye className="w-4 h-4" />{t('Ver no Marketplace')}
                     </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Remover o espaço "${space.name}" do marketplace?`)) {
-                          deleteSpace(space.id);
-                        }
-                      }}
-                      className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                      title={t("Excluir Espaço")}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  ) : (
+                    <p className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                      <EyeOff className="w-4 h-4" />{t('Não visível no marketplace')}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {space.status === 'available' ? (
+                      <>
+                        <button
+                          type="button"
+                          disabled={updatingStatusId !== null}
+                          onClick={() => void changeSpaceStatus(space, 'hidden')}
+                          aria-label={`Pausar anúncio de ${space.name}`}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-navy-900 hover:border-slate-500 disabled:opacity-50"
+                        >
+                          <PauseCircle className="h-4 w-4" />{t('Pausar')}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={updatingStatusId !== null}
+                          onClick={() => void changeSpaceStatus(space, 'maintenance')}
+                          aria-label={`Colocar ${space.name} em manutenção`}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+                        >
+                          <Wrench className="h-4 w-4" />{t('Manutenção')}
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={updatingStatusId !== null}
+                        onClick={() => void changeSpaceStatus(space, 'available')}
+                        aria-label={`Reativar anúncio de ${space.name}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-3 py-2 text-xs font-semibold text-white hover:bg-navy-800 disabled:opacity-50"
+                      >
+                        <PlayCircle className="h-4 w-4" />{t('Reativar')}
+                      </button>
+                    )}
+                    <div className="ml-auto flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(space)}
+                        className="p-2 text-slate-600 hover:text-navy-900 hover:bg-slate-200 rounded-lg transition-colors"
+                        title={t('Editar espaço')}
+                        aria-label={`Editar ${space.name}`}
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm(`Remover o espaço "${space.name}" do marketplace?`)) {
+                            void deleteSpace(space.id);
+                          }
+                        }}
+                        className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title={t('Excluir espaço')}
+                        aria-label={`Excluir ${space.name}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
