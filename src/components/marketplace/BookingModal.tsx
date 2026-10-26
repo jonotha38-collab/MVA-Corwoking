@@ -1,6 +1,7 @@
 import { t } from '../../lib/preferences';
 import React, { useState } from 'react';
 import { Space, Booking } from '../../types';
+import { calendarEnabled, connectGoogleCalendar, manualGoogleCalendarLink, saveGoogleCalendarEvent, type CalendarSyncResult } from '../../lib/google-calendar';
 import { useCoworking } from '../../context/CoworkingContext';
 import { 
   X, 
@@ -12,7 +13,10 @@ import {
   Printer, 
   MapPin, 
   CheckCircle2, 
-  QrCode
+  QrCode,
+  Bell,
+  CalendarPlus,
+  ExternalLink
 } from 'lucide-react';
 
 interface BookingModalProps {
@@ -21,7 +25,7 @@ interface BookingModalProps {
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) => {
-  const { addBooking, currentCompany, currentUser } = useCoworking();
+  const { addBooking, currentCompany, currentUser, showToast } = useCoworking();
 
   const [date, setDate] = useState(() => {
     const tomorrow = new Date();
@@ -38,6 +42,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   // Addons
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+  const [calendarSync, setCalendarSync] = useState<CalendarSyncResult | 'error' | 'saving' | null>(null);
+  const [calendarConnecting, setCalendarConnecting] = useState(false);
 
   if (!space) return null;
 
@@ -89,8 +95,19 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
 
     if (!newBooking) return;
     setConfirmedBooking(newBooking);
-
-    // Reserva confirmada: confirmação exibida no próprio formulário.
+    if (currentUser && calendarEnabled(currentUser.id)) {
+      setCalendarSync('saving');
+      try {
+        const result = await saveGoogleCalendarEvent(newBooking, currentUser.id, space);
+        setCalendarSync(result);
+        if (result === 'saved') showToast('Agendamento salvo no Google Agenda com lembretes.', 'success');
+      } catch {
+        setCalendarSync('error');
+        showToast('Reserva confirmada, mas a sincronização com o Google Agenda não foi concluída.', 'info');
+      }
+    } else {
+      setCalendarSync('not_connected');
+    }
 
   };
 
@@ -182,6 +199,46 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
             </div>
 
+            <section aria-label="Adicionar reserva ao calendário" className="rounded-2xl border border-blue-200 bg-blue-50/50 p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <CalendarPlus className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+                <div>
+                  <h3 className="font-bold text-navy-900 text-sm">Google Agenda e lembretes</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                    {calendarSync === 'saved'
+                      ? 'Evento criado automaticamente. O Google Agenda foi configurado para avisar 1 hora antes por e-mail e 30 minutos antes por notificação.'
+                      : calendarSync === 'saving'
+                        ? 'Salvando o evento na sua Agenda…'
+                        : 'Você pode adicionar a reserva ao Google Agenda. Após autorizar o acesso, novas reservas serão enviadas automaticamente enquanto a autorização estiver válida.'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {calendarSync !== 'saved' && currentUser?.provider === 'google' && (
+                  <button type="button" disabled={calendarConnecting || calendarSync === 'saving'}
+                    onClick={() => {
+                      if (!currentUser) return;
+                      setCalendarConnecting(true);
+                      void connectGoogleCalendar(currentUser, confirmedBooking.id).catch(error => {
+                        setCalendarConnecting(false);
+                        showToast(error instanceof Error ? error.message : 'Falha ao conectar Google Agenda.', 'error');
+                      });
+                    }}
+                    className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800 disabled:opacity-60">
+                    <CalendarPlus className="h-4 w-4" />
+                    {calendarConnecting ? 'Abrindo autorização…' : 'Conectar e salvar automaticamente'}
+                  </button>
+                )}
+                <a href={manualGoogleCalendarLink(confirmedBooking, space)} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-white px-4 py-2.5 text-xs font-semibold text-blue-800 hover:bg-blue-100">
+                  <ExternalLink className="h-4 w-4" />{calendarSync === 'saved' ? 'Abrir no Google Agenda' : 'Adicionar manualmente'}
+                </a>
+              </div>
+              <div className="flex items-start gap-1.5 text-[11px] text-blue-900">
+                <Bell className="h-3.5 w-3.5 shrink-0" />
+                <span>Os avisos são entregues pelo Google conforme as configurações de notificações da conta e do dispositivo.</span>
+              </div>
+            </section>
             <div className="flex justify-end gap-3 pt-2">
               <button
                 type="button"
