@@ -3,7 +3,7 @@ import { t } from '../../lib/preferences';
 import React, { useEffect, useState, useRef } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Preferences } from './Preferences';
-import { ShieldCheck, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase } from 'lucide-react';
+import { ShieldCheck, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen } from 'lucide-react';
 
 const ITEMS = [
   { tab: 'fiscal', label: 'Endereço fiscal', short: 'Fiscal', icon: ShieldCheck },
@@ -14,8 +14,9 @@ const ITEMS = [
 ];
 
 export const Navbar: React.FC = () => {
-  const { activeTab, setActiveTab, currentUser, setAuthModalOpen, setAuthModalTab, logout, correspondence, currentCompany } = useCoworking();
+  const { activeTab, setActiveTab, currentUser, internAuthorized, setAuthModalOpen, setAuthModalTab, logout, correspondence, currentCompany } = useCoworking();
   const [menu, setMenu] = useState(false);
+  const navItems = internAuthorized ? [...ITEMS, { tab: 'intern-rooms', label: 'Salas dos estagiários', short: 'Estágio', icon: DoorOpen }] : ITEMS;
   const box = useRef<HTMLDivElement>(null);
   const pending = correspondence.filter(c => c.companyId === currentCompany.id && c.status === 'aguardando_retirada').length;
 
@@ -54,7 +55,7 @@ export const Navbar: React.FC = () => {
 
           {/* ==================== NAVBAR (hidden on mobile) ==================== */}
           <nav className="hidden items-center gap-1 xl:flex" aria-label={t("Principal")}>
-            {ITEMS.map(({ tab, label, icon: Icon }) => (
+            {navItems.map(({ tab, label, icon: Icon }) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -121,6 +122,11 @@ export const Navbar: React.FC = () => {
                         <Briefcase className="h-4 w-4 text-orange-500" aria-hidden />
                         {t("Minhas reservas ")}
                       </button>
+                      {internAuthorized && (
+                        <button role="menuitem" onClick={() => { setMenu(false); setActiveTab('intern-rooms'); }} className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50">
+                          <DoorOpen className="h-4 w-4 text-orange-500" aria-hidden />Salas dos estagiários
+                        </button>
+                      )}
                       <button
                         role="menuitem"
                         onClick={() => {
@@ -162,8 +168,8 @@ export const Navbar: React.FC = () => {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-navy-800 bg-navy-950/95 backdrop-blur-md xl:hidden no-print"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        <ul className="mx-auto grid max-w-xl grid-cols-5">
-          {ITEMS.map(({ tab, short, icon: Icon }) => (
+        <ul className={`mx-auto grid max-w-xl ${internAuthorized ? "grid-cols-6" : "grid-cols-5"}`}>
+          {navItems.map(({ tab, short, icon: Icon }) => (
             <li key={tab}>
               <button
                 onClick={() => setActiveTab(tab)}

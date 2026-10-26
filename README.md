@@ -49,3 +49,7 @@ de sala, formulário de conta, visibilidade da senha e movimento reduzido.
 Os testes de interface usam respostas locais simuladas do banco. Login real,
 pagamentos e gravação de reservas/contratos no Supabase não foram validados.
 O build informa um aviso de tamanho do bundle principal; isso não impede a compilação.
+
+## Salas internas e visibilidade dos anúncios
+
+Para configurar a lista de e-mails autorizados, as duas salas de estágio e o botão Desabilitar/Habilitar no marketplace, consulte [CONFIGURACAO_SALAS_E_VISIBILIDADE.md](CONFIGURACAO_SALAS_E_VISIBILIDADE.md). Execute o script SQL adicional antes de publicar esta versão.

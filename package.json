@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint src",
     "preview": "vite preview",
-    "test:payments": "node --test tests/payment-*.test.cjs"
+    "test:payments": "node --test tests/payment-*.test.cjs",
+    "test:intern": "node --test tests/intern-room-database.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

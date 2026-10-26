@@ -234,3 +234,13 @@ button,input,select,textarea { font-family:inherit; }
 .checkout-period:disabled { opacity:.65; }
 .checkout-period:disabled label { cursor:wait; }
 @media (max-width:390px) { .checkout-period-options { gap:9px; }.checkout-period-options>label { padding:13px 11px; }.checkout-period-price { font-size:19px; }.checkout-period-heading { font-size:12px; } }
+
+/* 2026 · Acabamento institucional: menos efeitos, hierarquia mais clara. */
+:root { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+.surface-card { border-radius: 16px; box-shadow: 0 2px 10px rgb(20 32 51 / .05); }
+.hero-shell { border-radius: 20px; box-shadow: 0 8px 26px rgb(7 22 41 / .12); }
+.hero-title { letter-spacing: -.035em; line-height: 1.15; }
+.action-primary { border-radius: 10px; box-shadow: none; }
+.action-primary:hover:not(:disabled) { transform: none; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }

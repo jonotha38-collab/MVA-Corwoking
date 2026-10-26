@@ -16,6 +16,7 @@ interface CoworkingContextType {
   bookings: Booking[];
   currentCompany: FiscalContract;
   currentUser: UserAccount | null;
+  internAuthorized: boolean;
   activeTab: string;
   searchQuery: string;
   selectedCity: string;
@@ -63,6 +64,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [fiscalContracts, setFiscalContracts] = useState<FiscalContract[]>([]);
   const [correspondence, setCorrespondence] = useState<Correspondence[]>([]);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+  const [internAuthorized, setInternAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState('fiscal');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Todas');
@@ -108,7 +110,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const apply = async (session: Session | null, event: string) => {
       try {
         if (!session) {
-          lastUid.current = null; setCurrentUser(null); await loadAll(null); return;
+          lastUid.current = null; setInternAuthorized(false); setCurrentUser(null); await loadAll(null); return;
         }
         const uid = session.user.id;
         let { data: prof } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle();
@@ -125,6 +127,12 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const first = lastUid.current !== uid;
         lastUid.current = uid;
         setCurrentUser(user);
+        // O banco confirma o acesso por e-mail verificado; nunca confiar no perfil do navegador.
+        if (first) {
+          setInternAuthorized(false);
+          const { data: canAccess, error: accessError } = await supabase.rpc('is_intern_authorized');
+          if (!accessError && lastUid.current === uid) setInternAuthorized(canAccess === true);
+        }
         if (first) {
           setAuthModalOpen(false);
           if (event === 'SIGNED_IN') showToast(`Bem-vindo, ${user.name.split(' ')[0]}!`, 'success');
@@ -142,6 +150,20 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
     return () => { alive = false; sub.subscription.unsubscribe(); };
   }, [loadAll, showToast]);
+
+  // Se um administrador retirar o e-mail da lista no Supabase, a aba some ao retornar ao site.
+  useEffect(() => {
+    if (!currentUser) return;
+    let alive = true;
+    const refreshAccess = () => {
+      if (document.visibilityState !== 'visible') return;
+      void supabase.rpc('is_intern_authorized').then(({ data, error }) => {
+        if (alive && !error) setInternAuthorized(data === true);
+      });
+    };
+    document.addEventListener('visibilitychange', refreshAccess);
+    return () => { alive = false; document.removeEventListener('visibilitychange', refreshAccess); };
+  }, [currentUser?.id]);
 
   // Atualiza os dados quando a pessoa volta para a aba (ex.: admin vê novos anúncios)
   useEffect(() => {
@@ -192,7 +214,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (error) { fail('Não foi possível atualizar o espaço', error); return false; }
     setSpaces(prev => prev.map(s => (s.id === id ? rowToSpace(data) : s)));
     const toastMsg = isStatusOnly
-      ? (fields.status === 'available' ? 'Espaço marcado como disponível para reservas.' : 'Espaço pausado/indisponível.')
+      ? (fields.status === 'available' ? 'Espaço publicado novamente para os clientes.' : fields.status === 'hidden' ? 'Espaço desabilitado e oculto dos clientes.' : 'Espaço marcado como indisponível.')
       : (resubmit ? 'Alterações enviadas para nova aprovação da equipe MVA.' : 'Espaço atualizado com sucesso.');
     showToast(toastMsg, 'info');
     return true;
@@ -276,7 +298,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   return (
     <CoworkingContext.Provider value={{
-      ready, spaces, correspondence, fiscalContracts, bookings, currentCompany, currentUser, activeTab, searchQuery,
+      ready, spaces, correspondence, fiscalContracts, bookings, currentCompany, currentUser, internAuthorized, activeTab, searchQuery,
       selectedCity, selectedCategory, toasts, authModalOpen, authModalTab, setActiveTab, setSearchQuery, setSelectedCity,
       setSelectedCategory, setAuthModalOpen, setAuthModalTab, logout, addSpace, updateSpace, deleteSpace, approveSpace,
       rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization,

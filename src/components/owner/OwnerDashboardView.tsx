@@ -11,8 +11,10 @@ import {
   X, 
   Edit3, 
   Trash2, 
-  Sparkles, 
-  Eye, 
+  LogIn, 
+  Eye,
+  EyeOff,
+  LoaderCircle,
 } from 'lucide-react';
 
 export const OwnerDashboardView: React.FC = () => {
@@ -28,6 +30,7 @@ export const OwnerDashboardView: React.FC = () => {
   } = useCoworking();
 
   const [showModal, setShowModal] = useState(false);
+  const [changingSpaceId, setChangingSpaceId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Form State
@@ -74,13 +77,24 @@ export const OwnerDashboardView: React.FC = () => {
           onClick={() => setAuthModalOpen(true)}
           className="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-all inline-flex items-center gap-2"
         >
-          <Sparkles className="w-4 h-4" />{t("Entrar ou Criar Conta de Coworking ")}</button>
+          <LogIn className="w-4 h-4" />{t("Entrar ou Criar Conta de Coworking ")}</button>
       </div>
     );
   }
 
   // Spaces belonging to this user or all third-party spaces
   const mySpaces = spaces.filter(s => isAdmin(currentUser) || s.ownerId === currentUser.id);
+
+  const toggleSpaceVisibility = async (space: Space) => {
+    if (changingSpaceId) return;
+    const enable = space.status === 'hidden';
+    setChangingSpaceId(space.id);
+    try {
+      await updateSpace(space.id, { status: enable ? 'available' : 'hidden' });
+    } finally {
+      setChangingSpaceId(null);
+    }
+  };
 
   const handleOpenAdd = () => {
     setEditingId(null);
@@ -218,7 +232,7 @@ export const OwnerDashboardView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs text-slate-500 font-medium block">{t("Espaços Ativos no Marketplace ")}</span>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-bold text-navy-900">{t(mySpaces.length)}</span>
+            <span className="text-3xl font-bold text-navy-900">{t(mySpaces.filter(space => space.approval === 'aprovado' && space.status !== 'hidden').length)}</span>
             <span className="text-xs text-emerald-600 font-semibold">{t("Publicados ")}</span>
           </div>
           <span className="text-[11px] text-slate-400 block mt-1">{t("Visíveis para pessoas e empresas reservarem ")}</span>
@@ -248,7 +262,7 @@ export const OwnerDashboardView: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-navy-900">{t("Seus Espaços Cadastrados ")}</h2>
-            <p className="text-xs text-slate-500">{t("Gerencie fotos, preços por hora e endereços ")}</p>
+            <p className="text-xs text-slate-500">{t("Gerencie fotos, preços e visibilidade. Desabilitar oculta o anúncio dos clientes sem excluí-lo. ")}</p>
           </div>
           <button
             onClick={handleOpenAdd}
@@ -282,7 +296,7 @@ export const OwnerDashboardView: React.FC = () => {
                         space.approval === 'pendente' ? 'bg-amber-50 text-amber-700 border-amber-200'
                         : space.approval === 'rejeitado' ? 'bg-red-50 text-red-700 border-red-200'
                         : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
-                        {t(space.approval === 'pendente' ? 'Em análise' : space.approval === 'rejeitado' ? 'Rejeitado' : space.status === 'available' ? 'No Ar' : 'Pausado')}
+                        {t(space.approval === 'pendente' ? 'Em análise' : space.approval === 'rejeitado' ? 'Rejeitado' : space.status === 'hidden' ? 'Desabilitado' : space.status === 'available' ? 'No Ar' : 'Pausado')}
                       </span>
                       {space.approval === 'rejeitado' && space.rejectionReason && (
                         <p className="mt-1 max-w-[220px] rounded-md bg-red-50 px-2 py-1 text-[10px] text-red-700">{t("Motivo: ")}{t(space.rejectionReason)}</p>
@@ -312,13 +326,31 @@ export const OwnerDashboardView: React.FC = () => {
                 </div>
 
                 <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <button
-                    onClick={() => setActiveTab('marketplace')}
-                    className="text-[11px] font-semibold text-navy-900 hover:text-orange-600 flex items-center gap-1 transition-colors"
-                  >
-                    <Eye className="w-3.5 h-3.5" />{t("Ver no Marketplace ")}</button>
+                  {space.status === 'hidden' ? (
+                    <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                      <EyeOff className="h-3.5 w-3.5" /> Fora do marketplace
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => setActiveTab('marketplace')}
+                      className="text-[11px] font-semibold text-navy-900 hover:text-orange-600 flex items-center gap-1 transition-colors"
+                    >
+                      <Eye className="h-3.5 w-3.5" />{t("Ver no Marketplace ")}
+                    </button>
+                  )}
 
                   <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => void toggleSpaceVisibility(space)}
+                      disabled={!!changingSpaceId || (space.isMvaHeadquarters === true && !isAdmin(currentUser))}
+                      aria-label={space.status === 'hidden' ? `Habilitar ${space.name}` : `Desabilitar ${space.name}`}
+                      title={space.status === 'hidden' ? 'Habilitar: voltar a exibir para os clientes' : 'Desabilitar: ocultar dos clientes sem excluir'}
+                      className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${space.status === 'hidden' ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'}`}
+                    >
+                      {changingSpaceId === space.id ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : space.status === 'hidden' ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                      {space.status === 'hidden' ? 'Habilitar' : 'Desabilitar'}
+                    </button>
                     <button
                       onClick={() => handleOpenEdit(space)}
                       className="p-1.5 text-slate-600 hover:text-navy-900 hover:bg-slate-200 rounded-lg transition-colors"

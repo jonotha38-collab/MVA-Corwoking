@@ -1,5 +1,4 @@
 import { t } from '../../lib/preferences';
-import { BlurReveal } from '../ui/BlurReveal';
 import { Reveal } from '../ui/Reveal';
 import React, { useState, useEffect } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
@@ -162,7 +161,7 @@ export const FiscalView: React.FC = () => {
             <span>{t("Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565 ")}</span>
           </div>
 
-          <BlurReveal as="h1" className="hero-title max-w-2xl">{t("Seu endereço profissional. O próximo passo da sua empresa. ")}</BlurReveal>
+          <h1 className="hero-title max-w-2xl">{t("Seu endereço profissional. O próximo passo da sua empresa. ")}</h1>
 
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-medium">{t("Abra ou regularize seu CNPJ na sede MVA ou rede parceira. Reduza custos, preserve seu endereço residencial e reúna os serviços da sua empresa em um só lugar. ")}</p>
 
