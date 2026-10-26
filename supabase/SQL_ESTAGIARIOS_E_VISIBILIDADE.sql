@@ -108,8 +108,8 @@ create table if not exists public.intern_rooms (
 );
 insert into public.intern_rooms (code, name, description, capacity)
 values
-  ('sala-1', 'Sala de Trabalho 1', 'Espaço de trabalho reservado aos estagiários autorizados.', 1),
-  ('sala-2', 'Sala de Trabalho 2', 'Espaço de trabalho reservado aos estagiários autorizados.', 1)
+  ('sala-1', 'Sala de Trabalho 1', 'Espaço de trabalho reservado aos estagiários autorizados.', 6),
+  ('sala-2', 'Sala de Trabalho 2', 'Espaço de trabalho reservado aos estagiários autorizados.', 4)
 on conflict (code) do nothing;
 alter table public.intern_rooms enable row level security;
 revoke all on public.intern_rooms from anon, authenticated;
