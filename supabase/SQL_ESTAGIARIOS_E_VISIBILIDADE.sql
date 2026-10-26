@@ -5,7 +5,8 @@
 
 begin;
 
--- Um anúncio oculto não é exposto ao público, mas permanece visível ao dono e à MVA.
+-- Somente anúncios aprovados e disponíveis ficam visíveis para clientes.
+-- Pausados, em manutenção e ocupados continuam acessíveis ao dono e à MVA.
 alter table public.spaces drop constraint if exists spaces_status_check;
 alter table public.spaces add constraint spaces_status_check
   check (status::text in ('available', 'maintenance', 'occupied', 'hidden'));
@@ -13,7 +14,7 @@ alter table public.spaces add constraint spaces_status_check
 drop policy if exists spaces_select on public.spaces;
 create policy spaces_select on public.spaces for select
   using (
-    (approval = 'aprovado' and status::text <> 'hidden')
+    (approval = 'aprovado' and status::text = 'available')
     or owner_id = (select auth.uid())
     or public.is_admin()
   );
