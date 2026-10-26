@@ -24,7 +24,7 @@ export interface Space {
   image: string; // Foto principal
   gallery?: string[]; // Fotos adicionais
   description: string;
-  status: 'available' | 'maintenance' | 'occupied';
+  status: 'available' | 'maintenance' | 'occupied' | 'hidden';
   openingHours: string;
   offersFiscalAddress?: boolean;
   offersCorrespondence?: boolean;
