@@ -144,6 +144,10 @@ export const AuthModal: React.FC = () => {
             <span>{t("Continuar com o Google ")}</span>
           </button>
 
+          <p className="text-center text-[11px] text-slate-500">
+            {t('Você poderá escolher qual conta Google deseja usar.')}
+          </p>
+
           <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium uppercase tracking-wider">
             <span className="h-px flex-1 bg-slate-200" />{t("ou com e-mail ")}<span className="h-px flex-1 bg-slate-200" />
           </div>
