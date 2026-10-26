@@ -1,7 +1,7 @@
 import { t } from '../../lib/preferences';
 import React, { useState } from 'react';
 import { Space, Booking } from '../../types';
-import { calendarEnabled, connectGoogleCalendar, manualGoogleCalendarLink, saveGoogleCalendarEvent, type CalendarSyncResult } from '../../lib/google-calendar';
+import { calendarEnabled, connectGoogleCalendar, manualGoogleCalendarLink, recordedCalendarEventUrl, saveGoogleCalendarEvent, type CalendarSyncResult } from '../../lib/google-calendar';
 import { useCoworking } from '../../context/CoworkingContext';
 import { 
   X, 
@@ -229,7 +229,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                     {calendarConnecting ? 'Abrindo autorização…' : 'Conectar e salvar automaticamente'}
                   </button>
                 )}
-                <a href={manualGoogleCalendarLink(confirmedBooking, space)} target="_blank" rel="noopener noreferrer"
+                <a href={calendarSync === 'saved' ? (recordedCalendarEventUrl(currentUser?.id || '', confirmedBooking.id) || 'https://calendar.google.com/calendar/u/0/r') : manualGoogleCalendarLink(confirmedBooking, space)} target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-white px-4 py-2.5 text-xs font-semibold text-blue-800 hover:bg-blue-100">
                   <ExternalLink className="h-4 w-4" />{calendarSync === 'saved' ? 'Abrir no Google Agenda' : 'Adicionar manualmente'}
                 </a>
