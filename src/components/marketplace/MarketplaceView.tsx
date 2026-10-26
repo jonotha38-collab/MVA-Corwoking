@@ -1,5 +1,5 @@
 import { t } from '../../lib/preferences';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Space } from '../../types';
 import { SpaceCard } from './SpaceCard';
@@ -7,6 +7,7 @@ import { SpaceDetailModal } from './SpaceDetailModal';
 import { BookingModal } from './BookingModal';
 import { Search, MapPin, Users, LayoutGrid, X, PlusCircle, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
 import { Reveal } from '../ui/Reveal';
+import { isSpacePubliclyVisible } from '../../lib/space-visibility';
 import heroOffice from '../../assets/hero-office.jpg';
 
 const CATEGORIES = [
@@ -31,14 +32,26 @@ const FAQ = [
 ];
 
 export const MarketplaceView: React.FC = () => {
-  const { spaces, searchQuery, setSearchQuery, selectedCity, setSelectedCity, selectedCategory, setSelectedCategory, setActiveTab } = useCoworking();
+  const { spaces, searchQuery, setSearchQuery, selectedCity, setSelectedCity, selectedCategory, setSelectedCategory, setActiveTab, refreshSpaces } = useCoworking();
   const [capacity, setCapacity] = useState('all');
   const [sortBy, setSortBy] = useState<'rating' | 'priceAsc' | 'priceDesc' | 'capacity'>('rating');
   const [detail, setDetail] = useState<Space | null>(null);
   const [booking, setBooking] = useState<Space | null>(null);
   const results = useRef<HTMLElement>(null);
 
-  const live = useMemo(() => spaces.filter(s => (s.approval ?? 'aprovado') === 'aprovado' && s.status !== 'hidden'), [spaces]);
+  // Pausado, manutenção ou ocupado nunca entra nas buscas, filtros ou detalhes.
+  const live = useMemo(() => spaces.filter(isSpacePubliclyVisible), [spaces]);
+  const visibleDetail = detail ? live.find(s => s.id === detail.id) || null : null;
+  const visibleBooking = booking ? live.find(s => s.id === booking.id) || null : null;
+
+  // Se outro responsável pausar a sala com o marketplace já aberto,
+  // sincronizamos a lista periodicamente sem exigir recarregar a página.
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void refreshSpaces();
+    }, 30_000);
+    return () => window.clearInterval(timer);
+  }, [refreshSpaces]);
   const cities = useMemo(() => ['Todas', ...Array.from(new Set(live.map(s => s.city)))], [live]);
   const hq = live.find(s => s.isMvaHeadquarters);
 
@@ -194,8 +207,8 @@ export const MarketplaceView: React.FC = () => {
         </Reveal>
       </section>
 
-      {detail && <SpaceDetailModal space={detail} onClose={() => setDetail(null)} onOpenBooking={setBooking} />}
-      {booking && <BookingModal space={booking} onClose={() => setBooking(null)} />}
+      {visibleDetail && <SpaceDetailModal space={visibleDetail} onClose={() => setDetail(null)} onOpenBooking={setBooking} />}
+      {visibleBooking && <BookingModal space={visibleBooking} onClose={() => setBooking(null)} />}
     </div>
   );
 };
