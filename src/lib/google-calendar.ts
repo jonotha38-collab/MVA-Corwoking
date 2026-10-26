@@ -30,6 +30,12 @@ function enableCalendar(userId: string) {
   try { localStorage.setItem(key(userId), 'yes'); } catch { /* preference not persisted */ }
 }
 
+export function disconnectGoogleCalendar(userId: string) {
+  // Revoga a preferência de sincronização no site. A revogação do acesso OAuth
+  // pode ser feita pelo próprio usuário em myaccount.google.com/permissions.
+  try { localStorage.removeItem(key(userId)); } catch { /* ignore */ }
+}
+
 export function pendingCalendarConnection(): ConnectionRequest | null {
   try {
     const raw = sessionStorage.getItem(connectKey);
