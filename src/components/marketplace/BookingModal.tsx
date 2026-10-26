@@ -14,7 +14,6 @@ import {
   CheckCircle2, 
   QrCode
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 interface BookingModalProps {
   space: Space | null;
@@ -91,15 +90,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
     if (!newBooking) return;
     setConfirmedBooking(newBooking);
 
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    } catch {
-      // safe fallback
-    }
+    // Reserva confirmada: confirmação exibida no próprio formulário.
+
   };
 
   return (
