@@ -57,7 +57,14 @@ export async function signInEmail(email: string, password: string) {
 
 export async function signInGoogle(accountType: UserAccount['accountType']) {
   try { localStorage.setItem('mva:pending-type', accountType); } catch { /* ignore */ }
-  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin,
+      // Sempre exibe o seletor de contas, mesmo que haja uma conta Google ativa no navegador.
+      queryParams: { prompt: 'select_account' },
+    },
+  });
   if (error) throw new Error('Login com Google indisponível. Verifique a configuração no Supabase.');
 }
 
