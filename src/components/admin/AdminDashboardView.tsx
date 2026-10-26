@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { supabase, uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { PendingApprovals } from './PendingApprovals';
+import { AdminBookingAgenda } from './AdminBookingAgenda';
 import { Space, SpaceCategory } from '../../types';
 import { 
   Building2, 
@@ -29,7 +30,7 @@ export const AdminDashboardView: React.FC = () => {
     fiscalContracts 
   } = useCoworking();
 
-  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies'>('spaces');
+  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies'>('bookings');
   const [showAddSpaceModal, setShowAddSpaceModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<Space | null>(null);
 
@@ -222,7 +223,7 @@ export const AdminDashboardView: React.FC = () => {
       </div>
 
       {/* Admin Tab Selector */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
         <button
           onClick={() => setActiveAdminTab('spaces')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -242,7 +243,7 @@ export const AdminDashboardView: React.FC = () => {
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          <Calendar className="w-4 h-4" />{t("Agenda & Recepção Check-in ( ")}{t(bookings.length)})
+          <Calendar className="w-4 h-4" />{t("Agenda & Recepção ( ")}{t(bookings.length)})
         </button>
 
         <button
@@ -351,82 +352,8 @@ export const AdminDashboardView: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 2: BOOKINGS AGENDA & CHECK-IN */}
-      {activeAdminTab === 'bookings' && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
-          <div className="p-6 border-b border-slate-100">
-            <h2 className="text-lg font-bold text-slate-900">{t("Agenda de Reservas & Recepção ")}</h2>
-            <p className="text-xs text-slate-500">{t("Controle de entrada e check-in presencial dos clientes ")}</p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <div className="overflow-x-auto -mx-1 px-1"><table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
-                  <th className="py-3.5 px-6">{t("Espaço Reservado ")}</th>
-                  <th className="py-3.5 px-4">{t("Empresa / Titular ")}</th>
-                  <th className="py-3.5 px-4">{t("Data & Horário ")}</th>
-                  <th className="py-3.5 px-4">{t("Opcionais ")}</th>
-                  <th className="py-3.5 px-4">{t("Valor ")}</th>
-                  <th className="py-3.5 px-4">{t("Status ")}</th>
-                  <th className="py-3.5 px-6 text-right">{t("Recepção (Check-in) ")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {bookings.map(b => (
-                  <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="font-bold text-slate-900">{t(b.spaceName)}</div>
-                      <div className="text-[11px] text-slate-500">{b.coworkingName}</div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="font-bold text-slate-800">{b.companyName}</div>
-                      <div className="text-[11px] text-slate-500">{b.responsibleName} ({t(b.responsiblePhone)})</div>
-                    </td>
-                    <td className="py-4 px-4 whitespace-nowrap">
-                      <div className="font-semibold text-slate-800">{t(b.date.split('-').reverse().join('/'))}</div>
-                      <div className="text-[11px] text-slate-500">{t(b.startTime)}{t("às")}{t(b.endTime)}</div>
-                    </td>
-                    <td className="py-4 px-4">
-                      {t(b.addons.length > 0 ? (
-                        <span className="text-[11px] text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 block truncate max-w-xs">
-                          {t(b.addons.join(', '))}
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">{t("Nenhum ")}</span>
-                      ))}
-                    </td>
-                    <td className="py-4 px-4 font-bold text-slate-900 whitespace-nowrap">{t("R$ ")}{t(b.totalPrice.toFixed(2))}
-                    </td>
-                    <td className="py-4 px-4 whitespace-nowrap">
-                      {b.status === 'confirmada' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">{t("Confirmada ")}</span>
-                      )}
-                      {b.status === 'concluida' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{t("Concluída ")}</span>
-                      )}
-                      {b.status === 'cancelada' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">{t("Cancelada ")}</span>
-                      )}
-                    </td>
-                    <td className="py-4 px-6 text-right whitespace-nowrap">
-                      {t(b.checkIn ? (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                          <CheckCircle2 className="w-3.5 h-3.5" />{t("Check-in Efetuado ")}</span>
-                      ) : (
-                        <button
-                          onClick={() => checkInBooking(b.id)}
-                          className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
-                        >{t("Efetuar Check-in ")}</button>
-                      ))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
-          </div>
-        </div>
-      )}
+      {/* TAB 2: Reservations and office operations, including intern rooms. */}
+      {activeAdminTab === 'bookings' && <AdminBookingAgenda />}
 
       {/* TAB 3: FISCAL ADDRESS CLIENTS */}
       {activeAdminTab === 'companies' && (
