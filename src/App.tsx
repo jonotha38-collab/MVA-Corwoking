@@ -1,7 +1,8 @@
 import { t } from './lib/preferences';
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import { useCoworking } from './context/CoworkingContext'
+import { finishGoogleCalendarConnection, pendingCalendarConnection } from './lib/google-calendar'
 import { isAdmin } from './lib/auth'
 import { Navbar } from './components/common/Navbar'
 import { Footer } from './components/common/Footer'
@@ -25,7 +26,8 @@ import { usePreferences } from './lib/preferences';
 
 export default function App() {
   usePreferences();
-  const { ready, activeTab, setActiveTab, currentUser, internAuthorized, setAuthModalOpen, setAuthModalTab, spaces } = useCoworking()
+  const { ready, activeTab, setActiveTab, currentUser, internAuthorized, setAuthModalOpen, setAuthModalTab, spaces, bookings, showToast } = useCoworking()
+  const calendarProcessing = useRef(false)
   const pending = spaces.filter(s => s.approval === 'pendente').length
   const admin = isAdmin(currentUser)
   const blocked = PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin) || (activeTab === 'intern-rooms' && !internAuthorized))
@@ -37,6 +39,28 @@ export default function App() {
     }
     window.scrollTo({ top: 0 })
   }, [activeTab, blocked, currentUser, setActiveTab, setAuthModalOpen, setAuthModalTab])
+
+  // Após a autorização do Google, exporta a reserva que originou o pedido.
+  // O formulário OAuth sempre retorna ao mesmo domínio; nenhuma senha é armazenada.
+  useEffect(() => {
+    if (!ready || !currentUser || calendarProcessing.current) return
+    const pending = pendingCalendarConnection()
+    if (!pending) return
+    if (pending.bookingId && !bookings.some(b => b.id === pending.bookingId)) return
+    calendarProcessing.current = true
+    void finishGoogleCalendarConnection(currentUser, bookings, spaces).then(result => {
+      if (result.kind === 'wrong-account') {
+        showToast('A conta Google selecionada é diferente da conta que fez a reserva. Conecte com o mesmo e-mail.', 'error')
+      } else if (result.kind === 'no-token') {
+        showToast('O Google não enviou a autorização para salvar eventos. Confira as permissões da Agenda.', 'error')
+      } else if (result.kind === 'partial') {
+        showToast('Alguns eventos não foram salvos no Google Agenda. Você pode adicioná-los em Minhas reservas.', 'info')
+      } else if (result.kind === 'connected') {
+        showToast(result.saved ? 'Reserva adicionada ao Google Agenda com lembretes!' : 'Google Agenda conectado para suas próximas reservas.', 'success')
+      }
+      if (result.kind !== 'none') setActiveTab('client-dashboard')
+    }).finally(() => { calendarProcessing.current = false })
+  }, [ready, currentUser, bookings, spaces, showToast, setActiveTab])
 
   if (!ready) {
     return (
