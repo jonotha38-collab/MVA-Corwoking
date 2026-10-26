@@ -122,7 +122,11 @@ export function manualGoogleCalendarLink(booking: Booking, space?: Space): strin
 export function recordedCalendarEventUrl(userId: string, bookingId: string) {
   try {
     const url = localStorage.getItem(eventKey(userId, bookingId));
-    return url?.startsWith('https://calendar.google.com/') ? url : null;
+    if (!url) return null;
+    const parsed = new URL(url);
+    return (parsed.protocol === 'https:' && (parsed.hostname === 'calendar.google.com'
+      || (parsed.hostname === 'www.google.com' && parsed.pathname.startsWith('/calendar/'))))
+      ? parsed.toString() : null;
   } catch { return null; }
 }
 
@@ -142,7 +146,7 @@ export async function saveGoogleCalendarEvent(booking: Booking, userId: string, 
   if (!response.ok && response.status !== 409) throw new Error('Google Agenda não respondeu. Sua reserva continua confirmada.');
   if (response.ok) {
     const event = await response.json() as { htmlLink?: string };
-    if (typeof event.htmlLink === 'string' && event.htmlLink.startsWith('https://calendar.google.com/')) {
+    if (typeof event.htmlLink === 'string') {
       try { localStorage.setItem(eventKey(userId, booking.id), event.htmlLink); } catch { /* ignore */ }
     }
   }
