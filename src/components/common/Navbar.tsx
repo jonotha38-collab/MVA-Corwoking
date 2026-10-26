@@ -2,8 +2,9 @@
 import { t } from '../../lib/preferences';
 import React, { useEffect, useState, useRef } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
+import { signInGoogle, signOut } from '../../lib/auth';
 import { Preferences } from './Preferences';
-import { ShieldCheck, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen } from 'lucide-react';
+import { ShieldCheck, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen, ArrowLeftRight } from 'lucide-react';
 
 const ITEMS = [
   { tab: 'fiscal', label: 'Endereço fiscal', short: 'Fiscal', icon: ShieldCheck },
@@ -14,8 +15,9 @@ const ITEMS = [
 ];
 
 export const Navbar: React.FC = () => {
-  const { activeTab, setActiveTab, currentUser, internAuthorized, setAuthModalOpen, setAuthModalTab, logout, correspondence, currentCompany } = useCoworking();
+  const { activeTab, setActiveTab, currentUser, internAuthorized, setAuthModalOpen, setAuthModalTab, logout, correspondence, currentCompany, showToast } = useCoworking();
   const [menu, setMenu] = useState(false);
+  const [switchingAccount, setSwitchingAccount] = useState(false);
   const navItems = internAuthorized ? [...ITEMS, { tab: 'intern-rooms', label: 'Salas dos estagiários', short: 'Estágio', icon: DoorOpen }] : ITEMS;
   const box = useRef<HTMLDivElement>(null);
   const pending = correspondence.filter(c => c.companyId === currentCompany.id && c.status === 'aguardando_retirada').length;
@@ -34,6 +36,22 @@ export const Navbar: React.FC = () => {
   const openAuth = (tab: 'login' | 'register') => {
     setAuthModalTab(tab);
     setAuthModalOpen(true);
+  };
+
+  const switchGoogleAccount = async () => {
+    if (switchingAccount) return;
+    setMenu(false);
+    setActiveTab('fiscal');
+    setSwitchingAccount(true);
+    try {
+      // Encerra a sessão atual neste dispositivo antes de autenticar outra conta.
+      await signOut();
+      await signInGoogle('client');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Não foi possível trocar a conta Google.', 'error');
+    } finally {
+      setSwitchingAccount(false);
+    }
   };
 
   return (
@@ -127,6 +145,16 @@ export const Navbar: React.FC = () => {
                           <DoorOpen className="h-4 w-4 text-orange-500" aria-hidden />Salas dos estagiários
                         </button>
                       )}
+                      <button
+                        type="button"
+                        role="menuitem"
+                        disabled={switchingAccount}
+                        onClick={() => { void switchGoogleAccount(); }}
+                        className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-3 text-sm font-medium text-navy-800 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60"
+                      >
+                        <ArrowLeftRight className="h-4 w-4 text-orange-500" aria-hidden />
+                        {t(switchingAccount ? 'Abrindo o Google...' : 'Trocar conta Google')}
+                      </button>
                       <button
                         role="menuitem"
                         onClick={() => {
