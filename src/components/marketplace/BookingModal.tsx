@@ -30,7 +30,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   });
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('11:00');
-  const [responsibleName, setResponsibleName] = useState(currentUser?.name || 'Lucas Ferreira');
+  const [responsibleName, setResponsibleName] = useState(currentUser?.name || '');
   const [responsibleEmail, setResponsibleEmail] = useState(currentUser?.email || currentCompany.contactEmail);
   const [responsiblePhone, setResponsiblePhone] = useState(currentCompany.contactPhone);
   const [companyName, setCompanyName] = useState(currentCompany.companyName);
