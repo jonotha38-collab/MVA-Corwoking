@@ -46,6 +46,7 @@ interface CoworkingContextType {
   requestDigitalization: (id: string) => Promise<void>;
   markCorrespondenceAsRetrieved: (id: string) => Promise<void>;
   refreshFiscalContracts: () => Promise<void>;
+  refreshSpaces: () => Promise<void>;
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
 }
 
@@ -86,10 +87,17 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [showToast]);
 
   /* ---------- carregamento ---------- */
+  const refreshSpaces = useCallback(async () => {
+    const result = await supabase.from('spaces').select('*').order('created_at', { ascending: false });
+    if (result.error) {
+      fail('Não foi possível carregar os espaços', result.error);
+      return;
+    }
+    setSpaces((result.data || []).map(rowToSpace));
+  }, [fail]);
+
   const loadAll = useCallback(async (uid: string | null) => {
-    const sp = await supabase.from('spaces').select('*').order('created_at', { ascending: false });
-    if (sp.error) fail('Não foi possível carregar os espaços', sp.error);
-    else setSpaces((sp.data || []).map(rowToSpace));
+    await refreshSpaces();
     if (!uid) { setBookings([]); setFiscalContracts([]); setCorrespondence([]); return; }
     const [bk, fc, co] = await Promise.all([
       supabase.from('bookings').select('*').order('created_at', { ascending: false }),
@@ -102,7 +110,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setFiscalContracts((fc.data || []).map(rowToFiscal));
       setCorrespondence((co.data || []).map(rowToCorrespondence));
     }
-  }, [fail]);
+  }, [fail, refreshSpaces]);
 
   /* ---------- sessão ---------- */
   useEffect(() => {
@@ -302,7 +310,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       selectedCity, selectedCategory, toasts, authModalOpen, authModalTab, setActiveTab, setSearchQuery, setSelectedCity,
       setSelectedCategory, setAuthModalOpen, setAuthModalTab, logout, addSpace, updateSpace, deleteSpace, approveSpace,
       rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization,
-      markCorrespondenceAsRetrieved, refreshFiscalContracts, showToast,
+      markCorrespondenceAsRetrieved, refreshFiscalContracts, refreshSpaces, showToast,
     }}>
       {children}
     </CoworkingContext.Provider>
