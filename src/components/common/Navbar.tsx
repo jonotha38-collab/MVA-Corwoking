@@ -20,6 +20,22 @@ export const Navbar: React.FC = () => {
   const [switchingAccount, setSwitchingAccount] = useState(false);
   const navItems = internAuthorized ? [...ITEMS, { tab: 'intern-rooms', label: 'Salas dos estagiários', short: 'Estágio', icon: DoorOpen }] : ITEMS;
   const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menu) return;
+    const onOutsideClick = (event: PointerEvent) => {
+      if (box.current && !box.current.contains(event.target as Node)) setMenu(false);
+    };
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenu(false);
+    };
+    document.addEventListener('pointerdown', onOutsideClick);
+    document.addEventListener('keydown', onEscape);
+    return () => {
+      document.removeEventListener('pointerdown', onOutsideClick);
+      document.removeEventListener('keydown', onEscape);
+    };
+  }, [menu]);
+
   const pending = correspondence.filter(c => c.companyId === currentCompany.id && c.status === 'aguardando_retirada').length;
 
   // ---------- Scroll handling for subtle shadow effect ----------
@@ -60,7 +76,7 @@ export const Navbar: React.FC = () => {
       <header
         className={`sticky top-0 z-40 border-b border-navy-800 bg-navy-950/95 text-white backdrop-blur-md no-print ${isScrolled ? 'shadow-lg' : ''}`}
       >
-        <div className="mx-auto flex h-16 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:h-20 sm:gap-4 sm:px-6 lg:px-8">
+        <div className="relative z-20 mx-auto flex h-16 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:h-20 sm:gap-4 sm:px-6 lg:px-8">
           {/* Logo & Brand */}
           <button onClick={() => setActiveTab('fiscal')} className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3" aria-label={t("MVA Coworking Hub - página inicial")}>
             <img src="/logo.png" alt={t("MVA")} className="block h-7 w-auto max-w-[88px] object-contain sm:h-8 sm:max-w-[112px] lg:max-w-[128px]" />
@@ -74,7 +90,7 @@ export const Navbar: React.FC = () => {
           {/* ==================== USER MENU (desktop & mobile) ==================== */}
           <div className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-3">
             <Preferences />
-            <div className="relative" ref={box}>
+            <div className="relative z-30" ref={box}>
               {currentUser ? (
                 <>
                   <button
@@ -94,7 +110,7 @@ export const Navbar: React.FC = () => {
                     <ChevronDown className="hidden h-4 w-4 text-slate-400 lg:block" aria-hidden />
                   </button>
                   {menu && (
-                    <div role="menu" className="absolute right-0 mt-2 w-[min(15rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white text-navy-900 shadow-xl">
+                    <div role="menu" className="absolute right-0 top-full z-50 mt-2 max-h-[calc(100dvh-6rem)] w-[min(16rem,calc(100vw-1.5rem))] overflow-x-hidden overflow-y-auto rounded-2xl border border-slate-200 bg-white text-navy-900 shadow-2xl">
                       <div className="border-b border-slate-100 p-4">
                         <p className="truncate text-sm font-bold">{currentUser.name}</p>
                         <p className="truncate text-xs text-slate-500">{currentUser.email}</p>
@@ -168,7 +184,7 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
         {/* The links have their own row on notebooks: the logo can never overlap "Endereço fiscal". */}
-        <div className="hidden border-t border-white/10 lg:block">
+        <div className="relative z-0 hidden border-t border-white/10 lg:block">
             {/* ==================== NAVBAR (hidden on mobile) ==================== */}
             <nav className="mx-auto flex w-full min-w-0 max-w-7xl items-center justify-between gap-1 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8" aria-label={t("Principal")}>
               {navItems.map(({ tab, label, icon: Icon }) => (
