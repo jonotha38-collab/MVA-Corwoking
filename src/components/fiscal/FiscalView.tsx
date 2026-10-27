@@ -156,13 +156,13 @@ export const FiscalView: React.FC = () => {
           <div className="absolute -right-20 -top-20 w-96 h-96 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
         </div>
 
-        <div className="max-w-3xl space-y-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 backdrop-blur-md">
-            <ShieldCheck className="w-4 h-4 text-orange-400" />
-            <span>{t("Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565 ")}</span>
+        <div className="relative z-10 w-full min-w-0 max-w-3xl space-y-6">
+          <div className="inline-flex max-w-full items-start gap-2 rounded-xl border border-orange-500/30 bg-orange-500/20 px-3 py-2 text-[11px] font-semibold leading-relaxed text-orange-300 backdrop-blur-md sm:items-center sm:rounded-full sm:px-4 sm:py-1.5 sm:text-xs">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-orange-400 sm:mt-0" />
+            <span className="min-w-0 break-words">{t("Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565 ")}</span>
           </div>
 
-          <BlurReveal as="h1" className="hero-title max-w-2xl">{t("Seu endereço profissional. O próximo passo da sua empresa. ")}</BlurReveal>
+          <BlurReveal as="h1" className="hero-title max-w-full break-words sm:max-w-2xl">{t("Seu endereço profissional. O próximo passo da sua empresa. ")}</BlurReveal>
 
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-medium">{t("Abra ou regularize seu CNPJ na sede MVA ou rede parceira. Reduza custos, preserve seu endereço residencial e reúna os serviços da sua empresa em um só lugar. ")}</p>
 
@@ -171,12 +171,12 @@ export const FiscalView: React.FC = () => {
               onClick={() => {
                 startCheckout('fiscal');
               }}
-              className="action-primary px-6 py-3.5 text-sm"
+              className="action-primary w-full min-w-0 flex-wrap px-4 py-3.5 text-center text-sm sm:w-auto sm:px-6"
             >
               <FileCheck className="w-5 h-5" />{t("Contratar Endereço Fiscal Online ")}</button>
             <button
               onClick={() => setShowCertificateModal(true)}
-              className="px-6 py-3.5 bg-navy-900/80 hover:bg-navy-800 text-white border border-navy-700/80 backdrop-blur-md rounded-xl text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-navy-700/80 bg-navy-900/80 px-4 py-3.5 text-sm font-bold text-white shadow-lg backdrop-blur-md transition-all hover:bg-navy-800 sm:w-auto sm:px-6"
             >
               {eligible ? <FileCheck className="w-5 h-5 text-orange-400" /> : <Lock className="w-5 h-5 text-orange-400" />}<span>{t('Emitir declaração oficial')}<span className="block text-left text-[11px] font-normal text-slate-400">{t(eligible ? 'Disponível para seu contrato' : 'Disponível após pagamento')}</span></span></button>
           </div>
@@ -184,18 +184,18 @@ export const FiscalView: React.FC = () => {
       </div>
 
       {currentCompany.id && (
-      <div className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl shadow-slate-200/40 space-y-8 relative overflow-hidden">
+      <div className="min-w-0 bg-white rounded-3xl p-4 sm:p-8 border border-slate-200/90 shadow-xl shadow-slate-200/40 space-y-8 relative overflow-hidden">
         {/* Subtle decorative background for the card */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-slate-50 to-orange-50 rounded-bl-[100px] -z-10 pointer-events-none" />
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6 relative z-10">
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-5">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 text-orange-600 flex items-center justify-center shrink-0 shadow-sm">
               <Building2 className="w-7 h-7" />
             </div>
             <div>
               <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest block mb-1">{t("Meu contrato de endereço ")}</span>
-              <h2 className="text-2xl font-bold text-navy-900 tracking-tight">{currentCompany.companyName}</h2>
+              <h2 className="break-words text-lg font-bold tracking-tight text-navy-900 sm:text-2xl">{currentCompany.companyName}</h2>
               <p className="text-sm text-slate-500 mt-0.5">{t("CNPJ: ")}<span className="font-mono">{currentCompany.cnpj}</span>{t("• Plano: ")}<strong className="text-slate-700">{t(currentCompany.planName)}</strong>
               </p>
             </div>
@@ -340,13 +340,13 @@ export const FiscalView: React.FC = () => {
           <p className="text-sm text-slate-500">{t("Escolha 1 mês ou 12 meses no checkout. Na transferência anual, pague 8 meses e use 12. ")}</p>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (
               <div
                 key={plan.id}
-                className={`surface-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative border ${
+                className={`surface-card min-w-0 rounded-2xl p-5 sm:p-7 flex flex-col justify-between transition-all duration-300 relative border ${
                   plan.popular
                     ? 'bg-white border-orange-600 shadow-sm ring-1 ring-orange-600/20'
                     : 'bg-white border-slate-200/90 shadow-sm hover:shadow-lg hover:border-slate-300'
@@ -502,7 +502,7 @@ export const FiscalView: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <label className="block font-semibold text-slate-700 mb-1">{t("WhatsApp / Telefone * ")}</label>
                     <input
