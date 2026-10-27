@@ -37,6 +37,7 @@ export function AdminBookingAgenda() {
   const [items, setItems] = useState<AgendaItem[]>([]);
   const [notices, setNotices] = useState<NoticeRow[]>([]);
   const [readIds, setReadIds] = useState<Set<number>>(new Set());
+  const [deliveryStates, setDeliveryStates] = useState<Record<string,string>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -54,7 +55,7 @@ export function AdminBookingAgenda() {
     setError('');
     try {
       // Apenas administradores podem obter estas linhas; RLS valida no banco.
-      const [commercial, intern, roomRows, noticeRows] = await Promise.all([
+      const [commercial, intern, roomRows, noticeRows, deliveries] = await Promise.all([
         supabase.from('bookings').select('*').order('created_at', { ascending: false }).limit(1000),
         supabase.from('intern_room_reservations')
           .select('id,user_id,room_id,reservation_date,status,created_at')
@@ -63,8 +64,11 @@ export function AdminBookingAgenda() {
         supabase.from('admin_booking_notifications')
           .select('id,source,reservation_id,action,created_at')
           .order('created_at', { ascending: false }).limit(80),
+        supabase.from('booking_delivery_jobs')
+          .select('source,reservation_id,action,channel,status')
+          .order('id', { ascending: false }).limit(1000),
       ]);
-      const issue = commercial.error || intern.error || roomRows.error || noticeRows.error;
+      const issue = commercial.error || intern.error || roomRows.error || noticeRows.error || deliveries.error;
       if (issue) throw issue;
 
       const internList = (intern.data || []) as InternReservationRow[];
@@ -105,6 +109,11 @@ export function AdminBookingAgenda() {
       setItems([...commercialItems, ...internItems].sort((a, b) =>
         `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`)));
       setNotices((noticeRows.data || []) as NoticeRow[]);
+      const states: Record<string,string> = {};
+      for (const job of deliveries.data || []) {
+        states[`${job.source}:${job.reservation_id}:${job.action}:${job.channel}`] = job.status;
+      }
+      setDeliveryStates(states);
       setReadIds(new Set((reads.data || []).map(row => Number(row.notification_id))));
     } catch (err) {
       console.error('Agenda administrativa:', err);
@@ -137,6 +146,9 @@ export function AdminBookingAgenda() {
   const unread = notices.filter(n => !readIds.has(n.id));
   const todayCount = items.filter(i => i.date === localToday() && i.status !== 'cancelada').length;
   const futureCount = items.filter(i => i.date >= localToday() && i.status !== 'cancelada').length;
+  const deliveriesPending = Object.values(deliveryStates).filter(
+    status => status === 'pending' || status === 'failed' || status === 'processing'
+  ).length;
 
   const markRead = async () => {
     if (!currentUser || !unread.length || markingRead) return;
@@ -185,6 +197,11 @@ export function AdminBookingAgenda() {
           ))}
         </div>
       </div>
+
+      {deliveriesPending > 0 && <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+        <strong>Integrações em processamento:</strong> {deliveriesPending} entrega(s) de e-mail ou Google Agenda pendente(s).
+        Se persistirem, confira a configuração do Google e do provedor de e-mails no Supabase.
+      </div>}
 
       <section aria-label="Notificações dos agendamentos" className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
@@ -271,6 +288,16 @@ export function AdminBookingAgenda() {
                   {item.status === 'cancelada'
                     ? <span className="inline-flex items-center gap-1 rounded-lg bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-700"><XCircle className="h-3.5 w-3.5" />Cancelada</span>
                     : <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" />{item.checkIn ? 'Check-in feito' : 'Confirmada'}</span>}
+                  {(['email','calendar'] as const).map(channel => {
+                    const action = item.status === 'cancelada' ? 'canceled' : 'created';
+                    const status = deliveryStates[`${item.type}:${item.id}:${action}:${channel}`];
+                    if (!status) return null; // Reservas anteriores à integração.
+                    const ok = status === 'sent';
+                    return <span key={channel} title={channel === 'email' ? 'Confirmação ao cliente' : 'Agenda Google administrativa'}
+                      className={`rounded-md px-2 py-1 text-[10px] font-semibold ${ok ? 'bg-emerald-50 text-emerald-700' : status === 'failed' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-800'}`}>
+                      {channel === 'email' ? 'E-mail' : 'Google Agenda'}: {ok ? 'Enviado' : status === 'failed' ? 'Falhou' : 'Pendente'}
+                    </span>;
+                  })}
                   {item.type === 'commercial' && item.status === 'confirmada' && !item.checkIn &&
                     <button type="button" onClick={() => void checkInBooking(item.id).then(() => load())}
                       className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-navy-900 hover:bg-slate-100">
