@@ -13,10 +13,10 @@ export const Footer: React.FC = () => {
       className="bg-navy-950 text-slate-400 text-sm border-t border-navy-800 shadow-md"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid min-w-0 grid-cols-1 gap-8 mb-12 sm:grid-cols-2 xl:grid-cols-4">
           {/* Brand */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2.5 text-white">
+          <div className="min-w-0 space-y-3">
+            <div className="flex min-w-0 flex-wrap items-center gap-2.5 text-white">
               <img
                 src="/logo.png"
                 alt={t("MVA")}
@@ -131,12 +131,12 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Rodapé inferior */}
-        <div className="pt-8 border-t border-navy-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+        <div className="flex flex-col items-start justify-between gap-4 border-t border-navy-900 pt-8 text-[11px] text-slate-500 md:flex-row md:items-center">
           <div>
             <div className="pt-2 text-sm">{`© ${new Date().getFullYear()} ${t("MVA Coworking Hub • Sede: Rua Dom José Thomaz, 565 - Aracaju/SE.")}`}</div>
             <div>{t("Espaços para trabalhar. Estrutura para crescer. ")}</div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <button
               onClick={() => setActiveTab('legal')}
               className="hover:text-slate-300 transition-colors underline-offset-4 hover:underline"
