@@ -80,8 +80,8 @@ create or replace function public.claim_mva_delivery_jobs(
 returns setof public.booking_delivery_jobs
 language plpgsql security definer set search_path = '' as $$
 begin
-  if current_setting('request.jwt.claim.role', true) is distinct from 'service_role'
-     and session_user <> 'service_role' then
+  if current_user <> 'service_role'
+     and coalesce((nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'role'), '') <> 'service_role' then
     raise exception 'Acesso restrito ao serviço de entrega.' using errcode='42501';
   end if;
   return query
@@ -102,5 +102,7 @@ end;
 $$;
 revoke all on function public.claim_mva_delivery_jobs(text[],integer) from public, anon, authenticated;
 grant execute on function public.claim_mva_delivery_jobs(text[],integer) to service_role;
+grant select on public.booking_delivery_config to service_role;
+grant select, update on public.booking_delivery_jobs to service_role;
 
 commit;
