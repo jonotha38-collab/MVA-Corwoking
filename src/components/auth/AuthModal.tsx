@@ -66,11 +66,11 @@ export const AuthModal: React.FC = () => {
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
-      className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-navy-950/70 backdrop-blur-sm cursor-pointer"
+      className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-navy-950/70 p-3 backdrop-blur-sm cursor-pointer sm:items-center sm:p-4"
     >
       <div 
         onClick={(e) => e.stopPropagation()} 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-[370px] overflow-hidden animate-scaleUp border border-slate-100 cursor-default"
+        className="my-auto w-full min-w-0 max-w-[370px] max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-slate-100 bg-white shadow-2xl animate-scaleUp cursor-default sm:max-h-[calc(100dvh-2rem)]"
       >
         {/* Header Compacto */}
         <div className="bg-white text-slate-900 p-5 pb-3 relative border-b border-slate-100">
