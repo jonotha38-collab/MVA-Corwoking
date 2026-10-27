@@ -154,10 +154,12 @@ button,input,select,textarea { font-family:inherit; }
  .preferences button { min-width:32px; padding:0 5px; }
  header .action-primary { font-size:11px; padding:10px 9px; }
 }
+/* O menu do notebook tem uma linha exclusiva: não comprimimos a marca nem sobrepomos links. */
+@media (min-width:1024px) and (max-width:1279px) {
+ header .preferences button span { display:none; }
+}
 @media (min-width:1280px) and (max-width:1535px) {
- header nav button { font-size:12px !important; padding-left:8px !important; padding-right:8px !important; }
  .preferences button span { display:none; }
- header > div > button img { width:88px; height:auto; }
 }
 
 /* Fiscal checkout — one contained, accessible payment surface. */
@@ -244,3 +246,32 @@ button,input,select,textarea { font-family:inherit; }
 .action-primary { border-radius: 10px; box-shadow: none; }
 .action-primary:hover:not(:disabled) { transform: none; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Layout seguro para notebooks estreitos, telas pequenas e zoom do navegador.
+   Mantém tabelas roláveis sem sacrificar a leitura do conteúdo principal. */
+#root { width:100%; min-width:0; overflow-x:clip; }
+#root main { min-width:0; }
+#root main :is(article,section) { min-width:0; }
+#root main .overflow-x-auto { max-width:100%; overscroll-behavior-x:contain; }
+header nav[aria-label] { scrollbar-width:thin; }
+header nav[aria-label] button { flex-shrink:0; }
+
+/* Layout fluido dos títulos longos (inclusive nas traduções para EN/ES). */
+.hero-title { overflow-wrap:break-word; }
+@media (max-width:639px) {
+ .hero-title { font-size:clamp(1.8rem,7.2vw,2.25rem); }
+ .hero-shell { padding:28px 18px; }
+ #root main { padding-inline:12px; }
+}
+@media (max-width:420px) {
+ header > div:first-of-type > button img { width:clamp(58px,17vw,66px); height:auto; }
+ header .preferences select { width:clamp(62px,19vw,78px); }
+ header .action-primary { padding-inline:8px; }
+}
+@media (max-width:360px) {
+ header > div:first-of-type { gap:4px !important; padding-inline:8px; }
+ header > div:first-of-type > .flex { gap:3px; }
+ header .action-primary { font-size:10px; padding-inline:7px; }
+ #root main { padding-inline:10px; }
+ .hero-shell { padding:24px 14px; }
+}
