@@ -72,19 +72,19 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] xl:pb-0">
+    <div className="flex min-h-dvh w-full min-w-0 flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
       <a href="#conteudo" className="skip-link">{t("Pular para o conteúdo ")}</a>
       <Navbar />
       {admin && (
         <div className="border-b border-navy-200 bg-white">
-          <div className="mx-auto flex max-w-7xl justify-end px-4 py-1.5 sm:px-8">
-            <button onClick={() => setActiveTab('admin')} className="inline-flex items-center gap-1.5 text-xs font-semibold text-navy-700 hover:text-orange-600">
+          <div className="mx-auto flex w-full min-w-0 max-w-7xl justify-end px-4 py-1.5 sm:px-8">
+            <button onClick={() => setActiveTab('admin')} className="inline-flex max-w-full flex-wrap items-center justify-end gap-1.5 text-right text-xs font-semibold text-navy-700 hover:text-orange-600">
               <ShieldCheck className="h-4 w-4" aria-hidden />{t("Painel administrativo MVA ")}<AdminBookingBadge />{pending > 0 && <span className="rounded-full bg-amber-500 px-1.5 text-[10px] text-white">{t(pending)}{t("p/ aprovar")}</span>}
             </button>
           </div>
         </div>
       )}
-      <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-8 sm:py-10">
+      <main id="conteudo" tabIndex={-1} className="mx-auto w-full min-w-0 max-w-7xl flex-1 px-3 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Suspense fallback={<div className="grid min-h-[50vh] place-items-center text-sm text-navy-600" role="status">{t("Carregando seu painel… ")}</div>}>
         {activeTab === 'marketplace' && <MarketplaceView />}
         {activeTab === 'fiscal' && <FiscalView />}
