@@ -11,6 +11,7 @@ import { ToastContainer } from './components/common/ToastContainer'
 import { AuthModal } from './components/auth/AuthModal'
 import { MarketplaceView } from './components/marketplace/MarketplaceView'
 import { FiscalView } from './components/fiscal/FiscalView'
+import { FiscalVerificationView } from './components/fiscal/FiscalVerificationView'
 import { LegalPage } from './components/legal/LegalPage';
 import { CookieBanner } from './components/common/CookieBanner';
 
@@ -63,12 +64,18 @@ export default function App() {
     }).finally(() => { calendarProcessing.current = false })
   }, [ready, currentUser, bookings, spaces, showToast, setActiveTab])
 
+  const verificationCode = new URLSearchParams(window.location.search).get('verify_fiscal');
+
   if (!ready) {
     return (
       <div className="grid min-h-dvh place-items-center bg-navy-950" role="status" aria-label={t("Carregando")}>
         <img src="/logo.png" alt={t("MVA")} className="h-10 w-auto animate-pulse" />
       </div>
     );
+  }
+
+  if (verificationCode !== null) {
+    return <FiscalVerificationView code={verificationCode} />;
   }
 
   return (
