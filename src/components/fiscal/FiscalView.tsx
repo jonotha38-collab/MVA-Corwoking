@@ -92,7 +92,7 @@ export const FiscalView: React.FC = () => {
         'Recebimento e guarda de correspondências e encomendas',
         'Aviso de correspondências pelo painel e canais configurados',
         'Endereço de prestígio na Rua Dom José Thomaz, 565',
-        'Desconto de 10% na reserva de salas'
+        'Acesso ao marketplace para reservar salas disponíveis'
       ]
     },
     {
@@ -112,7 +112,7 @@ export const FiscalView: React.FC = () => {
         'Acompanhamento de viabilidade municipal, quando aplicável',
         'Declaração de uso emitida após aprovação documental e pagamento',
         'Recebimento e guarda de cartas e notificações fiscais',
-        'Desconto de 20% em salas de reunião'
+        'Reservas de salas de reunião conforme tabela vigente'
       ]
     },
     {
@@ -132,7 +132,7 @@ export const FiscalView: React.FC = () => {
         'Acompanhamento de consulta de viabilidade técnica',
         'Suporte documental conforme atividade e órgãos competentes',
         'Gestão de encomendas e correspondências fiscais',
-        '2 horas mensais de Sala de Reunião cortesia'
+        'Possibilidade de pacotes com salas de reunião'
       ]
     },
     {
@@ -149,8 +149,8 @@ export const FiscalView: React.FC = () => {
       badge: 'Condição Especial',
       features: [
         'Combinação de múltiplos endereços (matriz e filiais)',
-        'Descontos progressivos por quantidade de CNPJs',
-        'Faturamento unificado em boleto ou cartão',
+        'Condições para múltiplos CNPJs sob proposta',
+        'Condições de cobrança estabelecidas em proposta',
         'Assessoria dedicada para a documentação',
         'Suporte prioritário com especialista MVA'
       ]
@@ -490,7 +490,7 @@ export const FiscalView: React.FC = () => {
                 <MessageCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <strong className="block text-sm">{t("Prefere atendimento instantâneo? ")}</strong>
-                  <p className="text-[11px] text-emerald-800 mt-0.5">{t("Nosso especialista em domicílio fiscal responde em minutos no WhatsApp. ")}</p>
+                  <p className="text-[11px] text-emerald-800 mt-0.5">{t("A equipe MVA responderá pelo canal informado, conforme disponibilidade. ")}</p>
                   <a
                     href="https://wa.me/5579998188188?text=Ol%C3%A1!%20Gostaria%20de%20um%20or%C3%A7amento%20personalizado%20para%202%20ou%20mais%20endere%C3%A7os%20fiscais%20na%20MVA."
                     target="_blank"
