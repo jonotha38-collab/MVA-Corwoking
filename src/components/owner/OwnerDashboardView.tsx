@@ -4,6 +4,7 @@ import { isAdmin } from '../../lib/auth';
 import { uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Space, SpaceCategory } from '../../types';
+import { FiscalPartnerAccreditation } from './FiscalPartnerAccreditation';
 import { 
   Building2, 
   Plus, 
@@ -243,8 +244,8 @@ export const OwnerDashboardView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs text-slate-500 font-medium block">{t("Visualizações da Semana ")}</span>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-bold text-navy-900">412</span>
-            <span className="text-xs text-orange-600 font-semibold">{t("+18% este mês ")}</span>
+            <span className="text-3xl font-bold text-navy-900">—</span>
+            <span className="text-xs text-orange-600 font-semibold">{t("Dados em preparação ")}</span>
           </div>
           <span className="text-[11px] text-slate-400 block mt-1">{t("Interessados procurando na sua cidade ")}</span>
         </div>
@@ -253,11 +254,13 @@ export const OwnerDashboardView: React.FC = () => {
           <span className="text-xs text-slate-500 font-medium block">{t("Reservas Confirmadas ")}</span>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-3xl font-bold text-navy-900">{t(bookings.length)}</span>
-            <span className="text-xs text-emerald-600 font-semibold">{t("100% pagas ")}</span>
+            <span className="text-xs text-emerald-600 font-semibold">{t("Acompanhe o status na agenda ")}</span>
           </div>
-          <span className="text-[11px] text-slate-400 block mt-1">{t("Repasse automático sem taxa oculta ")}</span>
+          <span className="text-[11px] text-slate-400 block mt-1">{t("Liquidação financeira depende de integração validada ")}</span>
         </div>
       </div>
+
+      <FiscalPartnerAccreditation />
 
       {/* Spaces List Section */}
       <div className="space-y-4">
