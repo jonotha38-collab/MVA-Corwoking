@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Building2, CalendarClock, CheckCircle2, FileCheck2, FilePlus2, FolderLock, HelpCircle, LockKeyhole, ShieldCheck, Upload, XCircle } from 'lucide-react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { Building2, CalendarClock, FileCheck2, FilePlus2, FolderLock, LockKeyhole, ShieldCheck, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { FISCAL_PLANS, type FiscalPlanId, validCnpj } from '../../lib/fiscal-payment';
@@ -104,8 +104,6 @@ export function FiscalServiceCenter({ initialPlan='fiscal', onCheckout }:{
    if(err||!data?.signedUrl){showToast('Não foi possível abrir o documento.','error');return}
    window.open(data.signedUrl,'_blank','noopener,noreferrer');
  };
- const approvedByUnit=useMemo(()=>applications.filter(a=>a.status==='approved'),[applications]);
- const eligible=(id:FiscalPlanId)=>approvedByUnit.find(a=>a.plan_id===id);
  const input=(key:keyof typeof form,label:string,required=true)=><label className="block min-w-0 space-y-1.5" key={key}>
   <span className="text-xs font-semibold text-navy-900">{label}</span>
   <input required={required} value={form[key]} onChange={e=>update(key,e.target.value)}
