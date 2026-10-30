@@ -45,6 +45,7 @@ interface CoworkingContextType {
     type: Correspondence['type']; priority: Correspondence['priority']; notes?: string; lockerNumber?: string;
   }) => Promise<void>;
   requestDigitalization: (id: string) => Promise<void>;
+  completeDigitalization: (id: string, privatePdfPath: string) => Promise<void>;
   markCorrespondenceAsRetrieved: (id: string) => Promise<void>;
   refreshFiscalContracts: () => Promise<void>;
   refreshSpaces: () => Promise<void>;
@@ -289,7 +290,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }).select().single();
     if (error) return fail('Não foi possível registrar a correspondência', error);
     setCorrespondence(prev => [rowToCorrespondence(data), ...prev]);
-    showToast('Correspondência registrada e cliente notificado.', 'success');
+    showToast('Correspondência registrada. O cliente poderá consultá-la no painel.', 'success');
   };
 
   const patchCorr = async (id: string, patch: Record<string, unknown>, ok: string) => {
@@ -300,6 +301,8 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
   const requestDigitalization = (id: string) =>
     patchCorr(id, { digitalization_requested: true }, 'Solicitação de digitalização registrada.');
+  const completeDigitalization = (id: string, privatePdfPath: string) =>
+    patchCorr(id, { status: 'digitalizado', digitalized_doc_url: privatePdfPath, digitalization_requested: false }, 'Digitalização disponibilizada com acesso privado.');
   const markCorrespondenceAsRetrieved = (id: string) =>
     patchCorr(id, { status: 'retirado' }, 'Retirada registrada.');
 
@@ -317,7 +320,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       ready, spaces, correspondence, fiscalContracts, bookings, currentCompany, currentUser, internAuthorized, activeTab, searchQuery,
       selectedCity, selectedCategory, toasts, authModalOpen, authModalTab, setActiveTab, setSearchQuery, setSelectedCity,
       setSelectedCategory, setAuthModalOpen, setAuthModalTab, logout, addSpace, updateSpace, deleteSpace, approveSpace,
-      rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization,
+      rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization, completeDigitalization,
       markCorrespondenceAsRetrieved, refreshFiscalContracts, refreshSpaces, showToast,
     }}>
       {children}
