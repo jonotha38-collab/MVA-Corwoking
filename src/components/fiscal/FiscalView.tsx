@@ -321,7 +321,7 @@ export const FiscalView: React.FC = () => {
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Digitalização imediata de cartas em alta resolução (PDF) ")}</span>
+              <span>{t("Digitalização solicitada e processada após autorização do titular ")}</span>
             </li>
           </ul>
         </div>
