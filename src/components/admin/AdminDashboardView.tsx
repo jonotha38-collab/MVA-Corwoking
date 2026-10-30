@@ -4,6 +4,7 @@ import { supabase, uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { PendingApprovals } from './PendingApprovals';
 import { AdminBookingAgenda } from './AdminBookingAgenda';
+import { FiscalOperationsCenter } from './FiscalOperationsCenter';
 import { Space, SpaceCategory } from '../../types';
 import { 
   Building2, 
@@ -28,7 +29,7 @@ export const AdminDashboardView: React.FC = () => {
     fiscalContracts 
   } = useCoworking();
 
-  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies'>('bookings');
+  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies' | 'fiscal'>('bookings');
   const [showAddSpaceModal, setShowAddSpaceModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<Space | null>(null);
 
@@ -178,9 +179,9 @@ export const AdminDashboardView: React.FC = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-slate-900">{t(totalSpaces)}</span>
-            <span className="text-xs text-emerald-600 font-semibold">{t("100% ativas ")}</span>
+            <span className="text-xs text-emerald-600 font-semibold">{t("cadastradas ")}</span>
           </div>
-          <p className="text-[11px] text-slate-500">{t("Disponíveis para agendamento online imediato ")}</p>
+          <p className="text-[11px] text-slate-500">{t("Sujeitas à aprovação e disponibilidade ")}</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
@@ -202,9 +203,9 @@ export const AdminDashboardView: React.FC = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-slate-900">{t(fiscalContracts.length)}</span>
-            <span className="text-xs text-emerald-600 font-semibold">{t("empresas sediadas ")}</span>
+            <span className="text-xs text-emerald-600 font-semibold">{t("contratos registrados ")}</span>
           </div>
-          <p className="text-[11px] text-slate-500">{t("Alvarás e domicílios regulares ")}</p>
+          <p className="text-[11px] text-slate-500">{t("Contratos e solicitações sujeitos a análise ")}</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
@@ -216,7 +217,7 @@ export const AdminDashboardView: React.FC = () => {
             <span className="text-xs font-semibold text-slate-500">{t("R$ ")}</span>
             <span className="text-3xl font-bold text-slate-900">{t(totalRevenue.toFixed(2))}</span>
           </div>
-          <p className="text-[11px] text-slate-500">{t("Salas + Assinaturas de Domicílio Fiscal ")}</p>
+          <p className="text-[11px] text-slate-500">{t("Valores cadastrados; não equivalem a pagamentos liquidados ")}</p>
         </div>
       </div>
 
@@ -254,7 +255,14 @@ export const AdminDashboardView: React.FC = () => {
         >
           <ShieldCheck className="w-4 h-4" />{t("Empresas no Endereço Fiscal ( ")}{t(fiscalContracts.length)})
         </button>
-      </div>
+      <button type="button"
+        onClick={() => setActiveAdminTab('fiscal')}
+        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-colors ${activeAdminTab === 'fiscal' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+        <ShieldCheck className="h-4 w-4"/> Gestão do endereço fiscal
+      </button>
+    </div>
+
+    {activeAdminTab === 'fiscal' && <FiscalOperationsCenter />}
 
       {/* TAB 1: SPACES MANAGEMENT */}
       {activeAdminTab === 'spaces' && (
