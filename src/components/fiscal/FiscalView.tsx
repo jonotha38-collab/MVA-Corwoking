@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { FiscalCheckout } from '../payments/FiscalCheckout';
 import { CertificateDialog } from './CertificateDialog';
+import { FiscalServiceCenter } from './FiscalServiceCenter';
+import { supabase } from '../../lib/supabase';
 import { canIssueCertificate, restoreOrder, type FiscalPlanId } from '../../lib/fiscal-payment';
 
 export const FiscalView: React.FC = () => {
@@ -42,7 +44,25 @@ export const FiscalView: React.FC = () => {
     window.history.replaceState(null, '', url.pathname + url.search + url.hash);
   }, []);
   const eligible = canIssueCertificate(currentCompany);
-  const startCheckout = (id: FiscalPlanId, transfer = false) => { setSelectedPlanId(id); setIsTransferPromo(transfer); setResumeOrderId(undefined); setShowContractModal(true); };
+  const startCheckout = async (id: FiscalPlanId, transfer = false) => {
+    setSelectedPlanId(id);
+    if (!currentUser) {
+      showToast('Entre na sua conta e solicite a análise cadastral antes da contratação.', 'info');
+      document.getElementById('gestao-endereco-fiscal')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    const { data, error } = await supabase.from('fiscal_applications')
+      .select('id, transfer_from').eq('user_id', currentUser.id).eq('plan_id', id)
+      .eq('status', 'approved').order('created_at', { ascending: false }).limit(1);
+    if (error || !data?.length) {
+      showToast('Antes do pagamento, precisamos aprovar os dados e a elegibilidade da empresa.', 'info');
+      document.getElementById('gestao-endereco-fiscal')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    setIsTransferPromo(transfer && !!data[0].transfer_from);
+    setResumeOrderId(undefined);
+    setShowContractModal(true);
+  };
   useEffect(() => {
     if (currentUser) {
       const saved = returnedOrderId || restoreOrder(currentUser.id);
@@ -70,7 +90,7 @@ export const FiscalView: React.FC = () => {
       features: [
         'Divulgação em cartões, site e redes sociais',
         'Recebimento e guarda de correspondências e encomendas',
-        'Notificação por e-mail e WhatsApp a cada entrega',
+        'Aviso de correspondências pelo painel e canais configurados',
         'Endereço de prestígio na Rua Dom José Thomaz, 565',
         'Desconto de 10% na reserva de salas'
       ]
@@ -87,10 +107,10 @@ export const FiscalView: React.FC = () => {
       popular: true,
       badge: 'Mais Escolhido',
       features: [
-        'Abertura de CNPJ e Inscrição Municipal oficial',
-        'Emissão de notas fiscais de serviço (ISS)',
-        'Alvará de Funcionamento aprovado na Prefeitura',
-        'Declaração oficial de domicílio fiscal imediata',
+        'Documentação de apoio para abertura ou alteração do CNPJ',
+        'Orientações para análise da atividade e uso do endereço',
+        'Acompanhamento de viabilidade municipal, quando aplicável',
+        'Declaração de uso emitida após aprovação documental e pagamento',
         'Recebimento e guarda de cartas e notificações fiscais',
         'Desconto de 20% em salas de reunião'
       ]
@@ -107,10 +127,10 @@ export const FiscalView: React.FC = () => {
       popular: false,
       badge: 'Comércio / ICMS',
       features: [
-        'Apto para Comércio, E-commerce e ICMS (SEFAZ)',
-        'Homologação de Inscrição Estadual garantida',
-        'Alvará com viabilidade técnica aprovada',
-        'Emissão regular de NFe de mercadorias',
+        'Avaliação de atividades de comércio e ICMS junto aos órgãos competentes',
+        'Análise de elegibilidade para inscrição estadual',
+        'Acompanhamento de consulta de viabilidade técnica',
+        'Suporte documental conforme atividade e órgãos competentes',
         'Gestão de encomendas e correspondências fiscais',
         '2 horas mensais de Sala de Reunião cortesia'
       ]
@@ -159,7 +179,7 @@ export const FiscalView: React.FC = () => {
         <div className="relative z-10 w-full min-w-0 max-w-3xl space-y-6">
           <div className="inline-flex max-w-full items-start gap-2 rounded-xl border border-orange-500/30 bg-orange-500/20 px-3 py-2 text-[11px] font-semibold leading-relaxed text-orange-300 backdrop-blur-md sm:items-center sm:rounded-full sm:px-4 sm:py-1.5 sm:text-xs">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-orange-400 sm:mt-0" />
-            <span className="min-w-0 break-words">{t("Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565 ")}</span>
+            <span className="min-w-0 break-words">{t("MVA Coworking • Sede Rua Dom José Thomaz, 565 • Sujeito à análise ")}</span>
           </div>
 
           <BlurReveal as="h1" className="hero-title max-w-full break-words sm:max-w-2xl">{t("Seu endereço profissional. O próximo passo da sua empresa. ")}</BlurReveal>
@@ -173,7 +193,7 @@ export const FiscalView: React.FC = () => {
               }}
               className="action-primary w-full min-w-0 flex-wrap px-4 py-3.5 text-center text-sm sm:w-auto sm:px-6"
             >
-              <FileCheck className="w-5 h-5" />{t("Contratar Endereço Fiscal Online ")}</button>
+              <FileCheck className="w-5 h-5" />{t("Solicitar Endereço Fiscal Online ")}</button>
             <button
               onClick={() => setShowCertificateModal(true)}
               className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-navy-700/80 bg-navy-900/80 px-4 py-3.5 text-sm font-bold text-white shadow-lg backdrop-blur-md transition-all hover:bg-navy-800 sm:w-auto sm:px-6"
@@ -332,6 +352,9 @@ export const FiscalView: React.FC = () => {
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
+      <FiscalServiceCenter initialPlan={selectedPlanId}
+        onCheckout={(id,transfer) => { void startCheckout(id,transfer); }} />
+
       {/* Planos de Endereço Fiscal - 4 Colunas Inspiradas na Referência */}
       <div className="space-y-6">
         <Reveal className="text-center max-w-2xl mx-auto space-y-3">
@@ -426,7 +449,7 @@ export const FiscalView: React.FC = () => {
                           : 'bg-navy-900 hover:bg-orange-500 text-white shadow-sm'
                       }`}
                     >
-                      <span>{t("Contratar plano ")}</span>
+                      <span>{t("Solicitar análise ")}</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                   ))}
