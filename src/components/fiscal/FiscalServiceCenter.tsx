@@ -17,8 +17,8 @@ const PLAN_IDS: FiscalPlanId[]=['comercial','fiscal','fiscal_ie'];
 const safeError=(e:unknown)=> e instanceof Error?e.message:'Não foi possível concluir. Tente novamente.';
 const daysUntil=(date:string)=>Math.ceil((new Date(date+'T12:00:00-03:00').getTime()-Date.now())/86400000);
 
-export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, mode='full', onSubmitted, onCheckout }:{
- initialPlan?:FiscalPlanId; initialTerm?:1|12; mode?:'full'|'application'|'dashboard';
+export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requireTransfer=false, mode='full', onSubmitted, onCheckout }:{
+ initialPlan?:FiscalPlanId; initialTerm?:1|12; requireTransfer?:boolean; mode?:'full'|'application'|'dashboard';
  onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
 }) {
  const {currentUser,fiscalContracts,setAuthModalOpen,setAuthModalTab,showToast}=useCoworking();
@@ -61,6 +61,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, mode
    e.preventDefault();
    if(!currentUser){setAuthModalTab('login');setAuthModalOpen(true);return}
    if(!consent){setError('Leia e aceite as condições da solicitação.');return}
+   if(requireTransfer && term===12 && form.transfer_from.trim().length<3){setError('Informe o endereço fiscal anterior para solicitar a condição especial de transferência.');return}
    if(form.company_name.trim().length<3||form.cnae.trim().length<3||!validCnpj(form.cnpj)){
      setError('Confira a razão social, o CNPJ (ou em abertura) e a atividade econômica.');return;
    }
@@ -172,7 +173,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, mode
       <label className="space-y-1.5"><span className="block text-xs font-semibold">Vigência</span><select value={term} onChange={e=>setTerm(Number(e.target.value) as 1|12)} className="w-full rounded-xl border border-slate-200 p-3 text-sm"><option value={1}>1 mês</option><option value={12}>12 meses</option></select></label>
       <label className="space-y-1.5"><span className="block text-xs font-semibold">Unidade para análise</span><select value={form.unit_id} onChange={e=>update('unit_id',e.target.value)} className="w-full rounded-xl border border-slate-200 p-3 text-sm"><option value="">Indicação da MVA</option>{units.map(u=><option key={u.id} value={u.id}>{u.name} · {u.city}/{u.state}</option>)}</select></label>
     </div>
-    <label className="block space-y-1.5"><span className="text-xs font-semibold">Endereço anterior (se estiver transferindo)</span><input value={form.transfer_from} onChange={e=>update('transfer_from',e.target.value)} maxLength={180} placeholder="Opcional" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm"/></label>
+    <label className="block space-y-1.5"><span className="text-xs font-semibold">Endereço anterior {requireTransfer&&term===12?'(obrigatório para campanha)':'(se estiver transferindo)'}</span><input required={requireTransfer&&term===12} value={form.transfer_from} onChange={e=>update('transfer_from',e.target.value)} maxLength={180} placeholder="Opcional" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm"/></label>
     <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-700"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} className="mt-0.5 accent-orange-600"/>
       <span>Declaro que os dados são verdadeiros e autorizo a análise cadastral (termos versão 30/10/2026). Entendo que a solicitação <strong>não concede uso imediato do endereço</strong>, não substitui a viabilidade municipal e não constitui contrato assinado ou pagamento.</span>
     </label>
