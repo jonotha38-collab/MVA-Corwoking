@@ -349,7 +349,7 @@ export function FiscalView(){
        onCheckout={id=>void start(id)}/>
      </div>
     </Dialog>}
-  {checkoutOpen&&<FiscalCheckout planId={selectedPlan} transfer={term===12&&transfer} resumeOrderId={resumeOrderId}
+  {checkoutOpen&&<FiscalCheckout planId={selectedPlan} initialTerm={term} transfer={term===12&&transfer} resumeOrderId={resumeOrderId}
     onClose={()=>{setCheckoutOpen(false);setResumeOrderId(undefined)}} onPaid={()=>{setClientAreaOpen(true);showToast('Status do pagamento atualizado.','info')}}/>}
   {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);void start('fiscal')}}/>}
  </div>;
