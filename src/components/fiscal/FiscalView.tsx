@@ -3,7 +3,7 @@ import {
   ArrowRight, ArrowUpRight, BadgeCheck, BriefcaseBusiness, Building2,
   Check, CheckCircle2, ChevronDown, FileCheck2, FileText,
   Gift, Headphones, LockKeyhole, MailCheck, MapPin,
-  MonitorSmartphone, SearchCheck, ShieldCheck, Sparkles, UsersRound, X
+  MonitorSmartphone, SearchCheck, ShieldCheck, Sparkles, UsersRound
 } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
@@ -11,7 +11,6 @@ import { FISCAL_PLANS, quotePlan, canIssueCertificate, restoreOrder, type Fiscal
 import { FiscalCheckout } from '../payments/FiscalCheckout';
 import { CertificateDialog } from './CertificateDialog';
 import { FiscalServiceCenter } from './FiscalServiceCenter';
-import { Dialog } from '../ui/Dialog';
 
 type ServiceUnit = { id:string; name:string; street_address:string; city:string; state:string };
 const planIds: FiscalPlanId[] = ['comercial','fiscal','fiscal_ie'];
@@ -52,15 +51,12 @@ export function FiscalView(){
  const [term,setTerm]=useState<1|12>(12);
  const [transfer,setTransfer]=useState(false);
  const [selectedPlan,setSelectedPlan]=useState<FiscalPlanId>('fiscal');
- const [applicationOpen,setApplicationOpen]=useState(false);
  const [clientAreaOpen,setClientAreaOpen]=useState(false);
  const [checkoutOpen,setCheckoutOpen]=useState(false);
  const [certificateOpen,setCertificateOpen]=useState(false);
  const [resumeOrderId,setResumeOrderId]=useState<string>();
  const [units,setUnits]=useState<ServiceUnit[]>([]);
  const [unitsLoading,setUnitsLoading]=useState(true);
- const [checkBusy,setCheckBusy]=useState(false);
- const [continueAfterLogin,setContinueAfterLogin]=useState(false);
  const [returnOrderId]=useState(()=>new URL(window.location.href).searchParams.get('fiscal_order'));
 
  useEffect(()=>{
@@ -84,45 +80,20 @@ export function FiscalView(){
   if(saved && /^[0-9a-f-]{36}$/i.test(saved)){setResumeOrderId(saved);setCheckoutOpen(true)}
  },[currentUser?.id,returnOrderId]);
 
- const start=async(id:FiscalPlanId)=>{
-  setSelectedPlan(id);
-  if(!currentUser){
-    setContinueAfterLogin(true);
-    setAuthModalTab('login');setAuthModalOpen(true);
-    showToast('Entre na sua conta para prosseguir com a contratação.','info');
-    return;
-  }
-  if(checkBusy)return;
-  setCheckBusy(true);
-  try{
-    const {data,error}=await supabase.from('fiscal_applications')
-      .select('id,term_months,transfer_from').eq('user_id',currentUser.id)
-      .eq('plan_id',id).eq('status','approved').eq('term_months',term)
-      .order('created_at',{ascending:false}).limit(1);
-    if(error)throw error;
-    if(data?.length && (!transfer || !!data[0].transfer_from)){
-      setCheckoutOpen(true);
-    }else{
-      setApplicationOpen(true);
-    }
-  }catch{
-    showToast('Não foi possível consultar sua análise cadastral. Tente novamente.','error');
-  }finally{setCheckBusy(false)}
+ // No separate fiscal application form: choose a plan and go to checkout.
+ // The payment service must independently validate eligibility before activating contracts.
+ const start=(id:FiscalPlanId)=>{
+   setSelectedPlan(id);
+   setResumeOrderId(undefined);
+   setCheckoutOpen(true);
  };
- useEffect(()=>{
-  if(!currentUser || !continueAfterLogin)return;
-  setContinueAfterLogin(false);
-  // Continue with the selected plan after successful authentication.
-  void start(selectedPlan);
- },[currentUser?.id,continueAfterLogin]);
-
  const showArea=()=>{
    if(!currentUser){setAuthModalTab('login');setAuthModalOpen(true);return}
    setClientAreaOpen(v=>!v);
    window.setTimeout(()=>go('minha-area-fiscal'),60);
  };
  const planQuote=(id:FiscalPlanId)=>quotePlan(FISCAL_PLANS[id],term,term===12&&transfer);
- return <div className="min-w-0 space-y-20 pb-16 sm:space-y-24">
+ return <div className="mva-fiscal min-w-0 space-y-20 pb-16 sm:space-y-24">
   {/* Hero - two-column editorial treatment, native MVA identity. */}
   <section className="relative isolate overflow-hidden rounded-[24px] border border-[#263c54] bg-[#0c1c30] text-white shadow-[0_22px_65px_rgba(9,22,41,.13)] sm:rounded-[30px]" aria-labelledby="fiscal-hero-heading">
    <div className="pointer-events-none absolute inset-0 hidden lg:block" aria-hidden="true">
@@ -170,9 +141,9 @@ export function FiscalView(){
   {/* Benefits immediately, no intake form. */}
   <section id="vantagens-fiscais" className="scroll-mt-36 space-y-9">
    <div className="mx-auto max-w-2xl space-y-3 text-center">
-    <span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Mais do que um endereço</span>
-    <h2 className="text-2xl font-semibold leading-tight tracking-tight text-navy-950 sm:text-[35px]">Sua empresa com presença profissional, sem os custos de um escritório próprio.</h2>
-    <p className="text-sm leading-relaxed text-slate-600">Organize as demandas do dia a dia da sua empresa e concentre seus serviços na MVA.</p>
+    <span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">Mais do que um endereço</span>
+    <h2 className="text-2xl font-semibold leading-tight tracking-tight fiscal-ink sm:text-[35px]">Sua empresa com presença profissional, sem os custos de um escritório próprio.</h2>
+    <p className="text-sm leading-relaxed fiscal-muted">Organize as demandas do dia a dia da sua empresa e concentre seus serviços na MVA.</p>
    </div>
    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
     {[
@@ -182,16 +153,16 @@ export function FiscalView(){
      {icon:MonitorSmartphone,title:'Tudo no seu painel',description:'Acesse informações de contrato, solicitações e documentos em uma área reservada.'},
      {icon:UsersRound,title:'Coworking de verdade',description:'Reserve salas de reunião e espaços para encontros presenciais conforme disponibilidade.'},
      {icon:Headphones,title:'Acompanhamento humano',description:'Equipe para orientar a contratação e esclarecer exigências documentais.'}
-    ].map(({icon:Icon,title,description})=><article key={title} className="group min-w-0 rounded-[22px] border border-slate-200 bg-white p-6 shadow-sm transition-colors hover:border-orange-200 sm:p-7">
-       <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-[#fff1e8] text-[#b74d19]"><Icon className="h-5 w-5" aria-hidden/></div>
-       <h3 className="text-lg font-semibold text-navy-950">{title}</h3>
-       <p className="mt-2 text-sm leading-[1.8] text-slate-600">{description}</p>
+    ].map(({icon:Icon,title,description})=><article key={title} className="group min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm transition-colors hover:border-orange-200 sm:p-7">
+       <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-[#fff1e8] fiscal-accent"><Icon className="h-5 w-5" aria-hidden/></div>
+       <h3 className="text-lg font-semibold fiscal-ink">{title}</h3>
+       <p className="mt-2 text-sm leading-[1.8] fiscal-muted">{description}</p>
      </article>)}
    </div>
   </section>
 
   {/* Three conceptual types, inspired by clear content hierarchy rather than visual copying. */}
-  <section className="grid min-w-0 gap-8 overflow-hidden rounded-[26px] border border-slate-200 bg-white lg:grid-cols-[.82fr_1.18fr]">
+  <section className="grid min-w-0 gap-8 overflow-hidden rounded-[26px] border fiscal-line fiscal-surface lg:grid-cols-[.82fr_1.18fr]">
     <div className="relative min-h-[250px] overflow-hidden bg-[#10253d] lg:min-h-[455px]">
       <img src="/hero-office.jpg" alt="Espaço de trabalho moderno" className="absolute inset-0 h-full w-full object-cover opacity-75"/>
       <div className="absolute inset-0 bg-gradient-to-t from-[#10253d]/95 via-[#10253d]/20 to-transparent"/>
@@ -201,31 +172,31 @@ export function FiscalView(){
       </div>
     </div>
     <div className="min-w-0 space-y-7 px-6 py-8 sm:px-10 sm:py-10">
-      <span className="text-[11px] font-bold uppercase tracking-[.17em] text-orange-700">Escolha de acordo com sua necessidade</span>
+      <span className="text-[11px] font-bold uppercase tracking-[.17em] fiscal-accent">Escolha de acordo com sua necessidade</span>
       {[
        {icon:BriefcaseBusiness,title:'Endereço comercial',desc:'Para apresentar seu negócio com um endereço profissional em materiais, redes sociais e contatos comerciais.'},
        {icon:ShieldCheck,title:'Endereço fiscal',desc:'Para avaliar o uso do endereço no registro de sua empresa, conforme CNAE e regras municipais.'},
        {icon:FileCheck2,title:'Endereço fiscal com IE',desc:'Para empresas que também precisam verificar exigências relativas à inscrição estadual e ICMS.'}
-      ].map(({icon:Icon,title,desc},i)=><div key={title} className={`flex min-w-0 gap-4 ${i>0?'border-t border-slate-100 pt-6':''}`}>
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-100 text-navy-800"><Icon className="h-5 w-5" aria-hidden/></div>
-        <div className="min-w-0"><h3 className="text-base font-semibold text-navy-950">{title}</h3><p className="mt-2 text-sm leading-[1.75] text-slate-600">{desc}</p></div>
+      ].map(({icon:Icon,title,desc},i)=><div key={title} className={`flex min-w-0 gap-4 ${i>0?'border-t fiscal-line pt-6':''}`}>
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl fiscal-soft fiscal-ink"><Icon className="h-5 w-5" aria-hidden/></div>
+        <div className="min-w-0"><h3 className="text-base font-semibold fiscal-ink">{title}</h3><p className="mt-2 text-sm leading-[1.75] fiscal-muted">{desc}</p></div>
        </div>)}
-      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold text-[#b74710] hover:underline">Comparar os planos <ArrowRight className="h-4 w-4"/></button>
+      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold fiscal-accent hover:underline">Comparar os planos <ArrowRight className="h-4 w-4"/></button>
     </div>
   </section>
 
   {/* Plan catalog: prices derived from authoritative shared server catalog, not reference website. */}
   <section id="planos-fiscais" className="scroll-mt-32 space-y-9">
    <div className="mx-auto max-w-2xl space-y-3 text-center">
-    <span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Escolha seu plano</span>
-    <h2 className="text-2xl font-semibold tracking-tight text-navy-950 sm:text-[36px]">Um plano para cada fase da sua empresa.</h2>
-    <p className="text-sm leading-relaxed text-slate-600">Valores claros e serviços que acompanham o seu negócio.</p>
+    <span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">Escolha seu plano</span>
+    <h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-[36px]">Um plano para cada fase da sua empresa.</h2>
+    <p className="text-sm leading-relaxed fiscal-muted">Valores claros e serviços que acompanham o seu negócio.</p>
    </div>
-   <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm" aria-label="Período do plano">
-     <button type="button" aria-pressed={term===1} onClick={()=>setTerm(1)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===1?'bg-navy-900 text-white shadow-sm':'text-slate-600 hover:bg-slate-100'}`}>Mensal</button>
-     <button type="button" aria-pressed={term===12} onClick={()=>setTerm(12)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===12?'bg-navy-900 text-white shadow-sm':'text-slate-600 hover:bg-slate-100'}`}>Anual · 12 meses</button>
+   <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border fiscal-line fiscal-surface p-1.5 shadow-sm" aria-label="Período do plano">
+     <button type="button" aria-pressed={term===1} onClick={()=>setTerm(1)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===1?'bg-navy-900 text-white shadow-sm':'fiscal-muted hover:bg-slate-100'}`}>Mensal</button>
+     <button type="button" aria-pressed={term===12} onClick={()=>setTerm(12)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===12?'bg-navy-900 text-white shadow-sm':'fiscal-muted hover:bg-slate-100'}`}>Anual · 12 meses</button>
    </div>
-   {term===12 && <label className="mx-auto flex max-w-2xl cursor-pointer items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-navy-900">
+   {term===12 && <label className="mx-auto flex max-w-2xl cursor-pointer items-start gap-3 rounded-xl border fiscal-highlight-border fiscal-accent-soft px-4 py-3 text-sm fiscal-ink">
     <input type="checkbox" checked={transfer} onChange={e=>setTransfer(e.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-orange-600"/>
     <span><strong>Já tem endereço fiscal e quer transferir?</strong> Marque para visualizar a campanha de 4 meses grátis no anual, sujeita à comprovação e elegibilidade.</span>
    </label>}
@@ -233,71 +204,71 @@ export function FiscalView(){
     {planIds.map(id=>{
       const p=FISCAL_PLANS[id], info=planInfo[id],q=planQuote(id);
       const monthlyEquivalent=q.amount/(term===1?1:12);
-      return <article key={id} className={`relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${info.popular?'border-[#d06636] shadow-[0_12px_35px_rgba(183,74,28,.11)]':'border-slate-200'}`}>
+      return <article key={id} className={`relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border fiscal-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${info.popular?'border-[#d06636] shadow-[0_12px_35px_rgba(183,74,28,.11)]':'fiscal-line'}`}>
         {info.popular&&<div className="bg-[#14304d] py-2.5 text-center text-[11px] font-bold uppercase tracking-[.16em] text-white">Mais procurado</div>}
         <div className="flex flex-1 flex-col p-6 sm:p-7">
-          <span className="text-[11px] font-bold uppercase tracking-[.12em] text-orange-700">{info.eyebrow}</span>
-          <h3 className="mt-3 min-h-[48px] text-xl font-semibold leading-tight text-navy-950">{p.name}</h3>
-          <p className="mt-3 min-h-[72px] text-sm leading-[1.7] text-slate-600">{info.summary}</p>
-          <div className="mt-6 border-t border-slate-100 pt-5">
-            <p className="text-[11px] font-semibold text-slate-500">A partir de</p>
+          <span className="text-[11px] font-bold uppercase tracking-[.12em] fiscal-accent">{info.eyebrow}</span>
+          <h3 className="mt-3 min-h-[48px] text-xl font-semibold leading-tight fiscal-ink">{p.name}</h3>
+          <p className="mt-3 min-h-[72px] text-sm leading-[1.7] fiscal-muted">{info.summary}</p>
+          <div className="mt-6 border-t fiscal-line pt-5">
+            <p className="text-[11px] font-semibold fiscal-muted">A partir de</p>
             <div className="mt-1 flex flex-wrap items-baseline gap-1.5">
-              <strong className="text-[clamp(1.9rem,3vw,2.3rem)] font-semibold leading-tight tracking-tight text-navy-950">{brl(monthlyEquivalent)}</strong>
-              <span className="text-xs text-slate-500">/ mês equivalente</span>
+              <strong className="text-[clamp(1.9rem,3vw,2.3rem)] font-semibold leading-tight tracking-tight fiscal-ink">{brl(monthlyEquivalent)}</strong>
+              <span className="text-xs fiscal-muted">/ mês equivalente</span>
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-slate-600">
+            <p className="mt-2 text-xs leading-relaxed fiscal-muted">
               {term===12?`Pagamento anual: ${brl(q.amount)}`:`Pagamento de 1 mês: ${brl(q.amount)}`}
             </p>
-            {q.discount>0&&<div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1.5 text-[11px] font-bold text-orange-800"><Gift className="h-3.5 w-3.5"/> Economia estimada: {brl(q.discount)}</div>}
+            {q.discount>0&&<div className="mt-2 inline-flex items-center gap-1.5 rounded-full fiscal-accent-soft px-3 py-1.5 text-[11px] font-bold fiscal-accent"><Gift className="h-3.5 w-3.5"/> Economia estimada: {brl(q.discount)}</div>}
           </div>
-          <button type="button" disabled={checkBusy} onClick={()=>void start(id)} className={`mt-6 flex min-h-[47px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors disabled:opacity-60 ${info.popular?'bg-[#c65019] text-white hover:bg-[#aa3c0f]':'bg-navy-900 text-white hover:bg-navy-800'}`}>Começar contratação <ArrowRight className="h-4 w-4"/></button>
-          <div className="mt-6 border-t border-slate-100 pt-5">
-            <p className="mb-4 text-xs font-semibold text-navy-900">O que está incluído</p>
-            <ul className="space-y-3">{info.features.map(feature=><li key={feature} className="flex items-start gap-2.5 text-[13px] leading-[1.55] text-slate-600"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#bd581f]"/>{feature}</li>)}</ul>
+          <button type="button" onClick={()=>start(id)} className={`mt-6 flex min-h-[47px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors disabled:opacity-60 ${info.popular?'bg-[#c65019] text-white hover:bg-[#aa3c0f]':'bg-navy-900 text-white hover:bg-navy-800'}`}>Ir para pagamento <ArrowRight className="h-4 w-4"/></button>
+          <div className="mt-6 border-t fiscal-line pt-5">
+            <p className="mb-4 text-xs font-semibold fiscal-ink">O que está incluído</p>
+            <ul className="space-y-3">{info.features.map(feature=><li key={feature} className="flex items-start gap-2.5 text-[13px] leading-[1.55] fiscal-muted"><Check className="mt-0.5 h-4 w-4 shrink-0 fiscal-accent"/>{feature}</li>)}</ul>
           </div>
         </div>
       </article>;
     })}
    </div>
-   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-slate-500">Preços de referência do catálogo atual da MVA. Endereço fiscal e inscrição estadual dependem de análise cadastral, contrato e requisitos municipais/estaduais. A contratação financeira só estará disponível quando o provedor de pagamento estiver configurado.</p>
+   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed fiscal-muted">Planos conforme o catálogo atual da MVA. A contratação e a emissão de documentos dependem da viabilidade do endereço, formalização e confirmação do pagamento. A cobrança estará disponível quando o provedor estiver ativado.</p>
   </section>
 
   {/* Conversion with correct expectations */}
   <section id="como-funciona-fiscal" className="scroll-mt-32 space-y-9">
    <div className="mx-auto max-w-2xl space-y-3 text-center">
-    <span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Simples e acompanhado</span>
-    <h2 className="text-2xl font-semibold tracking-tight text-navy-950 sm:text-4xl">Como funciona a contratação?</h2>
-    <p className="text-sm leading-relaxed text-slate-600">Você escolhe a solução, nós verificamos a elegibilidade e seguimos com a formalização.</p>
+    <span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">Simples e acompanhado</span>
+    <h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-4xl">Como funciona a contratação?</h2>
+    <p className="text-sm leading-relaxed fiscal-muted">Você escolhe a solução, nós verificamos a elegibilidade e seguimos com a formalização.</p>
    </div>
    <div className="grid gap-4 md:grid-cols-3">
     {[
      {icon:SearchCheck,number:'01',title:'Escolha sua solução',desc:'Compare os planos, o prazo e a unidade de interesse.'},
-     {icon:FileText,number:'02',title:'Análise e documentação',desc:'Após iniciar a contratação, enviamos sua solicitação para conferência da atividade, documentos e viabilidade.'},
+     {icon:FileText,number:'02',title:'Análise e documentação',desc:'Na tela de pagamento, informe apenas os dados necessários à contratação. A equipe da MVA verificará a atividade e a documentação.'},
      {icon:BadgeCheck,number:'03',title:'Contrato e liberação',desc:'Depois da aprovação e do pagamento confirmado, os documentos pertinentes ficam disponíveis no painel.'}
-    ].map(({icon:Icon,number,title,desc})=><article key={number} className="relative min-w-0 rounded-[22px] border border-slate-200 bg-white p-6 sm:p-7">
-      <div className="flex items-center justify-between"><span className="text-sm font-bold tracking-widest text-orange-700">{number}</span><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#fff1e8] text-[#bd581f]"><Icon className="h-5 w-5"/></div></div>
-      <h3 className="mt-7 text-lg font-semibold text-navy-950">{title}</h3>
-      <p className="mt-2 text-sm leading-[1.75] text-slate-600">{desc}</p>
+    ].map(({icon:Icon,number,title,desc})=><article key={number} className="relative min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 sm:p-7">
+      <div className="flex items-center justify-between"><span className="text-sm font-bold tracking-widest fiscal-accent">{number}</span><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#fff1e8] fiscal-accent"><Icon className="h-5 w-5"/></div></div>
+      <h3 className="mt-7 text-lg font-semibold fiscal-ink">{title}</h3>
+      <p className="mt-2 text-sm leading-[1.75] fiscal-muted">{desc}</p>
      </article>)}
    </div>
   </section>
 
   <section id="unidades-fiscais" className="scroll-mt-32 space-y-8">
     <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-      <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Onde estamos</span>
-        <h2 className="text-2xl font-semibold tracking-tight text-navy-950 sm:text-4xl">Um endereço com estrutura real.</h2>
-        <p className="text-sm leading-relaxed text-slate-600">Conheça as unidades disponíveis para análise. Parceiros só aparecem após credenciamento da MVA.</p></div>
-      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold text-[#b74710] hover:underline">Escolher meu plano <ArrowUpRight className="h-4 w-4"/></button>
+      <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">Onde estamos</span>
+        <h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-4xl">Um endereço com estrutura real.</h2>
+        <p className="text-sm leading-relaxed fiscal-muted">Conheça as unidades disponíveis para análise. Parceiros só aparecem após credenciamento da MVA.</p></div>
+      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold fiscal-accent hover:underline">Escolher meu plano <ArrowUpRight className="h-4 w-4"/></button>
     </div>
-    {unitsLoading?<div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500" role="status">Consultando unidades disponíveis…</div>
-      :units.length===0?<div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">Unidades em análise de disponibilidade. Consulte nossa equipe para mais informações.</div>
+    {unitsLoading?<div className="rounded-2xl border fiscal-line fiscal-surface p-6 text-sm fiscal-muted" role="status">Consultando unidades disponíveis…</div>
+      :units.length===0?<div className="rounded-2xl border fiscal-line fiscal-surface p-6 text-sm fiscal-muted">Unidades em análise de disponibilidade. Consulte nossa equipe para mais informações.</div>
       :<div className="grid gap-4 md:grid-cols-2">
-        {units.map(unit=><article key={unit.id} className="flex min-w-0 items-start gap-4 rounded-[22px] border border-slate-200 bg-white p-6 shadow-sm">
+        {units.map(unit=><article key={unit.id} className="flex min-w-0 items-start gap-4 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#142940] text-orange-300"><MapPin className="h-5 w-5"/></div>
-          <div className="min-w-0"><span className="text-[11px] font-semibold uppercase tracking-widest text-orange-700">Unidade disponível para consulta</span>
-            <h3 className="mt-2 break-words text-base font-bold text-navy-950">{unit.name}</h3>
-            <p className="mt-2 break-words text-sm leading-[1.7] text-slate-600">{unit.street_address}</p>
-            <p className="mt-2 text-xs font-semibold text-slate-500">{unit.city} · {unit.state}</p>
+          <div className="min-w-0"><span className="text-[11px] font-semibold uppercase tracking-widest fiscal-accent">Unidade disponível para consulta</span>
+            <h3 className="mt-2 break-words text-base font-bold fiscal-ink">{unit.name}</h3>
+            <p className="mt-2 break-words text-sm leading-[1.7] fiscal-muted">{unit.street_address}</p>
+            <p className="mt-2 text-xs font-semibold fiscal-muted">{unit.city} · {unit.state}</p>
           </div>
         </article>)}
       </div>}
@@ -309,16 +280,16 @@ export function FiscalView(){
      <div className="max-w-2xl"><span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-orange-300"><Gift className="h-4 w-4"/> Condição especial</span>
        <h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[30px]">Sua empresa já usa outro endereço fiscal?</h2>
        <p className="mt-3 text-sm leading-relaxed text-slate-300">A MVA oferece uma campanha de transferência com até 4 meses gratuitos na contratação anual, sujeita à elegibilidade e comprovação.</p></div>
-     <button type="button" onClick={()=>{setTerm(12);setTransfer(true);go('planos-fiscais')}} className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-navy-900 transition hover:bg-orange-50 sm:w-auto">Ver condição anual <ArrowRight className="h-4 w-4"/></button>
+     <button type="button" onClick={()=>{setTerm(12);setTransfer(true);go('planos-fiscais')}} className="fiscal-white-cta inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold transition sm:w-auto">Ver condição anual <ArrowRight className="h-4 w-4"/></button>
    </div>
   </section>
 
   <section id="duvidas-fiscais" className="scroll-mt-32 space-y-7">
-   <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Sem letras miúdas</span><h2 className="text-2xl font-semibold tracking-tight text-navy-950 sm:text-4xl">Perguntas frequentes.</h2><p className="text-sm leading-relaxed text-slate-600">As respostas mais importantes antes de contratar seu escritório virtual.</p></div>
+   <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">Sem letras miúdas</span><h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-4xl">Perguntas frequentes.</h2><p className="text-sm leading-relaxed fiscal-muted">As respostas mais importantes antes de contratar seu escritório virtual.</p></div>
    <div className="grid min-w-0 gap-3">
-    {faqs.map(({q,a})=><details key={q} className="group min-w-0 rounded-2xl border border-slate-200 bg-white p-4 open:border-orange-200 sm:p-5">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-sm font-semibold text-navy-900 marker:content-none sm:text-[15px]">{q}<ChevronDown className="h-5 w-5 shrink-0 text-orange-700 transition-transform group-open:rotate-180"/></summary>
-      <p className="max-w-4xl pt-4 text-sm leading-[1.8] text-slate-600">{a}</p>
+    {faqs.map(({q,a})=><details key={q} className="group min-w-0 rounded-2xl border fiscal-line fiscal-surface p-4 open:border-orange-200 sm:p-5">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-sm font-semibold fiscal-ink marker:content-none sm:text-[15px]">{q}<ChevronDown className="h-5 w-5 shrink-0 fiscal-accent transition-transform group-open:rotate-180"/></summary>
+      <p className="max-w-4xl pt-4 text-sm leading-[1.8] fiscal-muted">{a}</p>
      </details>)}
    </div>
   </section>
@@ -337,30 +308,19 @@ export function FiscalView(){
   {/* Existing clients keep document/contract access, without exposing onboarding forms in the landing page. */}
   <div id="minha-area-fiscal" className="scroll-mt-32">
     {eligible && currentUser && <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-wider text-emerald-800">Contrato ativo</p><p className="mt-1 break-words text-sm font-semibold text-navy-900">{currentCompany.companyName}</p><p className="mt-1 text-xs text-slate-600">Acesse sua declaração de endereço fiscal no painel seguro da MVA.</p></div>
+      <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-wider text-emerald-800">Contrato ativo</p><p className="mt-1 break-words text-sm font-semibold fiscal-ink">{currentCompany.companyName}</p><p className="mt-1 text-xs fiscal-muted">Acesse sua declaração de endereço fiscal no painel seguro da MVA.</p></div>
       <button type="button" onClick={()=>setCertificateOpen(true)} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 py-3 text-xs font-bold text-white"><FileCheck2 className="h-4 w-4"/> Ver declaração</button>
      </div>}
     {currentUser && <div className="space-y-5">
-       <button type="button" aria-expanded={clientAreaOpen} onClick={()=>setClientAreaOpen(v=>!v)} className="flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left text-sm font-bold text-navy-900">
+       <button type="button" aria-expanded={clientAreaOpen} onClick={()=>setClientAreaOpen(v=>!v)} className="flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl border fiscal-line fiscal-surface px-5 py-4 text-left text-sm font-bold fiscal-ink">
         <span className="flex min-w-0 items-center gap-2"><FileCheck2 className="h-5 w-5 shrink-0 text-orange-600"/> Acompanhar solicitações e documentos</span><ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${clientAreaOpen?'rotate-180':''}`}/>
        </button>
-       {clientAreaOpen&&<FiscalServiceCenter mode="dashboard" initialPlan={selectedPlan} onCheckout={id=>void start(id)}/>}
+       {clientAreaOpen&&<FiscalServiceCenter mode="dashboard" initialPlan={selectedPlan} onCheckout={id=>start(id)}/>}
     </div>}
   </div>
 
-  {applicationOpen && <Dialog titleId="mva-fiscal-application-title" className="checkout-wide" onClose={()=>setApplicationOpen(false)}>
-     <div className="max-h-[90dvh] overflow-y-auto px-4 py-5 sm:px-7 sm:py-7">
-      <div className="mb-5 flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
-       <div className="min-w-0"><span className="text-xs font-bold uppercase tracking-widest text-orange-700">Próxima etapa</span><h2 id="mva-fiscal-application-title" className="mt-1 text-xl font-bold text-navy-950">Análise antes da contratação</h2><p className="mt-1 text-xs leading-relaxed text-slate-600">Só precisamos dos dados para verificar a elegibilidade. Nenhuma cobrança acontece agora.</p></div>
-       <button aria-label="Fechar" type="button" onClick={()=>setApplicationOpen(false)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><X className="h-5 w-5"/></button>
-      </div>
-      <FiscalServiceCenter mode="application" initialPlan={selectedPlan} initialTerm={term} requireTransfer={transfer}
-       onSubmitted={()=>{setApplicationOpen(false);setClientAreaOpen(true);window.setTimeout(()=>go('minha-area-fiscal'),60)}}
-       onCheckout={id=>void start(id)}/>
-     </div>
-    </Dialog>}
   {checkoutOpen&&<FiscalCheckout planId={selectedPlan} initialTerm={term} transfer={term===12&&transfer} resumeOrderId={resumeOrderId}
     onClose={()=>{setCheckoutOpen(false);setResumeOrderId(undefined)}} onPaid={()=>{setClientAreaOpen(true);showToast('Status do pagamento atualizado.','info')}}/>}
-  {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);void start('fiscal')}}/>}
+  {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);start('fiscal')}}/>}
  </div>;
 }
