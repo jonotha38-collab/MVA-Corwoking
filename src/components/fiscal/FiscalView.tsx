@@ -1,585 +1,353 @@
-import { t } from '../../lib/preferences';
-import { BlurReveal } from '../ui/BlurReveal';
-import { Reveal } from '../ui/Reveal';
-import React, { useState, useEffect } from 'react';
-import { useCoworking } from '../../context/CoworkingContext';
-import { 
-  ShieldCheck, 
-  Building2, 
-  FileText, 
-  Check, 
-  MapPin, 
-  Printer, 
-  QrCode, 
-  Sparkles, 
-  Scale, 
-  Lock, 
-  X,
-  FileCheck,
-  Calendar,
-  Megaphone,
-  Shield,
-  ArrowRight,
-  Gift,
-  MessageCircle
+import { useEffect, useState } from 'react';
+import {
+  ArrowRight, ArrowUpRight, BadgeCheck, BriefcaseBusiness, Building2, CalendarClock,
+  Check, CheckCircle2, ChevronDown, Clock3, FileCheck2, FileText,
+  Gift, Headphones, LockKeyhole, MailCheck, MapPin, MessageSquareText,
+  MonitorSmartphone, SearchCheck, ShieldCheck, Sparkles, UsersRound, X
 } from 'lucide-react';
+import { useCoworking } from '../../context/CoworkingContext';
+import { t } from '../../lib/preferences';
+import { supabase } from '../../lib/supabase';
+import { FISCAL_PLANS, quotePlan, canIssueCertificate, restoreOrder, type FiscalPlanId } from '../../lib/fiscal-payment';
 import { FiscalCheckout } from '../payments/FiscalCheckout';
 import { CertificateDialog } from './CertificateDialog';
 import { FiscalServiceCenter } from './FiscalServiceCenter';
-import { supabase } from '../../lib/supabase';
-import { canIssueCertificate, restoreOrder, type FiscalPlanId } from '../../lib/fiscal-payment';
+import { Dialog } from '../ui/Dialog';
 
-export const FiscalView: React.FC = () => {
-  const { currentCompany, currentUser, showToast } = useCoworking();
+type ServiceUnit = { id:string; name:string; street_address:string; city:string; state:string };
+const planIds: FiscalPlanId[] = ['comercial','fiscal','fiscal_ie'];
+const brl = (cents:number) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2}).format(cents/100);
 
-  const [showContractModal, setShowContractModal] = useState(false);
-  const [showCertificateModal, setShowCertificateModal] = useState(false);
-  const [showSpecialistModal, setShowSpecialistModal] = useState(false);
-  const [selectedPlanId, setSelectedPlanId] = useState<FiscalPlanId>('fiscal');
-  const [resumeOrderId, setResumeOrderId] = useState<string>();
-  const [returnedOrderId] = useState(() => new URL(window.location.href).searchParams.get('fiscal_order'));
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    ['fiscal_order', 'payment_intent', 'payment_intent_client_secret', 'redirect_status'].forEach(key => url.searchParams.delete(key));
-    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
-  }, []);
-  const eligible = canIssueCertificate(currentCompany);
-  const startCheckout = async (id: FiscalPlanId, transfer = false) => {
-    setSelectedPlanId(id);
-    if (!currentUser) {
-      showToast('Entre na sua conta e solicite a análise cadastral antes da contratação.', 'info');
-      document.getElementById('gestao-endereco-fiscal')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-    const { data, error } = await supabase.from('fiscal_applications')
-      .select('id, transfer_from').eq('user_id', currentUser.id).eq('plan_id', id)
-      .eq('status', 'approved').order('created_at', { ascending: false }).limit(1);
-    if (error || !data?.length) {
-      showToast('Antes do pagamento, precisamos aprovar os dados e a elegibilidade da empresa.', 'info');
-      document.getElementById('gestao-endereco-fiscal')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-    setIsTransferPromo(transfer && !!data[0].transfer_from);
-    setResumeOrderId(undefined);
-    setShowContractModal(true);
-  };
-  useEffect(() => {
-    if (currentUser) {
-      const saved = returnedOrderId || restoreOrder(currentUser.id);
-      if (saved && /^[0-9a-f-]{36}$/i.test(saved)) { setResumeOrderId(saved); setShowContractModal(true); }
-    }
-  }, [currentUser?.id, returnedOrderId]);
-  const [isTransferPromo, setIsTransferPromo] = useState(false);
-  // Specialist Form State
-  const [specName, setSpecName] = useState('');
-  const [specPhone, setSpecPhone] = useState('');
-  const [specEmail, setSpecEmail] = useState('');
-  const [specCount, setSpecCount] = useState('2');
-
-  const plans = [
-    {
-      id: 'comercial',
-      name: 'Endereço Comercial',
-      price: 29.9,
-      totalAnnual: 358.8,
-      periodText: 'R$ 29,90 /mês',
-      annualText: 'R$ 358,80 no pagamento anual à vista',
-      description: 'Para você que precisa divulgar a sua empresa e conquistar novos mercados.',
-      icon: Megaphone,
-      popular: false,
-      features: [
-        'Divulgação em cartões, site e redes sociais',
-        'Recebimento e guarda de correspondências e encomendas',
-        'Aviso de correspondências pelo painel e canais configurados',
-        'Endereço de prestígio na Rua Dom José Thomaz, 565',
-        'Acesso ao marketplace para reservar salas disponíveis'
-      ]
-    },
-    {
-      id: 'fiscal',
-      name: 'Endereço Fiscal',
-      price: 80,
-      totalAnnual: 960,
-      periodText: 'R$ 80 /mês',
-      annualText: 'R$ 960 no pagamento anual à vista',
-      description: 'Para você que está abrindo ou alterando empresa e quer emitir notas fiscais.',
-      icon: Shield,
-      popular: true,
-      badge: 'Mais Escolhido',
-      features: [
-        'Documentação de apoio para abertura ou alteração do CNPJ',
-        'Orientações para análise da atividade e uso do endereço',
-        'Acompanhamento de viabilidade municipal, quando aplicável',
-        'Declaração de uso emitida após aprovação documental e pagamento',
-        'Recebimento e guarda de cartas e notificações fiscais',
-        'Reservas de salas de reunião conforme tabela vigente'
-      ]
-    },
-    {
-      id: 'fiscal_ie',
-      name: 'Endereço Fiscal com Inscrição Estadual',
-      price: 120,
-      totalAnnual: 1440,
-      periodText: 'R$ 120 /mês',
-      annualText: 'R$ 1.440 no pagamento anual à vista',
-      description: 'Para você que tem um comércio ou contribui com o ICMS.',
-      icon: ShieldCheck,
-      popular: false,
-      badge: 'Comércio / ICMS',
-      features: [
-        'Avaliação de atividades de comércio e ICMS junto aos órgãos competentes',
-        'Análise de elegibilidade para inscrição estadual',
-        'Acompanhamento de consulta de viabilidade técnica',
-        'Suporte documental conforme atividade e órgãos competentes',
-        'Gestão de encomendas e correspondências fiscais',
-        'Possibilidade de pacotes com salas de reunião'
-      ]
-    },
-    {
-      id: 'multi',
-      name: '2 ou mais endereços',
-      price: 0,
-      totalAnnual: 0,
-      isCustom: true,
-      periodText: 'preço',
-      annualText: 'personalizado',
-      description: 'Para quem precisa de mais Endereços Fiscais ou Comerciais, com condição especial na contratação.',
-      icon: MapPin,
-      popular: false,
-      badge: 'Condição Especial',
-      features: [
-        'Combinação de múltiplos endereços (matriz e filiais)',
-        'Condições para múltiplos CNPJs sob proposta',
-        'Condições de cobrança estabelecidas em proposta',
-        'Assessoria dedicada para a documentação',
-        'Suporte prioritário com especialista MVA'
-      ]
-    }
-  ];
-
-  return (
-    <div className="space-y-12 pb-12">
-      
-      {/* Top Overview Hero - Minimalist Deep Navy & Orange com Imagem de Fundo em Degradê */}
-      <div className="hero-shell bg-navy-950 text-white p-6 py-10 sm:p-12 sm:py-16 relative overflow-hidden">
-        
-        {/* Background Image com Degradê Suave */}
-        <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
-          <img
-            src="/hero-office.jpg"
-            alt={t("Sede MVA Coworking")}
-            className="absolute right-0 top-0 h-full w-full md:w-3/5 lg:w-1/2 object-cover object-center opacity-50 md:opacity-70 filter contrast-105"
-          />
-          {/* Máscaras em Degradê: do azul escuro para a foto */}
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/90 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-transparent to-navy-950/40" />
-          <div className="absolute -right-20 -top-20 w-96 h-96 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
-        </div>
-
-        <div className="relative z-10 w-full min-w-0 max-w-3xl space-y-6">
-          <div className="inline-flex max-w-full items-start gap-2 rounded-xl border border-orange-500/30 bg-orange-500/20 px-3 py-2 text-[11px] font-semibold leading-relaxed text-orange-300 backdrop-blur-md sm:items-center sm:rounded-full sm:px-4 sm:py-1.5 sm:text-xs">
-            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-orange-400 sm:mt-0" />
-            <span className="min-w-0 break-words">{t("MVA Coworking • Sede Rua Dom José Thomaz, 565 • Sujeito à análise ")}</span>
-          </div>
-
-          <BlurReveal as="h1" className="hero-title max-w-full break-words sm:max-w-2xl">{t("Seu endereço profissional. O próximo passo da sua empresa. ")}</BlurReveal>
-
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-medium">{t("Abra ou regularize seu CNPJ na sede MVA ou rede parceira. Reduza custos, preserve seu endereço residencial e reúna os serviços da sua empresa em um só lugar. ")}</p>
-
-          <div className="pt-4 flex flex-col sm:flex-row flex-wrap gap-4">
-            <button
-              onClick={() => {
-                startCheckout('fiscal');
-              }}
-              className="action-primary w-full min-w-0 flex-wrap px-4 py-3.5 text-center text-sm sm:w-auto sm:px-6"
-            >
-              <FileCheck className="w-5 h-5" />{t("Solicitar Endereço Fiscal Online ")}</button>
-            <button
-              onClick={() => setShowCertificateModal(true)}
-              className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-navy-700/80 bg-navy-900/80 px-4 py-3.5 text-sm font-bold text-white shadow-lg backdrop-blur-md transition-all hover:bg-navy-800 sm:w-auto sm:px-6"
-            >
-              {eligible ? <FileCheck className="w-5 h-5 text-orange-400" /> : <Lock className="w-5 h-5 text-orange-400" />}<span>{t('Emitir declaração oficial')}<span className="block text-left text-[11px] font-normal text-slate-400">{t(eligible ? 'Disponível para seu contrato' : 'Disponível após pagamento')}</span></span></button>
-          </div>
-        </div>
-      </div>
-
-      {currentCompany.id && (
-      <div className="min-w-0 bg-white rounded-3xl p-4 sm:p-8 border border-slate-200/90 shadow-xl shadow-slate-200/40 space-y-8 relative overflow-hidden">
-        {/* Subtle decorative background for the card */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-slate-50 to-orange-50 rounded-bl-[100px] -z-10 pointer-events-none" />
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6 relative z-10">
-          <div className="flex min-w-0 items-center gap-3 sm:gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 text-orange-600 flex items-center justify-center shrink-0 shadow-sm">
-              <Building2 className="w-7 h-7" />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest block mb-1">{t("Meu contrato de endereço ")}</span>
-              <h2 className="break-words text-lg font-bold tracking-tight text-navy-900 sm:text-2xl">{currentCompany.companyName}</h2>
-              <p className="text-sm text-slate-500 mt-0.5">{t("CNPJ: ")}<span className="font-mono">{currentCompany.cnpj}</span>{t("• Plano: ")}<strong className="text-slate-700">{t(currentCompany.planName)}</strong>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:items-end gap-3">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>{t(eligible ? 'Endereço fiscal ativo' : currentCompany.paymentStatus === 'paid' && currentCompany.status === 'ativo' && currentCompany.paymentIsLive && currentCompany.planId === 'comercial' ? 'Endereço comercial ativo' : 'Aguardando liberação')}</span>
-            <button
-              onClick={() => setShowCertificateModal(true)}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold shadow-md transition-colors hover:-translate-y-0.5"
-            >
-              <FileText className="w-4 h-4 text-orange-400" />{t("Ver Declaração Oficial ")}</button>
-          </div>
-        </div>
-
-        {/* 4 Pillars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-sm relative z-10">
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Endereço Registrado ")}</span>
-            <div className="text-sm font-bold text-navy-900 flex items-start gap-2">
-              <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
-              <span className="leading-tight">{currentCompany.unitAddress}</span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-emerald-300 transition-colors">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Alvará & Prefeitura ")}</span>
-            <div className="text-sm font-bold text-emerald-700 flex items-center gap-2">
-              <Check className="w-5 h-5 text-emerald-500 bg-emerald-100 rounded-full p-0.5" />
-              <span>{t(currentCompany.alvaraStatus === 'regular' ? 'Regularizado' : 'Em processamento')}</span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium">{t("Consulte a situação com a equipe MVA ")}</p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-navy-300 transition-colors">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Vigência Contratual ")}</span>
-            <div className="text-sm font-bold text-navy-900 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-navy-400" />
-              <span>{currentCompany.startDate.split('-').reverse().join('/')} — {currentCompany.renewalDate.split('-').reverse().join('/')}</span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium">{t("Vigência conforme o contrato ")}</p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors flex flex-col justify-between">
-            <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">{t("Crédito de Reunião ")}</span>
-              <div className="text-sm font-bold text-navy-900 flex items-center justify-between">
-                <span>{t(currentCompany.meetingHoursUsed)}{t("h /")}{t(currentCompany.meetingHoursAllowance)}{t("h")}</span>
-                <span className="text-orange-600 font-bold">
-                  {currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed}{t("h livres")}</span>
-              </div>
-            </div>
-            <div className="w-full bg-slate-100 rounded-full h-2 mt-2 overflow-hidden shadow-inner">
-              <div 
-                className="bg-gradient-to-r from-orange-400 to-orange-500 h-full rounded-full transition-all duration-1000" 
-                style={{ width: `${(currentCompany.meetingHoursUsed / Math.max(1, currentCompany.meetingHoursAllowance)) * 100}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      )}
-
-      {/* Explanatory Cards: Fiscal vs Comercial */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-6 bg-white rounded-3xl border border-slate-200 space-y-3">
-          <div className="w-10 h-10 rounded-xl bg-navy-950 text-orange-400 flex items-center justify-center font-bold">
-            <Scale className="w-5 h-5" />
-          </div>
-          <h3 className="text-base font-bold text-navy-900">{t("O que é Endereço Fiscal? ")}</h3>
-          <p className="text-xs text-slate-600 leading-relaxed">{t("É o endereço obrigatório registrado formalmente perante os órgãos públicos: ")}<strong>{t("Receita Federal ")}</strong>, <strong>{t("Junta Comercial ")}</strong>{t("e ")}<strong>{t("Prefeitura Municipal ")}</strong>{t(". Ele serve para fins tributários, alvarás e notificações legais. ")}</p>
-          <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Imprescindível para emissão do CNPJ e Inscrição Municipal ")}</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Evita expor o endereço da sua residência na internet ")}</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Totalmente legalizado com declaração de domicílio oficial ")}</span>
-            </li>
-          </ul>
-        </div>
-
-        <div className="p-6 bg-white rounded-3xl border border-slate-200 space-y-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-600 text-white flex items-center justify-center font-bold">
-            <Lock className="w-5 h-5" />
-          </div>
-          <h3 className="text-base font-bold text-navy-900">{t("E o Endereço Comercial? ")}</h3>
-          <p className="text-xs text-slate-600 leading-relaxed">{t("É o endereço corporativo de prestígio que você divulga em seus canais comerciais, cartões de visita e apresentações. Na MVA, os dois funcionam juntos: você conta com o endereço e ainda pode receber seus clientes nas salas de reunião no mesmo local. ")}</p>
-          <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Localização de prestígio na Rua Dom José Thomaz, 565 ")}</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Recebimento diário de correspondências e encomendas ")}</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Digitalização solicitada e processada após autorização do titular ")}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Promoção de Portabilidade: 4 Meses Grátis - Azul Escuro com Laranja */}
-      <div className="bg-gradient-to-br from-navy-900 via-navy-950 to-[#0a192f] rounded-3xl p-6 sm:p-8 text-white border border-navy-800 shadow-lg relative overflow-hidden">
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-orange-500/15 border border-orange-500/30 px-3.5 py-1 rounded-full text-xs font-bold text-orange-400 tracking-wide uppercase">
-              <Gift className="w-4 h-4 text-orange-400" />
-              <span>{t("Campanha Exclusiva de Portabilidade ")}</span>
-            </div>
-            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-white">{t("Já tem endereço fiscal? Mude para a MVA e ganhe ")}<span className="text-orange-500 underline decoration-orange-500/50 decoration-2 underline-offset-4">{t("4 MESES GRÁTIS! ")}</span>
-            </h3>
-            <p className="text-sm text-slate-300 leading-relaxed font-normal">{t("Se sua empresa já tem endereço fiscal em outro coworking ou escritório virtual e você quer pagar menos com melhor estrutura, transfira seu CNPJ para a MVA. Você ganha ")}<strong className="text-white">{t("4 meses de isenção total ")}</strong>{t("no plano anual e nosso time orienta toda a migração junto à Prefeitura e Junta Comercial. ")}</p>
-          </div>
-          <button
-            onClick={() => {
-              startCheckout('fiscal', true);
-            }}
-            className="shrink-0 px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all flex items-center gap-2 hover:-translate-y-0.5"
-          >
-            <Sparkles className="w-4 h-4 text-white" />
-            <span>{t("Transferir CNPJ (4 Meses Grátis) ")}</span>
-          </button>
-        </div>
-        <div className="absolute -right-20 -top-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
-      </div>
-
-      <FiscalServiceCenter initialPlan={selectedPlanId}
-        onCheckout={(id,transfer) => { void startCheckout(id,transfer); }} />
-
-      {/* Planos de Endereço Fiscal - 4 Colunas Inspiradas na Referência */}
-      <div className="space-y-6">
-        <Reveal className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs font-bold text-orange-600 tracking-wider uppercase">{t("Planos Corporativos Acessíveis ")}</span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-navy-900">{t("Escolha o Plano Ideal para a sua Empresa ")}</h2>
-          <p className="text-sm text-slate-500">{t("Escolha 1 mês ou 12 meses no checkout. Na transferência anual, pague 8 meses e use 12. ")}</p>
-        </Reveal>
-
-        <div className="grid min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {plans.map((plan) => {
-            const Icon = plan.icon;
-            return (
-              <div
-                key={plan.id}
-                className={`surface-card min-w-0 rounded-2xl p-5 sm:p-7 flex flex-col justify-between transition-all duration-300 relative border ${
-                  plan.popular
-                    ? 'bg-white border-orange-600 shadow-sm ring-1 ring-orange-600/20'
-                    : 'bg-white border-slate-200/90 shadow-sm hover:shadow-lg hover:border-slate-300'
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 bg-orange-500 text-white text-[10px] font-bold uppercase rounded-full shadow-md">
-                    {t(plan.badge)}
-                  </div>
-                )}
-
-                <div>
-                  {/* Top Icon Circle */}
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-colors ${plan.popular ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'bg-navy-50 text-navy-900 border border-navy-100'}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-xl font-bold text-slate-900 leading-snug mb-3">
-                    {t(plan.name)}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-sm text-slate-500 leading-relaxed mb-6 min-h-[48px]">
-                    {t(plan.description)}
-                  </p>
-
-                  {/* Price Block */}
-                  <div className="mb-6 pt-2 border-t border-slate-100">
-                    {t(plan.isCustom ? (
-                      <div className="space-y-0.5">
-                        <span className="text-xs text-slate-400 block">{t("preço ")}</span>
-                        <div className="text-2xl font-bold text-navy-900">{t("personalizado ")}</div>
-                        <span className="text-[11px] text-slate-400 block mt-1">{t("sob consulta ")}</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-0.5">
-                        <div className="text-2xl font-bold text-navy-900">
-                          {t(plan.periodText)}
-                        </div>
-                        <div className="text-xs text-slate-500 font-medium">
-                          {t(plan.annualText)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Features list */}
-                  <div className="space-y-2.5 text-xs mb-8 border-t border-slate-100 pt-5">
-                    {plan.features.map(f => (
-                      <div key={f} className="flex items-start gap-2.5">
-                        <Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
-                        <span className="text-slate-600 leading-tight">{t(f)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Botões Uniformes: Azul Escuro com Laranja */}
-                <div>
-                  {t(plan.isCustom ? (
-                    <button
-                      onClick={() => setShowSpecialistModal(true)}
-                      className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-navy-900 hover:bg-orange-500 transition-all flex items-center justify-center gap-2 shadow-sm group"
-                    >
-                      <span>{t("Fale com especialista ")}</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        startCheckout(plan.id as FiscalPlanId);
-                      }}
-                      className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 group ${
-                        plan.popular
-                          ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/20 hover:shadow-orange-500/30'
-                          : 'bg-navy-900 hover:bg-orange-500 text-white shadow-sm'
-                      }`}
-                    >
-                      <span>{t("Solicitar análise ")}</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {showCertificateModal && <CertificateDialog onClose={() => setShowCertificateModal(false)} onChoosePlan={() => { setShowCertificateModal(false); startCheckout('fiscal'); }} />}
-      {showContractModal && <FiscalCheckout planId={selectedPlanId} transfer={isTransferPromo} resumeOrderId={resumeOrderId} onClose={() => setShowContractModal(false)} onPaid={() => showToast('Status do pagamento atualizado.', 'info')} />}
-
-      {/* Modal Fale com Especialista (2 ou mais endereços) */}
-      {showSpecialistModal && (
-        <div 
-          onClick={(e) => { if (e.target === e.currentTarget) setShowSpecialistModal(false); }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto cursor-pointer"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl shadow-lg border border-slate-200 w-full max-w-lg my-8 overflow-hidden cursor-default"
-          >
-            <div className="bg-navy-950 text-white p-6 relative">
-              <button
-                onClick={() => setShowSpecialistModal(false)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <span className="text-xs text-orange-400 font-bold uppercase tracking-wider">{t("Atendimento Corporativo ")}</span>
-              <h3 className="text-xl font-bold mt-1">{t("2 ou mais Endereços com Desconto Especial ")}</h3>
-              <p className="text-xs text-slate-300 mt-1">{t("Fale diretamente com nossa equipe para montar uma proposta sob medida com preços escaláveis. ")}</p>
-            </div>
-
-            <div className="p-6 space-y-4 text-xs">
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 flex items-start gap-3">
-                <MessageCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block text-sm">{t("Prefere atendimento instantâneo? ")}</strong>
-                  <p className="text-[11px] text-emerald-800 mt-0.5">{t("A equipe MVA responderá pelo canal informado, conforme disponibilidade. ")}</p>
-                  <a
-                    href="https://wa.me/5579998188188?text=Ol%C3%A1!%20Gostaria%20de%20um%20or%C3%A7amento%20personalizado%20para%202%20ou%20mais%20endere%C3%A7os%20fiscais%20na%20MVA."
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs shadow-sm transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4" />{t("Abrir WhatsApp Agora ")}</a>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 text-[11px] text-slate-400 font-medium uppercase tracking-wider">
-                <span className="h-px flex-1 bg-slate-200" />{t("ou deixe seus dados para contato ")}<span className="h-px flex-1 bg-slate-200" />
-              </div>
-
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setShowSpecialistModal(false);
-                  showToast('Solicitação enviada! Nosso especialista entrará em contato em breve.', 'success');
-                }} 
-                className="space-y-3"
-              >
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">{t("Seu Nome / Responsável * ")}</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder={t("Ex: Carlos Silva")}
-                    value={specName}
-                    onChange={e => setSpecName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">{t("WhatsApp / Telefone * ")}</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder={t("(79) 99999-9999")}
-                      value={specPhone}
-                      onChange={e => setSpecPhone(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">{t("Quantidade de Endereços ")}</label>
-                    <select
-                      value={specCount}
-                      onChange={e => setSpecCount(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
-                    >
-                      <option value="2">{t("2 Endereços ")}</option>
-                      <option value="3">{t("3 Endereços ")}</option>
-                      <option value="4-5">{t("4 a 5 Endereços ")}</option>
-                      <option value="6+">{t("Mais de 6 Endereços ")}</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">{t("E-mail corporativo ")}</label>
-                  <input
-                    type="email"
-                    placeholder={t("carlos@empresa.com")}
-                    value={specEmail}
-                    onChange={e => setSpecEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none"
-                  />
-                </div>
-
-                <div className="pt-2 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowSpecialistModal(false)}
-                    className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                  >{t("Fechar ")}</button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-md transition-all"
-                  >{t("Receber Proposta Personalizada ")}</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
+const planInfo: Record<FiscalPlanId,{eyebrow:string;summary:string;ideal:string;features:string[];popular?:boolean}> = {
+  comercial:{
+    eyebrow:'Para marcar presença', summary:'Sua marca com um endereço profissional para divulgar nos canais comerciais.',
+    ideal:'Autônomos, prestadores de serviço e empresas que buscam presença comercial.',
+    features:['Endereço comercial para divulgação','Recepção de correspondências, conforme contrato','Consulta de recebimentos no painel','Acesso às salas de reunião disponíveis']
+  },
+  fiscal:{
+    eyebrow:'Para o seu CNPJ',summary:'Estrutura de endereço para quem está abrindo ou alterando uma empresa.',
+    ideal:'Prestadores de serviços, negócios digitais e profissionais PJ.',
+    features:['Análise de viabilidade para o endereço fiscal','Documentação de autorização após regularização','Acompanhamento de correspondências','Acesso à estrutura da MVA para reuniões'],
+    popular:true
+  },
+  fiscal_ie:{
+    eyebrow:'Para operações com ICMS',summary:'Uma solução para empresas que precisam avaliar também a inscrição estadual.',
+    ideal:'Comércios, e-commerces e empresas com operações sujeitas ao ICMS.',
+    features:['Análise da atividade e das exigências estaduais','Documentação de endereço fiscal, quando elegível','Gestão de correspondências fiscais','Atendimento para orientação da contratação']
+  }
 };
+const faqs = [
+  {q:'Qual a diferença entre endereço fiscal e comercial?',a:'O endereço fiscal é o local indicado nos registros da empresa perante os órgãos competentes, conforme a atividade e as regras do município. O comercial é voltado à divulgação e ao contato profissional. É possível avaliar as duas necessidades na contratação.'},
+  {q:'Posso abrir um CNPJ com o endereço da MVA?',a:'Depende da atividade econômica, da viabilidade municipal e da documentação da unidade. A equipe analisa a solicitação antes de autorizar o uso do endereço; não há garantia automática de aprovação.'},
+  {q:'Posso contratar se minha empresa ainda não tem CNPJ?',a:'Sim, você pode iniciar a avaliação como empresa em abertura. A formalização será conduzida conforme os documentos e dados exigidos para o caso.'},
+  {q:'Quando recebo a declaração de uso do endereço?',a:'Depois da análise cadastral, formalização do contrato e confirmação real do pagamento, caso a atividade e a unidade sejam elegíveis. A emissão não é imediata por padrão.'},
+  {q:'Vocês recebem correspondências e encomendas?',a:'A MVA possui uma área de gestão de correspondências. Os serviços de recebimento, guarda e eventual digitalização dependem das condições do plano, da unidade e de autorização do titular.'},
+  {q:'Posso contratar por um mês ou por um ano?',a:'Sim. A escolha é feita no site. Os valores são apresentados antes da contratação. A campanha de quatro meses de desconto no pagamento anual é condicionada à comprovação de transferência de outro endereço fiscal.'},
+  {q:'Outros coworkings podem oferecer endereço fiscal na MVA?',a:'Proprietários podem solicitar credenciamento de suas unidades. Cada espaço passa por avaliação; o cadastro como coworking não autoriza automaticamente oferecer endereço fiscal.'},
+];
+const go = (id:string) => document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+
+export function FiscalView(){
+ const {currentCompany,currentUser,showToast,setAuthModalTab,setAuthModalOpen} = useCoworking();
+ const eligible=canIssueCertificate(currentCompany);
+ const [term,setTerm]=useState<1|12>(12);
+ const [transfer,setTransfer]=useState(false);
+ const [selectedPlan,setSelectedPlan]=useState<FiscalPlanId>('fiscal');
+ const [applicationOpen,setApplicationOpen]=useState(false);
+ const [clientAreaOpen,setClientAreaOpen]=useState(false);
+ const [checkoutOpen,setCheckoutOpen]=useState(false);
+ const [certificateOpen,setCertificateOpen]=useState(false);
+ const [resumeOrderId,setResumeOrderId]=useState<string>();
+ const [units,setUnits]=useState<ServiceUnit[]>([]);
+ const [unitsLoading,setUnitsLoading]=useState(true);
+ const [checkBusy,setCheckBusy]=useState(false);
+ const [returnOrderId]=useState(()=>new URL(window.location.href).searchParams.get('fiscal_order'));
+
+ useEffect(()=>{
+  const u=new URL(window.location.href);
+  ['fiscal_order','payment_intent','payment_intent_client_secret','redirect_status'].forEach(k=>u.searchParams.delete(k));
+  window.history.replaceState(null,'',u.pathname+u.search+u.hash);
+ },[]);
+ useEffect(()=>{
+  let live=true;
+  void supabase.from('fiscal_units').select('id,name,street_address,city,state')
+    .eq('active',true).order('name').then(({data,error})=>{
+      if(!live)return;
+      if(!error)setUnits((data||[]) as ServiceUnit[]);
+      setUnitsLoading(false);
+    });
+  return()=>{live=false};
+ },[]);
+ useEffect(()=>{
+  if(!currentUser)return;
+  const saved=returnOrderId||restoreOrder(currentUser.id);
+  if(saved && /^[0-9a-f-]{36}$/i.test(saved)){setResumeOrderId(saved);setCheckoutOpen(true)}
+ },[currentUser?.id,returnOrderId]);
+
+ const start=async(id:FiscalPlanId)=>{
+  setSelectedPlan(id);
+  if(!currentUser){
+    setAuthModalTab('login');setAuthModalOpen(true);
+    showToast('Entre na sua conta para prosseguir com a contratação.','info');
+    return;
+  }
+  if(checkBusy)return;
+  setCheckBusy(true);
+  try{
+    const {data,error}=await supabase.from('fiscal_applications')
+      .select('id,term_months,transfer_from').eq('user_id',currentUser.id)
+      .eq('plan_id',id).eq('status','approved').eq('term_months',term)
+      .order('created_at',{ascending:false}).limit(1);
+    if(error)throw error;
+    if(data?.length && (!transfer || !!data[0].transfer_from)){
+      setCheckoutOpen(true);
+    }else{
+      setApplicationOpen(true);
+    }
+  }catch{
+    showToast('Não foi possível consultar sua análise cadastral. Tente novamente.','error');
+  }finally{setCheckBusy(false)}
+ };
+ const showArea=()=>{
+   if(!currentUser){setAuthModalTab('login');setAuthModalOpen(true);return}
+   setClientAreaOpen(v=>!v);
+   window.setTimeout(()=>go('minha-area-fiscal'),60);
+ };
+ const planQuote=(id:FiscalPlanId)=>quotePlan(FISCAL_PLANS[id],term,term===12&&transfer);
+ return <div className="min-w-0 space-y-20 pb-16 sm:space-y-24">
+  {/* Hero - two-column editorial treatment, native MVA identity. */}
+  <section className="relative isolate overflow-hidden rounded-[24px] border border-[#263c54] bg-[#0c1c30] text-white shadow-[0_22px_65px_rgba(9,22,41,.13)] sm:rounded-[30px]" aria-labelledby="fiscal-hero-heading">
+   <div className="pointer-events-none absolute inset-0 hidden lg:block" aria-hidden="true">
+     <img src="/hero-office.jpg" alt="" className="absolute inset-y-0 right-0 h-full w-[53%] object-cover object-center"/>
+     <div className="absolute inset-0 bg-gradient-to-r from-[#0c1c30] via-[#0c1c30] 40% to-[#0c1c30]/15"/>
+     <div className="absolute inset-0 bg-gradient-to-t from-[#0c1c30]/40 via-transparent to-[#0c1c30]/10"/>
+   </div>
+   <div className="pointer-events-none absolute -left-36 bottom-0 h-80 w-80 rounded-full bg-orange-500/10 blur-[110px]" aria-hidden="true"/>
+   <div className="relative grid min-w-0 lg:min-h-[540px] lg:grid-cols-[minmax(0,1.16fr)_minmax(0,.84fr)]">
+    <div className="min-w-0 space-y-7 px-6 py-11 sm:px-10 sm:py-16 lg:px-12 lg:py-20">
+      <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-3.5 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-orange-200">
+        <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true"/> Escritório virtual MVA Coworking
+      </span>
+      <h1 id="fiscal-hero-heading" className="max-w-[670px] text-[clamp(2.25rem,4.45vw,4.35rem)] font-semibold leading-[1.09] tracking-[-.052em]">
+       Um endereço para sua empresa. <span className="text-[#ffad77]">Mais liberdade para você.</span>
+      </h1>
+      <p className="max-w-xl text-[15px] leading-[1.85] text-slate-300 sm:text-[17px]">
+       Endereço fiscal e comercial em Aracaju, com atendimento, correspondências e a estrutura de um coworking de verdade. Tudo em um só lugar.
+      </p>
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
+       <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl bg-[#cf581f] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-950/20 transition hover:bg-[#b84410]">
+         Conhecer planos e preços <ArrowRight className="h-4 w-4" aria-hidden/>
+       </button>
+       <button type="button" onClick={()=>go('como-funciona-fiscal')} className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10">
+         Entenda como funciona <ChevronDown className="h-4 w-4" aria-hidden/>
+       </button>
+      </div>
+      <div className="flex flex-wrap gap-x-6 gap-y-3 border-t border-white/10 pt-6 text-xs font-medium text-slate-300">
+       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> Atendimento especializado</span>
+       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> Correspondências no painel</span>
+       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> Contratação com análise</span>
+      </div>
+    </div>
+    <div className="relative min-h-[250px] overflow-hidden lg:min-h-0">
+     <img src="/hero-office.jpg" alt="Ambiente profissional da MVA Coworking" className="absolute inset-0 h-full w-full object-cover lg:hidden"/>
+     <div className="absolute inset-0 bg-gradient-to-t from-[#0c1c30] via-transparent to-transparent lg:hidden"/>
+     <div className="absolute bottom-6 left-5 right-5 flex items-center gap-3 rounded-2xl border border-white/20 bg-[#0e2339]/85 p-4 text-white shadow-xl backdrop-blur-lg sm:bottom-10 sm:left-auto sm:right-10 sm:max-w-[285px] lg:bottom-12">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-orange-500/20"><MapPin className="h-5 w-5 text-orange-200"/></span>
+      <div className="min-w-0"><p className="text-[11px] font-bold uppercase tracking-[.12em] text-orange-200">Presença em Aracaju</p><p className="mt-1 text-sm font-semibold">São José · SE</p><p className="text-xs text-slate-300">Sede MVA Coworking</p></div>
+     </div>
+    </div>
+   </div>
+  </section>
+
+  {/* Benefits immediately, no intake form. */}
+  <section id="vantagens-fiscais" className="scroll-mt-36 space-y-9">
+   <div className="mx-auto max-w-2xl space-y-3 text-center">
+    <span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Mais do que um endereço</span>
+    <h2 className="text-2xl font-semibold leading-tight tracking-tight text-navy-950 sm:text-[35px]">Sua empresa com presença profissional, sem os custos de um escritório próprio.</h2>
+    <p className="text-sm leading-relaxed text-slate-600">Organize as demandas do dia a dia da sua empresa e concentre seus serviços na MVA.</p>
+   </div>
+   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    {[
+     {icon:Building2,title:'Endereço profissional',description:'Para o cadastro e a comunicação da empresa, conforme a análise da atividade.'},
+     {icon:MailCheck,title:'Correspondências organizadas',description:'Recebimento e acompanhamento pelo sistema, com solicitação de digitalização quando disponível.'},
+     {icon:LockKeyhole,title:'Mais privacidade',description:'Evite divulgar seu endereço residencial como ponto de contato da empresa quando permitido.'},
+     {icon:MonitorSmartphone,title:'Tudo no seu painel',description:'Acesse informações de contrato, solicitações e documentos em uma área reservada.'},
+     {icon:UsersRound,title:'Coworking de verdade',description:'Reserve salas de reunião e espaços para encontros presenciais conforme disponibilidade.'},
+     {icon:Headphones,title:'Acompanhamento humano',description:'Equipe para orientar a contratação e esclarecer exigências documentais.'}
+    ].map(({icon:Icon,title,description})=><article key={title} className="group min-w-0 rounded-[22px] border border-slate-200 bg-white p-6 shadow-sm transition-colors hover:border-orange-200 sm:p-7">
+       <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-[#fff1e8] text-[#b74d19]"><Icon className="h-5 w-5" aria-hidden/></div>
+       <h3 className="text-lg font-semibold text-navy-950">{title}</h3>
+       <p className="mt-2 text-sm leading-[1.8] text-slate-600">{description}</p>
+     </article>)}
+   </div>
+  </section>
+
+  {/* Three conceptual types, inspired by clear content hierarchy rather than visual copying. */}
+  <section className="grid min-w-0 gap-8 overflow-hidden rounded-[26px] border border-slate-200 bg-white lg:grid-cols-[.82fr_1.18fr]">
+    <div className="relative min-h-[250px] overflow-hidden bg-[#10253d] lg:min-h-[455px]">
+      <img src="/hero-office.jpg" alt="Espaço de trabalho moderno" className="absolute inset-0 h-full w-full object-cover opacity-75"/>
+      <div className="absolute inset-0 bg-gradient-to-t from-[#10253d]/95 via-[#10253d]/20 to-transparent"/>
+      <div className="absolute bottom-7 left-7 right-7 text-white sm:bottom-9 sm:left-9">
+        <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold backdrop-blur-sm"><BadgeCheck className="h-3.5 w-3.5"/> Uma estrutura, várias possibilidades</span>
+        <h2 className="mt-4 max-w-sm text-2xl font-semibold leading-snug sm:text-3xl">A solução certa para o momento do seu negócio.</h2>
+      </div>
+    </div>
+    <div className="min-w-0 space-y-7 px-6 py-8 sm:px-10 sm:py-10">
+      <span className="text-[11px] font-bold uppercase tracking-[.17em] text-orange-700">Escolha de acordo com sua necessidade</span>
+      {[
+       {icon:BriefcaseBusiness,title:'Endereço comercial',desc:'Para apresentar seu negócio com um endereço profissional em materiais, redes sociais e contatos comerciais.'},
+       {icon:ShieldCheck,title:'Endereço fiscal',desc:'Para avaliar o uso do endereço no registro de sua empresa, conforme CNAE e regras municipais.'},
+       {icon:FileCheck2,title:'Endereço fiscal com IE',desc:'Para empresas que também precisam verificar exigências relativas à inscrição estadual e ICMS.'}
+      ].map(({icon:Icon,title,desc},i)=><div key={title} className={`flex min-w-0 gap-4 ${i>0?'border-t border-slate-100 pt-6':''}`}>
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-100 text-navy-800"><Icon className="h-5 w-5" aria-hidden/></div>
+        <div className="min-w-0"><h3 className="text-base font-semibold text-navy-950">{title}</h3><p className="mt-2 text-sm leading-[1.75] text-slate-600">{desc}</p></div>
+       </div>)}
+      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold text-[#b74710] hover:underline">Comparar os planos <ArrowRight className="h-4 w-4"/></button>
+    </div>
+  </section>
+
+  {/* Plan catalog: prices derived from authoritative shared server catalog, not reference website. */}
+  <section id="planos-fiscais" className="scroll-mt-32 space-y-9">
+   <div className="mx-auto max-w-2xl space-y-3 text-center">
+    <span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Escolha seu plano</span>
+    <h2 className="text-2xl font-semibold tracking-tight text-navy-950 sm:text-[36px]">Um plano para cada fase da sua empresa.</h2>
+    <p className="text-sm leading-relaxed text-slate-600">Valores claros e serviços que acompanham o seu negócio.</p>
+   </div>
+   <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm" aria-label="Período do plano">
+     <button type="button" aria-pressed={term===1} onClick={()=>setTerm(1)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===1?'bg-navy-900 text-white shadow-sm':'text-slate-600 hover:bg-slate-100'}`}>Mensal</button>
+     <button type="button" aria-pressed={term===12} onClick={()=>setTerm(12)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===12?'bg-navy-900 text-white shadow-sm':'text-slate-600 hover:bg-slate-100'}`}>Anual · 12 meses</button>
+   </div>
+   {term===12 && <label className="mx-auto flex max-w-2xl cursor-pointer items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-navy-900">
+    <input type="checkbox" checked={transfer} onChange={e=>setTransfer(e.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-orange-600"/>
+    <span><strong>Já tem endereço fiscal e quer transferir?</strong> Marque para visualizar a campanha de 4 meses grátis no anual, sujeita à comprovação e elegibilidade.</span>
+   </label>}
+   <div className="grid gap-5 lg:grid-cols-3 lg:items-stretch">
+    {planIds.map(id=>{
+      const p=FISCAL_PLANS[id], info=planInfo[id],q=planQuote(id);
+      const monthlyEquivalent=q.amount/(term===1?1:12);
+      return <article key={id} className={`relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${info.popular?'border-[#d06636] shadow-[0_12px_35px_rgba(183,74,28,.11)]':'border-slate-200'}`}>
+        {info.popular&&<div className="bg-[#14304d] py-2.5 text-center text-[11px] font-bold uppercase tracking-[.16em] text-white">Mais procurado</div>}
+        <div className="flex flex-1 flex-col p-6 sm:p-7">
+          <span className="text-[11px] font-bold uppercase tracking-[.12em] text-orange-700">{info.eyebrow}</span>
+          <h3 className="mt-3 min-h-[48px] text-xl font-semibold leading-tight text-navy-950">{p.name}</h3>
+          <p className="mt-3 min-h-[72px] text-sm leading-[1.7] text-slate-600">{info.summary}</p>
+          <div className="mt-6 border-t border-slate-100 pt-5">
+            <p className="text-[11px] font-semibold text-slate-500">A partir de</p>
+            <div className="mt-1 flex flex-wrap items-baseline gap-1.5">
+              <strong className="text-[clamp(1.9rem,3vw,2.3rem)] font-semibold leading-tight tracking-tight text-navy-950">{brl(monthlyEquivalent)}</strong>
+              <span className="text-xs text-slate-500">/ mês equivalente</span>
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600">
+              {term===12?`Pagamento anual: ${brl(q.amount)}`:`Pagamento de 1 mês: ${brl(q.amount)}`}
+            </p>
+            {q.discount>0&&<div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1.5 text-[11px] font-bold text-orange-800"><Gift className="h-3.5 w-3.5"/> Economia estimada: {brl(q.discount)}</div>}
+          </div>
+          <button type="button" disabled={checkBusy} onClick={()=>void start(id)} className={`mt-6 flex min-h-[47px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors disabled:opacity-60 ${info.popular?'bg-[#c65019] text-white hover:bg-[#aa3c0f]':'bg-navy-900 text-white hover:bg-navy-800'}`}>Começar contratação <ArrowRight className="h-4 w-4"/></button>
+          <div className="mt-6 border-t border-slate-100 pt-5">
+            <p className="mb-4 text-xs font-semibold text-navy-900">O que está incluído</p>
+            <ul className="space-y-3">{info.features.map(feature=><li key={feature} className="flex items-start gap-2.5 text-[13px] leading-[1.55] text-slate-600"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#bd581f]"/>{feature}</li>)}</ul>
+          </div>
+        </div>
+      </article>;
+    })}
+   </div>
+   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-slate-500">Preços de referência do catálogo atual da MVA. Endereço fiscal e inscrição estadual dependem de análise cadastral, contrato e requisitos municipais/estaduais. A contratação financeira só estará disponível quando o provedor de pagamento estiver configurado.</p>
+  </section>
+
+  {/* Conversion with correct expectations */}
+  <section id="como-funciona-fiscal" className="scroll-mt-32 space-y-9">
+   <div className="mx-auto max-w-2xl space-y-3 text-center">
+    <span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Simples e acompanhado</span>
+    <h2 className="text-2xl font-semibold tracking-tight text-navy-950 sm:text-4xl">Como funciona a contratação?</h2>
+    <p className="text-sm leading-relaxed text-slate-600">Você escolhe a solução, nós verificamos a elegibilidade e seguimos com a formalização.</p>
+   </div>
+   <div className="grid gap-4 md:grid-cols-3">
+    {[
+     {icon:SearchCheck,number:'01',title:'Escolha sua solução',desc:'Compare os planos, o prazo e a unidade de interesse.'},
+     {icon:FileText,number:'02',title:'Análise e documentação',desc:'Após iniciar a contratação, enviamos sua solicitação para conferência da atividade, documentos e viabilidade.'},
+     {icon:BadgeCheck,number:'03',title:'Contrato e liberação',desc:'Depois da aprovação e do pagamento confirmado, os documentos pertinentes ficam disponíveis no painel.'}
+    ].map(({icon:Icon,number,title,desc})=><article key={number} className="relative min-w-0 rounded-[22px] border border-slate-200 bg-white p-6 sm:p-7">
+      <div className="flex items-center justify-between"><span className="text-sm font-bold tracking-widest text-orange-700">{number}</span><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#fff1e8] text-[#bd581f]"><Icon className="h-5 w-5"/></div></div>
+      <h3 className="mt-7 text-lg font-semibold text-navy-950">{title}</h3>
+      <p className="mt-2 text-sm leading-[1.75] text-slate-600">{desc}</p>
+     </article>)}
+   </div>
+  </section>
+
+  <section id="unidades-fiscais" className="scroll-mt-32 space-y-8">
+    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Onde estamos</span>
+        <h2 className="text-2xl font-semibold tracking-tight text-navy-950 sm:text-4xl">Um endereço com estrutura real.</h2>
+        <p className="text-sm leading-relaxed text-slate-600">Conheça as unidades disponíveis para análise. Parceiros só aparecem após credenciamento da MVA.</p></div>
+      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold text-[#b74710] hover:underline">Escolher meu plano <ArrowUpRight className="h-4 w-4"/></button>
+    </div>
+    {unitsLoading?<div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500" role="status">Consultando unidades disponíveis…</div>
+      :units.length===0?<div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">Unidades em análise de disponibilidade. Consulte nossa equipe para mais informações.</div>
+      :<div className="grid gap-4 md:grid-cols-2">
+        {units.map(unit=><article key={unit.id} className="flex min-w-0 items-start gap-4 rounded-[22px] border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#142940] text-orange-300"><MapPin className="h-5 w-5"/></div>
+          <div className="min-w-0"><span className="text-[11px] font-semibold uppercase tracking-widest text-orange-700">Unidade disponível para consulta</span>
+            <h3 className="mt-2 break-words text-base font-bold text-navy-950">{unit.name}</h3>
+            <p className="mt-2 break-words text-sm leading-[1.7] text-slate-600">{unit.street_address}</p>
+            <p className="mt-2 text-xs font-semibold text-slate-500">{unit.city} · {unit.state}</p>
+          </div>
+        </article>)}
+      </div>}
+  </section>
+
+  <section className="relative overflow-hidden rounded-[26px] bg-[#112840] px-6 py-9 text-white sm:px-10 sm:py-11">
+   <div className="pointer-events-none absolute -right-20 -top-16 h-60 w-60 rounded-full bg-[#d15a21]/20 blur-[75px]" aria-hidden="true"/>
+   <div className="relative flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
+     <div className="max-w-2xl"><span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-orange-300"><Gift className="h-4 w-4"/> Condição especial</span>
+       <h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[30px]">Sua empresa já usa outro endereço fiscal?</h2>
+       <p className="mt-3 text-sm leading-relaxed text-slate-300">A MVA oferece uma campanha de transferência com até 4 meses gratuitos na contratação anual, sujeita à elegibilidade e comprovação.</p></div>
+     <button type="button" onClick={()=>{setTerm(12);setTransfer(true);go('planos-fiscais')}} className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-navy-900 transition hover:bg-orange-50 sm:w-auto">Ver condição anual <ArrowRight className="h-4 w-4"/></button>
+   </div>
+  </section>
+
+  <section id="duvidas-fiscais" className="scroll-mt-32 space-y-7">
+   <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] text-orange-700">Sem letras miúdas</span><h2 className="text-2xl font-semibold tracking-tight text-navy-950 sm:text-4xl">Perguntas frequentes.</h2><p className="text-sm leading-relaxed text-slate-600">As respostas mais importantes antes de contratar seu escritório virtual.</p></div>
+   <div className="grid min-w-0 gap-3">
+    {faqs.map(({q,a})=><details key={q} className="group min-w-0 rounded-2xl border border-slate-200 bg-white p-4 open:border-orange-200 sm:p-5">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-sm font-semibold text-navy-900 marker:content-none sm:text-[15px]">{q}<ChevronDown className="h-5 w-5 shrink-0 text-orange-700 transition-transform group-open:rotate-180"/></summary>
+      <p className="max-w-4xl pt-4 text-sm leading-[1.8] text-slate-600">{a}</p>
+     </details>)}
+   </div>
+  </section>
+
+  <section className="rounded-[26px] border border-[#283e57] bg-[#0e2035] px-6 py-10 text-white sm:px-10 sm:py-12">
+   <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <div className="max-w-2xl"><span className="text-[11px] font-bold uppercase tracking-widest text-orange-300">Seu próximo passo</span><h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[32px]">Pronto para profissionalizar seu endereço?</h2><p className="mt-3 text-sm leading-relaxed text-slate-300">Escolha seu plano com tranquilidade. Nossa equipe confere os requisitos antes de qualquer liberação.</p></div>
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#cc541c] px-6 py-3.5 text-sm font-bold text-white hover:bg-[#af410f]">Ver planos <ArrowRight className="h-4 w-4"/></button>
+      <button type="button" onClick={showArea} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><FileCheck2 className="h-4 w-4"/> Minha área</button>
+    </div>
+   </div>
+  </section>
+
+  {/* Existing clients keep document/contract access, without exposing onboarding forms in the landing page. */}
+  <div id="minha-area-fiscal" className="scroll-mt-32">
+    {currentUser && <div className="space-y-5">
+       <button type="button" aria-expanded={clientAreaOpen} onClick={()=>setClientAreaOpen(v=>!v)} className="flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left text-sm font-bold text-navy-900">
+        <span className="flex min-w-0 items-center gap-2"><FileCheck2 className="h-5 w-5 shrink-0 text-orange-600"/> Acompanhar solicitações e documentos</span><ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${clientAreaOpen?'rotate-180':''}`}/>
+       </button>
+       {clientAreaOpen&&<FiscalServiceCenter mode="dashboard" initialPlan={selectedPlan} onCheckout={id=>void start(id)}/>}
+    </div>}
+  </div>
+
+  {applicationOpen && <Dialog titleId="mva-fiscal-application-title" className="checkout-wide" onClose={()=>setApplicationOpen(false)}>
+     <div className="max-h-[90dvh] overflow-y-auto px-4 py-5 sm:px-7 sm:py-7">
+      <div className="mb-5 flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
+       <div className="min-w-0"><span className="text-xs font-bold uppercase tracking-widest text-orange-700">Próxima etapa</span><h2 id="mva-fiscal-application-title" className="mt-1 text-xl font-bold text-navy-950">Análise antes da contratação</h2><p className="mt-1 text-xs leading-relaxed text-slate-600">Só precisamos dos dados para verificar a elegibilidade. Nenhuma cobrança acontece agora.</p></div>
+       <button aria-label="Fechar" type="button" onClick={()=>setApplicationOpen(false)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><X className="h-5 w-5"/></button>
+      </div>
+      <FiscalServiceCenter mode="application" initialPlan={selectedPlan} initialTerm={term}
+       onSubmitted={()=>{setApplicationOpen(false);setClientAreaOpen(true);window.setTimeout(()=>go('minha-area-fiscal'),60)}}
+       onCheckout={id=>void start(id)}/>
+     </div>
+    </Dialog>}
+  {checkoutOpen&&<FiscalCheckout planId={selectedPlan} transfer={term===12&&transfer} resumeOrderId={resumeOrderId}
+    onClose={()=>{setCheckoutOpen(false);setResumeOrderId(undefined)}} onPaid={()=>{setClientAreaOpen(true);showToast('Status do pagamento atualizado.','info')}}/>}
+  {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);void start('fiscal')}}/>}
+ </div>;
+}
