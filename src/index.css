@@ -275,3 +275,51 @@ header nav[aria-label] button { flex-shrink:0; }
  #root main { padding-inline:10px; }
  .hero-shell { padding:24px 14px; }
 }
+
+
+/* Fiscal landing: optical contrast tokens isolated from the global light/dark
+   utilities. Brand navy and copper remain identical across both themes. */
+.mva-fiscal {
+  --fiscal-surface: #ffffff;
+  --fiscal-soft: #f1f5fa;
+  --fiscal-ink: #152b43;
+  --fiscal-muted: #51647b;
+  --fiscal-line: #d8e1eb;
+  --fiscal-accent: #ac4718;
+  --fiscal-accent-soft: #fff1e8;
+  --fiscal-highlight-border: #f1bd9d;
+  color: var(--fiscal-ink);
+}
+:root[data-theme="dark"] .mva-fiscal {
+  --fiscal-surface: #192b40;
+  --fiscal-soft: #243a53;
+  --fiscal-ink: #f2f7ff;
+  --fiscal-muted: #c1cede;
+  --fiscal-line: #38506b;
+  --fiscal-accent: #ffbc88;
+  --fiscal-accent-soft: #372d2c;
+  --fiscal-highlight-border: #8c5d43;
+}
+.mva-fiscal .fiscal-surface { background-color: var(--fiscal-surface); color: var(--fiscal-ink); }
+.mva-fiscal .fiscal-soft { background-color: var(--fiscal-soft); }
+.mva-fiscal .fiscal-ink { color: var(--fiscal-ink); }
+.mva-fiscal .fiscal-muted { color: var(--fiscal-muted); }
+.mva-fiscal .fiscal-line { border-color: var(--fiscal-line); }
+.mva-fiscal .fiscal-accent { color: var(--fiscal-accent); }
+.mva-fiscal .fiscal-accent-soft { background-color: var(--fiscal-accent-soft); }
+.mva-fiscal .fiscal-highlight-border { border-color: var(--fiscal-highlight-border); }
+.mva-fiscal .fiscal-white-cta {
+  background-color: #ffffff;
+  color: #18304c;
+  border: 1px solid transparent;
+}
+.mva-fiscal .fiscal-white-cta:hover { background-color: #fff1e8; color: #172c46; }
+/* Prevent the global theme from altering navy hero imagery, badges or CTA labels. */
+.mva-fiscal [class~="text-white"] { color: #ffffff; }
+.mva-fiscal :is(button, a) { transition-property: background-color,border-color,color,transform,box-shadow; }
+.mva-fiscal a:focus-visible, .mva-fiscal button:focus-visible {
+  outline: 3px solid #fba16b; outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+ .mva-fiscal :is(button,a) { transition: none; }
+}
