@@ -8,13 +8,13 @@ import { Dialog } from '../ui/Dialog';
 import { AnimatedPaymentCard } from './AnimatedPaymentCard';
 import { displayCardBrands, type CardBrand } from '../../lib/card-presentation';
 
-export function FiscalCheckout({ planId, transfer = false, resumeOrderId, onClose, onPaid }: { planId: FiscalPlanId; transfer?: boolean; resumeOrderId?: string; onClose: () => void; onPaid: () => void }) {
+export function FiscalCheckout({ planId, initialTerm = 12, transfer = false, resumeOrderId, onClose, onPaid }: { planId: FiscalPlanId; initialTerm?: FiscalTermMonths; transfer?: boolean; resumeOrderId?: string; onClose: () => void; onPaid: () => void }) {
   const { currentUser, setAuthModalOpen, setAuthModalTab, refreshFiscalContracts } = useCoworking();
   const { language, theme } = usePreferences();
   const [effectivePlanId, setEffectivePlanId] = useState<FiscalPlanId>(planId);
   const plan = getPlan(effectivePlanId);
   const [isTransfer, setTransfer] = useState(transfer);
-  const [termMonths, setTermMonths] = useState<FiscalTermMonths>(12);
+  const [termMonths, setTermMonths] = useState<FiscalTermMonths>(initialTerm);
   const [previousAddress, setPreviousAddress] = useState('');
   const quote = quotePlan(plan, termMonths, isTransfer);
   const [company, setCompany] = useState<FiscalCompanyInput>({ companyName: '', tradingName: '', cnpj: '', contactEmail: currentUser?.email || '', contactPhone: '' });
