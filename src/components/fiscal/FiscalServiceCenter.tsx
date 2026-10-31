@@ -17,8 +17,9 @@ const PLAN_IDS: FiscalPlanId[]=['comercial','fiscal','fiscal_ie'];
 const safeError=(e:unknown)=> e instanceof Error?e.message:'Não foi possível concluir. Tente novamente.';
 const daysUntil=(date:string)=>Math.ceil((new Date(date+'T12:00:00-03:00').getTime()-Date.now())/86400000);
 
-export function FiscalServiceCenter({ initialPlan='fiscal', onCheckout }:{
- initialPlan?:FiscalPlanId; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
+export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, mode='full', onSubmitted, onCheckout }:{
+ initialPlan?:FiscalPlanId; initialTerm?:1|12; mode?:'full'|'application'|'dashboard';
+ onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
 }) {
  const {currentUser,fiscalContracts,setAuthModalOpen,setAuthModalTab,showToast}=useCoworking();
  const [applications,setApplications]=useState<FiscalApplication[]>([]);
@@ -29,7 +30,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', onCheckout }:{
  const [uploading,setUploading]=useState<string|null>(null);
  const [error,setError]=useState('');
  const [plan,setPlan]=useState<FiscalPlanId>(initialPlan);
- const [term,setTerm]=useState<1|12>(12);
+ const [term,setTerm]=useState<1|12>(initialTerm);
  const [consent,setConsent]=useState(false);
  const [form,setForm]=useState({
    company_name:'',trading_name:'',cnpj:'em abertura',cnae:'',
@@ -37,6 +38,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', onCheckout }:{
  });
  const update=(key:keyof typeof form,value:string)=>setForm(v=>({...v,[key]:value}));
  useEffect(()=>{setPlan(initialPlan)},[initialPlan]);
+ useEffect(()=>{setTerm(initialTerm)},[initialTerm]);
  useEffect(()=>{if(currentUser)setForm(v=>({...v,responsible_name:v.responsible_name||currentUser.name,contact_email:v.contact_email||currentUser.email}))},[currentUser?.id]);
 
  const load=useCallback(async()=>{
@@ -73,7 +75,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', onCheckout }:{
      });
      if(insertError)throw insertError;
      showToast('Solicitação enviada. A equipe analisará o endereço e a atividade da empresa.','success');
-     setConsent(false);await load();
+     setConsent(false);await load();onSubmitted?.();
    }catch(e){setError('Não foi possível enviar a solicitação. Confira os dados e tente novamente.')}
    finally{setBusy(false)}
  };
@@ -110,17 +112,17 @@ export function FiscalServiceCenter({ initialPlan='fiscal', onCheckout }:{
     maxLength={key==='cnae'?120:key==='contact_email'?254:180}
     className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-navy-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100"/>
  </label>;
- return <section id="gestao-endereco-fiscal" className="scroll-mt-36 space-y-6" aria-labelledby="fiscal-center-title">
-  <header className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
+ return <section id="gestao-endereco-fiscal" className="min-w-0 scroll-mt-36 space-y-6" aria-label="Área de gestão de endereço fiscal">
+  {mode==='full'&&<header className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
    <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-600"><FolderLock className="h-4 w-4"/>Gestão digital</div>
    <h2 id="fiscal-center-title" className="text-2xl font-bold tracking-tight text-navy-950 sm:text-3xl">Meu endereço fiscal</h2>
    <p className="max-w-3xl text-sm leading-relaxed text-slate-600">Solicite a análise cadastral, acompanhe a aprovação, envie documentos e administre suas empresas. A autorização de uso do endereço depende de viabilidade, contrato e pagamento confirmado.</p>
    <div className="grid gap-3 sm:grid-cols-3">
     {[{icon:ShieldCheck,label:'Análise de atividade'},{icon:FileCheck2,label:'Documentos protegidos'},{icon:CalendarClock,label:'Vigência e renovação'}].map(({icon:Icon,label})=><div key={label} className="flex items-center gap-2 rounded-xl bg-slate-50 p-3 text-xs font-medium text-navy-800"><Icon className="h-4 w-4 shrink-0 text-orange-600"/>{label}</div>)}
    </div>
-  </header>
+  </header>}
   {error&&<div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}</div>}
-  {currentUser && <div className="space-y-4">
+  {mode!=='application'&&currentUser && <div className="space-y-4">
     <div className="flex items-center justify-between gap-3"><h3 className="font-bold text-navy-900">Minhas empresas e solicitações</h3><button type="button" onClick={()=>void load()} className="text-xs font-semibold text-orange-700 hover:underline">Atualizar</button></div>
     {loading?<p className="text-sm text-slate-500">Carregando solicitações…</p>:applications.length===0?<p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">Você ainda não solicitou um endereço fiscal. Preencha o formulário abaixo para começar.</p>:<div className="grid gap-3 lg:grid-cols-2">
       {applications.map(app=>{
@@ -162,7 +164,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', onCheckout }:{
        </article>;
     })}
   </div>}
-  <form onSubmit={submit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+  {mode!=='dashboard'&&<form onSubmit={submit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
     <div className="flex items-start gap-3"><Building2 className="mt-0.5 h-6 w-6 shrink-0 text-orange-600"/><div><h3 className="text-lg font-bold text-navy-900">Solicitar análise para contratação</h3><p className="mt-1 text-xs leading-relaxed text-slate-600">Uma solicitação por empresa. Para cadastrar outra empresa, envie um novo formulário.</p></div></div>
     <div className="grid gap-4 md:grid-cols-2">{input('company_name','Razão social')}{input('trading_name','Nome fantasia',false)}{input('cnpj','CNPJ ou "em abertura"')}{input('cnae','Atividade / CNAE')}{input('responsible_name','Responsável legal')}{input('contact_email','E-mail para contato')}{input('contact_phone','Telefone',false)}</div>
     <div className="grid gap-4 md:grid-cols-3">
@@ -178,6 +180,6 @@ export function FiscalServiceCenter({ initialPlan='fiscal', onCheckout }:{
       <FilePlus2 className="h-4 w-4"/>{busy?'Enviando…':currentUser?'Enviar solicitação para análise':'Entrar para solicitar'}
     </button>
     <p className="flex items-start gap-2 text-xs leading-relaxed text-slate-500"><LockKeyhole className="h-4 w-4 shrink-0"/>Arquivos ficam em armazenamento privado; o acesso é concedido à empresa titular e à administração. Declarações são disponibilizadas somente após aprovação, contrato e pagamento válidos.</p>
-  </form>
+  </form>}
  </section>;
 }
