@@ -141,12 +141,12 @@ export function FiscalCheckout({ planId, initialTerm = 12, transfer = false, res
   const close = () => { if (!busy) onClose(); };
 
   return <Dialog titleId="fiscal-checkout-title" onClose={close} className="checkout-wide">
-    <header className="checkout-heading"><div className="checkout-brand"><img src="/logo.png" alt="MVA" /><span>{t('Contratação de endereço')}</span></div><button type="button" className="checkout-close" disabled={busy} onClick={close} aria-label={t('Fechar')}><X size={20} /></button></header>
+    <header className="checkout-heading"><div className="checkout-brand"><img src="/logo.png" alt="MVA" /><span>{t('Pagamento do plano selecionado')}</span></div><button type="button" className="checkout-close" disabled={busy} onClick={close} aria-label={t('Fechar')}><X size={20} /></button></header>
     <div className="checkout-layout">
       <aside className="checkout-summary">
         <span className="checkout-kicker">{t('SEU PRÓXIMO PASSO')}</span>
-        <h2 id="fiscal-checkout-title">{t('Um endereço à altura da sua empresa.')}</h2>
-        <p>{t('Estrutura profissional, contratação simples e tudo em um só lugar.')}</p>
+        <h2 id="fiscal-checkout-title">{t('Seu plano, seu pagamento.')}</h2>
+        <p>{t('Revise o total e siga para o pagamento seguro quando disponível.')}</p>
         <div className="checkout-product"><div className="checkout-product-icon"><Building2 size={23} /></div><div><span>{t('Plano selecionado')}</span><h3>{t(plan.name)}</h3></div></div>
         <div className="checkout-location"><MapPin size={18} /><p>{HEADQUARTERS}</p></div>
         <dl className="checkout-prices"><div><dt>{t('Vigência')}</dt><dd>{t(termMonths === 1 ? '1 mês' : '12 meses')}</dd></div><div><dt>{t(termMonths === 1 ? 'Plano de 1 mês' : 'Plano de 12 meses')}</dt><dd>{money(quote.fullAmount, language)}</dd></div>{quote.discount > 0 && <div className="checkout-discount"><dt>{t('Portabilidade · 4 meses grátis')}</dt><dd>− {money(quote.discount, language)}</dd></div>}<div className="checkout-total"><dt>{t('Total a pagar')}</dt><dd>{money(displayedTotal, language)}</dd></div></dl>
@@ -155,9 +155,9 @@ export function FiscalCheckout({ planId, initialTerm = 12, transfer = false, res
         <div className="checkout-security"><LockKeyhole size={16} /><span>{t('Dados do cartão protegidos pelo provedor de pagamento.')}</span></div>
       </aside>
       <section className="checkout-content">
-        <ol className="checkout-steps" aria-label={t('Etapas da contratação')}>{['Empresa', 'Pagamento', 'Confirmação'].map((label, i) => <li key={label} aria-current={(step === 'details' ? 0 : step === 'card' ? 1 : 2) === i ? 'step' : undefined}><span>{i + 1}</span>{t(label)}</li>)}</ol>
+        <ol className="checkout-steps" aria-label={t('Etapas da contratação')}>{['Dados de cobrança', 'Cartão', 'Confirmação'].map((label, i) => <li key={label} aria-current={(step === 'details' ? 0 : step === 'card' ? 1 : 2) === i ? 'step' : undefined}><span>{i + 1}</span>{t(label)}</li>)}</ol>
         {step === 'details' && <form onSubmit={begin} className="checkout-form">
-          <div className="checkout-section-title"><span className="checkout-icon"><Building2 size={20} /></span><div><h3>{t('Vamos conhecer sua empresa')}</h3><p>{t('Esses dados serão usados no contrato e na declaração.')}</p></div></div>
+          <div className="checkout-section-title"><span className="checkout-icon"><CreditCard size={20} /></span><div><h3>{t('Finalizar contratação')}</h3><p>{t('Plano selecionado. Informe os dados de cobrança; o cartão será solicitado na etapa seguinte, quando habilitada.')}</p></div></div>
           <fieldset className="checkout-period" disabled={busy}>
             <legend>{t('Período de contratação')}</legend>
             <div className="checkout-period-options">
@@ -175,10 +175,10 @@ export function FiscalCheckout({ planId, initialTerm = 12, transfer = false, res
           {input('contactEmail', 'E-mail de contato', { type: 'email', autoComplete: 'email', placeholder: 'contato@empresa.com.br' })}
           <label className="checkout-check"><input type="checkbox" disabled={busy} checked={isTransfer} onChange={e => { setTransfer(e.target.checked); setAccepted(false); setOrder(null); setSession(null); requestKey.current = crypto.randomUUID(); }} /><span><strong>{t('Já tenho endereço fiscal e quero transferir')}</strong><small>{t(termMonths === 12 ? '4 meses grátis no plano de 12 meses. Informe seu endereço atual.' : 'No plano de 1 mês, a transferência não recebe os 4 meses grátis.')}</small></span></label>
           {isTransfer && <label className="checkout-field"><span>{t('Coworking ou endereço atual')}</span><input disabled={busy} required minLength={3} maxLength={240} value={previousAddress} onChange={e => { setPreviousAddress(e.target.value); requestKey.current = crypto.randomUUID(); }} /></label>}
-          <label className="checkout-check"><input type="checkbox" disabled={busy} required checked={accepted} onChange={e => setAccepted(e.target.checked)} /><span>{t(termMonths === 1 ? 'Confirmo meus dados e aceito contratar 1 mês pelo valor total exibido. O uso do endereço e a declaração dependem do pagamento confirmado.' : 'Confirmo meus dados e aceito contratar 12 meses pelo valor total exibido. O uso do endereço e a declaração dependem do pagamento confirmado.')}</span></label>
+          <label className="checkout-check"><input type="checkbox" disabled={busy} required checked={accepted} onChange={e => setAccepted(e.target.checked)} /><span>{t(termMonths === 1 ? 'Confirmo meus dados e aceito contratar 1 mês pelo valor total exibido. O uso do endereço e a declaração dependem da análise de elegibilidade, contrato e pagamento confirmado.' : 'Confirmo meus dados e aceito contratar 12 meses pelo valor total exibido. O uso do endereço e a declaração dependem da análise de elegibilidade, contrato e pagamento confirmado.')}</span></label>
           {!paymentConfigured && <div className="checkout-notice" role="status"><Info size={18} /><div><strong>{t('Pagamentos disponíveis em breve')}</strong><p>{t('Você já pode conhecer o fluxo de contratação. Os campos de cartão serão liberados quando o pagamento seguro estiver disponível.')}</p></div></div>}
           {error && <p role="alert" className="checkout-error">{t(error)}</p>}
-          {!currentUser ? <button type="button" className="action-primary checkout-submit" onClick={() => { setAuthModalTab('login'); setAuthModalOpen(true); }}>{t('Entrar para continuar')}<ArrowRight size={17} /></button> : <button className="action-primary checkout-submit" disabled={busy || !paymentConfigured}>{busy ? <LoaderCircle className="animate-spin" size={18} /> : <LockKeyhole size={17} />}{t(busy ? 'Preparando pagamento…' : 'Continuar para pagamento')}<ArrowRight size={17} /></button>}
+          {!currentUser ? <button type="button" className="action-primary checkout-submit" onClick={() => { setAuthModalTab('login'); setAuthModalOpen(true); }}>{t('Entrar para continuar')}<ArrowRight size={17} /></button> : <button className="action-primary checkout-submit" disabled={busy || !paymentConfigured}>{busy ? <LoaderCircle className="animate-spin" size={18} /> : <LockKeyhole size={17} />}{t(busy ? 'Preparando pagamento…' : 'Continuar para cartão')}<ArrowRight size={17} /></button>}
           {!paymentConfigured && <div className="checkout-card-preview" aria-label={t('Prévia do pagamento com cartão')}><div className="checkout-section-title"><CreditCard size={20} /><h3>{t('Pagamento com cartão')}</h3></div><AnimatedPaymentCard demo /><label className="checkout-field"><span>{t('Número do cartão')}</span><input disabled placeholder="•••• •••• •••• ••••" /></label><div className="checkout-field-row"><label className="checkout-field"><span>{t('Validade')}</span><input disabled placeholder="MM / AA" /></label><label className="checkout-field"><span>CVC</span><input disabled placeholder="•••" /></label></div><small>{t('Prévia visual. Nenhum dado de cartão é coletado nesta etapa.')}</small></div>}
         </form>}
         {step === 'card' && <form onSubmit={pay} className="checkout-form">
