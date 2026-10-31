@@ -344,7 +344,7 @@ export function FiscalView(){
        <div className="min-w-0"><span className="text-xs font-bold uppercase tracking-widest text-orange-700">Próxima etapa</span><h2 id="mva-fiscal-application-title" className="mt-1 text-xl font-bold text-navy-950">Análise antes da contratação</h2><p className="mt-1 text-xs leading-relaxed text-slate-600">Só precisamos dos dados para verificar a elegibilidade. Nenhuma cobrança acontece agora.</p></div>
        <button aria-label="Fechar" type="button" onClick={()=>setApplicationOpen(false)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><X className="h-5 w-5"/></button>
       </div>
-      <FiscalServiceCenter mode="application" initialPlan={selectedPlan} initialTerm={term}
+      <FiscalServiceCenter mode="application" initialPlan={selectedPlan} initialTerm={term} requireTransfer={transfer}
        onSubmitted={()=>{setApplicationOpen(false);setClientAreaOpen(true);window.setTimeout(()=>go('minha-area-fiscal'),60)}}
        onCheckout={id=>void start(id)}/>
      </div>
