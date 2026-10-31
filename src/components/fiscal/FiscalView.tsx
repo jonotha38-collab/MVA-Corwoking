@@ -60,6 +60,7 @@ export function FiscalView(){
  const [units,setUnits]=useState<ServiceUnit[]>([]);
  const [unitsLoading,setUnitsLoading]=useState(true);
  const [checkBusy,setCheckBusy]=useState(false);
+ const [continueAfterLogin,setContinueAfterLogin]=useState(false);
  const [returnOrderId]=useState(()=>new URL(window.location.href).searchParams.get('fiscal_order'));
 
  useEffect(()=>{
@@ -86,6 +87,7 @@ export function FiscalView(){
  const start=async(id:FiscalPlanId)=>{
   setSelectedPlan(id);
   if(!currentUser){
+    setContinueAfterLogin(true);
     setAuthModalTab('login');setAuthModalOpen(true);
     showToast('Entre na sua conta para prosseguir com a contratação.','info');
     return;
@@ -107,6 +109,13 @@ export function FiscalView(){
     showToast('Não foi possível consultar sua análise cadastral. Tente novamente.','error');
   }finally{setCheckBusy(false)}
  };
+ useEffect(()=>{
+  if(!currentUser || !continueAfterLogin)return;
+  setContinueAfterLogin(false);
+  // Continue with the selected plan after successful authentication.
+  void start(selectedPlan);
+ },[currentUser?.id,continueAfterLogin]);
+
  const showArea=()=>{
    if(!currentUser){setAuthModalTab('login');setAuthModalOpen(true);return}
    setClientAreaOpen(v=>!v);
@@ -319,6 +328,7 @@ export function FiscalView(){
     <div className="max-w-2xl"><span className="text-[11px] font-bold uppercase tracking-widest text-orange-300">Seu próximo passo</span><h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[32px]">Pronto para profissionalizar seu endereço?</h2><p className="mt-3 text-sm leading-relaxed text-slate-300">Escolha seu plano com tranquilidade. Nossa equipe confere os requisitos antes de qualquer liberação.</p></div>
     <div className="flex flex-col gap-3 sm:flex-row">
       <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#cc541c] px-6 py-3.5 text-sm font-bold text-white hover:bg-[#af410f]">Ver planos <ArrowRight className="h-4 w-4"/></button>
+      <a href="mailto:contato@mvacoworking.com.br?subject=Escrit%C3%B3rio%20virtual%20MVA" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><Headphones className="h-4 w-4"/> Falar com a MVA</a>
       <button type="button" onClick={showArea} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><FileCheck2 className="h-4 w-4"/> Minha área</button>
     </div>
    </div>
