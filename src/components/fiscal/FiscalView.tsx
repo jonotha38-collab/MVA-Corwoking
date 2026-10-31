@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
-  ArrowRight, ArrowUpRight, BadgeCheck, BriefcaseBusiness, Building2, CalendarClock,
-  Check, CheckCircle2, ChevronDown, Clock3, FileCheck2, FileText,
-  Gift, Headphones, LockKeyhole, MailCheck, MapPin, MessageSquareText,
+  ArrowRight, ArrowUpRight, BadgeCheck, BriefcaseBusiness, Building2,
+  Check, CheckCircle2, ChevronDown, FileCheck2, FileText,
+  Gift, Headphones, LockKeyhole, MailCheck, MapPin,
   MonitorSmartphone, SearchCheck, ShieldCheck, Sparkles, UsersRound, X
 } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
-import { t } from '../../lib/preferences';
 import { supabase } from '../../lib/supabase';
 import { FISCAL_PLANS, quotePlan, canIssueCertificate, restoreOrder, type FiscalPlanId } from '../../lib/fiscal-payment';
 import { FiscalCheckout } from '../payments/FiscalCheckout';
@@ -327,6 +326,10 @@ export function FiscalView(){
 
   {/* Existing clients keep document/contract access, without exposing onboarding forms in the landing page. */}
   <div id="minha-area-fiscal" className="scroll-mt-32">
+    {eligible && currentUser && <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-wider text-emerald-800">Contrato ativo</p><p className="mt-1 break-words text-sm font-semibold text-navy-900">{currentCompany.companyName}</p><p className="mt-1 text-xs text-slate-600">Acesse sua declaração de endereço fiscal no painel seguro da MVA.</p></div>
+      <button type="button" onClick={()=>setCertificateOpen(true)} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 py-3 text-xs font-bold text-white"><FileCheck2 className="h-4 w-4"/> Ver declaração</button>
+     </div>}
     {currentUser && <div className="space-y-5">
        <button type="button" aria-expanded={clientAreaOpen} onClick={()=>setClientAreaOpen(v=>!v)} className="flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left text-sm font-bold text-navy-900">
         <span className="flex min-w-0 items-center gap-2"><FileCheck2 className="h-5 w-5 shrink-0 text-orange-600"/> Acompanhar solicitações e documentos</span><ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${clientAreaOpen?'rotate-180':''}`}/>
