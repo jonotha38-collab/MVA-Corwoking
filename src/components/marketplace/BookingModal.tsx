@@ -240,7 +240,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">{t("E-mail de Confirmação ")}</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("E-mail para contato (sem envio automático) ")}</label>
                 <input
                   type="email"
                   required
