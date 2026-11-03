@@ -263,7 +263,7 @@ export const LegalPage: React.FC = () => {
             </h2>
             <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
               <p>
-                {t("A contratação do Endereço Fiscal confere à empresa contratante o direito de registrar sua sede fiscal perante a Receita Federal, Junta Comercial do Estado e Prefeitura Municipal no endereço oficial da MVA Coworking Hub (Rua Dom José Thomaz, 565 - Bairro São José - Aracaju/SE - CEP 49015-090).")}
+                {t("O uso do endereço fiscal da MVA Coworking Hub (Rua Dom José Thomaz, 565 - Bairro São José - Aracaju/SE - CEP 49015-090) depende da elegibilidade da atividade, da viabilidade exigida pelos órgãos competentes, da formalização contratual e da confirmação válida do pagamento. Nenhum plano garante automaticamente aprovação cadastral ou alvará.")}
               </p>
               <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-900 dark:text-amber-200 space-y-1">
                 <strong>{t("Atenção sobre a Declaração de Endereço Fiscal:")}</strong>
@@ -284,8 +284,8 @@ export const LegalPage: React.FC = () => {
             </p>
             <ul className="list-disc list-inside text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-1.5 pl-2">
               <li>{t("As cartas e encomendas recebidas são protocoladas e alocadas em lockers seguros numerados.")}</li>
-              <li>{t("O cliente é notificado digitalmente no momento da chegada da correspondência.")}</li>
-              <li>{t("Correspondências judiciais e fiscais urgentes contam com aviso prioritário via e-mail e WhatsApp cadastrado.")}</li>
+              <li>{t("O cliente poderá consultar a correspondência cadastrada em seu painel. Notificações por e-mail ou WhatsApp dependem de integrações externas ativas.")}</li>
+              <li>{t("Correspondências urgentes exigem acompanhamento pelo painel e pelos canais de atendimento disponíveis. Alertas externos só serão enviados após a ativação explícita das respectivas integrações.")}</li>
               <li>{t("A digitalização do conteúdo da carta (abertura de envelope) apenas ocorre mediante expressa solicitação e autorização formal do titular dentro da plataforma.")}</li>
             </ul>
           </section>
