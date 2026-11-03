@@ -69,7 +69,13 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [correspondence, setCorrespondence] = useState<Correspondence[]>([]);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [internAuthorized, setInternAuthorized] = useState(false);
-  const [activeTab, setActiveTab] = useState('fiscal');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === 'undefined') return 'home';
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('fiscal_order')) return 'fiscal';
+    const page = params.get('page');
+    return page && ['home','marketplace','fiscal','legal'].includes(page) ? page : 'home';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Todas');
   const [selectedCategory, setSelectedCategory] = useState('todas');
