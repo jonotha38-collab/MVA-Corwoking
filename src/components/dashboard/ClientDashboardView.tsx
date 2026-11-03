@@ -43,7 +43,7 @@ export const ClientDashboardView: React.FC = () => {
     if(!currentUser){setPaidBookingIds(new Set());return}
     let mounted=true;
     void supabase.from('mva_checkout_orders').select('resource_id')
-      .eq('user_id',currentUser.id).eq('kind','booking').eq('status','paid')
+      .eq('user_id',currentUser.id).eq('kind','booking').eq('status','paid').eq('livemode',true)
       .then(({data})=>{if(mounted)setPaidBookingIds(new Set((data||[]).map(x=>x.resource_id as string)))});
     return()=>{mounted=false};
   },[currentUser?.id,bookings.length]);
