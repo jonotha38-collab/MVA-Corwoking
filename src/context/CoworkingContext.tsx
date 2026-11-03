@@ -274,7 +274,13 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const patchBooking = async (id: string, patch: Record<string, unknown>, ok: string) => {
     const { data, error } = await supabase.from('bookings').update(patch).eq('id', id).select().single();
-    if (error) return fail('Não foi possível atualizar a reserva', error);
+    if (error) {
+      if (patch.status === 'cancelada' && error.code === '23514') {
+        showToast('Esta reserva possui pagamento Stripe ativo. Solicite reembolso ou cancelamento da cobrança à MVA antes de cancelar.', 'error');
+        return false;
+      }
+      return fail('Não foi possível atualizar a reserva', error);
+    }
     setBookings(prev => prev.map(x => (x.id === id ? rowToBooking(data) : x)));
     showToast(ok, 'info');
     return true;
