@@ -13,6 +13,7 @@ import { AuthModal } from './components/auth/AuthModal'
 import { HomeView } from './components/home/HomeView'
 import { FiscalVerificationView } from './components/fiscal/FiscalVerificationView'
 import { CookieBanner } from './components/common/CookieBanner';
+import { StripeReturnNotice } from './components/payments/StripeReturnNotice';
 
 // Public service areas and management screens are loaded when opened to keep the homepage fast.
 const MarketplaceView = lazy(() => import('./components/marketplace/MarketplaceView').then(m => ({ default: m.MarketplaceView })))
@@ -34,7 +35,7 @@ export default function App() {
   const calendarProcessing = useRef(false)
   const pending = spaces.filter(s => s.approval === 'pendente').length
   const admin = isAdmin(currentUser)
-  const blocked = PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin) || (activeTab === 'intern-rooms' && !internAuthorized))
+  const blocked = ready && PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin) || (activeTab === 'intern-rooms' && !internAuthorized))
 
   useEffect(() => {
     if (blocked) {
@@ -69,7 +70,8 @@ export default function App() {
   // Public service pages have shareable links and distinctive metadata.
   // The SPA still needs prerendered HTML to obtain full per-page SEO coverage.
   useEffect(() => {
-    const page = ['home', 'marketplace', 'fiscal', 'legal'].includes(activeTab) ? activeTab : 'home';
+    const publicPage = ['home', 'marketplace', 'fiscal', 'legal'].includes(activeTab);
+    const page = publicPage ? activeTab : 'home';
     const entries: Record<string, [string,string]> = {
       home: ['MVA Coworking | Salas, endereço fiscal e espaços para anunciar','Conheça a MVA Coworking em Aracaju: encontre salas, consulte planos de endereço fiscal e cadastre seu espaço.'],
       marketplace: ['Salas de reunião em Aracaju | MVA Coworking','Encontre ambientes para reunião, atendimento e trabalho. Compare fotos, valores e disponibilidade de salas na MVA e parceiros.'],
@@ -87,8 +89,8 @@ export default function App() {
     const url = new URL(window.location.href);
     const preserveCallback = ['fiscal_order','verify_fiscal','code','access_token'].some(key => url.searchParams.has(key)) || !!url.hash.match(/access_token|refresh_token/);
     if (!preserveCallback) {
-      if (page === 'home') url.searchParams.delete('page');
-      else url.searchParams.set('page',page);
+      if (activeTab === 'home') url.searchParams.delete('page');
+      else url.searchParams.set('page',activeTab);
       const nextUrl = url.pathname + url.search + url.hash;
       if (nextUrl !== window.location.pathname + window.location.search + window.location.hash) {
         window.history.replaceState(window.history.state, '', nextUrl);
@@ -98,6 +100,7 @@ export default function App() {
     if (page !== 'home') canonicalUrl.searchParams.set('page',page);
     document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href',canonicalUrl.href);
     update('meta[property="og:url"]',canonicalUrl.href);
+    document.querySelector<HTMLMetaElement>('meta[name="robots"]')?.setAttribute('content', publicPage ? 'index, follow' : 'noindex, nofollow');
   }, [activeTab]);
 
   const verificationCode = new URLSearchParams(window.location.search).get('verify_fiscal');
@@ -128,6 +131,7 @@ export default function App() {
         </div>
       )}
       <main id="conteudo" tabIndex={-1} className="mx-auto w-full min-w-0 max-w-7xl flex-1 px-3 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        <StripeReturnNotice />
         <Suspense fallback={<div className="grid min-h-[50vh] place-items-center text-sm text-navy-600" role="status">{t("Carregando seu painel… ")}</div>}>
         {activeTab === 'home' && <HomeView />}
         {activeTab === 'marketplace' && <MarketplaceView />}
