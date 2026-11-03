@@ -1,0 +1,264 @@
+// MVA Coworking | Three Stripe revenue flows.
+// This function is intentionally fail-closed until admins enable the DB gates,
+// set STRIPE_BILLING_MODE=test and configure a fresh test key in Supabase Secrets.
+// Never embed Stripe private keys in the frontend, GitHub, or responses.
+import Stripe from 'npm:stripe@^22';
+import { createClient } from 'npm:@supabase/supabase-js@^2';
+
+const url = Deno.env.get('SUPABASE_URL')!;
+const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const admin = createClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});
+const SITE = Deno.env.get('MVA_SITE_URL') || 'https://coworking-mva-du8c.vercel.app';
+const origins = new Set([new URL(SITE).origin,'http://localhost:5173',...(Deno.env.get('MVA_ALLOWED_ORIGINS')||'').split(',').map(x=>x.trim()).filter(Boolean)]);
+type Body = Record<string,unknown>;
+const response = (data:unknown,status=200,origin=SITE)=>new Response(JSON.stringify(data),{
+ status,headers:{'Content-Type':'application/json','Cache-Control':'no-store',
+ 'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Headers':'authorization, apikey, content-type',
+ 'Access-Control-Allow-Methods':'POST, OPTIONS'}
+});
+const string = (value:unknown)=>typeof value==='string'?value.trim():'';
+const validUuid=(s:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+function stripeClient(){
+ const privateKey=Deno.env.get('STRIPE_SECRET_KEY')||'';
+ const mode=Deno.env.get('STRIPE_BILLING_MODE');
+ const keyIsTest=/^(sk|rk)_test_/.test(privateKey);
+ const keyIsLive=/^(sk|rk)_live_/.test(privateKey);
+ if (mode==='test'&&!keyIsTest)throw new Error('Configure uma chave Stripe de TESTE válida no Supabase.');
+ if (mode==='live'&&(!keyIsLive||Deno.env.get('STRIPE_LIVE_LAUNCH_APPROVED')!=='true'))throw new Error('Produção Stripe bloqueada até aprovação explícita.');
+ if(mode!=='test'&&mode!=='live')throw new Error('Gateway Stripe em preparação.');
+ return new Stripe(privateKey);
+}
+async function settings(){
+ const {data,error}=await admin.from('mva_billing_settings').select('*').eq('id',1).single();
+ if(error)throw error;return data;
+}
+const flagsReady=(s:Body)=>Boolean(s.checkout_enabled)&&Deno.env.get('STRIPE_BILLING_ENABLED')==='true'
+ && (Deno.env.get('STRIPE_BILLING_MODE')==='test' || Deno.env.get('STRIPE_BILLING_MODE')==='live');
+const checkoutUrl=(page:string,status:string,order?:string)=>{
+ const u=new URL(SITE);
+ u.searchParams.set('page',page);u.searchParams.set('stripe_checkout',status);
+ if(order)u.searchParams.set('stripe_order',order);
+ return u.href;
+};
+async function auth(req:Request){
+ const token=(req.headers.get('authorization')||'').replace(/^Bearer\s+/i,'');
+ if(!token || token.length<30)throw new Error('Entre na sua conta para pagar.');
+ const {data,error}=await admin.auth.getUser(token);
+ if(error||!data.user)throw new Error('Sessão expirada. Entre novamente.');
+ return data.user;
+}
+async function profile(userId:string){
+ const {data,error}=await admin.from('profiles').select('id,name,email,account_type,is_admin').eq('id',userId).single();
+ if(error||!data)throw new Error('Perfil do usuário não encontrado.');
+ return data;
+}
+async function priceOfOwner(planId:string){
+ const {data,error}=await admin.from('mva_owner_plans').select('id,label,monthly_cents,max_spaces').eq('id',planId).eq('active',true).maybeSingle();
+ if(error)throw error;if(!data)throw new Error('Este plano ainda não foi ativado pela MVA.');
+ return data;
+}
+function successInfo(session:Stripe.Checkout.Session,orderId?:string){
+ if(!session.url)throw new Error('O Stripe não retornou uma página de pagamento.');
+ return {url:session.url,sessionId:session.id,orderId,livemode:session.livemode};
+}
+async function customerCheckout(input:{
+ kind:'fiscal'|'booking',resourceId:string,userId:string,amountCents:number,title:string,
+ email:string,accountId:string|null,meta:Record<string,string>,page:string,
+},stripe:Stripe){
+ const {kind,resourceId,userId,amountCents,title,email,accountId,meta,page}=input;
+ let {data:order,error:lookupError}=await admin.from('mva_checkout_orders').select('*')
+   .eq('kind',kind).eq('resource_id',resourceId).maybeSingle();
+ if(lookupError)throw lookupError;
+ if(order&&order.user_id!==userId)throw new Error('Este pedido pertence a outra conta.');
+ if(order&&['paid','refunded','disputed'].includes(order.status))
+   throw new Error('Este pedido já possui pagamento registrado. Consulte o histórico.');
+ if(order&&(order.stripe_account_id!==accountId || order.amount_cents!==amountCents))
+   throw new Error('O valor ou recebedor mudou. Peça revisão à MVA antes de pagar.');
+ if(order&&order.stripe_checkout_url&&order.session_expires_at
+    &&new Date(order.session_expires_at).getTime()>Date.now()+60000)
+   return {url:order.stripe_checkout_url,sessionId:order.stripe_checkout_session_id,orderId:order.id,livemode:order.livemode};
+ if(!order){
+  const {data:newOrder,error}=await admin.from('mva_checkout_orders').insert({
+   kind,user_id:userId,resource_id:resourceId,amount_cents:amountCents,
+   stripe_account_id:accountId,currency:'brl',status:'pending',livemode:Deno.env.get('STRIPE_BILLING_MODE')==='live',
+   plan_id:meta.planId||null,term_months:meta.termMonths?Number(meta.termMonths):null
+  }).select('*').single();
+  if(error){
+   const again=await admin.from('mva_checkout_orders').select('*').eq('kind',kind).eq('resource_id',resourceId).maybeSingle();
+   if(again.data?.user_id===userId)throw new Error('O checkout já está sendo preparado. Tente novamente em alguns segundos.');
+   throw error;
+  }
+  order=newOrder;
+ }
+ const {data:claimed,error:claimError}=await admin.rpc('mva_claim_checkout_order',{p_order:order.id});
+ if(claimError)throw claimError;
+ if(!claimed)throw new Error('Há uma tentativa de pagamento em andamento. Aguarde e tente novamente.');
+ let created:Stripe.Checkout.Session|null=null;
+ try{
+  created=await stripe.checkout.sessions.create({
+   mode:'payment',payment_method_types:['card'],
+   customer_email:email,
+   client_reference_id:order.id,
+   line_items:[{price_data:{currency:'brl',unit_amount:amountCents,
+     product_data:{name:title}},quantity:1}],
+   metadata:{mva_kind:kind,mva_order_id:order.id,mva_resource_id:resourceId,...meta},
+   payment_intent_data:{metadata:{mva_kind:kind,mva_order_id:order.id}},
+   success_url:checkoutUrl(page,'success',order.id),
+   cancel_url:checkoutUrl(page,'canceled',order.id),
+  },accountId?{stripeAccount:accountId,idempotencyKey:'mva-'+order.id+'-'+crypto.randomUUID()}:{idempotencyKey:'mva-'+order.id+'-'+crypto.randomUUID()});
+  const {error:saveError}=await admin.from('mva_checkout_orders').update({
+   status:'pending',stripe_checkout_session_id:created.id,
+   stripe_checkout_url:created.url,session_expires_at:new Date((created.expires_at||0)*1000).toISOString(),
+   livemode:created.livemode,checkout_lock_until:null,updated_at:new Date().toISOString(),
+  }).eq('id',order.id);
+  if(saveError)throw saveError;
+  return successInfo(created,order.id);
+ }catch(e){
+  if(created)try{await stripe.checkout.sessions.expire(created.id,{},accountId?{stripeAccount:accountId}:{})}catch{/* manual reconciliation */}
+  await admin.from('mva_checkout_orders').update({checkout_lock_until:null}).eq('id',order.id);
+  throw e;
+ }
+}
+Deno.serve(async req=>{
+ const requestOrigin=req.headers.get('origin');
+ if(requestOrigin&&!origins.has(requestOrigin))return response({error:'Origem não autorizada.'},403,SITE);
+ const origin=requestOrigin||SITE;
+ if(req.method==='OPTIONS')return response({},200,origin);
+ if(req.method!=='POST')return response({error:'Método inválido.'},405,origin);
+ try{
+  const body=await req.json() as Body;
+  const action=string(body.action);
+  const cfg=await settings();
+  if(action==='status'){
+   const gateway=flagsReady(cfg);
+   return response({mode:'hosted_checkout',checkout:gateway,
+     fiscal:gateway,booking:gateway,
+     owner:gateway&&cfg.owner_subscriptions_enabled,
+     connect:gateway&&cfg.connect_enabled,
+     live:Deno.env.get('STRIPE_BILLING_MODE')==='live',
+     note:'A cobrança depende de contas, planos e credenciais habilitados.'},200,origin);
+  }
+  const user=await auth(req);
+  const me=await profile(user.id);
+  if(!flagsReady(cfg))return response({error:'Pagamentos ainda não foram ativados pela MVA. Nenhuma cobrança foi realizada.'},503,origin);
+  const stripe=stripeClient();
+
+  if(action==='checkout_fiscal'){
+   const id=string(body.applicationId);if(!validUuid(id))throw new Error('Solicitação fiscal inválida.');
+   const {data:app,error:appError}=await admin.from('fiscal_applications').select('*').eq('id',id).eq('user_id',user.id).single();
+   if(appError||!app||app.status!=='approved')throw new Error('A contratação exige análise cadastral aprovada.');
+   const {data:p,error:priceErr}=await admin.from('mva_fiscal_prices')
+    .select('*').eq('id',app.plan_id).eq('active',true).maybeSingle();
+   if(priceErr)throw priceErr;if(!p)throw new Error('Este plano ainda não está habilitado para cobrança.');
+   const months=app.term_months;
+   if(months!==1&&months!==12)throw new Error('Vigência fiscal inválida.');
+   const transfer=months===12&&app.transfer_from.trim().length>=3;
+   const amount=p.monthly_cents*(months-(transfer?4:0));
+   const result=await customerCheckout({kind:'fiscal',resourceId:id,userId:user.id,amountCents:amount,
+     title:p.name+' · '+months+' meses',email:app.contact_email,
+     accountId:null,meta:{planId:p.id,termMonths:String(months),transfer:String(transfer)},
+     page:'fiscal'},stripe);
+   return response(result,200,origin);
+  }
+  if(action==='checkout_booking'){
+   const id=string(body.bookingId);if(!validUuid(id))throw new Error('Reserva inválida.');
+   const {data:b,error:bError}=await admin.from('bookings').select('*').eq('id',id).eq('user_id',user.id).single();
+   if(bError||!b||b.status!=='confirmada')throw new Error('Reserva indisponível para pagamento.');
+   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Maceio',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+   if(b.booking_date<today)throw new Error('Não é possível pagar uma reserva que já passou.');
+   const {data:s,error:sError}=await admin.from('spaces').select('id,owner_id,is_mva_headquarters,approval,status')
+      .eq('id',b.space_id).single();
+   if(sError||!s||s.approval!=='aprovado'||s.status!=='available')throw new Error('Espaço não está disponível para novos pagamentos.');
+   let connected:string|null=null;
+   if(!s.is_mva_headquarters){
+    if(!cfg.connect_enabled)throw new Error('Repasses a coworkings ainda não habilitados.');
+    const {data:account}=await admin.from('mva_connected_accounts').select('*').eq('owner_id',s.owner_id).maybeSingle();
+    if(!account?.charges_enabled||!account?.payouts_enabled||!account.stripe_account_id)
+       throw new Error('Este coworking ainda não concluiu a conexão de recebimentos com Stripe.');
+    connected=account.stripe_account_id;
+   }
+   const amount=Math.round(Number(b.total_price)*100);
+   if(!Number.isSafeInteger(amount)||amount<100)throw new Error('Valor da reserva inválido.');
+   return response(await customerCheckout({kind:'booking',resourceId:id,userId:user.id,amountCents:amount,
+    title:'Reserva · '+b.space_name+' · '+b.booking_date,email:b.responsible_email,
+    accountId:connected,meta:{bookingId:id},page:'client-dashboard'},stripe),200,origin);
+  }
+  if(action==='checkout_owner'){
+   if(!cfg.owner_subscriptions_enabled)throw new Error('Mensalidades dos parceiros ainda não habilitadas.');
+   if(me.account_type!=='coworking_owner'&&!me.is_admin)throw new Error('Conta de proprietário necessária.');
+   const plan=await priceOfOwner(string(body.planId));
+   const {data:existing,error:subError}=await admin.from('mva_owner_subscriptions').select('*').eq('owner_id',user.id).maybeSingle();
+   if(subError)throw subError;
+   if(existing?.stripe_subscription_id&&['active','trialing','past_due','unpaid','paused'].includes(existing.status))
+    throw new Error('Você já possui assinatura. Use Gerenciar assinatura para alterações.');
+   if(existing?.stripe_checkout_session_id&&!existing.stripe_subscription_id){
+    const prev=await stripe.checkout.sessions.retrieve(existing.stripe_checkout_session_id).catch(()=>null);
+    if(prev?.status==='open'&&prev.url)return response(successInfo(prev),200,origin);
+   }
+   const session=await stripe.checkout.sessions.create({
+    mode:'subscription',payment_method_types:['card'],
+    customer:existing?.stripe_customer_id||undefined,
+    customer_email:existing?.stripe_customer_id?undefined:(user.email||me.email),
+    client_reference_id:user.id,
+    line_items:[{price_data:{currency:'brl',unit_amount:plan.monthly_cents,
+      recurring:{interval:'month'},product_data:{name:'MVA Parceiros · '+plan.label}},quantity:1}],
+    metadata:{mva_kind:'owner',mva_owner_id:user.id,mva_plan_id:plan.id},
+    subscription_data:{metadata:{mva_owner_id:user.id,mva_plan_id:plan.id}},
+    success_url:checkoutUrl('owner-dashboard','success'),
+    cancel_url:checkoutUrl('owner-dashboard','canceled')
+   },{idempotencyKey:'mva-owner-'+user.id+'-'+plan.id+'-'+crypto.randomUUID()});
+   const {error:saveError}=await admin.from('mva_owner_subscriptions').upsert({
+    owner_id:user.id,plan_id:plan.id,stripe_checkout_session_id:session.id,
+    stripe_customer_id:existing?.stripe_customer_id||null,
+    stripe_subscription_id:null,status:'incomplete',
+    livemode:session.livemode,updated_at:new Date().toISOString()
+   },{onConflict:'owner_id'});
+   if(saveError){try{await stripe.checkout.sessions.expire(session.id)}catch{};throw saveError}
+   return response(successInfo(session),200,origin);
+  }
+  if(action==='owner_portal'){
+   const {data:sub}=await admin.from('mva_owner_subscriptions').select('stripe_customer_id')
+     .eq('owner_id',user.id).maybeSingle();
+   if(!sub?.stripe_customer_id)throw new Error('Nenhuma assinatura Stripe para gerenciar.');
+   const portal=await stripe.billingPortal.sessions.create({
+    customer:sub.stripe_customer_id,return_url:checkoutUrl('owner-dashboard','return')
+   });
+   return response({url:portal.url},200,origin);
+  }
+  if(action==='connect_onboarding'){
+   if(!cfg.connect_enabled)throw new Error('Conexão dos parceiros não habilitada.');
+   if(me.account_type!=='coworking_owner')throw new Error('Cadastre uma conta de proprietário.');
+   let {data:account,error:accountError}=await admin.from('mva_connected_accounts')
+       .select('*').eq('owner_id',user.id).maybeSingle();
+   if(accountError)throw accountError;
+   if(!account){
+    const created=await stripe.accounts.create({
+     type:'express',country:'BR',email:user.email||me.email,
+     capabilities:{card_payments:{requested:true},transfers:{requested:true}},
+     metadata:{mva_owner_id:user.id}
+    },{idempotencyKey:'mva-connect-'+user.id});
+    const {data:inserted,error}=await admin.from('mva_connected_accounts').insert({
+     owner_id:user.id,stripe_account_id:created.id
+    }).select('*').single();
+    if(error)throw error;
+    account=inserted;
+   }
+   const latest=await stripe.accounts.retrieve(account.stripe_account_id);
+   await admin.from('mva_connected_accounts').update({
+    charges_enabled:latest.charges_enabled===true,
+    payouts_enabled:latest.payouts_enabled===true,
+    details_submitted:latest.details_submitted===true,updated_at:new Date().toISOString()
+   }).eq('owner_id',user.id);
+   if(latest.charges_enabled&&latest.payouts_enabled)return response({connected:true},200,origin);
+   const link=await stripe.accountLinks.create({account:account.stripe_account_id,
+     refresh_url:checkoutUrl('owner-dashboard','connect_retry'),
+     return_url:checkoutUrl('owner-dashboard','connect_return'),type:'account_onboarding'});
+   return response({url:link.url},200,origin);
+  }
+  return response({error:'Operação de pagamento desconhecida.'},400,origin);
+ }catch(e){
+  const msg=e instanceof Error?e.message:'Não foi possível continuar.';
+  console.error('mva-stripe-gateway:',msg);
+  return response({error:msg.startsWith('Stripe')?'Serviço financeiro indisponível. Tente mais tarde.':msg},400,origin);
+ }
+});
