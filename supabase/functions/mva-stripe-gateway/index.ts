@@ -32,14 +32,18 @@ async function settings(){
  const {data,error}=await admin.from('mva_billing_settings').select('*').eq('id',1).single();
  if(error)throw error;return data;
 }
-const flagsReady=(s:Body)=>{
+const credentialsReady=()=>{
  const mode=Deno.env.get('STRIPE_BILLING_MODE');
  const secret=Deno.env.get('STRIPE_SECRET_KEY')||'';
- const credentials=mode==='test'?/^(sk|rk)_test_/.test(secret):
+ return mode==='test'?/^(sk|rk)_test_/.test(secret):
    mode==='live'&&Deno.env.get('STRIPE_LIVE_LAUNCH_APPROVED')==='true'
      &&/^(sk|rk)_live_/.test(secret);
- return Boolean(s.checkout_enabled)&&Deno.env.get('STRIPE_BILLING_ENABLED')==='true'&&!!credentials;
 };
+const platformWebhookReady=()=>/^whsec_[A-Za-z0-9]+$/.test(Deno.env.get('STRIPE_WEBHOOK_SECRET')||'');
+const connectedWebhookReady=()=>/^whsec_[A-Za-z0-9]+$/.test(Deno.env.get('STRIPE_CONNECT_WEBHOOK_SECRET')||'');
+const flagsReady=(s:Body)=>Boolean(s.checkout_enabled)
+  &&Deno.env.get('STRIPE_BILLING_ENABLED')==='true'
+  &&credentialsReady()&&platformWebhookReady();
 const checkoutUrl=(page:string,status:string,order?:string)=>{
  const u=new URL(SITE);
  u.searchParams.set('page',page);u.searchParams.set('stripe_checkout',status);
@@ -140,13 +144,14 @@ Deno.serve(async req=>{
    return response({mode:'hosted_checkout',checkout:gateway,
      fiscal:gateway,booking:gateway,
      owner:gateway&&cfg.owner_subscriptions_enabled,
-     connect:gateway&&cfg.connect_enabled,
+     portal:credentialsReady(),
+     connect:gateway&&cfg.connect_enabled&&connectedWebhookReady(),
      live:Deno.env.get('STRIPE_BILLING_MODE')==='live',
      note:'A cobrança depende de contas, planos e credenciais habilitados.'},200,origin);
   }
   const user=await auth(req);
   const me=await profile(user.id);
-  if(!flagsReady(cfg))return response({error:'Pagamentos ainda não foram ativados pela MVA. Nenhuma cobrança foi realizada.'},503,origin);
+  if(action!=='owner_portal'&&!flagsReady(cfg))return response({error:'Pagamentos ainda não foram ativados pela MVA. Nenhuma cobrança foi realizada.'},503,origin);
   const stripe=stripeClient();
 
   if(action==='checkout_fiscal'){
@@ -177,7 +182,7 @@ Deno.serve(async req=>{
    if(sError||!s||s.approval!=='aprovado'||s.status!=='available')throw new Error('Espaço não está disponível para novos pagamentos.');
    let connected:string|null=null;
    if(!s.is_mva_headquarters){
-    if(!cfg.connect_enabled)throw new Error('Repasses a coworkings ainda não habilitados.');
+    if(!cfg.connect_enabled||!connectedWebhookReady())throw new Error('Repasses a coworkings ainda não habilitados ou sem webhook Connect verificado.');
     const {data:account}=await admin.from('mva_connected_accounts').select('*').eq('owner_id',s.owner_id).maybeSingle();
     if(!account?.charges_enabled||!account?.payouts_enabled||!account.stripe_account_id)
        throw new Error('Este coworking ainda não concluiu a conexão de recebimentos com Stripe.');
@@ -232,7 +237,7 @@ Deno.serve(async req=>{
    return response({url:portal.url},200,origin);
   }
   if(action==='connect_onboarding'){
-   if(!cfg.connect_enabled)throw new Error('Conexão dos parceiros não habilitada.');
+   if(!cfg.connect_enabled||!connectedWebhookReady())throw new Error('Conexão dos parceiros não habilitada ou sem webhook Connect verificado.');
    if(me.account_type!=='coworking_owner')throw new Error('Cadastre uma conta de proprietário.');
    let {data:account,error:accountError}=await admin.from('mva_connected_accounts')
        .select('*').eq('owner_id',user.id).maybeSingle();
