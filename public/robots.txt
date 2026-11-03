@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://coworking-mva-du8c.vercel.app/sitemap.xml
