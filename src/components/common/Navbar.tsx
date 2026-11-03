@@ -4,9 +4,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInGoogle, signOut } from '../../lib/auth';
 import { Preferences } from './Preferences';
-import { ShieldCheck, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen, ArrowLeftRight } from 'lucide-react';
+import { ShieldCheck, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen, ArrowLeftRight, House } from 'lucide-react';
 
 const ITEMS = [
+  { tab: 'home', label: 'Início', short: 'Início', icon: House },
   { tab: 'fiscal', label: 'Endereço fiscal', short: 'Fiscal', icon: ShieldCheck },
   { tab: 'marketplace', label: 'Explorar espaços', short: 'Explorar', icon: Search },
   { tab: 'correspondence', label: 'Correspondência', short: 'Correio', icon: Mail },
@@ -19,6 +20,7 @@ export const Navbar: React.FC = () => {
   const [menu, setMenu] = useState(false);
   const [switchingAccount, setSwitchingAccount] = useState(false);
   const navItems = internAuthorized ? [...ITEMS, { tab: 'intern-rooms', label: 'Salas dos estagiários', short: 'Estágio', icon: DoorOpen }] : ITEMS;
+  const mobileItems = internAuthorized ? navItems.filter(item=>['home','marketplace','fiscal','client-dashboard','intern-rooms'].includes(item.tab)) : navItems.filter(item=>['home','marketplace','fiscal','client-dashboard','owner-dashboard'].includes(item.tab));
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!menu) return;
@@ -57,7 +59,7 @@ export const Navbar: React.FC = () => {
   const switchGoogleAccount = async () => {
     if (switchingAccount) return;
     setMenu(false);
-    setActiveTab('fiscal');
+    setActiveTab('home');
     setSwitchingAccount(true);
     try {
       // Encerra a sessão atual neste dispositivo antes de autenticar outra conta.
@@ -78,7 +80,7 @@ export const Navbar: React.FC = () => {
       >
         <div className="relative z-20 mx-auto flex h-16 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:h-20 sm:gap-4 sm:px-6 lg:px-8">
           {/* Logo & Brand */}
-          <button onClick={() => setActiveTab('fiscal')} className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3" aria-label={t("MVA Coworking Hub - página inicial")}>
+          <button onClick={() => setActiveTab('home')} className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3" aria-label={t("MVA Coworking Hub - página inicial")}>
             <img src="/logo.png" alt={t("MVA")} className="block h-7 w-auto max-w-[88px] object-contain sm:h-8 sm:max-w-[112px] lg:max-w-[128px]" />
             <span className="hidden h-7 w-px bg-navy-700 sm:block" />
             <span className="hidden min-w-0 text-left leading-tight md:block">
@@ -155,7 +157,7 @@ export const Navbar: React.FC = () => {
                         onClick={() => {
                           setMenu(false);
                           logout();
-                          setActiveTab('fiscal');
+                          setActiveTab('home');
                         }}
                         className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-3 text-sm text-red-600 hover:bg-red-50">
                         <LogOut className="h-4 w-4" aria-hidden />
@@ -214,8 +216,8 @@ export const Navbar: React.FC = () => {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-navy-800 bg-navy-950/95 backdrop-blur-md lg:hidden no-print"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        <ul className={`mx-auto grid w-full max-w-2xl ${internAuthorized ? "grid-cols-6" : "grid-cols-5"}`}>
-          {navItems.map(({ tab, short, icon: Icon }) => (
+        <ul className="mx-auto grid w-full max-w-2xl grid-cols-5">
+          {mobileItems.map(({ tab, short, icon: Icon }) => (
             <li key={tab}>
               <button
                 onClick={() => setActiveTab(tab)}
