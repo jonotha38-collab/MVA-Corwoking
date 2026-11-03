@@ -109,3 +109,24 @@ O Google Agenda e e-mails automáticos **continuam pausados**; este projeto Stri
 - **Webhooks desligados de e-mail e Google Agenda continuam desligados**, sem relação com os webhooks de cobrança Stripe.
 
 Não reativar modos live antes de confirmar a segurança dos reembolsos, a experiência de cancelamento e a elegibilidade jurídica do endereço fiscal. O webhook confirma um pagamento, mas **não ativa o contrato fiscal automaticamente**.
+
+
+## Erro da Stripe CLI `stripe trigger account.updated` — Accounts v1 não permitido
+
+Em contas Stripe Connect novas, o comando `stripe trigger account.updated` pode falhar com HTTP 400 porque a *fixture* tenta criar uma conta por `POST /v1/accounts`. A própria Stripe recomenda `POST /v2/core/accounts` para contas conectadas novas. Não é problema da chave nem da configuração do webhook.
+
+**Correção realizada no gateway MVA:** a ação `connect_onboarding` cria novos parceiros por `stripe.v2.core.accounts.create`, usa `stripe.v2.core.accountLinks.create` e o modelo **Full Dashboard / Stripe collects fees and losses**, coerente com recebimento direto pelo coworking e sem comissão da MVA. A leitura de status continua usando a resposta de compatibilidade da Accounts v1 para objetos v2 enquanto a migração dos status para API v2 não for concluída. Nenhuma conta foi criada por esta alteração.
+
+**Para testar o destino de evento Connect sem usar a fixture antiga:**
+
+1. No Stripe **Sandbox**, abra **Connect → Connected accounts** e crie uma conta de teste pela interface / Accounts v2. Use apenas dados fictícios e não use contas bancárias reais para teste.
+2. Complete ou atualize os dados de onboarding da conta de teste; acompanhe o evento de compatibilidade `account.updated` na opção **Events from: Connected accounts** de seu destino Connect.
+3. O evento v1 `account.updated` precisa carregar `account: acct_...`; o webhook do MVA valida essa origem e só registra no banco dados de contas previamente vinculadas à MVA.
+4. Para v2 `v2.core.account[requirements].updated`, a Stripe usa escopo **Your account**, estrutura de eventos *thin* e tratamento diferente. O webhook atual não processa eventos v2; incluir novo endpoint e leitura de objetos v2 antes de migrar a assinatura para eventos v2.
+5. O teste mais representativo será cadastrar um proprietário com os controles **de ambiente de teste** ativos, concluir onboarding de uma conta fictícia e processar um pagamento *direct charge* de teste. Não ativar operações reais nessa fase.
+
+Referências:
+- https://support.stripe.com/questions/fix-the-accounts-v1-is-no-longer-recommended-error-for-connect-integrations
+- https://docs.stripe.com/connect/accounts-v2
+- https://docs.stripe.com/connect/saas/quickstart
+- https://docs.stripe.com/connect/accounts-v2/migrate-integration
