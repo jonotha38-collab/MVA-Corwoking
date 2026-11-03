@@ -4,6 +4,7 @@ import { ShieldCheck } from 'lucide-react'
 import { useCoworking } from './context/CoworkingContext'
 import { finishGoogleCalendarConnection, pendingCalendarConnection } from './lib/google-calendar'
 import { isAdmin } from './lib/auth'
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from './config/integrations'
 import { Navbar } from './components/common/Navbar'
 import { AdminBookingBadge } from './components/admin/AdminBookingBadge'
 import { Footer } from './components/common/Footer'
@@ -45,7 +46,7 @@ export default function App() {
   // Após a autorização do Google, exporta a reserva que originou o pedido.
   // O formulário OAuth sempre retorna ao mesmo domínio; nenhuma senha é armazenada.
   useEffect(() => {
-    if (!ready || !currentUser || calendarProcessing.current) return
+    if (!BOOKING_EXTERNAL_INTEGRATIONS_ENABLED || !ready || !currentUser || calendarProcessing.current) return
     const pending = pendingCalendarConnection()
     if (!pending) return
     if (pending.bookingId && !bookings.some(b => b.id === pending.bookingId)) return
