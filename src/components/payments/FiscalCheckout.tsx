@@ -17,6 +17,9 @@ export function FiscalCheckout({ planId, initialTerm = 12, transfer = false, res
   const [termMonths, setTermMonths] = useState<FiscalTermMonths>(initialTerm);
   const [previousAddress, setPreviousAddress] = useState('');
   const quote = quotePlan(plan, termMonths, isTransfer);
+  const contactHref = 'mailto:contato@mvacoworking.com.br?subject=' + encodeURIComponent('Informações sobre ' + plan.name + ' - MVA') +
+    '&body=' + encodeURIComponent('Olá, MVA! Gostaria de saber sobre a contratação do ' + plan.name + ', vigência ' + termMonths + (termMonths === 1 ? ' mês.' : ' meses.') + ' Aguardo informações.');
+
   const [company, setCompany] = useState<FiscalCompanyInput>({ companyName: '', tradingName: '', cnpj: '', contactEmail: currentUser?.email || '', contactPhone: '' });
   const [holder, setHolder] = useState(currentUser?.name || '');
   const [accepted, setAccepted] = useState(false);
@@ -151,12 +154,18 @@ export function FiscalCheckout({ planId, initialTerm = 12, transfer = false, res
         <div className="checkout-location"><MapPin size={18} /><p>{HEADQUARTERS}</p></div>
         <dl className="checkout-prices"><div><dt>{t('Vigência')}</dt><dd>{t(termMonths === 1 ? '1 mês' : '12 meses')}</dd></div><div><dt>{t(termMonths === 1 ? 'Plano de 1 mês' : 'Plano de 12 meses')}</dt><dd>{money(quote.fullAmount, language)}</dd></div>{quote.discount > 0 && <div className="checkout-discount"><dt>{t('Portabilidade · 4 meses grátis')}</dt><dd>− {money(quote.discount, language)}</dd></div>}<div className="checkout-total"><dt>{t('Total a pagar')}</dt><dd>{money(displayedTotal, language)}</dd></div></dl>
         <p className="checkout-billing-note">{t(termMonths === 1 ? 'Pagamento único de 1 mês, à vista no cartão. Sem renovação automática.' : 'Pagamento único de 12 meses, à vista no cartão. Sem renovação automática.')}</p>
-        <ul className="checkout-benefits"><li><Check size={16} />{t('Recepção e gestão de correspondências')}</li><li><Check size={16} />{t('Endereço comercial profissional')}</li><li><Check size={16} />{t(plan.fiscal ? 'Declaração após confirmação do pagamento' : 'Uso comercial do endereço')}</li></ul>
+        <ul className="checkout-benefits"><li><Check size={16} />{t('Recepção e gestão de correspondências')}</li><li><Check size={16} />{t('Endereço comercial profissional')}</li><li><Check size={16} />{t(plan.fiscal ? 'Declaração após análise e aprovação' : 'Uso comercial conforme contrato')}</li></ul>
         <div className="checkout-security"><LockKeyhole size={16} /><span>{t('Dados do cartão protegidos pelo provedor de pagamento.')}</span></div>
       </aside>
       <section className="checkout-content">
         <ol className="checkout-steps" aria-label={t('Etapas da contratação')}>{['Dados de cobrança', 'Cartão', 'Confirmação'].map((label, i) => <li key={label} aria-current={(step === 'details' ? 0 : step === 'card' ? 1 : 2) === i ? 'step' : undefined}><span>{i + 1}</span>{t(label)}</li>)}</ol>
-        {step === 'details' && <form onSubmit={begin} className="checkout-form">
+        {step === 'details' && !paymentConfigured && <div className="checkout-form" role="status">
+          <div className="checkout-section-title"><span className="checkout-icon"><CreditCard size={20}/></span><div><h3>{t('Pagamento online em implantação')}</h3><p>{t('O plano e o valor estão disponíveis para consulta. Nenhuma cobrança será efetuada nesta versão.')}</p></div></div>
+          <div className="checkout-notice"><Info size={20}/><div><strong>{t('Seu cartão não será solicitado agora')}</strong><p>{t('Para sua segurança, a MVA só habilitará o checkout quando o provedor de pagamentos, os webhooks e as regras de contratação estiverem verificados.')}</p></div></div>
+          <a className="action-primary checkout-submit" href={contactHref}><ArrowRight size={18}/>{t('Solicitar informações para contratar')}</a>
+          <button type="button" className="checkout-link" onClick={close}>{t('Voltar e comparar planos')}</button>
+        </div>}
+        {step === 'details' && paymentConfigured && <form onSubmit={begin} className="checkout-form">
           <div className="checkout-section-title"><span className="checkout-icon"><CreditCard size={20} /></span><div><h3>{t('Finalizar contratação')}</h3><p>{t('Plano selecionado. Informe os dados de cobrança; o cartão será solicitado na etapa seguinte, quando habilitada.')}</p></div></div>
           <fieldset className="checkout-period" disabled={busy}>
             <legend>{t('Período de contratação')}</legend>
@@ -195,7 +204,7 @@ export function FiscalCheckout({ planId, initialTerm = 12, transfer = false, res
           <button type="button" className="checkout-link" disabled={busy} onClick={backToDetails}><ArrowLeft size={16} />{t('Voltar aos dados da empresa')}</button>
         </form>}
         {step === 'confirming' && <div className="checkout-result" role="status" aria-live="polite"><div className="checkout-result-icon"><Clock3 size={32} /></div><h3>{t('Confirmando seu pagamento')}</h3><p>{t('Estamos aguardando a confirmação do pagamento. Sua declaração será liberada somente após a aprovação.')}</p><div className="checkout-notice"><FileCheck2 size={21} /><span>{t('Você pode fechar esta tela. O status será consultado novamente ao retornar.')}</span></div>{error && <p className="checkout-error" role="alert">{t(error)}</p>}{waiting ? <button type="button" className="action-primary checkout-submit" onClick={() => { setError(''); setPollAgain(n => n + 1); }}>{t('Verificar pagamento novamente')}</button> : <LoaderCircle className="animate-spin mx-auto" size={24} />}<button type="button" className="checkout-link" onClick={close}>{t('Voltar ao site')}</button></div>}
-        {step === 'paid' && <div className="checkout-result" role="status"><div className="checkout-result-icon is-success"><CheckCircle2 size={34} /></div><span className="checkout-kicker">{t('TUDO CERTO')}</span><h3>{t(order?.livemode ? 'Pagamento confirmado!' : 'Pagamento de teste confirmado')}</h3><p>{t(!order?.livemode ? 'Este teste não libera o endereço fiscal ou a emissão de uma declaração oficial.' : plan.fiscal ? 'Seu endereço fiscal está ativo. Você já pode gerar sua declaração oficial na área de endereço fiscal.' : 'Seu endereço comercial está ativo. Este plano não inclui domicílio fiscal para o CNPJ.')}</p><button type="button" className="action-primary checkout-submit" onClick={close}>{t('Ir para meu endereço')}<ArrowRight size={17} /></button></div>}
+        {step === 'paid' && <div className="checkout-result" role="status"><div className="checkout-result-icon is-success"><CheckCircle2 size={34} /></div><span className="checkout-kicker">{t('TUDO CERTO')}</span><h3>{t(order?.livemode ? 'Pagamento confirmado!' : 'Pagamento de teste confirmado')}</h3><p>{t(!order?.livemode ? 'Este teste não libera o endereço fiscal ou a emissão de uma declaração oficial.' : plan.fiscal ? 'O pagamento foi confirmado. A utilização do endereço e a declaração continuam sujeitas à análise e autorização pela MVA.' : 'O pagamento foi confirmado. O uso comercial do endereço depende da formalização do contrato. Este plano não inclui domicílio fiscal para o CNPJ.')}</p><button type="button" className="action-primary checkout-submit" onClick={close}>{t('Ir para meu endereço')}<ArrowRight size={17} /></button></div>}
         {step === 'closed' && <div className="checkout-result"><div className="checkout-result-icon"><Info size={32} /></div><h3>{t('Pagamento não disponível')}</h3><p>{t('Este pagamento foi cancelado, estornado ou está em contestação. Nenhuma declaração pode ser emitida por este pedido.')}</p><button type="button" className="action-primary checkout-submit" onClick={close}>{t('Voltar ao site')}</button></div>}
       </section>
     </div>
