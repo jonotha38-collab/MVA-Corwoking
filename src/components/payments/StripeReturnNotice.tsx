@@ -3,7 +3,7 @@ import { AlertCircle, CheckCircle2, Clock3, X } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
 
-type State='checking'|'paid'|'pending'|'canceled'|'connect';
+type State='checking'|'paid'|'test'|'pending'|'canceled'|'connect';
 export function StripeReturnNotice(){
  const {currentUser,activeTab}=useCoworking();
  const [params]=useState(()=>{
@@ -19,13 +19,13 @@ export function StripeReturnNotice(){
   let mounted=true;
   const check=async()=>{
    if(params.order&&/^[0-9a-f-]{36}$/i.test(params.order)){
-    const {data}=await supabase.from('mva_checkout_orders').select('status')
+    const {data}=await supabase.from('mva_checkout_orders').select('status,livemode')
       .eq('id',params.order).eq('user_id',currentUser.id).maybeSingle();
-    if(mounted)setState(data?.status==='paid'?'paid':'pending');
+    if(mounted)setState(data?.status==='paid'?(data?.livemode===true?'paid':'test'):'pending');
    }else if(activeTab==='owner-dashboard'){
     const {data}=await supabase.from('mva_owner_subscriptions').select('status,livemode')
      .eq('owner_id',currentUser.id).maybeSingle();
-    if(mounted)setState(data?.status==='active'?'paid':'pending');
+    if(mounted)setState(data?.status==='active'?(data?.livemode===true?'paid':'test'):'pending');
    }else if(mounted)setState('pending');
   };
   void check();
@@ -42,7 +42,8 @@ export function StripeReturnNotice(){
  const success=state==='paid';
  const messages:Record<State,[string,string]>={
   checking:['Consultando pagamento','Estamos verificando a situação no banco de dados da MVA.'],
-  paid:['Pagamento confirmado pelo Stripe','O pagamento consta como confirmado. A prestação do serviço continua sujeita às condições e aprovações aplicáveis.'],
+  paid:['Pagamento real confirmado pelo Stripe','O pagamento consta como confirmado. A prestação do serviço continua sujeita às condições e aprovações aplicáveis.'],
+  test:['Pagamento de teste confirmado','Nenhum dinheiro real foi cobrado e nenhum serviço foi liberado por este pagamento de teste.'],
   pending:['Pagamento ainda não confirmado','O retorno à página não comprova a cobrança. Atualize o painel para consultar a confirmação enviada pelo Stripe.'],
   canceled:['Checkout interrompido','Você voltou da tela do Stripe. Nenhum pagamento novo foi confirmado nesta etapa.'],
   connect:['Cadastro Stripe em avaliação','Confira no painel do proprietário quando a conta estiver habilitada para cobranças e repasses.']
