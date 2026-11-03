@@ -4,6 +4,7 @@ import {
   Clock3, Copy, ExternalLink, MapPin, Printer, ShieldCheck, UserRound,
 } from 'lucide-react';
 import type { Booking, Space } from '../../types';
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import {
   manualGoogleCalendarLink, recordedCalendarEventUrl,
   type CalendarSyncResult,
@@ -118,7 +119,7 @@ export function BookingConfirmation({
       </div>
     </section>
 
-    <section aria-label="Lembretes e Google Agenda" className="rounded-2xl border border-blue-200 bg-white p-5">
+    {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && <section aria-label="Lembretes e Google Agenda" className="rounded-2xl border border-blue-200 bg-white p-5">
       <div className="flex items-start gap-3">
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-50">
           <CalendarPlus className="h-5 w-5 text-blue-700" aria-hidden />
@@ -150,7 +151,7 @@ export function BookingConfirmation({
       <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
         <Bell className="h-3.5 w-3.5" aria-hidden /> Os alertas dependem das notificações autorizadas no Google.
       </p>
-    </section>
+    </section>}
 
     <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
       <button type="button" onClick={() => window.print()}
