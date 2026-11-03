@@ -4,7 +4,7 @@ export type { FiscalPlanId, FiscalPlan, FiscalCompanyInput, FiscalTermMonths } f
 export { canIssueCertificate } from './fiscal-eligibility';
 export interface PaymentOrder { id: string; status: 'pending' | 'paid' | 'refunded' | 'disputed' | 'canceled'; amount: number; currency: string; plan_id: string; contract_id: string | null; livemode: boolean; transfer: boolean; term_months: 1 | 12; }
 export interface PaymentSession { clientSecret: string; order: PaymentOrder; }
-export const paymentConfigured = /^pk_(test|live)_/.test(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+export const paymentConfigured = import.meta.env.VITE_FISCAL_PAYMENTS_ENABLED === 'true' && /^pk_(test|live)_/.test(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 export async function callPayment<T>(name: string, body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke(name, { body });
   if (error) {
