@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Space, Booking } from '../../types';
 import { calendarEnabled, connectGoogleCalendar, saveGoogleCalendarEvent, type CalendarSyncResult } from '../../lib/google-calendar';
 import { BookingConfirmation } from './BookingConfirmation';
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import { useCoworking } from '../../context/CoworkingContext';
 import { 
   X, 
@@ -90,7 +91,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
 
     if (!newBooking) return;
     setConfirmedBooking(newBooking);
-    if (currentUser && calendarEnabled(currentUser.id)) {
+    if (BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && currentUser && calendarEnabled(currentUser.id)) {
       setCalendarSync('saving');
       try {
         const result = await saveGoogleCalendarEvent(newBooking, currentUser.id, space);
@@ -142,12 +143,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             booking={confirmedBooking}
             space={space}
             userId={currentUser?.id || null}
-            canConnectGoogle={currentUser?.provider === 'google'}
+            canConnectGoogle={BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && currentUser?.provider === 'google'}
             sync={calendarSync}
             connecting={calendarConnecting}
             onConnect={() => {
               if (!currentUser) return;
               setCalendarConnecting(true);
+              if (!BOOKING_EXTERNAL_INTEGRATIONS_ENABLED) return;
               void connectGoogleCalendar(currentUser, confirmedBooking.id).catch(error => {
                 setCalendarConnecting(false);
                 showToast(error instanceof Error ? error.message : 'Falha ao conectar Google Agenda.', 'error');
