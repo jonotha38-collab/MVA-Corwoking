@@ -147,7 +147,16 @@ Deno.serve(async req=>{
      portal:credentialsReady(),
      connect:gateway&&cfg.connect_enabled&&connectedWebhookReady(),
      live:Deno.env.get('STRIPE_BILLING_MODE')==='live',
-     note:'A cobrança depende de contas, planos e credenciais habilitados.'},200,origin);
+     integrationChecks:{
+       testKeyConfigured:Deno.env.get('STRIPE_BILLING_MODE')==='test'&&credentialsReady(),
+       platformWebhookConfigured:platformWebhookReady(),
+       connectWebhookConfigured:connectedWebhookReady(),
+       billingSecretEnabled:Deno.env.get('STRIPE_BILLING_ENABLED')==='true',
+       platformCheckoutEnabled:cfg.checkout_enabled===true,
+       ownerSubscriptionsEnabled:cfg.owner_subscriptions_enabled===true,
+       connectEnabled:cfg.connect_enabled===true,
+     },
+     note:'Indicadores de configuração; não validam a autenticidade da chave nem a entrega de eventos reais.'},200,origin);
   }
   const user=await auth(req);
   const me=await profile(user.id);
