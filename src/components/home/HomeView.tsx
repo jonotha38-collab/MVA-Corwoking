@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, BadgeCheck, Building2, CalendarCheck, CheckCircle2, ChevronRight, Clock3, FileCheck2, Headphones, Mail, MapPin, ShieldCheck, Sparkles, UsersRound } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BadgeCheck, Building2, CalendarCheck, CheckCircle2, ChevronRight, FileCheck2, Headphones, Mail, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
 import heroOffice from '../../assets/hero-office.jpg';
@@ -105,7 +105,7 @@ export function HomeView(){
 
   <section className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#102840] p-7 text-white sm:p-10 lg:flex-row lg:items-center">
    <div className="max-w-xl"><p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[.13em] text-orange-300"><Headphones className="h-4 w-4"/>Atendimento</p><h2 className="text-2xl font-semibold sm:text-3xl">{c.contactTitle}</h2><p className="mt-3 text-sm leading-7 text-slate-300">{c.contactBody}</p></div>
-   <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-[#14304c] hover:bg-orange-50 sm:w-auto"><Mail className="h-4 w-4"/>{c.contactCta}<ChevronRight className="h-4 w-4"/></a>
+   <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="mva-home-white-cta inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition sm:w-auto"><Mail className="h-4 w-4"/>{c.contactCta}<ChevronRight className="h-4 w-4"/></a>
   </section>
  </div>;
 }
