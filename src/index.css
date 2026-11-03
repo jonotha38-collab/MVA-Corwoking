@@ -323,3 +323,14 @@ header nav[aria-label] button { flex-shrink:0; }
 @media (prefers-reduced-motion: reduce) {
  .mva-fiscal :is(button,a) { transition: none; }
 }
+
+/* Sales-oriented homepage: preserve readable buttons and consistent dark surfaces. */
+.mva-home-white-cta { background:#ffffff; color:#16314d; border:1px solid #ffffff; }
+.mva-home-white-cta:hover { background:#fff1e8; color:#16314d; }
+:root[data-theme="dark"] .mva-home .mva-home-white-cta { background:#ffffff; color:#16314d; }
+:root[data-theme="dark"] .mva-home .mva-home-white-cta:hover { background:#fff1e8; color:#16314d; }
+.mva-home :is(button,a):focus-visible { outline:3px solid #ffb377; outline-offset:3px; }
+@media (max-width:380px) {
+ .mva-home :is(h1,h2,h3,p) { overflow-wrap:anywhere; }
+ .mva-home button { max-width:100%; }
+}
