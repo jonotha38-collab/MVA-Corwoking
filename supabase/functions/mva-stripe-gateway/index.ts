@@ -256,11 +256,17 @@ Deno.serve(async req=>{
        .select('*').eq('owner_id',user.id).maybeSingle();
    if(accountError)throw accountError;
    if(!account){
-    const created=await stripe.accounts.create({
-     type:'express',country:'BR',email:user.email||me.email,
-     capabilities:{card_payments:{requested:true},transfers:{requested:true}},
+    // Accounts v2 avoids Stripe's legacy /v1/accounts creation restriction.
+    // Full Dashboard: connected merchants directly pay Stripe fees; MVA adds no transaction fee.
+    const created=await stripe.v2.core.accounts.create({
+     contact_email:user.email||me.email,
+     display_name:me.name||'Coworking parceiro MVA',
+     identity:{country:'BR',entity_type:'company'},
+     dashboard:'full',
+     defaults:{responsibilities:{fees_collector:'stripe',losses_collector:'stripe'}},
+     configuration:{merchant:{capabilities:{card_payments:{requested:true}}}},
      metadata:{mva_owner_id:user.id}
-    },{idempotencyKey:'mva-connect-'+user.id});
+    },{idempotencyKey:'mva-connect-v2-'+user.id});
     const {data:inserted,error}=await admin.from('mva_connected_accounts').insert({
      owner_id:user.id,stripe_account_id:created.id
     }).select('*').single();
@@ -274,9 +280,17 @@ Deno.serve(async req=>{
     details_submitted:latest.details_submitted===true,updated_at:new Date().toISOString()
    }).eq('owner_id',user.id);
    if(latest.charges_enabled&&latest.payouts_enabled)return response({connected:true},200,origin);
-   const link=await stripe.accountLinks.create({account:account.stripe_account_id,
-     refresh_url:checkoutUrl('owner-dashboard','connect_retry'),
-     return_url:checkoutUrl('owner-dashboard','connect_return'),type:'account_onboarding'});
+   const link=await stripe.v2.core.accountLinks.create({
+     account:account.stripe_account_id,
+     use_case:{
+      type:'account_onboarding',
+      account_onboarding:{
+       configurations:['merchant'],
+       refresh_url:checkoutUrl('owner-dashboard','connect_retry'),
+       return_url:checkoutUrl('owner-dashboard','connect_return')
+      }
+     }
+   });
    return response({url:link.url},200,origin);
   }
   return response({error:'Operação de pagamento desconhecida.'},400,origin);
