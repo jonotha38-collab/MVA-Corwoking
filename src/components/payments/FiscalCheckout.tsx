@@ -22,6 +22,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
  const [applications,setApplications]=useState<Application[]>([]);
  const [loading,setLoading]=useState(true);
  const [paymentStatus,setPaymentStatus]=useState('');
+ const [paymentIsLive,setPaymentIsLive]=useState(false);
  useEffect(()=>{
   let live=true;
   if(!currentUser){setLoading(false);return}
@@ -36,9 +37,9 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
     const best=rows.find(a=>a.plan_id===planId&&a.term_months===initialTerm
        &&a.status==='approved'&&(!transfer||a.transfer_from.trim().length>=3));
     if(best){
-      const {data:order}=await supabase.from('mva_checkout_orders').select('status')
+      const {data:order}=await supabase.from('mva_checkout_orders').select('status,livemode')
          .eq('kind','fiscal').eq('resource_id',best.id).maybeSingle();
-      if(live&&order?.status)setPaymentStatus(order.status);
+      if(live&&order?.status){setPaymentStatus(order.status);setPaymentIsLive(order.livemode===true);}
     }
     if(live)setLoading(false);
    });
@@ -104,7 +105,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
            <p className="mt-1 text-xs leading-relaxed text-emerald-800">{match.company_name}. Os documentos finais dependem do contrato e da confirmação financeira.</p></div>
        </div>
        {paymentStatus==='paid'?<div role="status" className="flex items-start gap-2 rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-900">
-          <CheckCircle2 className="h-5 w-5 shrink-0"/>Pagamento confirmado. A MVA concluirá a formalização antes de autorizar o endereço.
+          <CheckCircle2 className="h-5 w-5 shrink-0"/>{paymentIsLive?'Pagamento real confirmado. A MVA concluirá a formalização antes de autorizar o endereço.':'Pagamento de teste confirmado: nenhuma cobrança real ou liberação de endereço foi realizada.'}
         </div>:<StripeCheckoutAction action="checkout_fiscal" resourceId={match.id} label="Continuar para pagamento seguro"/>}
      </div>}
      <p className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-500">
