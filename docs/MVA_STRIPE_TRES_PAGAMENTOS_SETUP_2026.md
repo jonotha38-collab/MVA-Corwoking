@@ -93,3 +93,19 @@ O Google Agenda e e-mails automáticos **continuam pausados**; este projeto Stri
 - https://docs.stripe.com/connect/enable-payment-acceptance-guide
 - https://docs.stripe.com/billing/subscriptions/webhooks
 - https://supabase.com/docs/guides/functions/examples/stripe-webhooks
+
+
+## 8. Revisão de continuidade — validações de segurança concluídas
+
+- Publicação inicial da integração confirmada READY na Vercel. O backend permanece com `checkout_enabled=false`, `owner_subscriptions_enabled=false`, `connect_enabled=false`, `enforce_owner_subscriptions=false`.
+- Gateway agora exige **chave Stripe apropriada + segredo de webhook da plataforma** para anunciar checkout disponível. A conexão Stripe Connect também exige segredo próprio válido de webhook.
+- O **portal da assinatura existente permanece acessível mesmo que novas cobranças estejam pausadas**, desde que a credencial Stripe ainda esteja configurada. Não bloquear cancelamento de assinaturas já iniciadas.
+- Pedidos financeiros no banco são recalculados no servidor. O trigger `secure_booking_insert` assegura que `total_price`, duração e adicionais aceitos não sejam controlados arbitrariamente pelo usuário.
+- Chaves de idempotência estáveis impedem que repetir uma solicitação de criação de sessão produza múltiplos checkouts por falha de rede. Para assinaturas a chave é hash e não contém dados pessoais.
+- Transações **de teste** são exibidas como teste nas telas de confirmação, resumo e administração; nunca como pagamento real que permita utilizar o endereço.
+- Validações transacionais com `ROLLBACK`: alteração de status de assinatura com período de API moderna, `invoice.payment_failed`, webhook repetido, confirmação de reserva paga e reembolso. Nenhuma operação de teste gerou cobrança ou modificou os pedidos persistentes.
+- A sessão de pagamento com Stripe Connect é cobrança direta na conta conectada do coworking; não há `application_fee` no código.
+- **Limite atual dos testes:** os eventos foram simulados em transações de banco; ainda são obrigatórios testes ponta a ponta com chave `sk_test_` válida, webhooks Stripe de teste reais e cartões de teste. O status ACTIVE de uma Edge Function e o build READY não certificam que eventos reais estão sendo entregues.
+- **Webhooks desligados de e-mail e Google Agenda continuam desligados**, sem relação com os webhooks de cobrança Stripe.
+
+Não reativar modos live antes de confirmar a segurança dos reembolsos, a experiência de cancelamento e a elegibilidade jurídica do endereço fiscal. O webhook confirma um pagamento, mas **não ativa o contrato fiscal automaticamente**.
