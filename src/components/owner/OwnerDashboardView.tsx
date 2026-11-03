@@ -5,6 +5,7 @@ import { uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Space, SpaceCategory } from '../../types';
 import { FiscalPartnerAccreditation } from './FiscalPartnerAccreditation';
+import { OwnerBillingPanel } from './OwnerBillingPanel';
 import { 
   Building2, 
   Plus, 
@@ -259,6 +260,8 @@ export const OwnerDashboardView: React.FC = () => {
       <p className="rounded-xl border border-slate-200 bg-white px-5 py-4 text-xs leading-relaxed text-slate-600">
         <strong>Assinaturas dos proprietários em preparação.</strong> O envio e a análise de anúncios estão disponíveis; ainda não existe cobrança automática pela plataforma. Condições comerciais serão apresentadas antes da ativação de planos pagos.
       </p>
+      <OwnerBillingPanel />
+
       <FiscalPartnerAccreditation />
 
       {/* Spaces List Section */}
