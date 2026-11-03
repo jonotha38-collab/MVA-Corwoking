@@ -32,8 +32,14 @@ async function settings(){
  const {data,error}=await admin.from('mva_billing_settings').select('*').eq('id',1).single();
  if(error)throw error;return data;
 }
-const flagsReady=(s:Body)=>Boolean(s.checkout_enabled)&&Deno.env.get('STRIPE_BILLING_ENABLED')==='true'
- && (Deno.env.get('STRIPE_BILLING_MODE')==='test' || Deno.env.get('STRIPE_BILLING_MODE')==='live');
+const flagsReady=(s:Body)=>{
+ const mode=Deno.env.get('STRIPE_BILLING_MODE');
+ const secret=Deno.env.get('STRIPE_SECRET_KEY')||'';
+ const credentials=mode==='test'?/^(sk|rk)_test_/.test(secret):
+   mode==='live'&&Deno.env.get('STRIPE_LIVE_LAUNCH_APPROVED')==='true'
+     &&/^(sk|rk)_live_/.test(secret);
+ return Boolean(s.checkout_enabled)&&Deno.env.get('STRIPE_BILLING_ENABLED')==='true'&&!!credentials;
+};
 const checkoutUrl=(page:string,status:string,order?:string)=>{
  const u=new URL(SITE);
  u.searchParams.set('page',page);u.searchParams.set('stripe_checkout',status);
