@@ -41,6 +41,27 @@ export const MarketplaceView: React.FC = () => {
 
   // Pausado, manutenção ou ocupado nunca entra nas buscas, filtros ou detalhes.
   const live = useMemo(() => spaces.filter(isSpacePubliclyVisible), [spaces]);
+  // Individual listing URLs can be shared without exposing private spaces.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('space');
+    if (!id || !live.length) return;
+    const space = live.find(item => item.id === id);
+    if (space) setDetail(space);
+  }, [live]);
+  const openDetail = (space: Space) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('page','marketplace');
+    url.searchParams.set('space',space.id);
+    window.history.replaceState(window.history.state,'',url.pathname + url.search + url.hash);
+    setDetail(space);
+  };
+  const closeDetail = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('space');
+    window.history.replaceState(window.history.state,'',url.pathname + url.search + url.hash);
+    setDetail(null);
+  };
+
   const visibleDetail = detail ? live.find(s => s.id === detail.id) || null : null;
   const visibleBooking = booking ? live.find(s => s.id === booking.id) || null : null;
 
@@ -132,7 +153,7 @@ export const MarketplaceView: React.FC = () => {
         </div>
         {t(filtered.length > 0 ? (
           <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((s, index) => <Reveal key={s.id} delay={Math.min(index, 3) * 0.06} className="flex"><SpaceCard space={s} onSelect={setDetail} onBook={setBooking} /></Reveal>)}
+            {filtered.map((s, index) => <Reveal key={s.id} delay={Math.min(index, 3) * 0.06} className="flex"><SpaceCard space={s} onSelect={openDetail} onBook={setBooking} /></Reveal>)}
           </div>
         ) : (
           <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
@@ -207,7 +228,7 @@ export const MarketplaceView: React.FC = () => {
         </Reveal>
       </section>
 
-      {visibleDetail && <SpaceDetailModal space={visibleDetail} onClose={() => setDetail(null)} onOpenBooking={setBooking} />}
+      {visibleDetail && <SpaceDetailModal space={visibleDetail} onClose={closeDetail} onOpenBooking={setBooking} />}
       {visibleBooking && <BookingModal space={visibleBooking} onClose={() => setBooking(null)} />}
     </div>
   );
