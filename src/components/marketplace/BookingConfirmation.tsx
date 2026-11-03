@@ -33,12 +33,13 @@ export function BookingConfirmation({
 }: Props) {
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const [paymentIsLive, setPaymentIsLive] = useState(false);
   useEffect(() => {
     let live = true;
     const load = async () => {
-      const {data} = await supabase.from('mva_checkout_orders').select('status')
+      const {data} = await supabase.from('mva_checkout_orders').select('status,livemode')
         .eq('kind', 'booking').eq('resource_id', booking.id).maybeSingle();
-      if (live) setPaymentStatus(data?.status ?? null);
+      if (live) { setPaymentStatus(data?.status ?? null); setPaymentIsLive(data?.livemode === true); }
     };
     void load();
     const recheck = () => { if (document.visibilityState === 'visible') void load(); };
@@ -104,7 +105,7 @@ export function BookingConfirmation({
           </div>
           <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" aria-hidden />
-            <div><span className="block text-[11px] font-medium text-slate-500">{paymentStatus==='paid'?'Valor pago via Stripe':'Valor da reserva — pagamento não confirmado'}</span>
+            <div><span className="block text-[11px] font-medium text-slate-500">{paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor da reserva — pagamento não confirmado'}</span>
               <strong className="mt-0.5 block text-sm text-navy-900">{currency(booking.totalPrice)}</strong>
             </div>
           </div>
@@ -129,8 +130,10 @@ export function BookingConfirmation({
       <div>
         <p className="text-xs font-bold text-navy-900">Agendamento enviado à recepção</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          {paymentStatus === 'paid'
-            ? 'Seu pagamento foi confirmado pelo Stripe. A recepção poderá verificar o registro da reserva e o comprovante financeiro. Guarde o código da reserva.'
+          {paymentStatus === 'paid' && paymentIsLive
+            ? 'Seu pagamento real foi confirmado pelo Stripe. A recepção poderá verificar o registro da reserva e o comprovante financeiro. Guarde o código da reserva.'
+            : paymentStatus === 'paid'
+            ? 'Pagamento em ambiente de testes, sem cobrança real. A reserva continua sem pagamento real confirmado e exige orientação do responsável pelo espaço.'
             : 'Sua reserva foi registrada. Ainda não há pagamento confirmado pelo Stripe. Verifique as condições de pagamento e cancelamento com o responsável. Guarde o código da reserva.'}
         </p>
       </div>
