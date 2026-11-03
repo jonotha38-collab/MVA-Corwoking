@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { canIssueCertificate } from '../lib/fiscal-eligibility';
 import { calendarEnabled, removeGoogleCalendarEvent } from '../lib/google-calendar';
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../config/integrations';
 import { isAdmin, profileToUser } from '../lib/auth';
 import { formatAddress, rowToBooking, rowToCorrespondence, rowToFiscal, rowToSpace, spaceToRow } from '../lib/mappers';
 import type { Booking, Correspondence, FiscalContract, Space, UserAccount } from '../types';
@@ -274,7 +275,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
   const cancelBooking = async (id: string) => {
     const canceled = await patchBooking(id, { status: 'cancelada' }, 'Reserva cancelada.');
-    if (canceled && currentUser && calendarEnabled(currentUser.id)) {
+    if (BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && canceled && currentUser && calendarEnabled(currentUser.id)) {
       const removed = await removeGoogleCalendarEvent(id, currentUser.id);
       if (!removed) showToast('A reserva foi cancelada, mas confirme também a remoção do evento na sua conta Google Agenda.', 'info');
     }
