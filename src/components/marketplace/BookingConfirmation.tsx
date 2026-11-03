@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
+import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import {
   ArrowUpRight, Bell, CalendarDays, CalendarPlus, Check, CheckCircle2,
   Clock3, Copy, ExternalLink, MapPin, Printer, ShieldCheck, UserRound,
@@ -30,6 +32,19 @@ export function BookingConfirmation({
   booking, space, userId, canConnectGoogle, sync, connecting, onConnect, onClose,
 }: Props) {
   const [copied, setCopied] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    const load = async () => {
+      const {data} = await supabase.from('mva_checkout_orders').select('status')
+        .eq('kind', 'booking').eq('resource_id', booking.id).maybeSingle();
+      if (live) setPaymentStatus(data?.status ?? null);
+    };
+    void load();
+    const recheck = () => { if (document.visibilityState === 'visible') void load(); };
+    document.addEventListener('visibilitychange', recheck);
+    return () => { live = false; document.removeEventListener('visibilitychange', recheck); };
+  }, [booking.id]);
   const eventUrl = sync === 'saved'
     ? (recordedCalendarEventUrl(userId || '', booking.id) || 'https://calendar.google.com/calendar/u/0/r')
     : manualGoogleCalendarLink(booking, space);
@@ -89,7 +104,7 @@ export function BookingConfirmation({
           </div>
           <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" aria-hidden />
-            <div><span className="block text-[11px] font-medium text-slate-500">Valor informado (não pago no site)</span>
+            <div><span className="block text-[11px] font-medium text-slate-500">{paymentStatus==='paid'?'Valor pago via Stripe':'Valor da reserva — pagamento não confirmado'}</span>
               <strong className="mt-0.5 block text-sm text-navy-900">{currency(booking.totalPrice)}</strong>
             </div>
           </div>
@@ -114,10 +129,18 @@ export function BookingConfirmation({
       <div>
         <p className="text-xs font-bold text-navy-900">Agendamento enviado à recepção</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          Sua reserva foi registrada e a recepção poderá conferir os detalhes no painel. Nenhum pagamento foi processado pelo site. Confirme diretamente com o responsável os meios de pagamento e as condições de cancelamento. Guarde o código da reserva.
+          {paymentStatus === 'paid'
+            ? 'Seu pagamento foi confirmado pelo Stripe. A recepção poderá verificar o registro da reserva e o comprovante financeiro. Guarde o código da reserva.'
+            : 'Sua reserva foi registrada. Ainda não há pagamento confirmado pelo Stripe. Verifique as condições de pagamento e cancelamento com o responsável. Guarde o código da reserva.'}
         </p>
       </div>
     </section>
+
+    {booking.status === 'confirmada' && paymentStatus !== 'paid' && <section aria-label="Pagamento da reserva" className="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 className="mb-2 text-sm font-bold text-navy-900">Pagamento da sala</h3>
+      <p className="mb-4 text-xs leading-relaxed text-slate-600">O Stripe será usado para cobrança segura quando a MVA concluir a integração. Reservas de parceiros serão pagas diretamente à conta conectada do coworking.</p>
+      <StripeCheckoutAction action="checkout_booking" resourceId={booking.id}/>
+    </section>}
 
     {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && <section aria-label="Lembretes e Google Agenda" className="rounded-2xl border border-blue-200 bg-white p-5">
       <div className="flex items-start gap-3">
