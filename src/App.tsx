@@ -12,6 +12,7 @@ import { ToastContainer } from './components/common/ToastContainer'
 import { AuthModal } from './components/auth/AuthModal'
 import { MarketplaceView } from './components/marketplace/MarketplaceView'
 import { FiscalView } from './components/fiscal/FiscalView'
+import { HomeView } from './components/home/HomeView'
 import { FiscalVerificationView } from './components/fiscal/FiscalVerificationView'
 import { LegalPage } from './components/legal/LegalPage';
 import { CookieBanner } from './components/common/CookieBanner';
@@ -37,7 +38,7 @@ export default function App() {
 
   useEffect(() => {
     if (blocked) {
-      setActiveTab('fiscal')
+      setActiveTab('home')
       if (!currentUser) { setAuthModalTab('login'); setAuthModalOpen(true) }
     }
     window.scrollTo({ top: 0 })
@@ -64,6 +65,40 @@ export default function App() {
       if (result.kind !== 'none') setActiveTab('client-dashboard')
     }).finally(() => { calendarProcessing.current = false })
   }, [ready, currentUser, bookings, spaces, showToast, setActiveTab])
+
+  // Public service pages have shareable links and distinctive metadata.
+  // The SPA still needs prerendered HTML to obtain full per-page SEO coverage.
+  useEffect(() => {
+    const page = ['home', 'marketplace', 'fiscal', 'legal'].includes(activeTab) ? activeTab : 'home';
+    const entries: Record<string, [string,string]> = {
+      home: ['MVA Coworking | Salas, endereço fiscal e espaços para anunciar','Conheça a MVA Coworking em Aracaju: encontre salas, consulte planos de endereço fiscal e cadastre seu espaço.'],
+      marketplace: ['Salas de reunião em Aracaju | MVA Coworking','Encontre ambientes para reunião, atendimento e trabalho. Compare fotos, valores e disponibilidade de salas na MVA e parceiros.'],
+      fiscal: ['Endereço fiscal e escritório virtual em Aracaju | MVA Coworking','Conheça os planos de endereço fiscal e comercial, documentação, correspondências e condições de elegibilidade na MVA.'],
+      legal: ['Termos e privacidade | MVA Coworking','Consulte as regras de uso, privacidade e proteção de dados da MVA Coworking.'],
+    };
+    const [title,description] = entries[page];
+    document.title = title;
+    const update = (selector: string, value: string) => document.querySelector<HTMLMetaElement>(selector)?.setAttribute('content',value);
+    update('meta[name="description"]',description);
+    update('meta[property="og:title"]',title);
+    update('meta[property="og:description"]',description);
+    update('meta[name="twitter:title"]',title);
+    update('meta[name="twitter:description"]',description);
+    const url = new URL(window.location.href);
+    const preserveCallback = ['fiscal_order','verify_fiscal','code','access_token'].some(key => url.searchParams.has(key)) || !!url.hash.match(/access_token|refresh_token/);
+    if (!preserveCallback) {
+      if (page === 'home') url.searchParams.delete('page');
+      else url.searchParams.set('page',page);
+      const nextUrl = url.pathname + url.search + url.hash;
+      if (nextUrl !== window.location.pathname + window.location.search + window.location.hash) {
+        window.history.replaceState(window.history.state, '', nextUrl);
+      }
+    }
+    const canonicalUrl = new URL(window.location.origin + '/');
+    if (page !== 'home') canonicalUrl.searchParams.set('page',page);
+    document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href',canonicalUrl.href);
+    update('meta[property="og:url"]',canonicalUrl.href);
+  }, [activeTab]);
 
   const verificationCode = new URLSearchParams(window.location.search).get('verify_fiscal');
 
@@ -94,6 +129,7 @@ export default function App() {
       )}
       <main id="conteudo" tabIndex={-1} className="mx-auto w-full min-w-0 max-w-7xl flex-1 px-3 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Suspense fallback={<div className="grid min-h-[50vh] place-items-center text-sm text-navy-600" role="status">{t("Carregando seu painel… ")}</div>}>
+        {activeTab === 'home' && <HomeView />}
         {activeTab === 'marketplace' && <MarketplaceView />}
         {activeTab === 'fiscal' && <FiscalView />}
         {!blocked && activeTab === 'correspondence' && <CorrespondenceView />}
