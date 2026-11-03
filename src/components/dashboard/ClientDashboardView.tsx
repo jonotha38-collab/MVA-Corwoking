@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Booking } from '../../types';
 import { calendarEnabled, connectGoogleCalendar, disconnectGoogleCalendar, manualGoogleCalendarLink, recordedCalendarEventUrl } from '../../lib/google-calendar';
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import { 
   Calendar, 
   Clock, 
@@ -46,7 +47,7 @@ export const ClientDashboardView: React.FC = () => {
   // Intencional: estado local atualiza o painel imediatamente após desativar.
   void calendarPreferenceVersion;
   const connectCalendar = () => {
-    if (!currentUser) return;
+    if (!BOOKING_EXTERNAL_INTEGRATIONS_ENABLED || !currentUser) return;
     void connectGoogleCalendar(currentUser).catch(error => {
       showToast(error instanceof Error ? error.message : 'Não foi possível conectar o Google Agenda.', 'error');
     });
@@ -177,7 +178,7 @@ export const ClientDashboardView: React.FC = () => {
       </div>
 
       {/* Google Agenda: consentimento separado do login, sem senha ou token persistido aqui. */}
-      {currentUser && (
+      {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && currentUser && (
         <section aria-label="Google Agenda" className="flex flex-col gap-3 rounded-2xl border border-blue-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
             <CalendarPlus className="mt-0.5 h-6 w-6 shrink-0 text-blue-700" />
@@ -319,7 +320,7 @@ export const ClientDashboardView: React.FC = () => {
                           onClick={() => setSelectedVoucher(b)}
                           className="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-lg transition-colors"
                         >{t("Voucher ")}</button>
-                        {b.status === 'confirmada' && (
+                        {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && b.status === 'confirmada' && (
                           <a href={recordedCalendarEventUrl(currentUser?.id || '', b.id) || manualGoogleCalendarLink(b)}
                             target="_blank" rel="noopener noreferrer"
                             aria-label={`Adicionar ${b.spaceName} ao Google Agenda`}
