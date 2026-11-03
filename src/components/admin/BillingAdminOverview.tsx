@@ -38,7 +38,7 @@ export function BillingAdminOverview(){
    </div>
    {error&&<p className="mt-4 rounded-lg bg-rose-50 p-3 text-xs text-rose-800" role="alert">{error}</p>}
    {loading?<p className="mt-4 text-xs text-slate-500">Consultando registros…</p>:<div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {[['Pagamentos registrados',orders.length],['Pagamentos confirmados',paid.length],
+      {[['Pagamentos registrados',orders.length],['Pagamentos reais confirmados',paid.filter(o=>o.livemode).length],
         ['Assinaturas registradas',subs.length],['Contas de repasse ativas',accounts.filter(a=>a.charges_enabled&&a.payouts_enabled).length]
        ].map(([label,count])=><div key={String(label)} className="rounded-xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-600">{label}</p><strong className="mt-2 block text-2xl text-navy-900">{count}</strong></div>)}
     </div>}
