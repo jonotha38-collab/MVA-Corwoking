@@ -273,6 +273,7 @@ export const ClientDashboardView: React.FC = () => {
           </button>
         </div>
 
+        {clientBookings.length > 0 && <p role="note" className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900"><strong>Pagamento online em implantação.</strong> O status "Confirmada" significa que a reserva está registrada, não que foi paga no site. Verifique com o responsável pelo espaço a forma de pagamento e as regras de cancelamento.</p>}
         {t(clientBookings.length > 0 ? (
           <div className="overflow-x-auto">
             <div className="overflow-x-auto -mx-1 px-1"><table className="w-full text-left border-collapse text-xs">
