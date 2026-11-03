@@ -5,6 +5,7 @@ import { useCoworking } from '../../context/CoworkingContext';
 import { PendingApprovals } from './PendingApprovals';
 import { AdminBookingAgenda } from './AdminBookingAgenda';
 import { FiscalOperationsCenter } from './FiscalOperationsCenter';
+import { BillingAdminOverview } from './BillingAdminOverview';
 import { Space, SpaceCategory } from '../../types';
 import { 
   Building2, 
@@ -29,7 +30,7 @@ export const AdminDashboardView: React.FC = () => {
     fiscalContracts 
   } = useCoworking();
 
-  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies' | 'fiscal'>('bookings');
+  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies' | 'fiscal' | 'billing'>('bookings');
   const [showAddSpaceModal, setShowAddSpaceModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<Space | null>(null);
 
@@ -255,6 +256,10 @@ export const AdminDashboardView: React.FC = () => {
         >
           <ShieldCheck className="w-4 h-4" />{t("Empresas no Endereço Fiscal ( ")}{t(fiscalContracts.length)})
         </button>
+      <button type="button" onClick={() => setActiveAdminTab('billing')}
+        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-colors ${activeAdminTab === 'billing' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+        <DollarSign className="h-4 w-4"/> Pagamentos Stripe
+      </button>
       <button type="button"
         onClick={() => setActiveAdminTab('fiscal')}
         className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-colors ${activeAdminTab === 'fiscal' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
@@ -263,6 +268,7 @@ export const AdminDashboardView: React.FC = () => {
     </div>
 
     {activeAdminTab === 'fiscal' && <FiscalOperationsCenter />}
+    {activeAdminTab === 'billing' && <BillingAdminOverview />}
 
       {/* TAB 1: SPACES MANAGEMENT */}
       {activeAdminTab === 'spaces' && (
