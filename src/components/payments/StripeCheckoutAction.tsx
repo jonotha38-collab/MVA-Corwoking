@@ -5,11 +5,11 @@ import { useCoworking } from '../../context/CoworkingContext';
 
 type Action = 'checkout_fiscal' | 'checkout_booking' | 'checkout_owner' | 'owner_portal' | 'connect_onboarding';
 type GatewayStatus = {
- checkout:boolean;fiscal:boolean;booking:boolean;owner:boolean;connect:boolean;live:boolean;
+ checkout:boolean;fiscal:boolean;booking:boolean;owner:boolean;portal:boolean;connect:boolean;live:boolean;
 };
-const FEATURE:Record<Action,keyof Pick<GatewayStatus,'checkout'|'fiscal'|'booking'|'owner'|'connect'>>={
+const FEATURE:Record<Action,keyof Pick<GatewayStatus,'checkout'|'fiscal'|'booking'|'owner'|'portal'|'connect'>>={
  checkout_fiscal:'fiscal',checkout_booking:'booking',checkout_owner:'owner',
- owner_portal:'owner',connect_onboarding:'connect'
+ owner_portal:'portal',connect_onboarding:'connect'
 };
 export function StripeCheckoutAction({action,resourceId,planId,label,className=''}:{
  action:Action;resourceId?:string;planId?:string;label?:string;className?:string;
