@@ -89,7 +89,7 @@ export function BookingConfirmation({
           </div>
           <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" aria-hidden />
-            <div><span className="block text-[11px] font-medium text-slate-500">Valor da reserva</span>
+            <div><span className="block text-[11px] font-medium text-slate-500">Valor informado (não pago no site)</span>
               <strong className="mt-0.5 block text-sm text-navy-900">{currency(booking.totalPrice)}</strong>
             </div>
           </div>
@@ -114,7 +114,7 @@ export function BookingConfirmation({
       <div>
         <p className="text-xs font-bold text-navy-900">Agendamento enviado à recepção</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          Nossa equipe poderá consultar seu nome, a sala e o horário no painel administrativo. Guarde o código da reserva para facilitar sua chegada.
+          Sua reserva foi registrada e a recepção poderá conferir os detalhes no painel. Nenhum pagamento foi processado pelo site. Confirme diretamente com o responsável os meios de pagamento e as condições de cancelamento. Guarde o código da reserva.
         </p>
       </div>
     </section>
