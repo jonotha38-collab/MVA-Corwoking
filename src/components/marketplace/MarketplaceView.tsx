@@ -20,13 +20,13 @@ const CATEGORIES = [
 
 const STEPS = [
   { title: 'Encontre', text: 'Busque por cidade, tipo de sala e capacidade.' },
-  { title: 'Reserve', text: 'Escolha data e horário e confirme na hora.' },
+  { title: 'Reserve', text: 'Escolha data e horário, confira as condições e registre sua reserva.' },
   { title: 'Use', text: 'Faça o check-in na recepção e trabalhe com toda a infraestrutura.' },
 ];
 
 const FAQ = [
   ['Como reservo uma sala?', 'Escolha o espaço, clique em reservar, informe data, horário e seus dados. A confirmação é imediata e aparece em "Minhas reservas".'],
-  ['Posso contratar endereço fiscal?', 'Sim. Na página Endereço Fiscal você contrata o plano, acompanha o alvará e recebe a correspondência da sua empresa.'],
+  ['Posso contratar endereço fiscal?', 'Na seção Endereço Fiscal você pode conhecer os planos. O uso do endereço exige análise de elegibilidade, contrato e pagamento confirmado.'],
   ['Tenho um coworking. Como anuncio?', 'Crie uma conta como coworking, cadastre o espaço com fotos e endereço e envie. A equipe MVA analisa o anúncio antes de publicá-lo.'],
   ['Por que meu anúncio ainda não apareceu?', 'Todo espaço novo ou alterado passa por aprovação dos administradores. Você acompanha o status (em análise, aprovado ou rejeitado) no painel do anunciante.'],
 ];
@@ -34,7 +34,7 @@ const FAQ = [
 export const MarketplaceView: React.FC = () => {
   const { spaces, searchQuery, setSearchQuery, selectedCity, setSelectedCity, selectedCategory, setSelectedCategory, setActiveTab, refreshSpaces } = useCoworking();
   const [capacity, setCapacity] = useState('all');
-  const [sortBy, setSortBy] = useState<'rating' | 'priceAsc' | 'priceDesc' | 'capacity'>('rating');
+  const [sortBy, setSortBy] = useState<'priceAsc' | 'priceDesc' | 'capacity'>('priceAsc');
   const [detail, setDetail] = useState<Space | null>(null);
   const [booking, setBooking] = useState<Space | null>(null);
   const results = useRef<HTMLElement>(null);
@@ -64,7 +64,7 @@ export const MarketplaceView: React.FC = () => {
       .filter(s => !q || [s.name, s.coworkingName, s.street, s.neighborhood, s.city, s.description, ...s.amenities].some(t => t.toLowerCase().includes(q)))
       .sort((a, b) => {
         if (a.isMvaHeadquarters !== b.isMvaHeadquarters) return a.isMvaHeadquarters ? -1 : 1;
-        return sortBy === 'rating' ? b.rating - a.rating : sortBy === 'priceAsc' ? a.pricePerHour - b.pricePerHour : sortBy === 'priceDesc' ? b.pricePerHour - a.pricePerHour : b.capacity - a.capacity;
+        return sortBy === 'priceAsc' ? a.pricePerHour - b.pricePerHour : sortBy === 'priceDesc' ? b.pricePerHour - a.pricePerHour : b.capacity - a.capacity;
       });
   }, [live, selectedCity, selectedCategory, capacity, searchQuery, sortBy]);
 
@@ -103,7 +103,7 @@ export const MarketplaceView: React.FC = () => {
         </form>
         <ul className="relative z-10 mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-200">
           <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Espaços aprovados pela equipe MVA ")}</li>
-          <li className="flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Confirmação imediata ")}</li>
+          <li className="flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Reserva registrada na plataforma ")}</li>
           <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-orange-400" aria-hidden />{t("Endereço fiscal disponível ")}</li>
         </ul>
       </section>
@@ -118,7 +118,7 @@ export const MarketplaceView: React.FC = () => {
           <div className="flex items-center gap-3">
             {dirty && <button onClick={clear} className="flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700"><X className="h-4 w-4" aria-hidden />{t("Limpar filtros ")}</button>}
             <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)} aria-label={t("Ordenar")} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">
-              <option value="rating">{t("Melhor avaliados ")}</option><option value="priceAsc">{t("Menor preço por hora ")}</option><option value="priceDesc">{t("Maior preço por hora ")}</option><option value="capacity">{t("Maior capacidade ")}</option>
+<option value="priceAsc">{t("Menor preço por hora ")}</option><option value="priceDesc">{t("Maior preço por hora ")}</option><option value="capacity">{t("Maior capacidade ")}</option>
             </select>
           </div>
         </div>
@@ -171,8 +171,8 @@ export const MarketplaceView: React.FC = () => {
       <section aria-labelledby="servicos" className="grid gap-6 md:grid-cols-2">
         <h2 id="servicos" className="sr-only">{t("Serviços para empresas ")}</h2>
         {[
-          { icon: Building2, title: 'Endereço fiscal', text: 'Use o endereço da sede MVA para o CNPJ da sua empresa, com acompanhamento do alvará.', tab: 'fiscal', cta: 'Contratar endereço fiscal' },
-          { icon: Mail, title: 'Recebimento de correspondência', text: 'Cartas, encomendas e documentos recebidos, avisados e digitalizados pela recepção.', tab: 'correspondence', cta: 'Ver correspondências' },
+          { icon: Building2, title: 'Endereço fiscal', text: 'Conheça os planos de endereço fiscal, com análise cadastral e viabilidade municipal antes da contratação.', tab: 'fiscal', cta: 'Contratar endereço fiscal' },
+          { icon: Mail, title: 'Recebimento de correspondência', text: 'Acompanhe recebimentos no painel e solicite digitalização conforme disponibilidade e autorização.', tab: 'correspondence', cta: 'Ver correspondências' },
         ].map(({ icon: Icon, title, text, tab, cta }) => (
           <div key={title} className="rounded-2xl bg-navy-950 p-8 text-white">
             <Icon className="h-7 w-7 text-orange-400" aria-hidden />
