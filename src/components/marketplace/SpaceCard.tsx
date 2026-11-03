@@ -1,7 +1,7 @@
 import { t } from '../../lib/preferences';
 import React from 'react';
 import { Space } from '../../types';
-import { Users, MapPin, Star, Calendar, ArrowUpRight, Building2 } from 'lucide-react';
+import { Users, MapPin, Calendar, ArrowUpRight, Building2 } from 'lucide-react';
 
 interface SpaceCardProps {
   space: Space;
@@ -46,14 +46,9 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ space, onSelect, onBook })
             </span>
           ))}
 
-          {t(space.reviewsCount > 0 ? (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-white/95 text-slate-800 backdrop-blur-md shadow-sm">
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            {t(space.rating)}
+          <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-navy-900 shadow-sm">
+            {t("Anúncio disponível")}
           </span>
-          ) : (
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/95 text-slate-800 backdrop-blur-md shadow-sm">{t("Novo ")}</span>
-          ))}
         </div>
 
         {/* Bottom Address preview */}
