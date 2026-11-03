@@ -10,14 +10,14 @@ import { AdminBookingBadge } from './components/admin/AdminBookingBadge'
 import { Footer } from './components/common/Footer'
 import { ToastContainer } from './components/common/ToastContainer'
 import { AuthModal } from './components/auth/AuthModal'
-import { MarketplaceView } from './components/marketplace/MarketplaceView'
-import { FiscalView } from './components/fiscal/FiscalView'
 import { HomeView } from './components/home/HomeView'
 import { FiscalVerificationView } from './components/fiscal/FiscalVerificationView'
-import { LegalPage } from './components/legal/LegalPage';
 import { CookieBanner } from './components/common/CookieBanner';
 
-// Management screens are fetched only when opened.
+// Public service areas and management screens are loaded when opened to keep the homepage fast.
+const MarketplaceView = lazy(() => import('./components/marketplace/MarketplaceView').then(m => ({ default: m.MarketplaceView })))
+const FiscalView = lazy(() => import('./components/fiscal/FiscalView').then(m => ({ default: m.FiscalView })))
+const LegalPage = lazy(() => import('./components/legal/LegalPage').then(m => ({ default: m.LegalPage })))
 const CorrespondenceView = lazy(() => import('./components/correspondence/CorrespondenceView').then(m => ({ default: m.CorrespondenceView })))
 const OwnerDashboardView = lazy(() => import('./components/owner/OwnerDashboardView').then(m => ({ default: m.OwnerDashboardView })))
 const ClientDashboardView = lazy(() => import('./components/dashboard/ClientDashboardView').then(m => ({ default: m.ClientDashboardView })))
