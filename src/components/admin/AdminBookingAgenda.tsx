@@ -4,6 +4,7 @@ import {
   MapPin, RefreshCw, Search, ShieldCheck, Users, XCircle,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import { isAdmin } from '../../lib/auth';
 import { rowToBooking } from '../../lib/mappers';
 import { useCoworking } from '../../context/CoworkingContext';
@@ -198,10 +199,12 @@ export function AdminBookingAgenda() {
         </div>
       </div>
 
-      {deliveriesPending > 0 && <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+      {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && deliveriesPending > 0 && <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
         <strong>Integrações em processamento:</strong> {deliveriesPending} entrega(s) de e-mail ou Google Agenda pendente(s).
         Se persistirem, confira a configuração do Google e do provedor de e-mails no Supabase.
       </div>}
+
+      {!BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && <p role="status" className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-xs text-slate-600"><strong>E-mail e Google Agenda temporariamente pausados.</strong> A agenda interna e as reservas continuam funcionando normalmente.</p>}
 
       <section aria-label="Notificações dos agendamentos" className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
@@ -288,7 +291,7 @@ export function AdminBookingAgenda() {
                   {item.status === 'cancelada'
                     ? <span className="inline-flex items-center gap-1 rounded-lg bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-700"><XCircle className="h-3.5 w-3.5" />Cancelada</span>
                     : <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" />{item.checkIn ? 'Check-in feito' : 'Confirmada'}</span>}
-                  {(['email','calendar'] as const).map(channel => {
+                  {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && (['email','calendar'] as const).map(channel => {
                     const action = item.status === 'cancelada' ? 'canceled' : 'created';
                     const status = deliveryStates[`${item.type}:${item.id}:${action}:${channel}`];
                     if (!status) return null; // Reservas anteriores à integração.
