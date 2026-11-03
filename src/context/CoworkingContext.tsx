@@ -74,7 +74,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const params = new URLSearchParams(window.location.search);
     if (params.has('fiscal_order')) return 'fiscal';
     const page = params.get('page');
-    return page && ['home','marketplace','fiscal','legal'].includes(page) ? page : 'home';
+    return page && ['home','marketplace','fiscal','legal','owner-dashboard','client-dashboard','correspondence','admin','intern-rooms'].includes(page) ? page : 'home';
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Todas');
