@@ -115,7 +115,7 @@ async function customerCheckout(input:{
    payment_intent_data:{metadata:{mva_kind:kind,mva_order_id:order.id}},
    success_url:checkoutUrl(page,'success',order.id),
    cancel_url:checkoutUrl(page,'canceled',order.id),
-  },accountId?{stripeAccount:accountId,idempotencyKey:'mva-'+order.id+'-'+crypto.randomUUID()}:{idempotencyKey:'mva-'+order.id+'-'+crypto.randomUUID()});
+  },accountId?{stripeAccount:accountId,idempotencyKey:'mva-'+order.id+'-'+(order.stripe_checkout_session_id||'first')}:{idempotencyKey:'mva-'+order.id+'-'+(order.stripe_checkout_session_id||'first')});
   const {error:saveError}=await admin.from('mva_checkout_orders').update({
    status:'pending',stripe_checkout_session_id:created.id,
    stripe_checkout_url:created.url,session_expires_at:new Date((created.expires_at||0)*1000).toISOString(),
@@ -206,6 +206,10 @@ Deno.serve(async req=>{
     const prev=await stripe.checkout.sessions.retrieve(existing.stripe_checkout_session_id).catch(()=>null);
     if(prev?.status==='open'&&prev.url)return response(successInfo(prev),200,origin);
    }
+   // Deterministic key for safe Stripe request retries (no personal ID in the header).
+   const checkoutSeed=user.id+'|'+plan.id+'|'+(existing?.stripe_checkout_session_id||'first');
+   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(checkoutSeed));
+   const checkoutKey='mva-owner-'+Array.from(new Uint8Array(digest)).map(v=>v.toString(16).padStart(2,'0')).join('');
    const session=await stripe.checkout.sessions.create({
     mode:'subscription',payment_method_types:['card'],
     customer:existing?.stripe_customer_id||undefined,
@@ -217,7 +221,7 @@ Deno.serve(async req=>{
     subscription_data:{metadata:{mva_owner_id:user.id,mva_plan_id:plan.id}},
     success_url:checkoutUrl('owner-dashboard','success'),
     cancel_url:checkoutUrl('owner-dashboard','canceled')
-   },{idempotencyKey:'mva-owner-'+user.id+'-'+plan.id+'-'+crypto.randomUUID()});
+   },{idempotencyKey:checkoutKey});
    const {error:saveError}=await admin.from('mva_owner_subscriptions').upsert({
     owner_id:user.id,plan_id:plan.id,stripe_checkout_session_id:session.id,
     stripe_customer_id:existing?.stripe_customer_id||null,
