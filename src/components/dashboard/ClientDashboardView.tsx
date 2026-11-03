@@ -1,6 +1,7 @@
 import { t } from '../../lib/preferences';
 import React, { useEffect, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
+import { supabase } from '../../lib/supabase';
 import { Booking } from '../../types';
 import { calendarEnabled, connectGoogleCalendar, disconnectGoogleCalendar, manualGoogleCalendarLink, recordedCalendarEventUrl } from '../../lib/google-calendar';
 import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
@@ -37,6 +38,15 @@ export const ClientDashboardView: React.FC = () => {
   const day = new Date().toISOString().slice(0, 10);
   const addressActive = currentCompany.paymentStatus === 'paid' && currentCompany.paymentIsLive && currentCompany.status === 'ativo' && currentCompany.startDate <= day && currentCompany.renewalDate >= day;
   const [selectedVoucher, setSelectedVoucher] = useState<Booking | null>(null);
+  const [paidBookingIds, setPaidBookingIds] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    if(!currentUser){setPaidBookingIds(new Set());return}
+    let mounted=true;
+    void supabase.from('mva_checkout_orders').select('resource_id')
+      .eq('user_id',currentUser.id).eq('kind','booking').eq('status','paid')
+      .then(({data})=>{if(mounted)setPaidBookingIds(new Set((data||[]).map(x=>x.resource_id as string)))});
+    return()=>{mounted=false};
+  },[currentUser?.id,bookings.length]);
   const [clock, setClock] = useState(() => Date.now());
   const [calendarPreferenceVersion, setCalendarPreferenceVersion] = useState(0);
   useEffect(() => {
@@ -302,7 +312,11 @@ export const ClientDashboardView: React.FC = () => {
                       <div className="text-slate-800 font-medium">{b.responsibleName}</div>
                       <div className="text-[11px] text-slate-500">{t(b.responsiblePhone)}</div>
                     </td>
-                    <td className="py-4 px-4 font-bold text-navy-900 whitespace-nowrap">{t("R$ ")}{t(b.totalPrice.toFixed(2))}
+                    <td className="py-4 px-4 font-bold text-navy-900 whitespace-nowrap">
+                       <div>{t("R$ ")}{t(b.totalPrice.toFixed(2))}</div>
+                       <span className={`mt-1 inline-block text-[10px] font-semibold ${paidBookingIds.has(b.id)?'text-emerald-700':'text-amber-700'}`}>
+                         {paidBookingIds.has(b.id)?'Pago pelo Stripe':'Pagamento não confirmado'}
+                       </span>
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
                       {b.status === 'confirmada' && (
