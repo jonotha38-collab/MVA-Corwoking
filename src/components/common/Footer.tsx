@@ -6,6 +6,8 @@ import { useCoworking } from '../../context/CoworkingContext';
 
 export const Footer: React.FC = () => {
   const { setActiveTab } = useCoworking();
+  const whatsappNumber = (import.meta.env.VITE_MVA_WHATSAPP_NUMBER || '').replace(/\D/g, '');
+  const whatsappUrl = /^55\d{10,11}$/.test(whatsappNumber) ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Olá! Gostaria de saber mais sobre a MVA Coworking.')}` : null;
 
   return (
     <footer
@@ -31,7 +33,7 @@ export const Footer: React.FC = () => {
             </p>
             <div className="flex items-center gap-1.5 text-orange-400 font-semibold text-[11px]">
               <ShieldCheck className="w-4 h-4 text-orange-400" />
-              <span>{t("Rede Nacional de Coworkings Homologados ")}</span>
+              <span>{t("Sede MVA em Aracaju • Marketplace de espaços ")}</span>
             </div>
           </div>
 
@@ -114,19 +116,19 @@ export const Footer: React.FC = () => {
           {/* Central de Contato */}
           <div className="space-y-2.5">
             <h4 className="font-bold text-slate-200 text-xs uppercase tracking-wider">{t("Atendimento ")}</h4>
-            <p className="text-slate-400 text-xs">
-              {t("Segunda a Sexta, das 08h00 às 18h00. Suporte aos gestores de coworking e clientes 24/7. ")}
-            </p>
+            <p className="text-slate-400 text-xs leading-relaxed">{t("Atendimento comercial: consulte os canais abaixo para confirmar horários e disponibilidade antes de visitar.")}</p>
             <div className="space-y-1 text-slate-300">
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-orange-400" />
-                <span>{t("(79) 3214-5500 • WhatsApp Sede ")}</span>
+                <a href="tel:+557932145500" className="hover:text-white underline-offset-2 hover:underline" aria-label="Ligar para a sede MVA, (79) 3214-5500">(79) 3214-5500 · Telefone</a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-orange-400" />
-                <span className="min-w-0 break-all">{t("contato@mvacoworking.com.br ")}</span>
+                <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="min-w-0 break-all underline-offset-2 hover:text-white hover:underline">contato@mvacoworking.com.br</a>
               </div>
             </div>
+            {whatsappUrl && <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#1d573e] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#184833]"><Phone className="h-4 w-4"/> Atendimento pelo WhatsApp</a>}
+            {!whatsappUrl && <p className="pt-2 text-[11px] leading-relaxed text-slate-400">WhatsApp disponível quando o número oficial for confirmado.</p>}
           </div>
         </div>
 
