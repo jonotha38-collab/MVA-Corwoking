@@ -321,6 +321,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
             </div>
 
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900" role="note"><strong>Pagamento online ainda não disponível.</strong> O valor acima é o valor informado para a reserva, mas não será cobrado pelo site. Confirme diretamente com o responsável do espaço a forma de pagamento e as condições de cancelamento antes da utilização.</div>
+
             {/* Footer Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
@@ -331,7 +333,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               <button
                 type="submit"
                 className="px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-md hover:shadow-orange-500/30 transition-all flex items-center gap-2"
-              >{t("Confirmar Reserva Instantânea ")}</button>
+              >{t("Registrar minha reserva ")}</button>
             </div>
           </form>
         )}
