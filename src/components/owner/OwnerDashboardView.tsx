@@ -57,7 +57,6 @@ export const OwnerDashboardView: React.FC = () => {
   const photos = [image, ...gallery].filter(Boolean);
   const [description, setDescription] = useState('');
   const [openingHours, setOpeningHours] = useState('08:00 às 20:00');
-  const [offersFiscal, setOffersFiscal] = useState(true);
   const [offersCorrespondence, setOffersCorrespondence] = useState(true);
   const [amenities, setAmenities] = useState<string[]>([
     'Smart TV 4K para videoconferência',
@@ -137,7 +136,6 @@ export const OwnerDashboardView: React.FC = () => {
     setDescription(space.description);
     setOpeningHours(space.openingHours);
     setAmenities(space.amenities);
-    setOffersFiscal(!!space.offersFiscalAddress);
     setOffersCorrespondence(!!space.offersCorrespondence);
     setShowModal(true);
   };
@@ -167,7 +165,6 @@ export const OwnerDashboardView: React.FC = () => {
         description,
         openingHours,
         amenities,
-        offersFiscalAddress: offersFiscal,
         offersCorrespondence: offersCorrespondence,
       });
     } else {
@@ -189,7 +186,6 @@ export const OwnerDashboardView: React.FC = () => {
         description,
         openingHours,
         amenities,
-        offersFiscalAddress: offersFiscal,
         offersCorrespondence: offersCorrespondence,
         status: 'available',
       });
@@ -218,7 +214,7 @@ export const OwnerDashboardView: React.FC = () => {
             </div>
             <h1 className="text-2xl font-bold tracking-tight mt-0.5">{currentUser.name}</h1>
             <p className="text-xs text-slate-400">
-              {currentUser.coworkingBrandName || 'Empresa de Coworking Credenciada'} • {currentUser.email}
+              {currentUser.coworkingBrandName || 'Proprietário de coworking'} • {currentUser.email}
             </p>
           </div>
         </div>
@@ -253,13 +249,16 @@ export const OwnerDashboardView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs text-slate-500 font-medium block">{t("Reservas Confirmadas ")}</span>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-bold text-navy-900">{t(bookings.length)}</span>
+            <span className="text-3xl font-bold text-navy-900">{bookings.filter(b => mySpaces.some(s => s.id === b.spaceId) && b.status === 'confirmada').length}</span>
             <span className="text-xs text-emerald-600 font-semibold">{t("Acompanhe o status na agenda ")}</span>
           </div>
           <span className="text-[11px] text-slate-400 block mt-1">{t("Liquidação financeira depende de integração validada ")}</span>
         </div>
       </div>
 
+      <p className="rounded-xl border border-slate-200 bg-white px-5 py-4 text-xs leading-relaxed text-slate-600">
+        <strong>Assinaturas dos proprietários em preparação.</strong> O envio e a análise de anúncios estão disponíveis; ainda não existe cobrança automática pela plataforma. Condições comerciais serão apresentadas antes da ativação de planos pagos.
+      </p>
       <FiscalPartnerAccreditation />
 
       {/* Spaces List Section */}
@@ -637,15 +636,9 @@ export const OwnerDashboardView: React.FC = () => {
                 <h4 className="font-bold text-navy-900 uppercase text-[11px] tracking-wider border-b pb-1">{t("4. Comodidades & Serviços Extras Oferecidos ")}</h4>
 
                 <div className="flex flex-wrap gap-4 py-1">
-                  <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={offersFiscal}
-                      onChange={e => setOffersFiscal(e.target.checked)}
-                      className="w-4 h-4 text-orange-600 rounded border-slate-300 focus:ring-orange-500"
-                    />
-                    <span>{t("Este espaço oferece ")}<strong>{t("Endereço Fiscal para CNPJ ")}</strong></span>
-                  </label>
+                  <p className="w-full rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs leading-relaxed text-slate-700">
+                    Endereço fiscal é um serviço sujeito a credenciamento separado. Solicite na área “Oferecer endereço fiscal no seu coworking” deste painel; não é liberado apenas ao cadastrar uma sala.
+                  </p>
 
                   <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-700">
                     <input
