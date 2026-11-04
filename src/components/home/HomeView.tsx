@@ -1,12 +1,14 @@
-import { ArrowRight, ArrowUpRight, BadgeCheck, Building2, CalendarCheck, CheckCircle2, ChevronRight, FileCheck2, Headphones, Mail, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Building2, CalendarCheck, Check, ChevronDown, FileCheck2, Mail, MapPin, ShieldCheck, Users } from 'lucide-react';
+import { isSpacePubliclyVisible } from '../../lib/space-visibility';
+import type { MouseEvent } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
 import heroOffice from '../../assets/hero-office.jpg';
 
 const copy = {
  pt: {
-  eyebrow:'MVA Coworking · Aracaju/SE',line1:'Um espaço para trabalhar.',line2:'Uma plataforma para crescer.',
-  intro:'Salas de reunião, endereço fiscal e uma vitrine para seu coworking. Escolha o serviço ideal e acompanhe tudo em um só lugar.',
+  eyebrow:'MVA Coworking · Aracaju/SE',line1:'Seu próximo passo',line2:'tem espaço aqui.',
+  intro:'Do primeiro endereço da sua empresa à próxima grande reunião. Encontre na MVA a estrutura para trabalhar e seguir em frente.',
   cta:'Explorar espaços',more:'Conhecer endereço fiscal',badge1:'Sede em Aracaju',badge2:'Reservas organizadas',badge3:'Anúncios com análise',
   select:'O que você precisa hoje?',selectSub:'Três caminhos claros para profissionais, empresas e proprietários de coworkings.',
   space:'Reservar uma sala',spaceDesc:'Encontre ambientes para reuniões, atendimentos e trabalho por hora. Confira fotos, estrutura e valores antes de reservar.',spaceBtn:'Ver espaços disponíveis',
@@ -18,7 +20,7 @@ const copy = {
   contactTitle:'Quer conversar antes de decidir?',contactBody:'Fale com a equipe da MVA para esclarecer dúvidas sobre a sede, as salas e os serviços.',contactCta:'Enviar e-mail à MVA',location:'Sede da MVA',online:'Pagamento online ainda em implantação. Reservas e contratos são registrados conforme suas condições específicas.'
  },
  en: {
-  eyebrow:'MVA Coworking · Aracaju, Brazil',line1:'A place to work.',line2:'A platform to grow.',
+  eyebrow:'MVA Coworking · Aracaju, Brazil',line1:'Make room for',line2:'your next step.',
   intro:'Meeting rooms, virtual office addresses and a place to showcase your coworking. Explore the right service for your business.',
   cta:'Explore spaces',more:'Discover fiscal address',badge1:'Based in Aracaju',badge2:'Organized reservations',badge3:'Listings reviewed',
   select:'What do you need today?',selectSub:'Three straightforward paths for professionals, businesses and coworking owners.',
@@ -31,7 +33,7 @@ const copy = {
   contactTitle:'Need help deciding?',contactBody:'Reach the MVA team with questions about rooms, the main office and services.',contactCta:'Email MVA',location:'MVA headquarters',online:'Online payments are being prepared. Reservations and contracts follow their respective terms.'
  },
  es: {
-  eyebrow:'MVA Coworking · Aracaju, Brasil',line1:'Un espacio para trabajar.',line2:'Una plataforma para crecer.',
+  eyebrow:'MVA Coworking · Aracaju, Brasil',line1:'Tu próximo paso',line2:'tiene espacio aquí.',
   intro:'Salas de reuniones, domicilio fiscal y un escaparate para tu coworking. Encuentra el servicio indicado para tu empresa.',
   cta:'Explorar espacios',more:'Conocer domicilio fiscal',badge1:'Sede en Aracaju',badge2:'Reservas organizadas',badge3:'Anuncios revisados',
   select:'¿Qué necesitas hoy?',selectSub:'Tres caminos para profesionales, empresas y propietarios de coworkings.',
@@ -45,67 +47,122 @@ const copy = {
  }
 } as const;
 
-export function HomeView(){
- const {setActiveTab,spaces}=useCoworking();
- const {language}=usePreferences();
- const c=copy[language];
- const services=[
-  {id:'marketplace',icon:CalendarCheck,name:c.space,description:c.spaceDesc,cta:c.spaceBtn,tag:'01',accent:'bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'},
-  {id:'fiscal',icon:FileCheck2,name:c.fiscal,description:c.fiscalDesc,cta:c.fiscalBtn,tag:'02',accent:'bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'},
-  {id:'owner-dashboard',icon:Building2,name:c.owner,description:c.ownerDesc,cta:c.ownerBtn,tag:'03',accent:'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}
+const extraCopy = {
+ pt: {
+  servicesLabel:'Para cada momento do seu negócio', serviceTags:['Trabalhe e reúna','Estabeleça sua empresa','Amplie seu alcance'],
+  photoAlt:'Sala de reunião da MVA com mesa, cadeiras e televisão',photoCaption:'Encontros que levam seu negócio adiante.',photoLabel:'Conheça o ambiente',
+  roomsLabel:'Seu próximo encontro',roomsTitle:'Encontre o espaço certo.',roomsText:'Conheça os ambientes, compare a estrutura e confira os detalhes antes de reservar.',allRooms:'Explorar todos os espaços',details:'Conhecer espaço',capacity:'Até',people:'pessoas',perHour:'/ hora',
+  placeLabel:'Perto de você, em Aracaju',placeTitle:'Seu negócio com um ponto de referência.',directions:'Como chegar',address:'Rua Dom José Thomaz, 565',neighborhood:'São José · Aracaju/SE · CEP 49015-090',
+  faqLabel:'Antes de começar',faqTitle:'Vamos tirar suas dúvidas.',
+  faqs:[['Preciso de uma conta para conhecer os espaços?','Você pode explorar fotos, estrutura e valores sem criar uma conta. Para registrar e acompanhar uma reserva, acesse sua conta na plataforma.'],['Como funciona o endereço fiscal?','Consulte os planos e condições na área de endereço fiscal. A contratação depende da análise de atividade e documentação, elegibilidade e confirmação de pagamento.'],['Os espaços são todos da MVA?','A sede própria da MVA fica na Rua Dom José Thomaz, 565, em Aracaju. O marketplace também pode incluir coworkings parceiros, identificados em cada anúncio.']],
+  contactLabel:'Conte com a MVA',contactSecondary:'Ligar para a sede',serviceNote:'Escolha um serviço para conhecer os detalhes e as condições.',
+ },
+ en: {
+  servicesLabel:'For every stage of your business',serviceTags:['Work and meet','Establish your business','Reach more people'],
+  photoAlt:'MVA meeting room with a table, chairs and a television',photoCaption:'A place to move your business forward.',photoLabel:'Explore the setting',
+  roomsLabel:'Your next meeting',roomsTitle:'Find the right space.',roomsText:'Explore the rooms, compare amenities and check the details before booking.',allRooms:'Explore all spaces',details:'View space',capacity:'Up to',people:'people',perHour:'/ hour',
+  placeLabel:'Find us in Aracaju',placeTitle:'Give your business a place on the map.',directions:'Get directions',address:'Rua Dom José Thomaz, 565',neighborhood:'São José · Aracaju, Brazil · 49015-090',
+  faqLabel:'Before you start',faqTitle:'A few helpful answers.',
+  faqs:[['Do I need an account to browse spaces?','You can explore photos, amenities and prices without an account. Sign in to register and track a reservation.'],['How does a business address work?','See plans and terms in the business address section. A contract requires activity and document review, eligibility and confirmed payment.'],['Does MVA own every space?','MVA headquarters is at Rua Dom José Thomaz, 565, Aracaju. The marketplace may also include partner coworkings, identified in each listing.']],
+  contactLabel:'Here to help',contactSecondary:'Call MVA',serviceNote:'Choose a service to explore its details and terms.',
+ },
+ es: {
+  servicesLabel:'Para cada etapa de tu negocio',serviceTags:['Trabaja y reúnete','Establece tu empresa','Amplía tu alcance'],
+  photoAlt:'Sala de reuniones de MVA con mesa, sillas y televisión',photoCaption:'Encuentros que impulsan tu negocio.',photoLabel:'Conoce el ambiente',
+  roomsLabel:'Tu próximo encuentro',roomsTitle:'Encuentra el espacio ideal.',roomsText:'Conoce las salas, compara servicios y consulta los detalles antes de reservar.',allRooms:'Explorar todos los espacios',details:'Conocer espacio',capacity:'Hasta',people:'personas',perHour:'/ hora',
+  placeLabel:'Cerca de ti, en Aracaju',placeTitle:'Tu negocio con un punto de referencia.',directions:'Cómo llegar',address:'Rua Dom José Thomaz, 565',neighborhood:'São José · Aracaju, Brasil · 49015-090',
+  faqLabel:'Antes de empezar',faqTitle:'Resolvemos tus dudas.',
+  faqs:[['¿Necesito una cuenta para ver los espacios?','Puedes explorar fotos, servicios y precios sin crear una cuenta. Accede a tu cuenta para registrar y seguir una reserva.'],['¿Cómo funciona el domicilio fiscal?','Consulta planes y condiciones en la sección de domicilio fiscal. La contratación requiere revisión de actividad y documentos, elegibilidad y pago confirmado.'],['¿Todos los espacios son de MVA?','La sede propia de MVA está en Rua Dom José Thomaz, 565, Aracaju. El marketplace también puede incluir coworkings asociados, identificados en cada anuncio.']],
+  contactLabel:'Cuenta con MVA',contactSecondary:'Llamar a MVA',serviceNote:'Elige un servicio para conocer sus detalles y condiciones.',
+ },
+} as const;
+
+export function HomeView() {
+ const {setActiveTab, spaces} = useCoworking();
+ const {language} = usePreferences();
+ const c = copy[language];
+ const e = extraCopy[language];
+ const services = [
+  {id:'marketplace',icon:CalendarCheck,name:c.space,description:c.spaceDesc,cta:c.spaceBtn},
+  {id:'fiscal',icon:FileCheck2,name:c.fiscal,description:c.fiscalDesc,cta:c.fiscalBtn},
+  {id:'owner-dashboard',icon:Building2,name:c.owner,description:c.ownerDesc,cta:c.ownerBtn},
  ];
- const publicCount=spaces.filter(s=>s.approval==='aprovado'&&s.status==='available').length;
- return <div className="mva-home min-w-0 space-y-16 pb-12 sm:space-y-20">
-  <section className="relative isolate overflow-hidden rounded-[24px] bg-[#0c2036] text-white shadow-[0_20px_55px_rgba(9,22,41,.15)] sm:rounded-[30px]" aria-labelledby="mva-home-title">
-   <img src={heroOffice} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 lg:left-auto lg:w-[65%] lg:opacity-65" aria-hidden="true"/>
-   <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0c2036] via-[#0c2036]/95 to-[#0c2036]/35"/>
-   <div className="relative z-10 max-w-4xl space-y-7 px-5 py-12 sm:px-10 sm:py-16 lg:px-14 lg:py-20">
-    <p className="inline-flex items-center gap-2 rounded-full border border-orange-300/30 bg-orange-500/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-orange-200"><Sparkles className="h-4 w-4"/>{c.eyebrow}</p>
-    <h1 id="mva-home-title" className="max-w-3xl text-[clamp(2.15rem,5vw,4.4rem)] font-semibold leading-[1.09] tracking-[-.055em]">{c.line1}<span className="mt-1 block text-orange-200">{c.line2}</span></h1>
-    <p className="max-w-xl text-base leading-[1.85] text-slate-200 sm:text-lg">{c.intro}</p>
-    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-     <button type="button" onClick={()=>setActiveTab('marketplace')} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#cb541a] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#b3420d]">{c.cta}<ArrowRight className="h-4 w-4"/></button>
-     <button type="button" onClick={()=>setActiveTab('fiscal')} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/20">{c.more}<ArrowUpRight className="h-4 w-4"/></button>
+ const featured = spaces.filter(isSpacePubliclyVisible)
+  .sort((a,b)=>Number(b.isMvaHeadquarters)-Number(a.isMvaHeadquarters)).slice(0,3);
+ // Preserve real links (including open in new tab) while using the existing SPA navigation.
+ const navigate = (event: MouseEvent<HTMLAnchorElement>, page: string) => {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  const target = new URL(event.currentTarget.href);
+  window.history.replaceState(window.history.state, '', target.pathname + target.search);
+  setActiveTab(page);
+ };
+ const link = (page: string) => ({href:`?page=${page}`,onClick:(event:MouseEvent<HTMLAnchorElement>)=>navigate(event,page)});
+ return <div className="mva-home home-redesign">
+  <section className="home-hero" aria-labelledby="mva-home-title">
+   <div className="home-hero-copy">
+    <p className="home-kicker"><span className="home-location-dot"/>{c.eyebrow}</p>
+    <h1 id="mva-home-title">{c.line1}<span>{c.line2}</span></h1>
+    <p className="home-intro">{c.intro}</p>
+    <div className="home-hero-actions">
+     <a {...link('marketplace')} className="home-button home-button-primary">{c.cta}<ArrowUpRight size={19} aria-hidden="true"/></a>
+     <a {...link('fiscal')} className="home-text-link">{c.more}<ArrowRight size={17} aria-hidden="true"/></a>
     </div>
-    <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-white/20 pt-6 text-xs text-slate-200">
-     {[c.badge1,c.badge2,c.badge3].map(x=><span key={x} className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/>{x}</span>)}
-    </div>
+    <p className="home-hero-note"><ShieldCheck size={17} aria-hidden="true"/>{c.badge3} · {c.badge2}</p>
+   </div>
+   <figure className="home-hero-visual">
+    <img src={heroOffice} alt={e.photoAlt} width="1024" height="768" fetchPriority="high"/>
+    <div className="home-image-label"><span className="home-location-dot"/>{e.photoLabel}</div>
+    <figcaption className="home-photo-caption">
+     <div><span>MVA Coworking</span><p>{e.photoCaption}</p></div>
+     <a {...link('marketplace')} aria-label={c.spaceBtn}><ArrowUpRight size={23} aria-hidden="true"/></a>
+    </figcaption>
+   </figure>
+  </section>
+
+  <section className="home-services home-section" aria-labelledby="mva-home-services">
+   <div className="home-section-heading"><div><p className="home-kicker">{e.servicesLabel}</p><h2 id="mva-home-services">{c.select}</h2></div><p>{e.serviceNote}</p></div>
+   <div className="home-service-grid">
+    {services.map(({id,icon:Icon,name,description,cta},i)=><article key={id} className="home-service-card">
+     <div className="home-service-top"><span className="home-service-icon"><Icon size={23} aria-hidden="true"/></span><span>{e.serviceTags[i]}</span></div>
+     <h3>{name}</h3><p>{description}</p>
+     <a {...link(id)} className="home-card-link">{cta}<ArrowUpRight size={19} aria-hidden="true"/></a>
+    </article>)}
    </div>
   </section>
 
-  <section aria-labelledby="mva-home-services" className="space-y-7">
-   <div className="max-w-2xl space-y-3"><p className="text-xs font-bold uppercase tracking-[.17em] text-[#be531f] dark:text-orange-300">MVA Coworking</p><h2 id="mva-home-services" className="text-2xl font-semibold tracking-tight text-navy-950 dark:text-slate-100 sm:text-4xl">{c.select}</h2><p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{c.selectSub}</p></div>
-   <div className="grid gap-5 lg:grid-cols-3">
-    {services.map(({id,icon:Icon,name,description,cta,tag,accent})=><article key={id} className="flex min-w-0 flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-orange-300 hover:shadow-lg dark:border-slate-700 dark:bg-[#192b40] sm:p-7">
-      <div className="flex items-center justify-between"><span className={`grid h-14 w-14 place-items-center rounded-2xl ${accent}`}><Icon className="h-6 w-6"/></span><span className="text-xs font-bold tracking-widest text-slate-400 dark:text-slate-500">{tag}</span></div>
-      <h3 className="mt-7 text-xl font-semibold text-navy-950 dark:text-slate-100">{name}</h3>
-      <p className="mt-3 flex-1 text-sm leading-[1.8] text-slate-600 dark:text-slate-300">{description}</p>
-      <button type="button" onClick={()=>setActiveTab(id)} className="mt-8 inline-flex min-h-11 items-center justify-between gap-3 border-t border-slate-100 pt-5 text-left text-sm font-bold text-[#b54815] hover:text-[#98340b] dark:border-slate-700 dark:text-orange-300 dark:hover:text-orange-200">{cta}<ArrowUpRight className="h-5 w-5 shrink-0"/></button>
-     </article>)}
+  {featured.length > 0 && <section className="home-section" aria-labelledby="home-rooms-title">
+   <div className="home-section-heading"><div><p className="home-kicker">{e.roomsLabel}</p><h2 id="home-rooms-title">{e.roomsTitle}</h2></div><a {...link('marketplace')} className="home-text-link">{e.allRooms}<ArrowRight size={18} aria-hidden="true"/></a></div>
+   <p className="home-section-intro">{e.roomsText}</p>
+   <div className="home-room-grid">
+    {featured.map(space=><article className="home-room-card" key={space.id}>
+     <a className="home-room-image" href={`?page=marketplace&space=${encodeURIComponent(space.id)}`} onClick={event=>navigate(event,'marketplace')} aria-label={`${e.details}: ${space.name}`}>
+      <img src={space.image} alt={space.name} width="640" height="440" loading="lazy" decoding="async"/>
+      {space.isMvaHeadquarters && <span><MapPin size={13} aria-hidden="true"/>{c.location}</span>}
+     </a>
+     <div className="home-room-body"><p className="home-room-location">{space.neighborhood} · {space.city}</p><h3><a href={`?page=marketplace&space=${encodeURIComponent(space.id)}`} onClick={event=>navigate(event,'marketplace')}>{space.name}</a></h3>
+      <p className="home-room-capacity"><Users size={16} aria-hidden="true"/>{e.capacity} {space.capacity} {e.people}</p>
+      <div className="home-room-bottom"><p><strong>{new Intl.NumberFormat(language==='pt'?'pt-BR':language==='es'?'es':'en',{style:'currency',currency:'BRL'}).format(space.pricePerHour)}</strong><span>{e.perHour}</span></p><a href={`?page=marketplace&space=${encodeURIComponent(space.id)}`} onClick={event=>navigate(event,'marketplace')} aria-label={`${e.details}: ${space.name}`}><ArrowUpRight size={21} aria-hidden="true"/></a></div>
+     </div>
+    </article>)}
    </div>
-   {publicCount===0&&<p className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-[#192b40] dark:text-slate-300">{c.online}</p>}
+  </section>}
+
+  <section className="home-location home-section" aria-labelledby="home-location-title">
+   <div className="home-location-address"><MapPin size={30} strokeWidth={1.5} aria-hidden="true"/><p className="home-kicker">{c.location}</p><h3>{e.address}</h3><p>{e.neighborhood}</p><a href="https://www.google.com/maps/search/?api=1&query=Rua+Dom+Jos%C3%A9+Thomaz+565+S%C3%A3o+Jos%C3%A9+Aracaju+SE" target="_blank" rel="noopener noreferrer" className="home-location-link">{e.directions}<ArrowUpRight size={18} aria-hidden="true"/></a></div>
+   <div className="home-location-copy"><p className="home-kicker">{e.placeLabel}</p><h2 id="home-location-title">{e.placeTitle}</h2><p>{c.aboutText}</p><ul>{[c.aboutOne,c.aboutTwo,c.aboutThree].map(item=><li key={item}><Check size={18} aria-hidden="true"/>{item}</li>)}</ul></div>
   </section>
 
-  <section className="grid min-w-0 gap-0 overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-[#192b40] lg:grid-cols-[.94fr_1.06fr]">
-    <div className="bg-[#102840] p-7 text-white sm:p-10 lg:p-12">
-     <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-orange-300"><MapPin className="h-4 w-4"/>{c.location}</span>
-     <h2 className="mt-5 max-w-sm text-2xl font-semibold leading-tight sm:text-3xl">{c.about}</h2>
-     <p className="mt-5 text-sm leading-[1.9] text-slate-200">{c.aboutText}</p>
-     <div className="mt-7 flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 p-3 text-xs text-slate-200"><MapPin className="h-4 w-4 shrink-0 text-orange-200"/>Rua Dom José Thomaz, 565 · Aracaju/SE</div>
-    </div>
-    <div className="space-y-6 p-7 sm:p-10 lg:p-12">
-      {[c.aboutOne,c.aboutTwo,c.aboutThree].map((item,i)=><div key={item} className={`flex items-start gap-4 ${i>0?'border-t border-slate-100 pt-6 dark:border-slate-700':''}`}><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-orange-50 text-[#a63e10] dark:bg-orange-500/10 dark:text-orange-300">{i===0?<BadgeCheck className="h-5 w-5"/>:i===1?<CalendarCheck className="h-5 w-5"/>:<ShieldCheck className="h-5 w-5"/>}</span><p className="pt-2 text-sm font-medium leading-7 text-navy-900 dark:text-slate-100">{item}</p></div>)}
-    </div>
+  <section className="home-process home-section" aria-labelledby="home-process-title">
+   <div className="home-section-heading"><div><p className="home-kicker">MVA Coworking</p><h2 id="home-process-title">{c.process}</h2></div></div>
+   <ol>{[[c.step1,c.step1D],[c.step2,c.step2D],[c.step3,c.step3D]].map(([title,desc],i)=><li key={title}><span className="home-step">0{i+1}</span><div><h3>{title}</h3><p>{desc}</p></div></li>)}</ol>
   </section>
 
-  <section className="space-y-7">
-    <div className="max-w-2xl"><h2 className="text-2xl font-semibold text-navy-950 dark:text-slate-100 sm:text-3xl">{c.process}</h2></div>
-    <ol className="grid gap-4 md:grid-cols-3">{[[c.step1,c.step1D],[c.step2,c.step2D],[c.step3,c.step3D]].map(([title,desc],i)=><li key={title} className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-[#192b40]"><span className="font-semibold text-[#b54815] dark:text-orange-300">0{i+1}</span><h3 className="mt-4 text-lg font-semibold text-navy-900 dark:text-slate-100">{title}</h3><p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">{desc}</p></li>)}</ol>
+  <section className="home-faq home-section" aria-labelledby="home-faq-title">
+   <div><p className="home-kicker">{e.faqLabel}</p><h2 id="home-faq-title">{e.faqTitle}</h2></div>
+   <div>{e.faqs.map(([q,a])=><details key={q}><summary>{q}<ChevronDown size={19} aria-hidden="true"/></summary><p>{a}</p></details>)}</div>
   </section>
 
-  <section className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#102840] p-7 text-white sm:p-10 lg:flex-row lg:items-center">
-   <div className="max-w-xl"><p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[.13em] text-orange-300"><Headphones className="h-4 w-4"/>Atendimento</p><h2 className="text-2xl font-semibold sm:text-3xl">{c.contactTitle}</h2><p className="mt-3 text-sm leading-7 text-slate-300">{c.contactBody}</p></div>
-   <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="mva-home-white-cta inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition sm:w-auto"><Mail className="h-4 w-4"/>{c.contactCta}<ChevronRight className="h-4 w-4"/></a>
-  </section>
+  <section className="home-contact home-section" aria-labelledby="home-contact-title"><div><p className="home-kicker">{e.contactLabel}</p><h2 id="home-contact-title">{c.contactTitle}</h2><p>{c.contactBody}</p></div><div className="home-contact-actions"><a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="home-button home-button-light"><Mail size={18} aria-hidden="true"/>{c.contactCta}<ArrowUpRight size={18} aria-hidden="true"/></a><a href="tel:+557932145500" className="home-contact-phone">{e.contactSecondary} · (79) 3214-5500</a></div></section>
  </div>;
 }

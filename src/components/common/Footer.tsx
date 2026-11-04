@@ -12,9 +12,9 @@ export const Footer: React.FC = () => {
   return (
     <footer
       role="contentinfo"
-      className="bg-navy-950 text-slate-400 text-sm border-t border-navy-800 shadow-md"
+      className="mva-footer bg-navy-950 text-slate-400 text-sm border-t border-navy-800 shadow-md"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         <div className="grid min-w-0 grid-cols-1 gap-8 mb-12 sm:grid-cols-2 xl:grid-cols-4">
           {/* Brand */}
           <div className="min-w-0 space-y-3">
@@ -128,7 +128,7 @@ export const Footer: React.FC = () => {
               </div>
             </div>
             {whatsappUrl && <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#1d573e] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#184833]"><Phone className="h-4 w-4"/> Atendimento pelo WhatsApp</a>}
-            {!whatsappUrl && <p className="pt-2 text-[11px] leading-relaxed text-slate-400">WhatsApp disponível quando o número oficial for confirmado.</p>}
+
           </div>
         </div>
 

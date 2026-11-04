@@ -4,6 +4,7 @@ import App from './App.tsx'
 import { CoworkingProvider } from './context/CoworkingContext.tsx'
 import './index.css'
 import './theme.css'
+import './home.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

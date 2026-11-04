@@ -91,7 +91,7 @@ export const MarketplaceView: React.FC = () => {
 
   const dirty = searchQuery || selectedCity !== 'Todas' || selectedCategory !== 'todas' || capacity !== 'all';
   const clear = () => { setSearchQuery(''); setSelectedCity('Todas'); setSelectedCategory('todas'); setCapacity('all'); };
-  const search = (e: React.FormEvent) => { e.preventDefault(); results.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  const search = (e: React.FormEvent) => { e.preventDefault(); results.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
   const field = 'w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-navy-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30';
 
   return (
@@ -143,9 +143,9 @@ export const MarketplaceView: React.FC = () => {
             </select>
           </div>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={t("Tipo de espaço")}>
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-2" role="group" aria-label={t("Tipo de espaço")}>
           {CATEGORIES.map(c => (
-            <button key={c.id} role="tab" aria-selected={selectedCategory === c.id} onClick={() => setSelectedCategory(c.id)}
+            <button key={c.id} type="button" aria-pressed={selectedCategory === c.id} onClick={() => setSelectedCategory(c.id)}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${selectedCategory === c.id ? 'bg-navy-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-navy-900'}`}>
               {t(c.label)}
             </button>

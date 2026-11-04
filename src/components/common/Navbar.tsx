@@ -47,7 +47,7 @@ export const Navbar: React.FC = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -170,12 +170,12 @@ export const Navbar: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openAuth('login')}
-                    className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-navy-800 sm:block"
+                    className="min-h-11 rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-navy-800 sm:px-4"
                   >{t("Entrar ")}
                   </button>
                   <button
                     onClick={() => openAuth('register')}
-                    className="flex items-center gap-2 action-primary whitespace-nowrap px-4 py-2.5 text-sm"
+                    className="hidden items-center gap-2 action-primary whitespace-nowrap px-4 py-2.5 text-sm sm:flex"
                   >
                     <User className="h-4 w-4" aria-hidden />
                     {t("Criar conta ")}
