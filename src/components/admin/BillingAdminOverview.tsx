@@ -2,12 +2,22 @@ import { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, CreditCard, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
+type GatewayInfo = {
+  checkout:boolean; sandbox:boolean; live:boolean;
+  integrationChecks?: {
+    testKeyConfigured:boolean; platformWebhookConfigured:boolean;
+    connectWebhookConfigured:boolean; billingSecretEnabled:boolean;
+    administratorSandboxEnabled:boolean; platformCheckoutEnabled:boolean;
+    ownerSubscriptionsEnabled:boolean; connectEnabled:boolean;
+  };
+};
 type Flags={checkout_enabled:boolean;owner_subscriptions_enabled:boolean;connect_enabled:boolean;enforce_owner_subscriptions:boolean};
 type Order={id:string;kind:string;status:string;amount_cents:number;livemode:boolean;created_at:string};
 type Sub={owner_id:string;plan_id:string;status:string;livemode:boolean};
 type Account={owner_id:string;charges_enabled:boolean;payouts_enabled:boolean};
 export function BillingAdminOverview(){
  const [flags,setFlags]=useState<Flags|null>(null);
+ const [gateway,setGateway]=useState<GatewayInfo|null>(null);
  const [orders,setOrders]=useState<Order[]>([]);
  const [subs,setSubs]=useState<Sub[]>([]);
  const [accounts,setAccounts]=useState<Account[]>([]);
@@ -15,15 +25,17 @@ export function BillingAdminOverview(){
  const [error,setError]=useState('');
  const refresh=useCallback(async()=>{
   setLoading(true);setError('');
-  const [f,o,s,a]=await Promise.all([
+  const [f,o,s,a,g]=await Promise.all([
    supabase.from('mva_billing_settings').select('checkout_enabled,owner_subscriptions_enabled,connect_enabled,enforce_owner_subscriptions').eq('id',1).single(),
    supabase.from('mva_checkout_orders').select('id,kind,status,amount_cents,livemode,created_at').order('created_at',{ascending:false}).limit(100),
    supabase.from('mva_owner_subscriptions').select('owner_id,plan_id,status,livemode').limit(100),
-   supabase.from('mva_connected_accounts').select('owner_id,charges_enabled,payouts_enabled').limit(100)
+   supabase.from('mva_connected_accounts').select('owner_id,charges_enabled,payouts_enabled').limit(100),
+   supabase.functions.invoke('mva-stripe-gateway',{body:{action:'status'}})
   ]);
   if(f.error||o.error||s.error||a.error)setError('Não foi possível carregar os registros financeiros. Confira o acesso administrativo.');
   else{setFlags(f.data as Flags);setOrders((o.data||[]) as Order[]);
     setSubs((s.data||[]) as Sub[]);setAccounts((a.data||[]) as Account[])}
+  setGateway(!g.error && g.data && !g.data.error ? g.data as GatewayInfo : null);
   setLoading(false);
  },[]);
  useEffect(()=>{void refresh()},[refresh]);
@@ -50,6 +62,24 @@ export function BillingAdminOverview(){
       <Icon className="mt-0.5 h-5 w-5 shrink-0 text-orange-700"/>
       <div><p className="text-xs font-bold text-navy-900">{name}</p><span className={`mt-2 inline-block rounded-full px-2.5 py-1 text-[11px] font-bold ${ready?'bg-emerald-50 text-emerald-800':'bg-amber-50 text-amber-800'}`}>{ready?'Habilitado pela MVA':'Em preparação'}</span></div>
     </div>)}
+   </div>
+   <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+     <h3 className="text-sm font-bold text-navy-900">Diagnóstico do gateway Stripe</h3>
+     <p className="mt-1 text-xs text-slate-600">Consulta às configurações efetivas do servidor; nenhum cartão é cobrado nesta verificação.</p>
+     {gateway?.integrationChecks ? <div className="mt-4 grid gap-2 sm:grid-cols-2">
+       {([
+         ['Chave Stripe de teste',gateway.integrationChecks.testKeyConfigured],
+         ['Segredo do webhook principal',gateway.integrationChecks.platformWebhookConfigured],
+         ['Checkout habilitado no banco',gateway.integrationChecks.platformCheckoutEnabled],
+         ['Teste administrativo autorizado',gateway.integrationChecks.administratorSandboxEnabled],
+         ['Cobrança real autorizada no servidor',gateway.integrationChecks.billingSecretEnabled],
+         ['Webhook de repasses Connect',gateway.integrationChecks.connectWebhookConfigured],
+       ] as Array<[string,boolean]>).map(([label,ok])=><div key={label} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs">
+         <span className="text-slate-700">{label}</span>
+         <span className={ok ? 'font-bold text-emerald-700' : 'font-bold text-amber-800'}>{ok ? 'Configurado' : 'Pendente'}</span>
+       </div>)}
+     </div> : <p className="mt-3 text-xs text-amber-800">Diagnóstico indisponível. Confira a conexão do Supabase.</p>}
+     <p className="mt-3 text-xs text-slate-600">Indicadores de configuração não comprovam a validade das chaves nem o recebimento de eventos. Faça uma compra em modo de teste e confirme o webhook antes de ativar cobranças reais.</p>
    </div>
    <p className="mt-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900">
      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0"/>O painel é informativo. A habilitação de cobranças requer chave Stripe substituta, webhooks validados, confirmação dos preços e autorização expressa. Anúncios de parceiros não serão bloqueados por assinatura nesta fase.
