@@ -13,7 +13,7 @@ const origins = new Set([new URL(SITE).origin,'http://localhost:5173',...(Deno.e
 type Body = Record<string,unknown>;
 const response = (data:unknown,status=200,origin=SITE)=>new Response(JSON.stringify(data),{
  status,headers:{'Content-Type':'application/json','Cache-Control':'no-store',
- 'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Headers':'authorization, apikey, content-type',
+ 'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info, x-supabase-api-version, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
  'Access-Control-Allow-Methods':'POST, OPTIONS'}
 });
 const string = (value:unknown)=>typeof value==='string'?value.trim():'';
