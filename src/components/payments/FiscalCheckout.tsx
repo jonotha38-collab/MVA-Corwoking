@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Building2, CheckCircle2, FileCheck2, Info, LockKeyhole, ShieldCheck, X } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
-import { getPlan, quotePlan, money, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
+import { getPlan, quotePlan, money, validCnpj, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
 import { supabase } from '../../lib/supabase';
 import { Dialog } from '../ui/Dialog';
 import { StripeCheckoutAction } from './StripeCheckoutAction';
@@ -23,6 +23,14 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
  const [loading,setLoading]=useState(true);
  const [paymentStatus,setPaymentStatus]=useState('');
  const [paymentIsLive,setPaymentIsLive]=useState(false);
+ const [saving,setSaving]=useState(false);
+ const [requestError,setRequestError]=useState('');
+ const [termsAccepted,setTermsAccepted]=useState(false);
+ const [company,setCompany]=useState({
+   company_name:'',cnpj:'em abertura',cnae:'',
+   responsible_name:'',contact_email:'',contact_phone:'',transfer_from:''
+ });
+ const change=(field:keyof typeof company,value:string)=>setCompany(v=>({...v,[field]:value}));
  useEffect(()=>{
   let live=true;
   if(!currentUser){setLoading(false);return}
@@ -45,10 +53,44 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
    });
   return()=>{live=false};
  },[currentUser?.id,planId,initialTerm,transfer]);
+ useEffect(()=>{
+  if(currentUser)setCompany(v=>({...v,responsible_name:v.responsible_name||currentUser.name,
+    contact_email:v.contact_email||currentUser.email}));
+ },[currentUser?.id]);
+ const submitApplication=async()=>{
+  if(!currentUser||saving)return;
+  if(company.company_name.trim().length<3||company.cnae.trim().length<3
+     ||company.responsible_name.trim().length<3||!validCnpj(company.cnpj)
+     ||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(company.contact_email.trim())){
+   setRequestError('Confira razão social, CNPJ, atividade/CNAE, responsável e e-mail.');return;
+  }
+  if(transfer&&company.transfer_from.trim().length<3){
+   setRequestError('Informe o endereço anterior para o desconto de transferência.');return;
+  }
+  if(!termsAccepted){setRequestError('Aceite as condições da solicitação.');return;}
+  setSaving(true);setRequestError('');
+  try{
+   const {data,error}=await supabase.from('fiscal_applications').insert({
+     user_id:currentUser.id,company_name:company.company_name.trim(),
+     cnpj:company.cnpj.trim(),cnae:company.cnae.trim(),
+     responsible_name:company.responsible_name.trim(),
+     contact_email:company.contact_email.trim(),contact_phone:company.contact_phone.trim(),
+     plan_id:planId,term_months:initialTerm,
+     transfer_from:transfer?company.transfer_from.trim():'',
+     terms_version:'2026-10-30'
+   }).select('id,company_name,plan_id,term_months,transfer_from,status').single();
+   if(error||!data)throw error||new Error('Nenhuma resposta.');
+   setApplications(prev=>[data as Application,...prev]);
+   setTermsAccepted(false);
+  }catch{
+   setRequestError('Não foi possível registrar a solicitação. Confira os dados e tente novamente.');
+  }finally{setSaving(false);}
+ };
  const match=useMemo(()=>applications.find(a=>a.plan_id===planId
   &&a.term_months===initialTerm && a.status==='approved'
   &&(!transfer||a.transfer_from.trim().length>=3)),[applications,planId,initialTerm,transfer]);
- const other=applications.find(a=>a.plan_id===planId);
+ const other=applications.find(a=>a.plan_id===planId&&a.term_months===initialTerm
+    &&(!transfer||a.transfer_from.trim().length>=3));
  const contact='mailto:contato@mvacoworking.com.br?subject='+encodeURIComponent('Análise para contratação · '+plan.name)
    +'&body='+encodeURIComponent('Olá! Gostaria de solicitar análise para o '+plan.name+' ('+
    initialTerm+' meses'+(transfer?' com transferência de endereço':'')+').');
@@ -94,7 +136,40 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
            ? 'Há pendências na análise desta empresa. Consulte o parecer da equipe MVA.'
            : 'A contratação precisa de avaliação documental e de elegibilidade. Você não será cobrado enquanto essa etapa estiver pendente.'}
         </p></div></div>
-       <a href={contact} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-navy-900 px-5 py-3 text-xs font-bold text-white">Solicitar análise à MVA</a>
+       {(!other||other.status==='rejected')&&<form className="space-y-3 rounded-xl border border-slate-200 bg-white p-4" onSubmit={e=>{e.preventDefault();void submitApplication()}}>
+         <p className="text-xs font-bold text-navy-900">Dados essenciais para análise cadastral</p>
+         <p className="text-[11px] leading-5 text-slate-600">Nenhum valor será cobrado nesta etapa. A MVA deve verificar a viabilidade do endereço antes de liberar o pagamento.</p>
+         <div className="grid gap-3 sm:grid-cols-2">
+           {([
+             ['company_name','Razão social','Nome da empresa'],
+             ['cnpj','CNPJ ou em abertura','em abertura'],
+             ['cnae','Atividade / CNAE','Ex.: serviços administrativos'],
+             ['responsible_name','Responsável legal','Nome completo'],
+             ['contact_email','E-mail de contato','email@empresa.com'],
+             ['contact_phone','Telefone (opcional)','(79) 99999-9999']
+           ] as const).map(([field,label,placeholder])=><label key={field} className="block min-w-0 space-y-1 text-xs font-semibold text-navy-900">
+             <span>{label}</span>
+             <input className="w-full min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-navy-900 placeholder:text-slate-400"
+               type={field==='contact_email'?'email':'text'} autoComplete={field==='contact_email'?'email':'off'}
+               value={company[field]} onChange={e=>change(field,e.target.value)} placeholder={placeholder}
+               maxLength={field==='contact_email'?254:field==='cnae'?120:180}
+               required={field!=='contact_phone'}/>
+           </label>)}
+         </div>
+         {transfer&&<label className="block space-y-1 text-xs font-semibold text-navy-900"><span>Endereço anterior para transferência</span>
+           <input className="w-full min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-navy-900"
+             value={company.transfer_from} onChange={e=>change('transfer_from',e.target.value)} maxLength={180} required/>
+         </label>}
+         <label className="flex items-start gap-2 text-xs leading-relaxed text-navy-900">
+           <input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} required className="mt-0.5"/>
+           <span>Aceito a análise de elegibilidade e estou ciente de que a contratação depende do contrato e do pagamento confirmado, sem garantia de alvará ou inscrição estadual.</span>
+         </label>
+         {requestError&&<p role="alert" className="text-xs font-semibold text-rose-700">{requestError}</p>}
+         <button type="submit" disabled={saving} className="action-primary checkout-submit">
+           {saving?'Enviando solicitação…':'Solicitar análise para continuar'}
+         </button>
+       </form>}
+       {(other?.status==='submitted'||other?.status==='under_review'||other?.status==='rejected')&&<a href={contact} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-xs font-bold text-navy-900">Falar com a equipe MVA</a>}
        <button type="button" onClick={()=>{onClose();setActiveTab('fiscal');document.getElementById('minha-area-fiscal')?.scrollIntoView({behavior:'smooth'})}}
         className="ml-3 text-xs font-semibold text-amber-900 underline underline-offset-2">Ver minhas solicitações</button>
      </div>}
