@@ -29,6 +29,11 @@ Deno.serve(async req=>{
   }catch{/* try the other configured endpoint secret */}
  }
  if(!event||!origin)return json({error:'Bad signature'},400);
+ // A mismatched but correctly signed event is acknowledged, never fulfilled.
+ const configuredMode=Deno.env.get('STRIPE_BILLING_MODE');
+ if((configuredMode==='test'&&event.livemode===true)
+    ||(configuredMode==='live'&&event.livemode!==true))
+    return json({received:true,ignored:true,reason:'different_stripe_mode'},200);
  if(origin==='connect'&&!event.account)return json({error:'Connected account event expected'},400);
  if(origin==='platform'&&event.account)return json({error:'Platform event expected'},400);
  // Strictly handle only the events subscribed for this integration.
