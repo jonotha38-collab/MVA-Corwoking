@@ -30,7 +30,10 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
    company_name:'',cnpj:'em abertura',cnae:'',
    responsible_name:'',contact_email:'',contact_phone:'',transfer_from:''
  });
- const change=(field:keyof typeof company,value:string)=>setCompany(v=>({...v,[field]:value}));
+ const change=(field:keyof typeof company,value:string)=>{
+  setCompany(v=>({...v,[field]:value}));
+  setRequestError('');
+ };
  useEffect(()=>{
   let live=true;
   if(!currentUser){setLoading(false);return}
@@ -59,10 +62,25 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
  },[currentUser?.id]);
  const submitApplication=async()=>{
   if(!currentUser||saving)return;
-  if(company.company_name.trim().length<3||company.cnae.trim().length<3
-     ||company.responsible_name.trim().length<3||!validCnpj(company.cnpj)
-     ||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(company.contact_email.trim())){
-   setRequestError('Confira razão social, CNPJ, atividade/CNAE, responsável e e-mail.');return;
+  const name=company.company_name.trim();
+  const cnpj=company.cnpj.trim();
+  const cnae=company.cnae.trim();
+  const responsible=company.responsible_name.trim();
+  const email=company.contact_email.trim();
+  if(name.length<3||name.length>180){
+   setRequestError('Informe a razão social com pelo menos 3 caracteres (máximo 180).');return;
+  }
+  if(!validCnpj(cnpj)){
+   setRequestError('Informe um CNPJ válido ou escreva "em abertura" caso ainda não possua CNPJ.');return;
+  }
+  if(cnae.length<3||cnae.length>120){
+   setRequestError('Informe a atividade econômica ou CNAE com pelo menos 3 caracteres (máximo 120).');return;
+  }
+  if(responsible.length<3||responsible.length>160){
+   setRequestError('Informe o nome do responsável legal (3 a 160 caracteres).');return;
+  }
+  if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+   setRequestError('Informe um e-mail válido, por exemplo contato@empresa.com.br.');return;
   }
   if(transfer&&company.transfer_from.trim().length<3){
    setRequestError('Informe o endereço anterior para o desconto de transferência.');return;
@@ -71,10 +89,9 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
   setSaving(true);setRequestError('');
   try{
    const {data,error}=await supabase.from('fiscal_applications').insert({
-     user_id:currentUser.id,company_name:company.company_name.trim(),
-     cnpj:company.cnpj.trim(),cnae:company.cnae.trim(),
-     responsible_name:company.responsible_name.trim(),
-     contact_email:company.contact_email.trim(),contact_phone:company.contact_phone.trim(),
+     user_id:currentUser.id,company_name:name,
+     cnpj,cnae,responsible_name:responsible,
+     contact_email:email,contact_phone:company.contact_phone.trim(),
      plan_id:planId,term_months:initialTerm,
      transfer_from:transfer?company.transfer_from.trim():'',
      terms_version:'2026-10-30'
@@ -82,8 +99,14 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
    if(error||!data)throw error||new Error('Nenhuma resposta.');
    setApplications(prev=>[data as Application,...prev]);
    setTermsAccepted(false);
-  }catch{
-   setRequestError('Não foi possível registrar a solicitação. Confira os dados e tente novamente.');
+  }catch(err){
+   console.error('Erro ao registrar a solicitação fiscal',err);
+   const code=(err as {code?:string})?.code;
+   setRequestError(code==='42501'?
+    'Não foi possível enviar: sua sessão não tem permissão. Entre novamente e tente outra vez.':
+    code==='23505'?
+    'Já existe uma solicitação semelhante. Consulte a área fiscal para acompanhar.':
+    'Não foi possível registrar a solicitação. Verifique os campos e tente novamente.');
   }finally{setSaving(false);}
  };
  const match=useMemo(()=>applications.find(a=>a.plan_id===planId
@@ -152,7 +175,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
              <input className="w-full min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-navy-900 placeholder:text-slate-400"
                type={field==='contact_email'?'email':'text'} autoComplete={field==='contact_email'?'email':'off'}
                value={company[field]} onChange={e=>change(field,e.target.value)} placeholder={placeholder}
-               maxLength={field==='contact_email'?254:field==='cnae'?120:180}
+               maxLength={field==='contact_email'?254:field==='cnae'?120:field==='responsible_name'?160:180}
                required={field!=='contact_phone'}/>
            </label>)}
          </div>
