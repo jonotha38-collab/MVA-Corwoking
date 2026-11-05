@@ -106,7 +106,7 @@ async function customerCheckout(input:{
  let created:Stripe.Checkout.Session|null=null;
  try{
   created=await stripe.checkout.sessions.create({
-   mode:'payment',payment_method_types:['card'],
+   mode:'payment',allowed_payment_method_types:['card'],
    customer_email:email,
    client_reference_id:order.id,
    line_items:[{price_data:{currency:'brl',unit_amount:amountCents,
@@ -220,7 +220,7 @@ Deno.serve(async req=>{
    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(checkoutSeed));
    const checkoutKey='mva-owner-'+Array.from(new Uint8Array(digest)).map(v=>v.toString(16).padStart(2,'0')).join('');
    const session=await stripe.checkout.sessions.create({
-    mode:'subscription',payment_method_types:['card'],
+    mode:'subscription',allowed_payment_method_types:['card'],
     customer:existing?.stripe_customer_id||undefined,
     customer_email:existing?.stripe_customer_id?undefined:(user.email||me.email),
     client_reference_id:user.id,
