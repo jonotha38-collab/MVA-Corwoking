@@ -6,6 +6,7 @@ import { useCoworking } from '../../context/CoworkingContext';
 type Action = 'checkout_fiscal' | 'checkout_booking' | 'checkout_owner' | 'owner_portal' | 'connect_onboarding';
 type GatewayStatus = {
  checkout:boolean;fiscal:boolean;booking:boolean;owner:boolean;portal:boolean;connect:boolean;live:boolean;
+ sandbox?:boolean;sandboxTester?:boolean;
 };
 const FEATURE:Record<Action,keyof Pick<GatewayStatus,'checkout'|'fiscal'|'booking'|'owner'|'portal'|'connect'>>={
  checkout_fiscal:'fiscal',checkout_booking:'booking',checkout_owner:'owner',
@@ -65,9 +66,12 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
    <button type="button" onClick={()=>void trigger()} disabled={!enabled||busy||connected}
      className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-bold transition-colors ${enabled?'bg-[#cf581f] text-white hover:bg-[#ad4210]':'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-600'} disabled:opacity-75 ${className}`}>
      {busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<CreditCard className="h-4 w-4"/>}
-     {busy?'Conectando ao Stripe…':!enabled?'Em preparação — sem cobrança':label||defaultLabels[action]}
+     {busy?'Conectando ao Stripe…':!enabled?'Em preparação — sem cobrança':(label||defaultLabels[action])+(status?.sandbox?' (teste)':'')}
      {enabled&&!busy&&<ArrowRight className="h-4 w-4"/>}
    </button>
+   {enabled&&status?.sandbox&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-sky-800 dark:text-sky-200">
+      <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0"/>Sandbox Stripe para administradores: não há cobrança real.
+   </p>}
    {!enabled&&<p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-500">
      <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0"/>
      Pagamentos bloqueados até a MVA configurar e validar o ambiente Stripe.
