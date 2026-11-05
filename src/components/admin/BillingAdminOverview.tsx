@@ -8,7 +8,8 @@ type Sub={owner_id:string;plan_id:string;status:string;livemode:boolean};
 type Account={owner_id:string;charges_enabled:boolean;payouts_enabled:boolean};
 type Gateway={checkout:boolean;owner:boolean;connect:boolean;sandbox?:boolean;sandboxTester?:boolean;live?:boolean;
  integrationChecks?:{testKeyConfigured:boolean;platformWebhookConfigured:boolean;connectWebhookConfigured:boolean;
-  billingSecretEnabled:boolean;platformCheckoutEnabled:boolean;ownerSubscriptionsEnabled:boolean;connectEnabled:boolean}};
+  billingSecretEnabled:boolean;platformCheckoutEnabled:boolean;ownerSubscriptionsEnabled:boolean;connectEnabled:boolean;
+  primaryStripeAccountVerified?:boolean;stripeKeyAccount?:'principal'|'secundaria'|'outra'|'indisponivel'}};
 export function BillingAdminOverview(){
  const [flags,setFlags]=useState<Flags|null>(null);
  const [orders,setOrders]=useState<Order[]>([]);
@@ -48,6 +49,13 @@ export function BillingAdminOverview(){
         ['Assinaturas registradas',subs.length],['Contas de repasse ativas',accounts.filter(a=>a.charges_enabled&&a.payouts_enabled).length]
        ].map(([label,count])=><div key={String(label)} className="rounded-xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-600">{label}</p><strong className="mt-2 block text-2xl text-navy-900">{count}</strong></div>)}
     </div>}
+   {gateway?.integrationChecks?.primaryStripeAccountVerified===false&&
+    <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold leading-6 text-red-900">
+      A conta Stripe principal não foi validada. {gateway.integrationChecks.stripeKeyAccount==='secundaria'
+        ? 'A chave de pagamento instalada pertence à conta secundária. Substitua STRIPE_SECRET_KEY pela chave da conta principal MVA Coworking.'
+        : 'Verifique a chave Stripe privada no Supabase e se a conta principal está habilitada para cobranças.'}
+      {' '}Por segurança, o gateway bloqueia novas cobranças.
+    </p>}
    {gateway?.integrationChecks&&<p role="status" className="mt-4 text-xs leading-6 text-slate-600 dark:text-slate-300">
      Stripe: {gateway.integrationChecks.testKeyConfigured?'chave de teste configurada':'sem chave de teste'} ·
      Webhook principal: {gateway.integrationChecks.platformWebhookConfigured?'configurado':'pendente'} ·
