@@ -28,6 +28,25 @@ function stripeClient(){
  if(mode!=='test'&&mode!=='live')throw new Error('Gateway Stripe em preparação.');
  return new Stripe(privateKey);
 }
+// Do not allow checkout to charge a different Stripe merchant.
+const EXPECTED_PLATFORM_ACCOUNT = 'acct_1UTlB031eJ9Ivl6i';
+let accountCheck: { mode: string; ok: boolean; validUntil: number } | null = null;
+let accountIdentity: 'principal'|'secundaria'|'outra'|'indisponivel' = 'indisponivel';
+async function verifyPrimaryStripeAccount(): Promise<boolean> {
+ const mode = Deno.env.get('STRIPE_BILLING_MODE') || '';
+ if(accountCheck && accountCheck.mode === mode && accountCheck.validUntil > Date.now())return accountCheck.ok;
+ let ok=false;
+ try{
+  const stripe=stripeClient();
+  const account=await stripe.accounts.retrieve();
+  accountIdentity=account.id===EXPECTED_PLATFORM_ACCOUNT?'principal':account.id==='acct_1UTYI1KLztD0qXfd'?'secundaria':'outra';
+  ok=accountIdentity==='principal'&&account.charges_enabled===true;
+ }catch(err){
+  console.error('MVA merchant verification failed',err instanceof Error?err.message:'unknown');
+ }
+ accountCheck={mode,ok,validUntil:Date.now()+(ok?120000:15000)};
+ return ok;
+}
 async function settings(){
  const {data,error}=await admin.from('mva_billing_settings').select('*').eq('id',1).single();
  if(error)throw error;return data;
@@ -87,6 +106,11 @@ async function customerCheckout(input:{
    .eq('kind',kind).eq('resource_id',resourceId).maybeSingle();
  if(lookupError)throw lookupError;
  if(order&&order.user_id!==userId)throw new Error('Este pedido pertence a outra conta.');
+ // A test checkout must never be reused after switching to live (or the reverse).
+ // Separate checkout environments require separate approved applications/bookings.
+ const expectedLive=Deno.env.get('STRIPE_BILLING_MODE')==='live';
+ if(order&&order.livemode!==expectedLive)
+   throw new Error('Esta contratação foi iniciada em outro ambiente Stripe (teste/produção). Para pagar com segurança, solicite à MVA uma nova solicitação ou reserva para o ambiente atual. Nenhuma cobrança foi realizada.');
  if(order&&['paid','refunded','disputed'].includes(order.status))
    throw new Error('Este pedido já possui pagamento registrado. Consulte o histórico.');
  if(order&&(order.stripe_account_id!==accountId || order.amount_cents!==amountCents))
@@ -113,7 +137,7 @@ async function customerCheckout(input:{
  let created:Stripe.Checkout.Session|null=null;
  try{
   created=await stripe.checkout.sessions.create({
-   mode:'payment',payment_method_types:['card'],
+   mode:'payment',allowed_payment_method_types:['card'],
    customer_email:email,
    client_reference_id:order.id,
    line_items:[{price_data:{currency:'brl',unit_amount:amountCents,
@@ -152,7 +176,8 @@ Deno.serve(async req=>{
    if(Deno.env.get('STRIPE_BILLING_MODE')==='test'){
     try{const signed=await auth(req);testAdmin=(await profile(signed.id)).is_admin===true}catch{/* anonymous visitor */}
    }
-   const gateway=flagsReady(cfg,testAdmin);
+   const stripeAccountVerified=credentialsReady() && await verifyPrimaryStripeAccount();
+  const gateway=flagsReady(cfg,testAdmin)&&stripeAccountVerified;
    return response({mode:'hosted_checkout',checkout:gateway,
      sandbox:Deno.env.get('STRIPE_BILLING_MODE')==='test',
      sandboxTester:sandboxTester(testAdmin),
@@ -163,6 +188,8 @@ Deno.serve(async req=>{
      live:Deno.env.get('STRIPE_BILLING_MODE')==='live',
      integrationChecks:{
        testKeyConfigured:Deno.env.get('STRIPE_BILLING_MODE')==='test'&&credentialsReady(),
+       primaryStripeAccountVerified:stripeAccountVerified,
+       stripeKeyAccount:accountIdentity,
        platformWebhookConfigured:platformWebhookReady(),
        connectWebhookConfigured:connectedWebhookReady(),
        billingSecretEnabled:Deno.env.get('STRIPE_BILLING_ENABLED')==='true',
@@ -171,11 +198,12 @@ Deno.serve(async req=>{
        ownerSubscriptionsEnabled:cfg.owner_subscriptions_enabled===true,
        connectEnabled:cfg.connect_enabled===true,
      },
-     note:'Indicadores de configuração; não validam a autenticidade da chave nem a entrega de eventos reais.'},200,origin);
+     note:'Identidade da conta consultada na API Stripe; o segredo do webhook e a conclusão de um checkout ainda precisam ser confirmados.'},200,origin);
   }
   const user=await auth(req);
   const me=await profile(user.id);
   if(action!=='owner_portal'&&!flagsReady(cfg,me.is_admin===true))return response({error:'Pagamentos ainda não foram ativados pela MVA. Nenhuma cobrança foi realizada.'},503,origin);
+  if(!(await verifyPrimaryStripeAccount()))return response({error:'A conta Stripe principal da MVA não foi validada. Nenhuma cobrança foi realizada.'},503,origin);
   const stripe=stripeClient();
 
   if(action==='checkout_fiscal'){
@@ -236,7 +264,7 @@ Deno.serve(async req=>{
    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(checkoutSeed));
    const checkoutKey='mva-owner-'+Array.from(new Uint8Array(digest)).map(v=>v.toString(16).padStart(2,'0')).join('');
    const session=await stripe.checkout.sessions.create({
-    mode:'subscription',payment_method_types:['card'],
+    mode:'subscription',allowed_payment_method_types:['card'],
     customer:existing?.stripe_customer_id||undefined,
     customer_email:existing?.stripe_customer_id?undefined:(user.email||me.email),
     client_reference_id:user.id,
