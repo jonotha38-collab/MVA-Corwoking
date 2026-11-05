@@ -2,6 +2,8 @@ import { t } from '../../lib/preferences';
 import React, { useEffect, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
+import { BookingPlans } from '../payments/BookingPlans';
+import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import { Booking } from '../../types';
 import { calendarEnabled, connectGoogleCalendar, disconnectGoogleCalendar, manualGoogleCalendarLink, recordedCalendarEventUrl } from '../../lib/google-calendar';
 import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
@@ -39,12 +41,15 @@ export const ClientDashboardView: React.FC = () => {
   const addressActive = currentCompany.paymentStatus === 'paid' && currentCompany.paymentIsLive && currentCompany.status === 'ativo' && currentCompany.startDate <= day && currentCompany.renewalDate >= day;
   const [selectedVoucher, setSelectedVoucher] = useState<Booking | null>(null);
   const [paidBookingIds, setPaidBookingIds] = useState<Set<string>>(() => new Set());
+  const [creditedBookingIds,setCreditedBookingIds]=useState<Set<string>>(() => new Set());
   useEffect(() => {
-    if(!currentUser){setPaidBookingIds(new Set());return}
+    if(!currentUser){setPaidBookingIds(new Set());setCreditedBookingIds(new Set());return}
     let mounted=true;
     void supabase.from('mva_checkout_orders').select('resource_id')
       .eq('user_id',currentUser.id).eq('kind','booking').eq('status','paid').eq('livemode',true)
       .then(({data})=>{if(mounted)setPaidBookingIds(new Set((data||[]).map(x=>x.resource_id as string)))});
+    void supabase.from('mva_booking_redemptions').select('booking_id').eq('user_id',currentUser.id).eq('status','applied')
+      .then(({data})=>{if(mounted)setCreditedBookingIds(new Set((data||[]).map(x=>x.booking_id as string)))});
     return()=>{mounted=false};
   },[currentUser?.id,bookings.length]);
   const [clock, setClock] = useState(() => Date.now());
@@ -187,6 +192,8 @@ export const ClientDashboardView: React.FC = () => {
 
       </div>
 
+      <BookingPlans compact />
+
       {/* Google Agenda: consentimento separado do login, sem senha ou token persistido aqui. */}
       {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && currentUser && (
         <section aria-label="Google Agenda" className="flex flex-col gap-3 rounded-2xl border border-blue-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -283,7 +290,7 @@ export const ClientDashboardView: React.FC = () => {
           </button>
         </div>
 
-        {clientBookings.length > 0 && <p role="note" className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900"><strong>Pagamento online em implantação.</strong> O status "Confirmada" significa que a reserva está registrada, não que foi paga no site. Verifique com o responsável pelo espaço a forma de pagamento e as regras de cancelamento.</p>}
+        {clientBookings.length > 0 && <p role="note" className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900"><strong>Pagamento por Stripe ou plano de horas.</strong> O status "Confirmada" registra o horário; confira abaixo se há pagamento real ou crédito de assinatura antes de utilizar a sala.</p>}
         {t(clientBookings.length > 0 ? (
           <div className="overflow-x-auto">
             <div className="overflow-x-auto -mx-1 px-1"><table className="w-full text-left border-collapse text-xs">
@@ -314,8 +321,8 @@ export const ClientDashboardView: React.FC = () => {
                     </td>
                     <td className="py-4 px-4 font-bold text-navy-900 whitespace-nowrap">
                        <div>{t("R$ ")}{t(b.totalPrice.toFixed(2))}</div>
-                       <span className={`mt-1 inline-block text-[10px] font-semibold ${paidBookingIds.has(b.id)?'text-emerald-700':'text-amber-700'}`}>
-                         {paidBookingIds.has(b.id)?'Pago pelo Stripe':'Pagamento não confirmado'}
+                       <span className={`mt-1 inline-block text-[10px] font-semibold ${(paidBookingIds.has(b.id)||creditedBookingIds.has(b.id))?'text-emerald-700':'text-amber-700'}`}>
+                         {creditedBookingIds.has(b.id)?'Coberto por plano de horas':paidBookingIds.has(b.id)?'Pago pelo Stripe':'Pagamento não confirmado'}
                        </span>
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
@@ -378,7 +385,7 @@ export const ClientDashboardView: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-scaleUp">
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between no-print">
-              <span className="font-bold text-sm">{t("Voucher de Acesso • MVA Hub ")}</span>
+              <span className="font-bold text-sm">{(paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))?"Voucher de Acesso • MVA Hub":"Reserva pendente de pagamento"}</span>
               <button onClick={() => setSelectedVoucher(null)} className="text-slate-400 hover:text-white p-1">
                 <X className="w-5 h-5" />
               </button>
@@ -388,7 +395,7 @@ export const ClientDashboardView: React.FC = () => {
               <div className="border-2 border-dashed border-orange-200 bg-orange-50/30 p-5 rounded-2xl space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[10px] font-bold text-orange-600 uppercase">{t("Reserva Confirmada ")}</span>
+                    <span className="text-[10px] font-bold text-orange-600 uppercase">{t((paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))?"Reserva Paga e Confirmada":"Reserva Registrada — Pagamento Pendente")}</span>
                     <h3 className="text-base font-bold text-navy-900">{t(selectedVoucher.spaceName)}</h3>
                     <p className="text-slate-500 text-[11px]">{t(selectedVoucher.coworkingName)}</p>
                   </div>
@@ -416,20 +423,20 @@ export const ClientDashboardView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-orange-100 flex items-center justify-between">
+                {(paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))&&selectedVoucher.status!=='cancelada'?
+                 <div className="pt-3 border-t border-orange-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <QrCode className="w-12 h-12 p-1 bg-white border border-slate-300 rounded" />
-                    <div className="text-[11px] text-slate-500">
-                      <span>{t("Validação eletrônica ")}</span>
-                      <strong className="block text-navy-900">{t("Check-in na Recepção ")}</strong>
-                    </div>
+                   <QrCode className="w-12 h-12 p-1 bg-white border border-slate-300 rounded" />
+                   <div className="text-[11px] text-slate-500"><span>Pagamento validado</span><strong className="block text-navy-900">Check-in na recepção</strong></div>
                   </div>
-                  <button
-                    onClick={() => window.print()}
-                    className="px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-semibold flex items-center gap-1.5"
-                  >
-                    <Printer className="w-3.5 h-3.5 text-orange-600" />{t("Imprimir ")}</button>
-                </div>
+                  <button onClick={() => window.print()} className="px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-semibold flex items-center gap-1.5">
+                   <Printer className="w-3.5 h-3.5 text-orange-600"/> Imprimir
+                  </button>
+                 </div>:
+                 <div className="space-y-3 border-t border-orange-100 pt-3">
+                  <p className="text-xs font-semibold text-amber-900">Este comprovante não autoriza o uso da sala enquanto não houver pagamento confirmado.</p>
+                  {selectedVoucher.status==='confirmada'&&<StripeCheckoutAction action="checkout_booking" resourceId={selectedVoucher.id} label="Pagar minha reserva com Stripe"/>}
+                 </div>}
               </div>
 
               <div className="flex justify-end pt-2 no-print">

@@ -46,6 +46,40 @@ Deno.serve(async req=>{
  ]);
  if(!supported.has(event.type))return json({received:true,ignored:true},200);
  try{
+  // Membership credit updates run only after Stripe signature verification.
+  // When invoices arrive, retrieve the canonical subscription metadata and price.
+  if(origin==='platform'&&[
+    'checkout.session.completed','customer.subscription.created',
+    'customer.subscription.updated','customer.subscription.deleted',
+    'invoice.paid','invoice.payment_failed'
+  ].includes(event.type)){
+   const object=event.data.object as unknown as Record<string,any>;
+   let subSummary:Record<string,unknown>|null=null;
+   let applicable=object?.metadata?.mva_kind==='booking_membership';
+   if((event.type==='invoice.paid'||event.type==='invoice.payment_failed')&&
+      event.livemode===true){
+    const rawSubscription=object?.subscription||object?.parent?.subscription_details?.subscription||
+       object?.lines?.data?.[0]?.parent?.subscription_item_details?.subscription;
+    const subId=typeof rawSubscription==='string'?rawSubscription:rawSubscription?.id;
+    if(typeof subId==='string'&&subId.startsWith('sub_')){
+     const subscription=await stripe.subscriptions.retrieve(subId);
+     if(subscription.metadata?.mva_kind==='booking_membership'){
+      applicable=true;
+      subSummary={
+       id:subscription.id,metadata:subscription.metadata,
+       customer:typeof subscription.customer==='string'?subscription.customer:subscription.customer?.id,
+       items:{data:subscription.items?.data?.slice(0,1).map(x=>({price:{id:x.price.id}}))||[]}
+      };
+     }
+    }
+   }
+   if(applicable){
+    const {error:planError}=await admin.rpc('mva_apply_booking_plan_event',{
+     p_id:event.id,p_type:event.type,p_obj:object,p_live:event.livemode===true,p_sub:subSummary
+    });
+    if(planError)throw planError;
+   }
+  }
   const {data,error}=await admin.rpc('mva_apply_verified_stripe_event',{
    p_id:event.id,p_type:event.type,
    p_obj:event.data.object,

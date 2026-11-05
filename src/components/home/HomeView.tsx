@@ -17,7 +17,7 @@ const copy = {
   about:'Uma operação real, com gestão digital',aboutText:'A MVA possui sua sede na Rua Dom José Thomaz, 565, bairro São José, em Aracaju. Coworkings parceiros são identificados separadamente no marketplace.',
   aboutOne:'Serviços e valores apresentados antes da solicitação',aboutTwo:'Gestão de reservas e acompanhamento pelo painel',aboutThree:'Privacidade e confirmação de elegibilidade para endereço fiscal',
   process:'Comece pelo que precisa',step1:'Escolha o serviço',step1D:'Veja os detalhes e as opções para sua empresa.',step2:'Confira disponibilidade',step2D:'Compare espaços, preços e condições de contratação.',step3:'Acompanhe no painel',step3D:'Acesse reservas e solicitações pela sua conta.',
-  contactTitle:'Quer conversar antes de decidir?',contactBody:'Fale com a equipe da MVA para esclarecer dúvidas sobre a sede, as salas e os serviços.',contactCta:'Enviar e-mail à MVA',location:'Sede da MVA',online:'Pagamento online ainda em implantação. Reservas e contratos são registrados conforme suas condições específicas.'
+  contactTitle:'Quer conversar antes de decidir?',contactBody:'Fale com a equipe da MVA para esclarecer dúvidas sobre a sede, as salas e os serviços.',contactCta:'Enviar e-mail à MVA',location:'Sede da MVA',online:'Reservas da sede MVA e planos elegíveis podem ser pagos com segurança pelo Stripe. Coworkings parceiros dependem da conexão de recebimentos.'
  },
  en: {
   eyebrow:'MVA Coworking · Aracaju, Brazil',line1:'Make room for',line2:'your next step.',
@@ -30,7 +30,7 @@ const copy = {
   about:'A real location, digitally managed',aboutText:'MVA operates from Rua Dom José Thomaz, 565, São José, Aracaju, Brazil. Partner coworkings are identified separately.',
   aboutOne:'Understand services and prices beforehand',aboutTwo:'Track bookings on your dashboard',aboutThree:'Private records and eligibility checks for business addresses',
   process:'Getting started',step1:'Select a service',step1D:'Explore details and options.',step2:'Check availability',step2D:'Compare rooms, prices and conditions.',step3:'Track everything',step3D:'Manage bookings and requests in your account.',
-  contactTitle:'Need help deciding?',contactBody:'Reach the MVA team with questions about rooms, the main office and services.',contactCta:'Email MVA',location:'MVA headquarters',online:'Online payments are being prepared. Reservations and contracts follow their respective terms.'
+  contactTitle:'Need help deciding?',contactBody:'Reach the MVA team with questions about rooms, the main office and services.',contactCta:'Email MVA',location:'MVA headquarters',online:'MVA headquarters room bookings and eligible plans can be paid securely via Stripe. Partner spaces require payment onboarding.'
  },
  es: {
   eyebrow:'MVA Coworking · Aracaju, Brasil',line1:'Tu próximo paso',line2:'tiene espacio aquí.',
@@ -43,7 +43,7 @@ const copy = {
   about:'Un lugar real con gestión digital',aboutText:'MVA tiene su sede en Rua Dom José Thomaz, 565, São José, Aracaju, Brasil. Los socios se identifican por separado.',
   aboutOne:'Servicios y precios antes de contratar',aboutTwo:'Reservas organizadas en un panel',aboutThree:'Privacidad y verificación para el domicilio fiscal',
   process:'Cómo empezar',step1:'Elige el servicio',step1D:'Consulta detalles y opciones.',step2:'Verifica disponibilidad',step2D:'Compara salas, precios y condiciones.',step3:'Sigue tu solicitud',step3D:'Gestiona reservas desde tu cuenta.',
-  contactTitle:'¿Necesitas orientación?',contactBody:'Habla con el equipo de MVA sobre salas, la sede y los servicios.',contactCta:'Escribir a MVA',location:'Sede MVA',online:'El pago en línea está en preparación. Las reservas y los contratos siguen sus condiciones respectivas.'
+  contactTitle:'¿Necesitas orientación?',contactBody:'Habla con el equipo de MVA sobre salas, la sede y los servicios.',contactCta:'Escribir a MVA',location:'Sede MVA',online:'Las reservas de la sede MVA y los planes elegibles se pueden pagar de forma segura por Stripe. Los espacios asociados requieren conexión de cobros.'
  }
 } as const;
 

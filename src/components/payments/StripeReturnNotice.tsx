@@ -8,7 +8,7 @@ export function StripeReturnNotice(){
  const {currentUser,activeTab}=useCoworking();
  const [params]=useState(()=>{
   const search=new URLSearchParams(window.location.search);
-  return {returnType:search.get('stripe_checkout'),order:search.get('stripe_order')};
+  return {returnType:search.get('stripe_checkout'),order:search.get('stripe_order'),membership:search.get('stripe_membership')==='1'};
  });
  const [visible,setVisible]=useState(Boolean(params.returnType));
  const [state,setState]=useState<State>(params.returnType==='canceled'?'canceled'
@@ -22,6 +22,12 @@ export function StripeReturnNotice(){
     const {data}=await supabase.from('mva_checkout_orders').select('status,livemode')
       .eq('id',params.order).eq('user_id',currentUser.id).maybeSingle();
     if(mounted)setState(data?.status==='paid'?(data?.livemode===true?'paid':'test'):'pending');
+   }else if(params.membership){
+    const {data}=await supabase.from('mva_booking_memberships').select('status,livemode,paid_period_end')
+      .eq('user_id',currentUser.id).maybeSingle();
+    const paid=data?.livemode===true&&data.status==='active'&&
+      data.paid_period_end&&new Date(data.paid_period_end).getTime()>Date.now();
+    if(mounted)setState(paid?'paid':'pending');
    }else if(activeTab==='owner-dashboard'){
     const {data}=await supabase.from('mva_owner_subscriptions').select('status,livemode')
      .eq('owner_id',currentUser.id).maybeSingle();
@@ -29,13 +35,20 @@ export function StripeReturnNotice(){
    }else if(mounted)setState('pending');
   };
   void check();
-  return()=>{mounted=false};
- },[params.returnType,params.order,currentUser?.id,activeTab]);
+  let attempts=0;
+  const timer=window.setInterval(()=>{
+   attempts++;
+   if(attempts>10){window.clearInterval(timer);return}
+   void check();
+  },2000);
+  return()=>{mounted=false;window.clearInterval(timer)};
+ },[params.returnType,params.order,params.membership,currentUser?.id,activeTab]);
  const dismiss=()=>{
   setVisible(false);
   const url=new URL(window.location.href);
   url.searchParams.delete('stripe_checkout');
   url.searchParams.delete('stripe_order');
+  url.searchParams.delete('stripe_membership');
   window.history.replaceState(window.history.state,'',url.pathname+url.search+url.hash);
  };
  if(!visible)return null;

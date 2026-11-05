@@ -34,18 +34,57 @@ export function BookingConfirmation({
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [paymentIsLive, setPaymentIsLive] = useState(false);
+  const [creditApplied,setCreditApplied]=useState(false);
+  const [creditMinutes,setCreditMinutes]=useState(0);
+  const [redeeming,setRedeeming]=useState(false);
+  const [creditError,setCreditError]=useState('');
+  const eligibleForCredit=space.isMvaHeadquarters&&space.category==='atendimento'&&booking.addons.length===0;
+  const financiallyConfirmed=creditApplied||(paymentStatus==='paid'&&paymentIsLive);
   useEffect(() => {
     let live = true;
     const load = async () => {
-      const {data} = await supabase.from('mva_checkout_orders').select('status,livemode')
-        .eq('kind', 'booking').eq('resource_id', booking.id).maybeSingle();
-      if (live) { setPaymentStatus(data?.status ?? null); setPaymentIsLive(data?.livemode === true); }
+      const [orders,credits]=await Promise.all([
+       supabase.from('mva_checkout_orders').select('status,livemode').eq('kind','booking').eq('resource_id',booking.id).maybeSingle(),
+       supabase.from('mva_booking_redemptions').select('status').eq('booking_id',booking.id).maybeSingle()
+      ]);
+      if(live){
+       setPaymentStatus(orders.data?.status??null);setPaymentIsLive(orders.data?.livemode===true);
+       setCreditApplied(credits.data?.status==='applied');
+      }
     };
     void load();
     const recheck = () => { if (document.visibilityState === 'visible') void load(); };
     document.addEventListener('visibilitychange', recheck);
     return () => { live = false; document.removeEventListener('visibilitychange', recheck); };
   }, [booking.id]);
+  useEffect(()=>{
+    if(!eligibleForCredit||!userId)return;
+    let alive=true;
+    void supabase.functions.invoke('mva-stripe-gateway',{body:{action:'booking_plan_status'}})
+      .then(({data,error})=>{
+        if(alive&&!error&&data?.member?.active===true){
+         setCreditMinutes(Number(data.member.remainingMinutes)||0);
+        }
+      });
+    return()=>{alive=false};
+  },[eligibleForCredit,userId,booking.id]);
+  const redeem=async()=>{
+    if(redeeming)return;
+    setRedeeming(true);setCreditError('');
+    try{
+     const {data,error}=await supabase.functions.invoke('mva-stripe-gateway',
+       {body:{action:'redeem_booking_hours',bookingId:booking.id}});
+     if(error||data?.error){
+      let message=typeof data?.error==='string'?data.error:'Não foi possível utilizar suas horas.';
+      const ctx=error?.context as Response|undefined;
+      if(ctx){try{const response=await ctx.json();if(typeof response?.error==='string')message=response.error}catch{}}
+      throw new Error(message);
+     }
+     setCreditApplied(data?.covered===true);
+     setCreditMinutes(Number(data?.remaining_minutes)||0);
+    }catch(err){setCreditError(err instanceof Error?err.message:'Falha ao debitar as horas.')}
+    finally{setRedeeming(false)}
+  };
   const eventUrl = sync === 'saved'
     ? (recordedCalendarEventUrl(userId || '', booking.id) || 'https://calendar.google.com/calendar/u/0/r')
     : manualGoogleCalendarLink(booking, space);
@@ -60,19 +99,19 @@ export function BookingConfirmation({
   };
 
   return <div className="space-y-5 bg-[#fafbfc] p-5 sm:p-7">
-    <section className="overflow-hidden rounded-2xl border border-emerald-200 bg-white" aria-label="Reserva confirmada">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-100 bg-emerald-50/70 px-5 py-4">
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white" aria-label="Detalhes do agendamento">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4">
         <div className="flex items-center gap-2.5">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-600 text-white">
             <CheckCircle2 className="h-5 w-5" aria-hidden />
           </span>
           <div>
-            <p className="text-sm font-bold text-emerald-900">Reserva confirmada</p>
-            <p className="text-xs text-emerald-800">Sua sala está agendada para o dia e horário escolhidos.</p>
+            <p className="text-sm font-bold text-navy-900">{financiallyConfirmed?'Reserva paga e confirmada':'Reserva registrada — aguardando pagamento'}</p>
+            <p className="text-xs text-slate-600">{financiallyConfirmed?'Seu pagamento ou saldo de horas foi confirmado.':'Escolha uma forma de pagamento para liberar o comprovante financeiro.'}</p>
           </div>
         </div>
         <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-semibold text-emerald-800">
-          Confirmada
+          {financiallyConfirmed?'Paga':'Pendente'}
         </span>
       </div>
       <div className="p-5 sm:p-6">
@@ -105,7 +144,7 @@ export function BookingConfirmation({
           </div>
           <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" aria-hidden />
-            <div><span className="block text-[11px] font-medium text-slate-500">{paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor da reserva — pagamento não confirmado'}</span>
+            <div><span className="block text-[11px] font-medium text-slate-500">{creditApplied?'Coberto pelo plano de horas':paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor da reserva — pagamento não confirmado'}</span>
               <strong className="mt-0.5 block text-sm text-navy-900">{currency(booking.totalPrice)}</strong>
             </div>
           </div>
@@ -128,20 +167,29 @@ export function BookingConfirmation({
     <section aria-label="Aviso para a recepção" className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5">
       <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" aria-hidden />
       <div>
-        <p className="text-xs font-bold text-navy-900">Agendamento enviado à recepção</p>
+        <p className="text-xs font-bold text-navy-900">{financiallyConfirmed?'Reserva paga — comprovante válido':'Agendamento pendente de pagamento'}</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          {paymentStatus === 'paid' && paymentIsLive
-            ? 'Seu pagamento real foi confirmado pelo Stripe. A recepção poderá verificar o registro da reserva e o comprovante financeiro. Guarde o código da reserva.'
-            : paymentStatus === 'paid'
-            ? 'Pagamento em ambiente de testes, sem cobrança real. A reserva continua sem pagamento real confirmado e exige orientação do responsável pelo espaço.'
-            : 'Sua reserva foi registrada. Ainda não há pagamento confirmado pelo Stripe. Verifique as condições de pagamento e cancelamento com o responsável. Guarde o código da reserva.'}
+          {creditApplied?'Reserva coberta pelas horas mensais já pagas. A recepção poderá verificar o saldo debitado no seu agendamento.':
+           paymentStatus==='paid'&&paymentIsLive?'Seu pagamento real foi confirmado pelo Stripe. A recepção poderá verificar o comprovante financeiro.':
+           paymentStatus==='paid'?'Esta reserva foi paga somente em ambiente de testes. Solicite uma nova reserva para pagamento real.':
+           'O horário foi registrado, mas ainda não há pagamento confirmado. Efetue o pagamento com Stripe ou utilize horas de um plano elegível antes de usar a sala.'}
         </p>
       </div>
     </section>
 
-    {booking.status === 'confirmada' && paymentStatus !== 'paid' && <section aria-label="Pagamento da reserva" className="rounded-2xl border border-slate-200 bg-white p-5">
-      <h3 className="mb-2 text-sm font-bold text-navy-900">Pagamento da sala</h3>
-      <p className="mb-4 text-xs leading-relaxed text-slate-600">O Stripe será usado para cobrança segura quando a MVA concluir a integração. Reservas de parceiros serão pagas diretamente à conta conectada do coworking.</p>
+    {booking.status==='confirmada'&&!financiallyConfirmed&&paymentStatus!=='paid'&&<section aria-label="Pagamento da reserva" className="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 className="mb-2 text-sm font-bold text-navy-900">Concluir pagamento da reserva</h3>
+      <p className="mb-4 text-xs leading-relaxed text-slate-600">
+        Pague a reserva com cartão pelo Stripe. {space.isMvaHeadquarters?'A MVA receberá diretamente.':'O pagamento a coworking parceiro só será disponibilizado após a conexão Stripe Connect desse responsável.'}
+      </p>
+      {eligibleForCredit&&creditMinutes>=booking.durationHours*60&&<div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+       <p className="mb-2 text-xs font-semibold text-emerald-900">Seu plano possui {(creditMinutes/60).toLocaleString('pt-BR')} horas disponíveis.</p>
+       <button type="button" onClick={()=>void redeem()} disabled={redeeming}
+        className="w-full rounded-lg bg-emerald-700 px-4 py-3 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-60">
+        {redeeming?'Abatendo saldo…':'Usar '+booking.durationHours+'h do meu plano (sem cobrança adicional)'}
+       </button>
+      </div>}
+      {creditError&&<p role="alert" className="mb-3 rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-800">{creditError}</p>}
       <StripeCheckoutAction action="checkout_booking" resourceId={booking.id}/>
     </section>}
 
