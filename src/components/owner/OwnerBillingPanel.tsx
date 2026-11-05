@@ -19,21 +19,34 @@ export function OwnerBillingPanel(){
  const [subscription,setSubscription]=useState<Subscription|null>(null);
  const [account,setAccount]=useState<ConnectedAccount|null>(null);
  const [loading,setLoading]=useState(true);
+ const [sandboxCheckoutReady,setSandboxCheckoutReady]=useState(false);
  const load=useCallback(async()=>{
   if(!currentUser){setLoading(false);return}
-  const [p,s,a]=await Promise.all([
+  const [p,s,a,gateway]=await Promise.all([
    supabase.from('mva_owner_plans').select('id,label,monthly_cents,max_spaces,active,display_order').order('display_order'),
    supabase.from('mva_owner_subscriptions').select('plan_id,status,current_period_end,livemode,stripe_subscription_id,stripe_customer_id')
      .eq('owner_id',currentUser.id).maybeSingle(),
    supabase.from('mva_connected_accounts').select('charges_enabled,payouts_enabled,details_submitted')
-     .eq('owner_id',currentUser.id).maybeSingle()
+     .eq('owner_id',currentUser.id).maybeSingle(),
+   supabase.functions.invoke('mva-stripe-gateway',{body:{action:'status'}})
   ]);
   if(!p.error)setPlans((p.data||[]) as Plan[]);
   if(!s.error)setSubscription((s.data||null) as Subscription|null);
   if(!a.error)setAccount((a.data||null) as ConnectedAccount|null);
+  if(!gateway.error)setSandboxCheckoutReady(gateway.data?.sandbox===true
+    &&gateway.data?.sandboxTester===true&&gateway.data?.owner===true);
   setLoading(false);
  },[currentUser?.id]);
  useEffect(()=>{void load();const refresh=()=>{if(document.visibilityState==='visible')void load()};document.addEventListener('visibilitychange',refresh);return()=>document.removeEventListener('visibilitychange',refresh)},[load]);
+ // Returning from Stripe onboarding does not prove the account is ready.
+ // Recheck verified capability flags on the server before updating the display.
+ useEffect(()=>{
+  if(!currentUser||currentUser.accountType!=='coworking_owner')return;
+  const marker=new URLSearchParams(window.location.search).get('stripe_checkout');
+  if(marker!=='connect_return'&&marker!=='connect_retry')return;
+  void supabase.functions.invoke('mva-stripe-gateway',{body:{action:'connect_status'}})
+   .then(()=>load()).catch(()=>{/* The link can be resumed below. */});
+ },[currentUser?.id,load]);
  if(!currentUser||currentUser.accountType!=='coworking_owner')return null;
  const active=subscription?.status==='active'||subscription?.status==='trialing';
  const connected=!!account?.charges_enabled&&!!account?.payouts_enabled;
@@ -46,6 +59,7 @@ export function OwnerBillingPanel(){
       Planos mensais para anunciar e gerir espaços. Sem comissão da MVA por reserva; tarifas do processador de pagamento são separadas.</p></div>
     <button type="button" onClick={()=>void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-900 dark:border-slate-600 dark:text-slate-100"><RefreshCw className="h-4 w-4"/>Atualizar</button>
    </div>
+   {sandboxCheckoutReady&&<p role="status" className="mt-4 rounded-xl border border-sky-200 bg-sky-50 p-3 text-xs font-semibold text-sky-900">Sandbox Stripe para administradores: cartões fictícios, nenhuma cobrança real ou liberação de recursos pagos.</p>}
    {subscription&&<div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-600 dark:bg-[#233850] dark:text-slate-100">
     <BadgeCheck className="h-4 w-4 text-orange-600 dark:text-orange-300"/>
     Plano {plans.find(p=>p.id===subscription.plan_id)?.label||subscription.plan_id} · <strong>{active?'Ativo':subscription.status}</strong>
@@ -59,8 +73,8 @@ export function OwnerBillingPanel(){
        <p className="mt-2 text-xs font-bold text-navy-900 dark:text-slate-100">Até {p.max_spaces} espaços</p>
        <p className="mt-2 flex-1 text-xs leading-6 text-slate-600 dark:text-slate-300">{descriptions[p.id]||'Gerenciamento profissional de espaços.'}</p>
        {active?<div className="mt-4 text-xs font-semibold text-emerald-700 dark:text-emerald-300">{subscription?.plan_id===p.id?'Seu plano atual':'Alterações pelo portal de assinaturas'}</div>
-       :<div className="mt-4">{p.active?<StripeCheckoutAction action="checkout_owner" planId={p.id} label={'Assinar '+p.label}/>:<p className="rounded-xl border border-slate-200 p-3 text-center text-xs font-semibold text-slate-500 dark:border-slate-600 dark:text-slate-300">Plano em preparação</p>}</div>}
-       {!p.active&&<p className="mt-2 text-[11px] text-slate-500 dark:text-slate-300">Preço proposto; ainda não aprovado para cobrança.</p>}
+       :<div className="mt-4">{p.active||sandboxCheckoutReady?<StripeCheckoutAction action="checkout_owner" planId={p.id} label={(sandboxCheckoutReady?'Testar assinatura ':'Assinar ')+p.label}/>:<p className="rounded-xl border border-slate-200 p-3 text-center text-xs font-semibold text-slate-500 dark:border-slate-600 dark:text-slate-300">Plano em preparação</p>}</div>}
+       {!p.active&&<p className="mt-2 text-[11px] text-slate-500 dark:text-slate-300">Preço proposto; ainda não aprovado para cobrança real.</p>}
      </article>)}
    </div>}
    {subscription?.stripe_customer_id&&subscription?.stripe_subscription_id&&<div className="mt-4 max-w-sm"><StripeCheckoutAction action="owner_portal"/></div>}
