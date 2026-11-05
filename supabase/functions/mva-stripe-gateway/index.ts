@@ -106,6 +106,11 @@ async function customerCheckout(input:{
    .eq('kind',kind).eq('resource_id',resourceId).maybeSingle();
  if(lookupError)throw lookupError;
  if(order&&order.user_id!==userId)throw new Error('Este pedido pertence a outra conta.');
+ // A test checkout must never be reused after switching to live (or the reverse).
+ // Separate checkout environments require separate approved applications/bookings.
+ const expectedLive=Deno.env.get('STRIPE_BILLING_MODE')==='live';
+ if(order&&order.livemode!==expectedLive)
+   throw new Error('Esta contratação foi iniciada em outro ambiente Stripe (teste/produção). Para pagar com segurança, solicite à MVA uma nova solicitação ou reserva para o ambiente atual. Nenhuma cobrança foi realizada.');
  if(order&&['paid','refunded','disputed'].includes(order.status))
    throw new Error('Este pedido já possui pagamento registrado. Consulte o histórico.');
  if(order&&(order.stripe_account_id!==accountId || order.amount_cents!==amountCents))
