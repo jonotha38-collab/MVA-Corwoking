@@ -8,7 +8,7 @@ import { createClient } from 'npm:@supabase/supabase-js@^2';
 const url = Deno.env.get('SUPABASE_URL')!;
 const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const admin = createClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});
-const SITE = Deno.env.get('MVA_SITE_URL') || 'https://coworking-mva-du8c.vercel.app';
+const SITE = Deno.env.get('MVA_SITE_URL') || 'https://mvacoworking.com.br';
 const origins = new Set([new URL(SITE).origin,'http://localhost:5173',...(Deno.env.get('MVA_ALLOWED_ORIGINS')||'').split(',').map(x=>x.trim()).filter(Boolean)]);
 type Body = Record<string,unknown>;
 const response = (data:unknown,status=200,origin=SITE)=>new Response(JSON.stringify(data),{
@@ -27,6 +27,25 @@ function stripeClient(){
  if (mode==='live'&&(!keyIsLive||Deno.env.get('STRIPE_LIVE_LAUNCH_APPROVED')!=='true'))throw new Error('Produção Stripe bloqueada até aprovação explícita.');
  if(mode!=='test'&&mode!=='live')throw new Error('Gateway Stripe em preparação.');
  return new Stripe(privateKey);
+}
+// Do not allow checkout to charge a different Stripe merchant.
+const EXPECTED_PLATFORM_ACCOUNT = 'acct_1UTlB031eJ9Ivl6i';
+let accountCheck: { mode: string; ok: boolean; validUntil: number } | null = null;
+let accountIdentity: 'principal'|'secundaria'|'outra'|'indisponivel' = 'indisponivel';
+async function verifyPrimaryStripeAccount(): Promise<boolean> {
+ const mode = Deno.env.get('STRIPE_BILLING_MODE') || '';
+ if(accountCheck && accountCheck.mode === mode && accountCheck.validUntil > Date.now())return accountCheck.ok;
+ let ok=false;
+ try{
+  const stripe=stripeClient();
+  const account=await stripe.accounts.retrieve();
+  accountIdentity=account.id===EXPECTED_PLATFORM_ACCOUNT?'principal':account.id==='acct_1UTYI1KLztD0qXfd'?'secundaria':'outra';
+  ok=accountIdentity==='principal'&&account.charges_enabled===true;
+ }catch(err){
+  console.error('MVA merchant verification failed',err instanceof Error?err.message:'unknown');
+ }
+ accountCheck={mode,ok,validUntil:Date.now()+(ok?120000:15000)};
+ return ok;
 }
 async function settings(){
  const {data,error}=await admin.from('mva_billing_settings').select('*').eq('id',1).single();
@@ -87,6 +106,11 @@ async function customerCheckout(input:{
    .eq('kind',kind).eq('resource_id',resourceId).maybeSingle();
  if(lookupError)throw lookupError;
  if(order&&order.user_id!==userId)throw new Error('Este pedido pertence a outra conta.');
+ // A test checkout must never be reused after switching to live (or the reverse).
+ // Separate checkout environments require separate approved applications/bookings.
+ const expectedLive=Deno.env.get('STRIPE_BILLING_MODE')==='live';
+ if(order&&order.livemode!==expectedLive)
+   throw new Error('Esta contratação foi iniciada em outro ambiente Stripe (teste/produção). Para pagar com segurança, solicite à MVA uma nova solicitação ou reserva para o ambiente atual. Nenhuma cobrança foi realizada.');
  if(order&&['paid','refunded','disputed'].includes(order.status))
    throw new Error('Este pedido já possui pagamento registrado. Consulte o histórico.');
  if(order&&(order.stripe_account_id!==accountId || order.amount_cents!==amountCents))
@@ -113,7 +137,7 @@ async function customerCheckout(input:{
  let created:Stripe.Checkout.Session|null=null;
  try{
   created=await stripe.checkout.sessions.create({
-   mode:'payment',payment_method_types:['card'],
+   mode:'payment',allowed_payment_method_types:['card'],
    customer_email:email,
    client_reference_id:order.id,
    line_items:[{price_data:{currency:'brl',unit_amount:amountCents,
@@ -152,7 +176,8 @@ Deno.serve(async req=>{
    if(Deno.env.get('STRIPE_BILLING_MODE')==='test'){
     try{const signed=await auth(req);testAdmin=(await profile(signed.id)).is_admin===true}catch{/* anonymous visitor */}
    }
-   const gateway=flagsReady(cfg,testAdmin);
+   const stripeAccountVerified=credentialsReady() && await verifyPrimaryStripeAccount();
+  const gateway=flagsReady(cfg,testAdmin)&&stripeAccountVerified;
    return response({mode:'hosted_checkout',checkout:gateway,
      sandbox:Deno.env.get('STRIPE_BILLING_MODE')==='test',
      sandboxTester:sandboxTester(testAdmin),
@@ -163,6 +188,8 @@ Deno.serve(async req=>{
      live:Deno.env.get('STRIPE_BILLING_MODE')==='live',
      integrationChecks:{
        testKeyConfigured:Deno.env.get('STRIPE_BILLING_MODE')==='test'&&credentialsReady(),
+       primaryStripeAccountVerified:stripeAccountVerified,
+       stripeKeyAccount:accountIdentity,
        platformWebhookConfigured:platformWebhookReady(),
        connectWebhookConfigured:connectedWebhookReady(),
        billingSecretEnabled:Deno.env.get('STRIPE_BILLING_ENABLED')==='true',
@@ -171,11 +198,12 @@ Deno.serve(async req=>{
        ownerSubscriptionsEnabled:cfg.owner_subscriptions_enabled===true,
        connectEnabled:cfg.connect_enabled===true,
      },
-     note:'Indicadores de configuração; não validam a autenticidade da chave nem a entrega de eventos reais.'},200,origin);
+     note:'Identidade da conta consultada na API Stripe; o segredo do webhook e a conclusão de um checkout ainda precisam ser confirmados.'},200,origin);
   }
   const user=await auth(req);
   const me=await profile(user.id);
   if(action!=='owner_portal'&&!flagsReady(cfg,me.is_admin===true))return response({error:'Pagamentos ainda não foram ativados pela MVA. Nenhuma cobrança foi realizada.'},503,origin);
+  if(!(await verifyPrimaryStripeAccount()))return response({error:'A conta Stripe principal da MVA não foi validada. Nenhuma cobrança foi realizada.'},503,origin);
   const stripe=stripeClient();
 
   if(action==='checkout_fiscal'){
@@ -219,6 +247,98 @@ Deno.serve(async req=>{
     title:'Reserva · '+b.space_name+' · '+b.booking_date,email:b.responsible_email,
     accountId:connected,meta:{bookingId:id},page:'client-dashboard'},stripe),200,origin);
   }
+  // Monthly room-hour membership: credits are granted only by signed invoice.paid events.
+  if(action==='booking_plan_status'){
+   const {data:plans,error:plansError}=await admin.from('mva_booking_plans')
+     .select('id,label,monthly_cents,included_minutes,active,display_order')
+     .eq('active',true).order('display_order');
+   if(plansError)throw plansError;
+   const {count:eligibleRooms,error:roomError}=await admin.from('spaces').select('id',{count:'exact',head:true})
+      .eq('is_mva_headquarters',true).eq('category','atendimento')
+      .eq('approval','aprovado').eq('status','available');
+   if(roomError)throw roomError;
+   const {data:membership,error:memberError}=await admin.from('mva_booking_memberships')
+      .select('*').eq('user_id',user.id).maybeSingle();
+   if(memberError)throw memberError;
+   let usedMinutes=0;
+   if(membership?.paid_period_start){
+    const {data:reds,error:redsError}=await admin.from('mva_booking_redemptions')
+      .select('minutes').eq('user_id',user.id).eq('period_start',membership.paid_period_start).eq('status','applied');
+    if(redsError)throw redsError;
+    usedMinutes=(reds||[]).reduce((sum,item)=>sum+Number(item.minutes),0);
+   }
+   const plan=(plans||[]).find(x=>x.id===membership?.plan_id);
+   const active=membership?.status==='active'&&membership.livemode===true&&
+      membership.paid_period_start&&membership.paid_period_end&&
+      new Date(membership.paid_period_start).getTime()<=Date.now()&&
+      new Date(membership.paid_period_end).getTime()>Date.now();
+   return response({plans,eligibleRooms:eligibleRooms||0,member:membership?{
+     planId:membership.plan_id,status:membership.status,livemode:membership.livemode,
+     periodStart:membership.paid_period_start,periodEnd:membership.paid_period_end,
+     cancelAtPeriodEnd:membership.cancel_at_period_end,
+     active:!!active,usedMinutes,remainingMinutes:active&&plan?Math.max(0,plan.included_minutes-usedMinutes):0,
+     hasStripeCustomer:!!membership.stripe_customer_id
+   }:null},200,origin);
+  }
+  if(action==='redeem_booking_hours'){
+   const bookingId=string(body.bookingId);
+   if(!validUuid(bookingId))throw new Error('Reserva inválida.');
+   const {data,error}=await admin.rpc('mva_redeem_booking_credit',{p_user:user.id,p_booking:bookingId});
+   if(error)throw error;
+   return response(data,200,origin);
+  }
+  if(action==='checkout_booking_plan'){
+   if(Deno.env.get('STRIPE_BILLING_MODE')!=='live')
+      throw new Error('Os planos de atendimento estão disponíveis somente no ambiente real.');
+   const planId=string(body.planId);
+   const {data:plan,error:planError}=await admin.from('mva_booking_plans').select('*')
+      .eq('id',planId).eq('active',true).maybeSingle();
+   if(planError)throw planError;
+   if(!plan)throw new Error('Plano de atendimento indisponível.');
+   const {count:eligibleRooms,error:roomError}=await admin.from('spaces').select('id',{count:'exact',head:true})
+      .eq('is_mva_headquarters',true).eq('category','atendimento')
+      .eq('approval','aprovado').eq('status','available');
+   if(roomError)throw roomError;
+   if(!eligibleRooms)throw new Error('A MVA ainda não habilitou sala própria de atendimento para o plano. Nenhuma assinatura foi cobrada.');
+   const {data:existing,error:existingError}=await admin.from('mva_booking_memberships')
+      .select('*').eq('user_id',user.id).maybeSingle();
+   if(existingError)throw existingError;
+   if(existing?.stripe_subscription_id&&
+      !['canceled','incomplete_expired'].includes(existing.status))
+      throw new Error('Já existe uma assinatura de atendimento. Utilize Gerenciar plano para alterações.');
+   if(existing?.stripe_checkout_session_id&&!existing.stripe_subscription_id){
+    const prior=await stripe.checkout.sessions.retrieve(existing.stripe_checkout_session_id).catch(()=>null);
+    if(prior?.status==='open'&&prior.url)return response(successInfo(prior),200,origin);
+   }
+   const session=await stripe.checkout.sessions.create({
+     mode:'subscription',allowed_payment_method_types:['card'],
+     customer_email:user.email||me.email,
+     client_reference_id:user.id,
+     line_items:[{price:plan.stripe_live_price_id,quantity:1}],
+     metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id},
+     subscription_data:{metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id}},
+     success_url:checkoutUrl('client-dashboard','success'),
+     cancel_url:checkoutUrl('client-dashboard','canceled')
+   },{idempotencyKey:'mva-booking-plan-'+user.id+'-'+plan.id+'-'+(existing?.stripe_checkout_session_id||'first')});
+   const {error:saveError}=await admin.from('mva_booking_memberships').upsert({
+     user_id:user.id,plan_id:plan.id,stripe_checkout_session_id:session.id,
+     stripe_subscription_id:null,stripe_customer_id:null,
+     status:'incomplete',livemode:true,paid_period_start:null,paid_period_end:null,
+     last_paid_invoice_id:null,updated_at:new Date().toISOString()
+   },{onConflict:'user_id'});
+   if(saveError){try{await stripe.checkout.sessions.expire(session.id)}catch{};throw saveError}
+   return response(successInfo(session),200,origin);
+  }
+  if(action==='booking_plan_portal'){
+   const {data:membership,error}=await admin.from('mva_booking_memberships')
+     .select('stripe_customer_id').eq('user_id',user.id).maybeSingle();
+   if(error)throw error;
+   if(!membership?.stripe_customer_id)throw new Error('Assinatura ainda não disponível para gerenciamento.');
+   const portal=await stripe.billingPortal.sessions.create({
+     customer:membership.stripe_customer_id,return_url:checkoutUrl('client-dashboard','return')
+   });
+   return response({url:portal.url},200,origin);
+  }
   if(action==='checkout_owner'){
    if(!cfg.owner_subscriptions_enabled)throw new Error('Mensalidades dos parceiros ainda não habilitadas.');
    if(me.account_type!=='coworking_owner'&&!me.is_admin)throw new Error('Conta de proprietário necessária.');
@@ -236,7 +356,7 @@ Deno.serve(async req=>{
    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(checkoutSeed));
    const checkoutKey='mva-owner-'+Array.from(new Uint8Array(digest)).map(v=>v.toString(16).padStart(2,'0')).join('');
    const session=await stripe.checkout.sessions.create({
-    mode:'subscription',payment_method_types:['card'],
+    mode:'subscription',allowed_payment_method_types:['card'],
     customer:existing?.stripe_customer_id||undefined,
     customer_email:existing?.stripe_customer_id?undefined:(user.email||me.email),
     client_reference_id:user.id,
