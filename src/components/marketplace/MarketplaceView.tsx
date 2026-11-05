@@ -5,6 +5,7 @@ import { Space } from '../../types';
 import { SpaceCard } from './SpaceCard';
 import { SpaceDetailModal } from './SpaceDetailModal';
 import { BookingModal } from './BookingModal';
+import { BookingPlans } from '../payments/BookingPlans';
 import { Search, MapPin, Users, LayoutGrid, X, PlusCircle, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
 import { Reveal } from '../ui/Reveal';
 import { isSpacePubliclyVisible } from '../../lib/space-visibility';
@@ -20,12 +21,12 @@ const CATEGORIES = [
 
 const STEPS = [
   { title: 'Encontre', text: 'Busque por cidade, tipo de sala e capacidade.' },
-  { title: 'Reserve', text: 'Escolha data e horário, confira as condições e registre sua reserva.' },
+  { title: 'Reserve e pague', text: 'Escolha data e horário e conclua o pagamento pelo Stripe ou use horas do plano MVA.' },
   { title: 'Use', text: 'Faça o check-in na recepção e trabalhe com toda a infraestrutura.' },
 ];
 
 const FAQ = [
-  ['Como reservo uma sala?', 'Escolha o espaço, clique em reservar, informe data, horário e seus dados. A confirmação é imediata e aparece em "Minhas reservas".'],
+  ['Como reservo uma sala?', 'Selecione o espaço e registre o horário. A reserva só fica financeiramente confirmada após pagamento Stripe ou uso válido do plano de horas. Salas parceiras dependem do Stripe Connect do responsável.'],
   ['Posso contratar endereço fiscal?', 'Na seção Endereço Fiscal você pode conhecer os planos. O uso do endereço exige análise de elegibilidade, contrato e pagamento confirmado.'],
   ['Tenho um coworking. Como anuncio?', 'Crie uma conta como coworking, cadastre o espaço com fotos e endereço e envie. A equipe MVA analisa o anúncio antes de publicá-lo.'],
   ['Por que meu anúncio ainda não apareceu?', 'Todo espaço novo ou alterado passa por aprovação dos administradores. Você acompanha o status (em análise, aprovado ou rejeitado) no painel do anunciante.'],
@@ -128,6 +129,8 @@ export const MarketplaceView: React.FC = () => {
           <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-orange-400" aria-hidden />{t("Endereço fiscal disponível ")}</li>
         </ul>
       </section>
+
+      <BookingPlans />
 
       {/* Resultados */}
       <section ref={results} className="scroll-mt-28" aria-labelledby="resultados">
