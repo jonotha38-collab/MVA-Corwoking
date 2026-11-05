@@ -317,8 +317,8 @@ Deno.serve(async req=>{
      line_items:[{price:plan.stripe_live_price_id,quantity:1}],
      metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id},
      subscription_data:{metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id}},
-     success_url:checkoutUrl('client-dashboard','success'),
-     cancel_url:checkoutUrl('client-dashboard','canceled')
+     success_url:checkoutUrl('client-dashboard','success')+'&stripe_membership=1',
+     cancel_url:checkoutUrl('client-dashboard','canceled')+'&stripe_membership=1'
    },{idempotencyKey:'mva-booking-plan-'+user.id+'-'+plan.id+'-'+(existing?.stripe_checkout_session_id||'first')});
    const {error:saveError}=await admin.from('mva_booking_memberships').upsert({
      user_id:user.id,plan_id:plan.id,stripe_checkout_session_id:session.id,
