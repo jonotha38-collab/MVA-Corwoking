@@ -3,14 +3,14 @@ import { ArrowRight, CreditCard, LoaderCircle, ShieldCheck } from 'lucide-react'
 import { supabase } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 
-type Action = 'checkout_fiscal' | 'checkout_booking' | 'checkout_owner' | 'owner_portal' | 'connect_onboarding';
+type Action = 'checkout_fiscal' | 'checkout_booking' | 'checkout_owner' | 'owner_portal' | 'connect_onboarding' | 'checkout_booking_plan' | 'booking_plan_portal';
 type GatewayStatus = {
  checkout:boolean;fiscal:boolean;booking:boolean;owner:boolean;portal:boolean;connect:boolean;live:boolean;
  sandbox?:boolean;sandboxTester?:boolean;
 };
 const FEATURE:Record<Action,keyof Pick<GatewayStatus,'checkout'|'fiscal'|'booking'|'owner'|'portal'|'connect'>>={
  checkout_fiscal:'fiscal',checkout_booking:'booking',checkout_owner:'owner',
- owner_portal:'portal',connect_onboarding:'connect'
+ owner_portal:'portal',connect_onboarding:'connect',checkout_booking_plan:'booking',booking_plan_portal:'portal'
 };
 export function StripeCheckoutAction({action,resourceId,planId,label,className=''}:{
  action:Action;resourceId?:string;planId?:string;label?:string;className?:string;
@@ -39,7 +39,7 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
    const payload:Record<string,unknown>={action};
    if(action==='checkout_fiscal')payload.applicationId=resourceId;
    if(action==='checkout_booking')payload.bookingId=resourceId;
-   if(action==='checkout_owner')payload.planId=planId;
+   if(action==='checkout_owner'||action==='checkout_booking_plan')payload.planId=planId;
    const {data,error:invokeError}=await supabase.functions.invoke('mva-stripe-gateway',{body:payload});
    if(invokeError||data?.error){
      const ctx=invokeError?.context as Response|undefined;
@@ -59,7 +59,8 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
  const defaultLabels:Record<Action,string>={
   checkout_fiscal:'Pagar com Stripe',checkout_booking:'Pagar reserva com Stripe',
   checkout_owner:'Assinar este plano',owner_portal:'Gerenciar assinatura',
-  connect_onboarding:'Conectar recebimentos Stripe'
+  connect_onboarding:'Conectar recebimentos Stripe',
+  checkout_booking_plan:'Assinar plano de atendimento',booking_plan_portal:'Gerenciar meu plano de atendimento'
  };
  return <div className="min-w-0 space-y-2">
    {connected&&<p role="status" className="rounded-lg bg-emerald-50 p-3 text-xs font-semibold text-emerald-800">A conta está preparada para receber pagamentos.</p>}
