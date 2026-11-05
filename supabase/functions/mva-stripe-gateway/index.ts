@@ -9,7 +9,7 @@ const url = Deno.env.get('SUPABASE_URL')!;
 const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const admin = createClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});
 const SITE = Deno.env.get('MVA_SITE_URL') || 'https://mvacoworking.com.br';
-const origins = new Set([new URL(SITE).origin,'http://localhost:5173',...(Deno.env.get('MVA_ALLOWED_ORIGINS')||'').split(',').map(x=>x.trim()).filter(Boolean)]);
+const origins = new Set([new URL(SITE).origin,'https://mvacoworking.com.br','https://www.mvacoworking.com.br','http://localhost:5173',...(Deno.env.get('MVA_ALLOWED_ORIGINS')||'').split(',').map(x=>x.trim()).filter(Boolean)]);
 type Body = Record<string,unknown>;
 const response = (data:unknown,status=200,origin=SITE)=>new Response(JSON.stringify(data),{
  status,headers:{'Content-Type':'application/json','Cache-Control':'no-store',
