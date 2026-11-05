@@ -29,7 +29,7 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
       setStatus(data as GatewayStatus);
     }).catch(()=>{if(!cancelled)setStatus(null)});
   return()=>{cancelled=true};
- },[action]);
+ },[action,currentUser?.id]);
  const enabled=!!status?.[FEATURE[action]];
  const trigger=async()=>{
   if(!currentUser){setAuthModalTab('login');setAuthModalOpen(true);return}
@@ -66,15 +66,19 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
    <button type="button" onClick={()=>void trigger()} disabled={!enabled||busy||connected}
      className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-bold transition-colors ${enabled?'bg-[#cf581f] text-white hover:bg-[#ad4210]':'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-600'} disabled:opacity-75 ${className}`}>
      {busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<CreditCard className="h-4 w-4"/>}
-     {busy?'Conectando ao Stripe…':!enabled?'Em preparação — sem cobrança':(label||defaultLabels[action])+(status?.sandbox?' (teste)':'')}
+     {busy?'Conectando ao Stripe…':!enabled?(status?.sandbox?'Indisponível para esta conta (teste)':'Pagamento ainda indisponível'):(label||defaultLabels[action])+(status?.sandbox?' (teste)':'')}
      {enabled&&!busy&&<ArrowRight className="h-4 w-4"/>}
    </button>
    {enabled&&status?.sandbox&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-sky-800 dark:text-sky-200">
       <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0"/>Sandbox Stripe para administradores: não há cobrança real.
    </p>}
-   {!enabled&&<p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-500">
+   {!enabled&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-500">
      <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0"/>
-     Pagamentos bloqueados até a MVA configurar e validar o ambiente Stripe.
+     {!status
+       ? 'Não foi possível consultar o gateway Stripe. Atualize a página ou tente novamente.'
+       : status.sandbox
+       ? 'O Stripe está em modo de teste: somente contas administradoras autenticadas podem iniciar um pagamento simulado. Nenhuma cobrança real será feita.'
+       : 'O pagamento ainda não foi liberado pela MVA. Nenhuma cobrança será realizada.'}
    </p>}
    {error&&<p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-800">{error}</p>}
   </div>;
