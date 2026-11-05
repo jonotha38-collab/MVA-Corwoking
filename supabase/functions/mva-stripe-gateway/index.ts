@@ -41,9 +41,13 @@ const credentialsReady=()=>{
 };
 const platformWebhookReady=()=>/^whsec_[A-Za-z0-9]+$/.test(Deno.env.get('STRIPE_WEBHOOK_SECRET')||'');
 const connectedWebhookReady=()=>/^whsec_[A-Za-z0-9]+$/.test(Deno.env.get('STRIPE_CONNECT_WEBHOOK_SECRET')||'');
-const flagsReady=(s:Body)=>Boolean(s.checkout_enabled)
-  &&Deno.env.get('STRIPE_BILLING_ENABLED')==='true'
-  &&credentialsReady()&&platformWebhookReady();
+// In test mode, only administrators can enter Stripe's sandbox Checkout.
+// Live charges always require both the billing secret and explicit live approval.
+const sandboxTester=(isAdmin:boolean)=>Deno.env.get('STRIPE_BILLING_MODE')==='test'&&isAdmin;
+const flagsReady=(s:Body,isAdmin=false)=>Boolean(s.checkout_enabled)
+  &&credentialsReady()&&platformWebhookReady()
+  &&(sandboxTester(isAdmin) || (Deno.env.get('STRIPE_BILLING_MODE')==='live'
+      &&Deno.env.get('STRIPE_BILLING_ENABLED')==='true'));
 const checkoutUrl=(page:string,status:string,order?:string)=>{
  const u=new URL(SITE);
  u.searchParams.set('page',page);u.searchParams.set('stripe_checkout',status);
@@ -62,8 +66,11 @@ async function profile(userId:string){
  if(error||!data)throw new Error('Perfil do usuário não encontrado.');
  return data;
 }
-async function priceOfOwner(planId:string){
- const {data,error}=await admin.from('mva_owner_plans').select('id,label,monthly_cents,max_spaces').eq('id',planId).eq('active',true).maybeSingle();
+async function priceOfOwner(planId:string,allowInactiveTest=false){
+ if(!['essencial','profissional','business'].includes(planId))throw new Error('Plano inválido.');
+ let query=admin.from('mva_owner_plans').select('id,label,monthly_cents,max_spaces').eq('id',planId);
+ if(!allowInactiveTest)query=query.eq('active',true);
+ const {data,error}=await query.maybeSingle();
  if(error)throw error;if(!data)throw new Error('Este plano ainda não foi ativado pela MVA.');
  return data;
 }
@@ -140,8 +147,15 @@ Deno.serve(async req=>{
   const action=string(body.action);
   const cfg=await settings();
   if(action==='status'){
-   const gateway=flagsReady(cfg);
+   // Anonymous and ordinary users cannot initiate simulated payments on the public site.
+   let testAdmin=false;
+   if(Deno.env.get('STRIPE_BILLING_MODE')==='test'){
+    try{const signed=await auth(req);testAdmin=(await profile(signed.id)).is_admin===true}catch{/* anonymous visitor */}
+   }
+   const gateway=flagsReady(cfg,testAdmin);
    return response({mode:'hosted_checkout',checkout:gateway,
+     sandbox:Deno.env.get('STRIPE_BILLING_MODE')==='test',
+     sandboxTester:sandboxTester(testAdmin),
      fiscal:gateway,booking:gateway,
      owner:gateway&&cfg.owner_subscriptions_enabled,
      portal:credentialsReady(),
@@ -152,6 +166,7 @@ Deno.serve(async req=>{
        platformWebhookConfigured:platformWebhookReady(),
        connectWebhookConfigured:connectedWebhookReady(),
        billingSecretEnabled:Deno.env.get('STRIPE_BILLING_ENABLED')==='true',
+       administratorSandboxEnabled:sandboxTester(testAdmin)&&gateway,
        platformCheckoutEnabled:cfg.checkout_enabled===true,
        ownerSubscriptionsEnabled:cfg.owner_subscriptions_enabled===true,
        connectEnabled:cfg.connect_enabled===true,
@@ -160,15 +175,16 @@ Deno.serve(async req=>{
   }
   const user=await auth(req);
   const me=await profile(user.id);
-  if(action!=='owner_portal'&&!flagsReady(cfg))return response({error:'Pagamentos ainda não foram ativados pela MVA. Nenhuma cobrança foi realizada.'},503,origin);
+  if(action!=='owner_portal'&&!flagsReady(cfg,me.is_admin===true))return response({error:'Pagamentos ainda não foram ativados pela MVA. Nenhuma cobrança foi realizada.'},503,origin);
   const stripe=stripeClient();
 
   if(action==='checkout_fiscal'){
    const id=string(body.applicationId);if(!validUuid(id))throw new Error('Solicitação fiscal inválida.');
    const {data:app,error:appError}=await admin.from('fiscal_applications').select('*').eq('id',id).eq('user_id',user.id).single();
    if(appError||!app||app.status!=='approved')throw new Error('A contratação exige análise cadastral aprovada.');
-   const {data:p,error:priceErr}=await admin.from('mva_fiscal_prices')
-    .select('*').eq('id',app.plan_id).eq('active',true).maybeSingle();
+   let priceQuery=admin.from('mva_fiscal_prices').select('*').eq('id',app.plan_id);
+   if(!sandboxTester(me.is_admin===true))priceQuery=priceQuery.eq('active',true);
+   const {data:p,error:priceErr}=await priceQuery.maybeSingle();
    if(priceErr)throw priceErr;if(!p)throw new Error('Este plano ainda não está habilitado para cobrança.');
    const months=app.term_months;
    if(months!==1&&months!==12)throw new Error('Vigência fiscal inválida.');
@@ -206,7 +222,7 @@ Deno.serve(async req=>{
   if(action==='checkout_owner'){
    if(!cfg.owner_subscriptions_enabled)throw new Error('Mensalidades dos parceiros ainda não habilitadas.');
    if(me.account_type!=='coworking_owner'&&!me.is_admin)throw new Error('Conta de proprietário necessária.');
-   const plan=await priceOfOwner(string(body.planId));
+   const plan=await priceOfOwner(string(body.planId),sandboxTester(me.is_admin===true));
    const {data:existing,error:subError}=await admin.from('mva_owner_subscriptions').select('*').eq('owner_id',user.id).maybeSingle();
    if(subError)throw subError;
    if(existing?.stripe_subscription_id&&['active','trialing','past_due','unpaid','paused'].includes(existing.status))
@@ -248,6 +264,22 @@ Deno.serve(async req=>{
     customer:sub.stripe_customer_id,return_url:checkoutUrl('owner-dashboard','return')
    });
    return response({url:portal.url},200,origin);
+  }
+  if(action==='connect_status'){
+   if(me.account_type!=='coworking_owner'&&!me.is_admin)throw new Error('Conta de proprietário necessária.');
+   const {data:account,error:lookupError}=await admin.from('mva_connected_accounts')
+    .select('stripe_account_id').eq('owner_id',user.id).maybeSingle();
+   if(lookupError)throw lookupError;
+   if(!account)return response({linked:false,connected:false},200,origin);
+   const current=await stripe.accounts.retrieve(account.stripe_account_id);
+   const charges=current.charges_enabled===true,payouts=current.payouts_enabled===true;
+   const {error:updateError}=await admin.from('mva_connected_accounts').update({
+    charges_enabled:charges,payouts_enabled:payouts,
+    details_submitted:current.details_submitted===true,updated_at:new Date().toISOString()
+   }).eq('owner_id',user.id);
+   if(updateError)throw updateError;
+   return response({linked:true,connected:charges&&payouts,chargesEnabled:charges,
+    payoutsEnabled:payouts,detailsSubmitted:current.details_submitted===true},200,origin);
   }
   if(action==='connect_onboarding'){
    if(!cfg.connect_enabled||!connectedWebhookReady())throw new Error('Conexão dos parceiros não habilitada ou sem webhook Connect verificado.');
