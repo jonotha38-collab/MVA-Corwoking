@@ -55,6 +55,7 @@ export function BookingPlans({ compact=false }:{compact?:boolean}) {
     <p className="flex items-center gap-2 text-sm font-bold text-emerald-900"><CheckCircle2 className="h-4 w-4"/>Plano {member.planId.toUpperCase()} — {statusLabels[member.status]||member.status}</p>
     <p className="mt-1 text-sm text-emerald-900">{member.active?(member.remainingMinutes/60).toLocaleString('pt-BR')+' horas disponíveis de atendimento':'As horas são liberadas somente após o pagamento mensal ser confirmado pelo Stripe.'}</p>
     {periodEnd&&<p className="mt-1 text-xs text-emerald-800">Ciclo pago até {periodEnd}. Horas não acumulam. {member.cancelAtPeriodEnd?'Cancelamento agendado para o fim do período.':''}</p>}
+    {member.status==='incomplete'&&!member.hasStripeCustomer&&<p className="mt-2 text-xs text-emerald-900">Se você desistiu do checkout, escolha novamente um plano abaixo. O Stripe abrirá a sessão existente ou permitirá uma nova tentativa, sem duplicar sua assinatura.</p>}
     {member.hasStripeCustomer&&<div className="mt-4 max-w-xs"><StripeCheckoutAction action="booking_plan_portal" label="Gerenciar minha assinatura"/></div>}
    </div>}
   {eligibleRooms===0&&<p role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-900">
@@ -65,7 +66,7 @@ export function BookingPlans({ compact=false }:{compact?:boolean}) {
    <div className="grid gap-4 md:grid-cols-3">
     {plans.map(plan=>{
      const minutes=plan.included_minutes;
-     const subscribed=!!member&&member.status!=='canceled'&&member.status!=='incomplete_expired';
+     const subscribed=!!member&&(member.active||['active','trialing','past_due','unpaid','paused'].includes(member.status)||member.hasStripeCustomer);
      return <article key={plan.id} className={'flex flex-col rounded-2xl border bg-white p-5 shadow-sm '+(plan.id==='bronze'?'border-orange-300':'border-slate-200')}>
       <div className="flex items-center justify-between"><span className="text-sm font-bold uppercase tracking-wider text-navy-900">{plan.label}</span>
        {plan.id==='bronze'&&<span className="rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-bold text-orange-700">Comece aqui</span>}</div>

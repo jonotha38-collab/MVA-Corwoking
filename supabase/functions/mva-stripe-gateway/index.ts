@@ -289,28 +289,40 @@ Deno.serve(async req=>{
   }
   if(action==='checkout_booking_plan'){
    if(Deno.env.get('STRIPE_BILLING_MODE')!=='live')
-      throw new Error('Os planos de atendimento estão disponíveis somente no ambiente real.');
+    throw new Error('Os planos de atendimento estão disponíveis somente no ambiente real.');
    const planId=string(body.planId);
-   const {data:plan,error:planError}=await admin.from('mva_booking_plans').select('*')
-      .eq('id',planId).eq('active',true).maybeSingle();
+   const {data:plan,error:planError}=await admin.from('mva_booking_plans')
+    .select('*').eq('id',planId).eq('active',true).maybeSingle();
    if(planError)throw planError;
    if(!plan)throw new Error('Plano de atendimento indisponível.');
-   const {count:eligibleRooms,error:roomError}=await admin.from('spaces').select('id',{count:'exact',head:true})
-      .eq('is_mva_headquarters',true).eq('category','atendimento')
-      .eq('approval','aprovado').eq('status','available');
+   const {count:eligibleRooms,error:roomError}=await admin.from('spaces')
+    .select('id',{count:'exact',head:true}).eq('is_mva_headquarters',true)
+    .eq('category','atendimento').eq('approval','aprovado').eq('status','available');
    if(roomError)throw roomError;
-   if(!eligibleRooms)throw new Error('A MVA ainda não habilitou sala própria de atendimento para o plano. Nenhuma assinatura foi cobrada.');
-   const {data:existing,error:existingError}=await admin.from('mva_booking_memberships')
-      .select('*').eq('user_id',user.id).maybeSingle();
-   if(existingError)throw existingError;
-   if(existing?.stripe_subscription_id&&
-      !['canceled','incomplete_expired'].includes(existing.status))
-      throw new Error('Já existe uma assinatura de atendimento. Utilize Gerenciar plano para alterações.');
-   if(existing?.stripe_checkout_session_id&&!existing.stripe_subscription_id){
-    const prior=await stripe.checkout.sessions.retrieve(existing.stripe_checkout_session_id).catch(()=>null);
-    if(prior?.status==='open'&&prior.url)return response(successInfo(prior),200,origin);
-   }
-   const session=await stripe.checkout.sessions.create({
+   if(!eligibleRooms)throw new Error('A MVA ainda não habilitou sala própria de atendimento. Nenhuma assinatura foi cobrada.');
+   // Serializable, per-customer checkout claim blocks concurrent plan choices and double subscriptions.
+   const {data:claimed,error:claimError}=await admin.rpc('mva_claim_booking_plan_checkout',
+     {p_user:user.id,p_plan:plan.id});
+   if(claimError)throw claimError;
+   if(claimed!==true)throw new Error('Uma assinatura ou checkout está em andamento. Aguarde a conclusão e tente novamente.');
+   try{
+    const {data:existing,error:existingError}=await admin.from('mva_booking_memberships')
+     .select('*').eq('user_id',user.id).single();
+    if(existingError||!existing)throw existingError||new Error('Plano não encontrado.');
+    if(existing.stripe_subscription_id&&!['canceled','incomplete_expired'].includes(existing.status))
+     throw new Error('Você já possui uma assinatura. Use Gerenciar meu plano.');
+    // A canceled checkout must not strand a customer or lock them into another tier.
+    if(existing.stripe_checkout_session_id&&!existing.stripe_subscription_id){
+     const prior=await stripe.checkout.sessions.retrieve(existing.stripe_checkout_session_id);
+     if(prior.status==='open'){
+      if(existing.plan_id===plan.id&&prior.url)return response(successInfo(prior),200,origin);
+      // Expire the old tier before creating a replacement, so there is only one payable session.
+      await stripe.checkout.sessions.expire(prior.id);
+     }else if(prior.status==='complete'){
+      throw new Error('Seu último pagamento está sendo confirmado. Atualize o painel antes de tentar novamente.');
+     }
+    }
+    const session=await stripe.checkout.sessions.create({
      mode:'subscription',allowed_payment_method_types:['card'],
      customer_email:user.email||me.email,
      client_reference_id:user.id,
@@ -319,15 +331,20 @@ Deno.serve(async req=>{
      subscription_data:{metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id}},
      success_url:checkoutUrl('client-dashboard','success')+'&stripe_membership=1',
      cancel_url:checkoutUrl('client-dashboard','canceled')+'&stripe_membership=1'
-   },{idempotencyKey:'mva-booking-plan-'+user.id+'-'+plan.id+'-'+(existing?.stripe_checkout_session_id||'first')});
-   const {error:saveError}=await admin.from('mva_booking_memberships').upsert({
+    },{idempotencyKey:'mva-booking-plan-'+user.id+'-'+crypto.randomUUID()});
+    const {error:saveError}=await admin.from('mva_booking_memberships').upsert({
      user_id:user.id,plan_id:plan.id,stripe_checkout_session_id:session.id,
      stripe_subscription_id:null,stripe_customer_id:null,
      status:'incomplete',livemode:true,paid_period_start:null,paid_period_end:null,
      last_paid_invoice_id:null,updated_at:new Date().toISOString()
-   },{onConflict:'user_id'});
-   if(saveError){try{await stripe.checkout.sessions.expire(session.id)}catch{};throw saveError}
-   return response(successInfo(session),200,origin);
+    },{onConflict:'user_id'});
+    if(saveError){try{await stripe.checkout.sessions.expire(session.id)}catch{};throw saveError}
+    return response(successInfo(session),200,origin);
+   }finally{
+    const {error:unlockError}=await admin.from('mva_booking_memberships')
+     .update({checkout_lock_until:null}).eq('user_id',user.id);
+    if(unlockError)console.error('Unable to unlock booking membership checkout',unlockError.message);
+   }
   }
   if(action==='booking_plan_portal'){
    const {data:membership,error}=await admin.from('mva_booking_memberships')
