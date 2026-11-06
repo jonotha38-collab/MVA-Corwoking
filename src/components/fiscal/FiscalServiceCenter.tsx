@@ -174,7 +174,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
             </p>
             <p className={`text-xs leading-relaxed ${paid?'text-emerald-800':'text-amber-800'}`}>
               {delivered?(app.plan_id==='comercial'?'A MVA concluiu a formalização. O contrato assinado está disponível abaixo.':'A MVA concluiu a conferência humana. A declaração e o contrato assinados estão disponíveis abaixo.'):
-               paid?'A MVA está preparando e validando seu contrato e a declaração assinada. O uso do endereço ainda não está autorizado; a liberação ocorrerá automaticamente após aprovação final.':
+               paid?'A MVA está preparando e validando o contrato e os documentos pertinentes. O uso do endereço ainda não está autorizado; o acesso será liberado após aprovação final.':
                'O pagamento será realizado pelo Stripe. Você só poderá utilizar o endereço após a formalização e a autorização da MVA.'}
             </p>
             {!paid&&order?.status!=='refunded'&&order?.status!=='disputed'&&<button type="button" onClick={()=>onCheckout(app.plan_id,!!app.transfer_from)}
