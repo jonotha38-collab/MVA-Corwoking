@@ -16,7 +16,7 @@ export function CertificateDialog({ onClose, onChoosePlan }: { onClose: () => vo
  const [error,setError]=useState('');
  const [document,setDocument]=useState<{url:string;filename:string}|null>(null);
  const company=freshContract||currentCompany;
- const eligible=canIssueCertificate(company);
+ const eligible=!!freshContract&&canIssueCertificate(freshContract);
 
  useEffect(()=>{
   let alive=true;
