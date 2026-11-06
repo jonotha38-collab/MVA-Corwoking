@@ -61,6 +61,8 @@ export interface FiscalContract {
   paymentStatus?: 'unpaid' | 'paid' | 'refunded' | 'disputed';
   paymentIsLive?: boolean;
   paymentOrderId?: string;
+  applicationId?: string;
+  formalizedAt?: string | null;
   certificateNumber?: string;
   id: string;
   userId?: string;
