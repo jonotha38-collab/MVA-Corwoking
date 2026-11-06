@@ -107,7 +107,7 @@ export function FiscalOperationsCenter(){
  ),[requests,search]);
  const pending=requests.filter(r=>r.status==='submitted'||r.status==='under_review').length;
   const awaitingFormalization=contracts.filter(c=>c.status!=='ativo'&&c.payment_status==='paid'&&c.payment_is_live).length;
- const upcoming=contracts.filter(c=>daysUntil(c.renewal_date)<=30 && daysUntil(c.renewal_date)>=0).length;
+ const upcoming=contracts.filter(c=>c.status==='ativo'&&daysUntil(c.renewal_date)<=30&&daysUntil(c.renewal_date)>=0).length;
  return <section className="space-y-6" aria-label="Administração do endereço fiscal">
   <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
    <div className="flex flex-wrap items-start justify-between gap-3">
