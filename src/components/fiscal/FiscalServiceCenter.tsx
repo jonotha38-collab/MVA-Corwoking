@@ -3,6 +3,8 @@ import { Building2, CalendarClock, FileCheck2, FilePlus2, FolderLock, LockKeyhol
 import { supabase } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { FISCAL_PLANS, type FiscalPlanId, validCnpj } from '../../lib/fiscal-payment';
+import { rowToFiscal } from '../../lib/mappers';
+import type { FiscalContract } from '../../types';
 
 export type FiscalApplication = {
  id:string; user_id:string; company_name:string; trading_name:string; cnpj:string; cnae:string;
@@ -12,6 +14,7 @@ export type FiscalApplication = {
 };
 type DocumentRow={id:string;request_id:string|null;contract_id:string|null;file_path:string;file_name:string;category:string;verified:boolean;publicly_verifiable:boolean;verification_code:string};
 type Unit={id:string;name:string;street_address:string;city:string;state:string};
+type FiscalOrder={resource_id:string;status:string;livemode:boolean;paid_at:string|null};
 const labels:Record<string,string>={submitted:'Recebida',under_review:'Em análise',approved:'Elegível para contratação',rejected:'Ajustes necessários'};
 const PLAN_IDS: FiscalPlanId[]=['comercial','fiscal','fiscal_ie'];
 const safeError=(e:unknown)=> e instanceof Error?e.message:'Não foi possível concluir. Tente novamente.';
@@ -21,10 +24,12 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
  initialPlan?:FiscalPlanId; initialTerm?:1|12; requireTransfer?:boolean; mode?:'full'|'application'|'dashboard';
  onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
 }) {
- const {currentUser,fiscalContracts,setAuthModalOpen,setAuthModalTab,showToast}=useCoworking();
+ const {currentUser,setAuthModalOpen,setAuthModalTab,showToast}=useCoworking();
  const [applications,setApplications]=useState<FiscalApplication[]>([]);
  const [documents,setDocuments]=useState<DocumentRow[]>([]);
  const [units,setUnits]=useState<Unit[]>([]);
+ const [contracts,setContracts]=useState<FiscalContract[]>([]);
+ const [orders,setOrders]=useState<FiscalOrder[]>([]);
  const [busy,setBusy]=useState(false);
  const [loading,setLoading]=useState(false);
  const [uploading,setUploading]=useState<string|null>(null);
@@ -44,19 +49,30 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
  const load=useCallback(async()=>{
    setLoading(true);
    try {
-     const [unitRes,reqRes,docRes]=await Promise.all([
+     const [unitRes,reqRes,docRes,contractRes,orderRes]=await Promise.all([
        supabase.from('fiscal_units').select('id,name,street_address,city,state').order('name'),
        currentUser?supabase.from('fiscal_applications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
        currentUser?supabase.from('fiscal_private_documents').select('id,request_id,contract_id,file_path,file_name,category,verified,publicly_verifiable,verification_code').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
+       currentUser?supabase.from('fiscal_contracts').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
+       currentUser?supabase.from('mva_checkout_orders').select('resource_id,status,livemode,paid_at').eq('user_id',currentUser.id).eq('kind','fiscal').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
      ]);
-     if(unitRes.error||reqRes.error||docRes.error)throw new Error('Não foi possível carregar o painel de endereço fiscal.');
+     if(unitRes.error||reqRes.error||docRes.error||contractRes.error||orderRes.error)throw new Error('Não foi possível carregar o painel de endereço fiscal.');
      setUnits((unitRes.data||[]) as Unit[]);
      setApplications((reqRes.data||[]) as FiscalApplication[]);
      setDocuments((docRes.data||[]) as DocumentRow[]);
+     setContracts((contractRes.data||[]).map(rowToFiscal));
+     setOrders((orderRes.data||[]) as FiscalOrder[]);
    } catch(e){setError(safeError(e))}
    finally {setLoading(false)}
  },[currentUser?.id]);
  useEffect(()=>{void load()},[load]);
+ useEffect(()=>{
+   if(!currentUser||mode==='application')return;
+   const timer=window.setInterval(()=>{if(document.visibilityState==='visible')void load()},30000);
+   const refresh=()=>{if(document.visibilityState==='visible')void load()};
+   document.addEventListener('visibilitychange',refresh);
+   return()=>{window.clearInterval(timer);document.removeEventListener('visibilitychange',refresh)};
+ },[currentUser?.id,mode,load]);
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
    e.preventDefault();
    if(!currentUser){setAuthModalTab('login');setAuthModalOpen(true);return}
@@ -128,6 +144,10 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
     {loading?<p className="text-sm text-slate-500">Carregando solicitações…</p>:applications.length===0?<p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">Você ainda não solicitou um endereço fiscal. Preencha o formulário abaixo para começar.</p>:<div className="grid gap-3 lg:grid-cols-2">
       {applications.map(app=>{
         const docs=documents.filter(d=>d.request_id===app.id);
+        const contract=contracts.find(c=>c.applicationId===app.id);
+        const order=orders.find(o=>o.resource_id===app.id&&o.livemode);
+        const paid=order?.status==='paid'||(contract?.paymentStatus==='paid'&&contract.paymentIsLive===true);
+        const delivered=contract?.status==='ativo'&&contract.paymentStatus==='paid'&&contract.paymentIsLive===true;
         const canUpload=app.status==='submitted'||app.status==='under_review';
         return <article key={app.id} className="min-w-0 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
@@ -152,7 +172,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
         </article>;
       })}
     </div>}
-    {fiscalContracts.filter(c=>c.userId===currentUser.id&&c.id).map(c=>{
+    {contracts.filter(c=>c.userId===currentUser.id&&c.id).map(c=>{
        const remaining=daysUntil(c.renewalDate);
        const docs=documents.filter(d=>d.contract_id===c.id);
        return <article key={c.id} className="rounded-2xl border border-slate-200 bg-white p-5">
