@@ -210,6 +210,13 @@ Deno.serve(async req=>{
    const id=string(body.applicationId);if(!validUuid(id))throw new Error('Solicitação fiscal inválida.');
    const {data:app,error:appError}=await admin.from('fiscal_applications').select('*').eq('id',id).eq('user_id',user.id).single();
    if(appError||!app||app.status!=='approved')throw new Error('A contratação exige análise cadastral aprovada.');
+   // Never charge a fiscal service that cannot be formally linked to an approved, active unit.
+   const unitQuery=admin.from('fiscal_units').select('id,active').eq('active',true);
+   const {data:verifiedUnit,error:unitError}=app.unit_id
+     ? await unitQuery.eq('id',app.unit_id).maybeSingle()
+     : await unitQuery.eq('name','MVA Coworking — Sede').maybeSingle();
+   if(unitError)throw unitError;
+   if(!verifiedUnit)throw new Error('A unidade fiscal selecionada está indisponível para contratação. A MVA precisa regularizar a unidade antes de cobrar.');
    let priceQuery=admin.from('mva_fiscal_prices').select('*').eq('id',app.plan_id);
    if(!sandboxTester(me.is_admin===true))priceQuery=priceQuery.eq('active',true);
    const {data:p,error:priceErr}=await priceQuery.maybeSingle();
