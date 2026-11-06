@@ -230,7 +230,7 @@ export function FiscalView(){
       </article>;
     })}
    </div>
-   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed fiscal-muted">Planos conforme o catálogo atual da MVA. A contratação e a emissão de documentos dependem da viabilidade do endereço, formalização e confirmação do pagamento. A cobrança estará disponível quando o provedor estiver ativado.</p>
+   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed fiscal-muted">Planos conforme o catálogo atual da MVA. A contratação e a emissão de documentos dependem da viabilidade do endereço, formalização e confirmação do pagamento. O Stripe confirma o pagamento real; o uso do endereço e a entrega dos documentos dependem da aprovação final e da assinatura do contrato pela MVA.</p>
   </section>
 
   {/* Conversion with correct expectations */}
