@@ -43,6 +43,13 @@ export function FiscalOperationsCenter(){
   setLoading(false);
  },[currentUser?.id,showToast]);
  useEffect(()=>{void reload()},[reload]);
+  useEffect(()=>{
+   if(!currentUser)return;
+   const timer=window.setInterval(()=>{if(document.visibilityState==='visible')void reload()},60000);
+   const refresh=()=>{if(document.visibilityState==='visible')void reload()};
+   document.addEventListener('visibilitychange',refresh);
+   return()=>{window.clearInterval(timer);document.removeEventListener('visibilitychange',refresh)};
+  },[currentUser?.id,reload]);
  const review=async(id:string,status:'under_review'|'approved'|'rejected',provider=false)=>{
    setBusy(id);
    const name=provider?'fiscal_provider_requests':'fiscal_applications';
@@ -99,6 +106,7 @@ export function FiscalOperationsCenter(){
   [r.company_name,r.cnpj,r.cnae,r.contact_email].some(x=>x.toLowerCase().includes(search.trim().toLowerCase()))
  ),[requests,search]);
  const pending=requests.filter(r=>r.status==='submitted'||r.status==='under_review').length;
+  const awaitingFormalization=contracts.filter(c=>c.status!=='ativo'&&c.payment_status==='paid'&&c.payment_is_live).length;
  const upcoming=contracts.filter(c=>daysUntil(c.renewal_date)<=30 && daysUntil(c.renewal_date)>=0).length;
  return <section className="space-y-6" aria-label="Administração do endereço fiscal">
   <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
@@ -108,8 +116,8 @@ export function FiscalOperationsCenter(){
       <p className="mt-1 text-sm text-slate-600">Análise de empresas, verificação de documentos, credenciamento e contratos.</p></div>
     <button type="button" onClick={()=>void reload()} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-navy-900"><RefreshCw className="h-4 w-4"/>Atualizar</button>
    </div>
-   <div className="mt-5 grid gap-3 sm:grid-cols-3">
-     {[['Aguardando análise',pending],['Unidades disponíveis',units.filter(u=>u.active).length],['Vencimentos em 30 dias',upcoming]].map(([label,n])=>
+   <div className="mt-5 grid gap-3 sm:grid-cols-4">
+     {[['Aguardando análise',pending],['Pagamentos aguardando formalização',awaitingFormalization],['Unidades disponíveis',units.filter(u=>u.active).length],['Vencimentos em 30 dias',upcoming]].map(([label,n])=>
        <div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-500">{label}</p><strong className="mt-1 block text-2xl text-navy-900">{n}</strong></div>)}
    </div>
   </div>
