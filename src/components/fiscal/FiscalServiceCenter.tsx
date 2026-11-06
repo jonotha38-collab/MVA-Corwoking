@@ -3,6 +3,8 @@ import { Building2, CalendarClock, FileCheck2, FilePlus2, FolderLock, LockKeyhol
 import { supabase } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 import { FISCAL_PLANS, type FiscalPlanId, validCnpj } from '../../lib/fiscal-payment';
+import { rowToFiscal } from '../../lib/mappers';
+import type { FiscalContract } from '../../types';
 
 export type FiscalApplication = {
  id:string; user_id:string; company_name:string; trading_name:string; cnpj:string; cnae:string;
@@ -12,6 +14,7 @@ export type FiscalApplication = {
 };
 type DocumentRow={id:string;request_id:string|null;contract_id:string|null;file_path:string;file_name:string;category:string;verified:boolean;publicly_verifiable:boolean;verification_code:string};
 type Unit={id:string;name:string;street_address:string;city:string;state:string};
+type FiscalOrder={resource_id:string;status:string;livemode:boolean;paid_at:string|null};
 const labels:Record<string,string>={submitted:'Recebida',under_review:'Em análise',approved:'Elegível para contratação',rejected:'Ajustes necessários'};
 const PLAN_IDS: FiscalPlanId[]=['comercial','fiscal','fiscal_ie'];
 const safeError=(e:unknown)=> e instanceof Error?e.message:'Não foi possível concluir. Tente novamente.';
@@ -21,10 +24,12 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
  initialPlan?:FiscalPlanId; initialTerm?:1|12; requireTransfer?:boolean; mode?:'full'|'application'|'dashboard';
  onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
 }) {
- const {currentUser,fiscalContracts,setAuthModalOpen,setAuthModalTab,showToast}=useCoworking();
+ const {currentUser,setAuthModalOpen,setAuthModalTab,showToast}=useCoworking();
  const [applications,setApplications]=useState<FiscalApplication[]>([]);
  const [documents,setDocuments]=useState<DocumentRow[]>([]);
  const [units,setUnits]=useState<Unit[]>([]);
+ const [contracts,setContracts]=useState<FiscalContract[]>([]);
+ const [orders,setOrders]=useState<FiscalOrder[]>([]);
  const [busy,setBusy]=useState(false);
  const [loading,setLoading]=useState(false);
  const [uploading,setUploading]=useState<string|null>(null);
@@ -44,19 +49,30 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
  const load=useCallback(async()=>{
    setLoading(true);
    try {
-     const [unitRes,reqRes,docRes]=await Promise.all([
+     const [unitRes,reqRes,docRes,contractRes,orderRes]=await Promise.all([
        supabase.from('fiscal_units').select('id,name,street_address,city,state').order('name'),
        currentUser?supabase.from('fiscal_applications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
        currentUser?supabase.from('fiscal_private_documents').select('id,request_id,contract_id,file_path,file_name,category,verified,publicly_verifiable,verification_code').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
+       currentUser?supabase.from('fiscal_contracts').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
+       currentUser?supabase.from('mva_checkout_orders').select('resource_id,status,livemode,paid_at').eq('user_id',currentUser.id).eq('kind','fiscal').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
      ]);
-     if(unitRes.error||reqRes.error||docRes.error)throw new Error('Não foi possível carregar o painel de endereço fiscal.');
+     if(unitRes.error||reqRes.error||docRes.error||contractRes.error||orderRes.error)throw new Error('Não foi possível carregar o painel de endereço fiscal.');
      setUnits((unitRes.data||[]) as Unit[]);
      setApplications((reqRes.data||[]) as FiscalApplication[]);
      setDocuments((docRes.data||[]) as DocumentRow[]);
+     setContracts((contractRes.data||[]).map(rowToFiscal));
+     setOrders((orderRes.data||[]) as FiscalOrder[]);
    } catch(e){setError(safeError(e))}
    finally {setLoading(false)}
  },[currentUser?.id]);
  useEffect(()=>{void load()},[load]);
+ useEffect(()=>{
+   if(!currentUser||mode==='application')return;
+   const timer=window.setInterval(()=>{if(document.visibilityState==='visible')void load()},30000);
+   const refresh=()=>{if(document.visibilityState==='visible')void load()};
+   document.addEventListener('visibilitychange',refresh);
+   return()=>{window.clearInterval(timer);document.removeEventListener('visibilitychange',refresh)};
+ },[currentUser?.id,mode,load]);
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
    e.preventDefault();
    if(!currentUser){setAuthModalTab('login');setAuthModalOpen(true);return}
@@ -128,6 +144,10 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
     {loading?<p className="text-sm text-slate-500">Carregando solicitações…</p>:applications.length===0?<p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">Você ainda não solicitou um endereço fiscal. Preencha o formulário abaixo para começar.</p>:<div className="grid gap-3 lg:grid-cols-2">
       {applications.map(app=>{
         const docs=documents.filter(d=>d.request_id===app.id);
+        const contract=contracts.find(c=>c.applicationId===app.id);
+        const order=orders.find(o=>o.resource_id===app.id&&o.livemode);
+        const paid=order?.status==='paid'||(contract?.paymentStatus==='paid'&&contract.paymentIsLive===true);
+        const delivered=contract?.status==='ativo'&&contract.paymentStatus==='paid'&&contract.paymentIsLive===true;
         const canUpload=app.status==='submitted'||app.status==='under_review';
         return <article key={app.id} className="min-w-0 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
@@ -145,23 +165,42 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
               <input type="file" accept=".pdf,.jpg,.jpeg,.png" disabled={uploading!==null} className="sr-only" onChange={e=>{void uploadDocument(app,e.target.files?.[0]||null);e.currentTarget.value=''}}/>
             </label>}
           </div>
-          {app.status==='approved'&&<div className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-            <p className="text-xs font-semibold text-emerald-900">Análise aprovada. Próxima etapa: formalização e pagamento.</p>
-            <button type="button" onClick={()=>onCheckout(app.plan_id,!!app.transfer_from)} className="rounded-lg bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800">Continuar contratação</button>
+          {app.status==='approved'&&<div role="status" className={`space-y-2 rounded-xl border p-3 ${paid?'border-emerald-200 bg-emerald-50':'border-amber-200 bg-amber-50'}`}>
+            <p className={`text-xs font-bold ${paid?'text-emerald-900':'text-amber-900'}`}>
+              {delivered?'Documentos liberados para download':
+               paid?'Pagamento confirmado — formalização em andamento':
+               order?.status==='refunded'||order?.status==='disputed'?'Pagamento interrompido — fale com a MVA':
+               'Elegibilidade aprovada — aguardando pagamento'}
+            </p>
+            <p className={`text-xs leading-relaxed ${paid?'text-emerald-800':'text-amber-800'}`}>
+              {delivered?(app.plan_id==='comercial'?'A MVA concluiu a formalização. O contrato assinado está disponível abaixo.':'A MVA concluiu a conferência humana. A declaração e o contrato assinados estão disponíveis abaixo.'):
+               paid?'A MVA está preparando e validando o contrato e os documentos pertinentes. O uso do endereço ainda não está autorizado; o acesso será liberado após aprovação final.':
+               'O pagamento será realizado pelo Stripe. Você só poderá utilizar o endereço após a formalização e a autorização da MVA.'}
+            </p>
+            {!paid&&order?.status!=='refunded'&&order?.status!=='disputed'&&<button type="button" onClick={()=>onCheckout(app.plan_id,!!app.transfer_from)}
+             className="rounded-lg bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800">
+             {order?.status==='pending'?'Continuar pagamento seguro':'Ir para pagamento seguro'}
+            </button>}
           </div>}
         </article>;
       })}
     </div>}
-    {fiscalContracts.filter(c=>c.userId===currentUser.id&&c.id).map(c=>{
+    {contracts.filter(c=>c.userId===currentUser.id&&c.id).map(c=>{
        const remaining=daysUntil(c.renewalDate);
        const docs=documents.filter(d=>d.contract_id===c.id);
        return <article key={c.id} className="rounded-2xl border border-slate-200 bg-white p-5">
-         <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-bold text-navy-900">{c.companyName} · Contrato</h3>
-           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${remaining<30?'bg-amber-50 text-amber-800':'bg-slate-100 text-navy-800'}`}>Vigência: {remaining<0?'encerrada':`${remaining} dias restantes`}</span>
+         <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="font-bold text-navy-900">{c.companyName} · Contrato</h3>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${c.status==='ativo'?'bg-emerald-50 text-emerald-800':'bg-amber-50 text-amber-800'}`}>
+            {c.status==='ativo'?`Vigência: ${remaining<0?'encerrada':`${remaining} dias restantes`}`:'Aguardando formalização'}
+          </span>
          </div>
-         <p className="mt-2 text-xs text-slate-600">Renovação prevista: {c.renewalDate.split('-').reverse().join('/')}. O vencimento não gera cobrança automática sem autorização e provedor de pagamento configurado.</p>
-         {remaining<=30&&<p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">Consulte a MVA para renovar e manter o serviço regularizado.</p>}
-         <div className="mt-3 flex flex-wrap gap-2">{docs.map(d=><button type="button" key={d.id} onClick={()=>void openFile(d)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-800"><FileCheck2 className="mr-1 inline h-4 w-4"/>{d.file_name}</button>)}</div>
+         {c.status==='ativo'
+          ? <p className="mt-2 text-xs text-slate-600">Autorização formalizada pela MVA. Renovação prevista: {c.renewalDate.split('-').reverse().join('/')}. O vencimento não gera cobrança automática.</p>
+          : <p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">Pagamento recebido; aguarde a conferência e assinatura dos documentos. Ainda não é permitido utilizar o endereço.</p>}
+         {c.status==='ativo'&&remaining<=30&&<p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">Consulte a MVA para renovar e manter o serviço regularizado.</p>}
+         <div className="mt-3 flex flex-wrap gap-2">{docs.map(d=><button type="button" key={d.id} onClick={()=>void openFile(d)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-800"><FileCheck2 className="mr-1 inline h-4 w-4"/>{d.category==='contract'?'Contrato assinado':d.category==='authorization'?'Declaração assinada':d.file_name}</button>)}</div>
+         {c.status==='ativo'&&docs.length>0&&<p className="mt-2 text-xs font-medium text-emerald-700">Documentos aprovados disponíveis em acesso privado, para consulta e download.</p>}
        </article>;
     })}
   </div>}
