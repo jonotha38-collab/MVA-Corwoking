@@ -78,3 +78,4 @@ export function CertificateDialog({ onClose, onChoosePlan }: { onClose: () => vo
     <button type="button" className="action-primary checkout-submit" onClick={onChoosePlan}>Consultar contratação<ArrowRight size={17}/></button>}
   <p className="checkout-fineprint"><ShieldCheck size={15}/>A MVA autoriza o uso do endereço somente após formalização e verificação dos documentos.</p>
  </Dialog>;
+}
