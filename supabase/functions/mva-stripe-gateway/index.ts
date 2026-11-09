@@ -138,7 +138,7 @@ async function customerCheckout(input:{
  if(order?.stripe_checkout_session_id){
   const stripeOpts=accountId?{stripeAccount:accountId}:undefined;
   const previous=await stripe.checkout.sessions.retrieve(order.stripe_checkout_session_id,stripeOpts);
-  if(previous.status==='complete')
+  if(previous.status==='complete'&&order.status==='pending')
    throw new Error('Este pagamento foi enviado ao Stripe e pode estar em confirmação. Aguarde a atualização da solicitação antes de tentar novamente.');
   const pixActive=accountId?false:await pixEnabledOnPlatform(stripe);
   const supportsPix=previous.payment_method_types?.includes('pix')===true;
