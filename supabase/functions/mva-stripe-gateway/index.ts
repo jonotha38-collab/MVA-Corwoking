@@ -296,6 +296,12 @@ Deno.serve(async req=>{
   if(action==='redeem_booking_hours'){
    const bookingId=string(body.bookingId);
    if(!validUuid(bookingId))throw new Error('Reserva inválida.');
+   // Do not combine fiscal discounts/free hours with a separate booking-hour subscription.
+   const {data:fiscalBooking,error:fiscalError}=await admin.from('bookings')
+    .select('fiscal_bonus_hours,fiscal_discount_percent').eq('id',bookingId).eq('user_id',user.id).maybeSingle();
+   if(fiscalError||!fiscalBooking)throw new Error('Reserva não encontrada.');
+   if(Number(fiscalBooking.fiscal_bonus_hours)>0||Number(fiscalBooking.fiscal_discount_percent)>0)
+    throw new Error('Esta reserva já recebeu um benefício de endereço fiscal da MVA e não pode acumular créditos de outro plano.');
    const {data,error}=await admin.rpc('mva_redeem_booking_credit',{p_user:user.id,p_booking:bookingId});
    if(error)throw error;
    return response(data,200,origin);
