@@ -23,8 +23,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   const { addBooking, currentCompany, currentUser, showToast } = useCoworking();
 
   const [date, setDate] = useState(() => addDate(maceioDate(), 1));
-  const [startTime, setStartTime] = useState('09:00');
-  const [endTime, setEndTime] = useState('11:00');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [responsibleName, setResponsibleName] = useState(currentUser?.name || '');
   const [responsibleEmail, setResponsibleEmail] = useState(currentUser?.email || currentCompany.contactEmail);
   const [responsiblePhone, setResponsiblePhone] = useState(currentCompany.contactPhone);
@@ -43,9 +43,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   if (!space) return null;
 
   // Calculate hours
-  const startH = parseInt(startTime.split(':')[0], 10);
-  const endH = parseInt(endTime.split(':')[0], 10);
-  const durationHours = Math.max(1, endH - startH);
+  const startH = startTime ? Number(startTime.slice(0,2)) : 0;
+  const endH = endTime ? Number(endTime.slice(0,2)) : 0;
+  const durationHours = timeAvailable ? Math.max(0, endH - startH) : 0;
 
   const addonPrices: Record<string, number> = {
     'Gravação da Sala & Suporte A/V': 60,
@@ -280,13 +280,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             {/* Total calculation bar */}
             <div className="bg-navy-950 text-white p-4 rounded-xl flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-slate-400 block">{t("Total ( ")}{t(durationHours)}{t("h de locação)")}</span>
-                <div className="text-xs text-slate-300">{t("Base: R$ ")}{t(baseTotal)},00 {addonsTotal > 0 && `+ Adicionais: R$ ${addonsTotal},00`}
+                <span className="text-[11px] text-slate-400 block">{timeAvailable?`Total (${durationHours}h de locação)`:'Selecione data, início e duração'}</span>
+                <div className="text-xs text-slate-300">{timeAvailable?`Base: R$ ${baseTotal.toFixed(2)}`:'O valor será calculado automaticamente.'}{timeAvailable&&addonsTotal>0&&` + Adicionais: R$ ${addonsTotal.toFixed(2)}`}
                 </div>
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-orange-400 uppercase font-semibold block">{t("Valor Final ")}</span>
-                <div className="text-2xl font-bold text-orange-400">{t("R$ ")}{t(totalPrice.toFixed(2))}
+                <div className="text-2xl font-bold text-orange-400">{timeAvailable?`R$ ${totalPrice.toFixed(2)}`:'—'}
                 </div>
               </div>
             </div>
