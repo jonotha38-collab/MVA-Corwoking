@@ -11,6 +11,7 @@ export type FiscalApplication = {
  responsible_name:string; contact_email:string; contact_phone:string; plan_id:FiscalPlanId;
  term_months:1|12; transfer_from:string; unit_id:string|null;
  status:'submitted'|'under_review'|'approved'|'rejected'; review_notes:string; created_at:string;
+ applicant_type:'legacy'|'pf'|'pj'; intake_details:unknown;
 };
 type DocumentRow={id:string;request_id:string|null;contract_id:string|null;file_path:string;file_name:string;category:string;verified:boolean;publicly_verifiable:boolean;verification_code:string};
 type Unit={id:string;name:string;street_address:string;city:string;state:string};
