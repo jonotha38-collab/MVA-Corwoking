@@ -48,3 +48,11 @@ Contrato dos fluxos de **acompanhamento de endereço fiscal** e **reserva de sal
 - Excellence: até duas horas de bônus por mês contratual **nos 3 primeiros meses desde a primeira formalização**, exclusivamente em salas de atendimento próprias para até 3 pessoas. Saldo não é acumulativo e não é transferido; reservas canceladas liberam o saldo daquele ciclo. O servidor decide preço final em uma transação com trava por usuário, sem confiar em valores do frontend.
 - Reserva coberta inteiramente por bônus, sem extras, tem total R$0 e não exige Stripe. Reserva parcialmente coberta paga apenas horas restantes descontadas, mais extras integrais. O registro de reserva não deve ser confundido com comprovante de pagamento.
 - A autorização para utilizar o endereço continua exigindo **aprovação humana** com documentos assinados, mesmo após o Stripe confirmar pagamento.
+
+
+## Stripe Pix e cartão — pagamentos únicos
+- O Checkout hospedado na Stripe usa métodos dinâmicos em BRL para compras únicas de endereço fiscal e locação de salas. **Pix só aparece se estiver disponível e habilitado na conta Stripe correspondente**; o frontend não exibe QR Code falso.
+- A conta principal MVA está no Brasil. A disponibilização de Pix depende das configurações da própria Stripe e da elegibilidade da conta. Os planos recorrentes de horas permanecem com cartão, sem Pix Automático.
+- Um link antigo que aceitava somente cartão pode ser renovado apenas se sua sessão Stripe estiver **aberta ou expirada**. Checkout concluído porém ainda não pago permanece bloqueado para evitar duplicidade até a confirmação ou a falha validada.
+- A conclusão de Checkout por Pix sem liquidação não autoriza serviço. Apenas o webhook com assinatura válida e `payment_status='paid'` marca o pedido como pago. `checkout.session.async_payment_failed` marca falha e permite nova tentativa; reembolsos e disputas seguem a política já estabelecida.
+- A Stripe é a interface de pagamento, inclusive QR Code/copia e cola; o MVA não coleta ou armazena chave Pix, dados bancários ou cartão. Não prometer Pix na interface se o status de habilitação retornado pelo servidor estiver desativado.
