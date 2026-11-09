@@ -1,25 +1,37 @@
 /** Shared, canonical catalog. Prices are integer BRL cents; only the server authorizes charges. */
+/** Shared canonical catalog; Stripe always uses the server-owned database values. */
 export const FISCAL_PLANS = {
-  comercial: { id: 'comercial', name: 'Endereço Comercial', monthlyCents: 2990, fiscal: false, meetingHours: 0 },
-  fiscal: { id: 'fiscal', name: 'Endereço Fiscal', monthlyCents: 8000, fiscal: true, meetingHours: 0 },
-  fiscal_ie: { id: 'fiscal_ie', name: 'Endereço Fiscal com Inscrição Estadual', monthlyCents: 12000, fiscal: true, meetingHours: 2 },
+  // Legacy plans remain readable/payable only for applications submitted before this relaunch.
+  comercial: { id:'comercial',name:'Endereço Comercial (plano anterior)',monthlyCents:2990,fiscal:false,meetingHours:0,annualDiscountPercent:0,roomDiscountPercent:0,bonusHours:0,bonusMonths:0 },
+  fiscal: { id:'fiscal',name:'Endereço Fiscal (plano anterior)',monthlyCents:8000,fiscal:true,meetingHours:0,annualDiscountPercent:0,roomDiscountPercent:0,bonusHours:0,bonusMonths:0 },
+  fiscal_ie: { id:'fiscal_ie',name:'Endereço Fiscal com Inscrição Estadual (plano anterior)',monthlyCents:12000,fiscal:true,meetingHours:2,annualDiscountPercent:0,roomDiscountPercent:0,bonusHours:0,bonusMonths:0 },
+  mva_essencial: { id:'mva_essencial',name:'MVA Essencial',monthlyCents:7990,fiscal:true,meetingHours:0,annualDiscountPercent:10,roomDiscountPercent:5,bonusHours:0,bonusMonths:0 },
+  mva_profissional: { id:'mva_profissional',name:'MVA Profissional',monthlyCents:9190,fiscal:true,meetingHours:0,annualDiscountPercent:10,roomDiscountPercent:10,bonusHours:0,bonusMonths:0 },
+  mva_excellence: { id:'mva_excellence',name:'MVA Excellence',monthlyCents:10300,fiscal:true,meetingHours:2,annualDiscountPercent:10,roomDiscountPercent:15,bonusHours:2,bonusMonths:3 },
 } as const;
-export type FiscalPlanId = keyof typeof FISCAL_PLANS;
-export type FiscalPlan = typeof FISCAL_PLANS[FiscalPlanId];
-export const HEADQUARTERS = 'Rua Dom José Thomaz, 565 - São José, Aracaju - SE, CEP 49015-090';
-export function getPlan(id: unknown): FiscalPlan {
-  if (typeof id !== 'string' || !Object.hasOwn(FISCAL_PLANS, id)) throw new Error('Plano inválido.');
+export const NEW_FISCAL_PLAN_IDS = ['mva_essencial','mva_profissional','mva_excellence'] as const;
+export type FiscalPlanId=keyof typeof FISCAL_PLANS;
+export type FiscalPlan=typeof FISCAL_PLANS[FiscalPlanId];
+export const HEADQUARTERS='Rua Dom José Thomaz, 565 - São José, Aracaju - SE, CEP 49015-090';
+export function getPlan(id:unknown):FiscalPlan{
+  if(typeof id!=='string'||!Object.hasOwn(FISCAL_PLANS,id))throw new Error('Plano inválido.');
   return FISCAL_PLANS[id as FiscalPlanId];
 }
-export type FiscalTermMonths = 1 | 12;
-export function getTermMonths(value: unknown = 12): FiscalTermMonths {
-  if (value !== 1 && value !== 12) throw new Error('Escolha um período de 1 ou 12 meses.');
+export type FiscalTermMonths=1|12;
+export function getTermMonths(value:unknown=12):FiscalTermMonths{
+  if(value!==1&&value!==12)throw new Error('Escolha um período de 1 ou 12 meses.');
   return value;
 }
-export function quotePlan(plan: FiscalPlan, termMonths: FiscalTermMonths, transfer: boolean) {
-  const months = getTermMonths(termMonths);
-  const freeMonths = months === 12 && transfer ? 4 : 0;
-  return { amount: plan.monthlyCents * (months - freeMonths), fullAmount: plan.monthlyCents * months, discount: plan.monthlyCents * freeMonths, termMonths: months, freeMonths, currency: 'brl' as const };
+export function quotePlan(plan:FiscalPlan,termMonths:FiscalTermMonths,transfer:boolean){
+  const months=getTermMonths(termMonths);
+  const fullAmount=plan.monthlyCents*months;
+  // The legacy 4-month transfer campaign replaces, rather than stacks with,
+  // the standard 10% annual discount. Ordinary annual purchases get 10% off.
+  const freeMonths=months===12&&transfer?4:0;
+  const discount=freeMonths>0?plan.monthlyCents*freeMonths:
+    months===12?Math.round(fullAmount*plan.annualDiscountPercent/100):0;
+  return {amount:fullAmount-discount,fullAmount,discount,termMonths:months,
+    freeMonths,annualDiscountPercent:months===12&&!transfer?plan.annualDiscountPercent:0,currency:'brl' as const};
 }
 export interface FiscalCompanyInput { companyName: string; tradingName: string; cnpj: string; contactEmail: string; contactPhone: string; }
 export function validCnpj(value: string): boolean {
