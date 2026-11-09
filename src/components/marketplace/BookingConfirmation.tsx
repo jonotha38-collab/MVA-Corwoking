@@ -38,8 +38,10 @@ export function BookingConfirmation({
   const [creditMinutes,setCreditMinutes]=useState(0);
   const [redeeming,setRedeeming]=useState(false);
   const [creditError,setCreditError]=useState('');
-  const eligibleForCredit=space.isMvaHeadquarters&&space.category==='atendimento'&&booking.addons.length===0;
-  const financiallyConfirmed=creditApplied||(paymentStatus==='paid'&&paymentIsLive);
+  const fiscalCovered=booking.totalPrice===0&&Number(booking.fiscalBonusHours||0)>=booking.durationHours&&booking.durationHours>0&&booking.addons.length===0;
+  const eligibleForCredit=space.isMvaHeadquarters&&space.category==='atendimento'&&booking.addons.length===0
+    &&!(booking.fiscalBonusHours||booking.fiscalDiscountPercent);
+  const financiallyConfirmed=fiscalCovered||creditApplied||(paymentStatus==='paid'&&paymentIsLive);
   useEffect(() => {
     let live = true;
     const load = async () => {
@@ -106,8 +108,8 @@ export function BookingConfirmation({
             <CheckCircle2 className="h-5 w-5" aria-hidden />
           </span>
           <div>
-            <p className="text-sm font-bold text-navy-900">{financiallyConfirmed?'Reserva paga e confirmada':'Reserva registrada — aguardando pagamento'}</p>
-            <p className="text-xs text-slate-600">{financiallyConfirmed?'Seu pagamento ou saldo de horas foi confirmado.':'Escolha uma forma de pagamento para liberar o comprovante financeiro.'}</p>
+            <p className="text-sm font-bold text-navy-900">{fiscalCovered?'Reserva coberta pelo MVA Excellence':financiallyConfirmed?'Reserva paga e confirmada':'Reserva registrada — aguardando pagamento'}</p>
+            <p className="text-xs text-slate-600">{fiscalCovered?'Suas horas bônus deste mês cobriram integralmente a reserva, sem cobrança extra.':financiallyConfirmed?'Seu pagamento ou saldo de horas foi confirmado.':'Escolha uma forma de pagamento para liberar o comprovante financeiro.'}</p>
           </div>
         </div>
         <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-semibold text-emerald-800">
@@ -144,8 +146,14 @@ export function BookingConfirmation({
           </div>
           <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" aria-hidden />
-            <div><span className="block text-[11px] font-medium text-slate-500">{creditApplied?'Coberto pelo plano de horas':paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor da reserva — pagamento não confirmado'}</span>
+            <div><span className="block text-[11px] font-medium text-slate-500">{fiscalCovered?'Coberto pelo bônus fiscal MVA Excellence':creditApplied?'Coberto pelo plano de horas':paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor final da reserva — pagamento não confirmado'}</span>
               <strong className="mt-0.5 block text-sm text-navy-900">{currency(booking.totalPrice)}</strong>
+              {(booking.fiscalBonusHours||0)>0&&<p className="mt-1 text-[11px] font-semibold text-emerald-700">
+               {booking.fiscalBonusHours}h de bônus MVA Excellence aplicadas · não acumulativas
+              </p>}
+              {(booking.fiscalDiscountPercent||0)>0&&<p className="mt-1 text-[11px] text-slate-600">
+               {booking.fiscalDiscountPercent}% de desconto MVA aplicado às horas não cobertas
+              </p>}
             </div>
           </div>
         </div>
@@ -169,7 +177,7 @@ export function BookingConfirmation({
       <div>
         <p className="text-xs font-bold text-navy-900">{financiallyConfirmed?'Reserva paga — comprovante válido':'Agendamento pendente de pagamento'}</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          {creditApplied?'Reserva coberta pelas horas mensais já pagas. A recepção poderá verificar o saldo debitado no seu agendamento.':
+          {fiscalCovered?'Reserva coberta por horas bônus não acumulativas do MVA Excellence; a recepção pode validar o benefício registrado nesta reserva.':creditApplied?'Reserva coberta pelas horas mensais já pagas. A recepção poderá verificar o saldo debitado no seu agendamento.':
            paymentStatus==='paid'&&paymentIsLive?'Seu pagamento real foi confirmado pelo Stripe. A recepção poderá verificar o comprovante financeiro.':
            paymentStatus==='paid'?'Esta reserva foi paga somente em ambiente de testes. Solicite uma nova reserva para pagamento real.':
            'O horário foi registrado, mas ainda não há pagamento confirmado. Efetue o pagamento com Stripe ou utilize horas de um plano elegível antes de usar a sala.'}

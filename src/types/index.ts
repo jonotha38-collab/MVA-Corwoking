@@ -101,6 +101,8 @@ export interface Booking {
   durationHours: number;
   totalPrice: number;
   addons: string[];
+  fiscalBonusHours?: number;
+  fiscalDiscountPercent?: number;
   status: 'confirmada' | 'concluida' | 'cancelada';
   checkIn: boolean;
   createdAt: string;

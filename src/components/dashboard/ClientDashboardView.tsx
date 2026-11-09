@@ -27,6 +27,10 @@ import {
   ExternalLink
 } from 'lucide-react';
 
+type FiscalRoomPerk={active:boolean;planId?:string;roomDiscountPercent?:number;bonusHoursTotal?:number;bonusHoursRemaining?:number;bonusCycleEnd?:string|null};
+const fiscalCovered=(booking:Booking)=>booking.totalPrice===0
+  &&Number(booking.fiscalBonusHours||0)>=booking.durationHours
+  &&booking.durationHours>0&&booking.addons.length===0;
 export const ClientDashboardView: React.FC = () => {
   const { 
     currentCompany, 
@@ -43,6 +47,20 @@ export const ClientDashboardView: React.FC = () => {
   const [selectedVoucher, setSelectedVoucher] = useState<Booking | null>(null);
   const [paidBookingIds, setPaidBookingIds] = useState<Set<string>>(() => new Set());
   const [creditedBookingIds,setCreditedBookingIds]=useState<Set<string>>(() => new Set());
+  const [fiscalRoomPerk,setFiscalRoomPerk]=useState<FiscalRoomPerk|null>(null);
+  useEffect(()=>{
+    if(!currentUser){setFiscalRoomPerk(null);return}
+    let live=true;
+    const refresh=()=>{
+      void supabase.rpc('mva_my_fiscal_room_benefits')
+        .then(({data,error})=>{if(live&&!error)setFiscalRoomPerk(data as FiscalRoomPerk)});
+    };
+    refresh();
+    const onVisible=()=>{if(document.visibilityState==='visible')refresh()};
+    document.addEventListener('visibilitychange',onVisible);
+    const timer=window.setInterval(()=>{if(document.visibilityState==='visible')refresh()},60000);
+    return()=>{live=false;document.removeEventListener('visibilitychange',onVisible);window.clearInterval(timer)};
+  },[currentUser?.id,bookings.length]);
   useEffect(() => {
     if(!currentUser){setPaidBookingIds(new Set());setCreditedBookingIds(new Set());return}
     let mounted=true;
@@ -139,16 +157,26 @@ export const ClientDashboardView: React.FC = () => {
         {/* Hours Balance */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Crédito de Horas ")}</span>
+            <span className="font-bold uppercase tracking-wider text-[11px]">
+               {fiscalRoomPerk?.active?(fiscalRoomPerk.planId==='mva_excellence'?'Bônus de atendimento':'Benefício nas salas'):'Crédito de Horas'}
+              </span>
             <Clock className="w-4 h-4 text-orange-600" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-navy-900">
-              {addressActive ? Math.max(0, currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed) : 0}{t("h")}</span>
-            <span className="text-xs text-slate-500">{t("disponíveis ")}</span>
+              {fiscalRoomPerk?.active
+                ?fiscalRoomPerk.planId==='mva_excellence'
+                  ?`${Number(fiscalRoomPerk.bonusHoursRemaining||0).toLocaleString('pt-BR')}h`
+                  :`${fiscalRoomPerk.roomDiscountPercent}%`
+                :`${addressActive?Math.max(0,currentCompany.meetingHoursAllowance-currentCompany.meetingHoursUsed):0}h`}</span>
+            <span className="text-xs text-slate-500">{fiscalRoomPerk?.active&&fiscalRoomPerk.planId!=='mva_excellence'?'nas salas MVA':'disponíveis'}</span>
           </div>
           <p className="text-[11px] text-slate-400">
-            {t(currentCompany.meetingHoursUsed)}{t("h consumidas de")}{t(currentCompany.meetingHoursAllowance)}{t("h no ciclo atual")}</p>
+            {fiscalRoomPerk?.active
+                ?fiscalRoomPerk.planId==='mva_excellence'
+                  ?`Não acumulativas · ${fiscalRoomPerk.roomDiscountPercent}% de desconto nas demais horas · vencem em ${fiscalRoomPerk.bonusCycleEnd?.split('-').reverse().join('/')||'fim da oferta'}`
+                  :`Desconto válido em salas próprias MVA durante a vigência do contrato fiscal.`
+                :`${currentCompany.meetingHoursUsed}h consumidas de ${currentCompany.meetingHoursAllowance}h no ciclo atual`}</p>
         </div>
 
         {/* Pending Correspondence */}
@@ -329,12 +357,18 @@ export const ClientDashboardView: React.FC = () => {
                     </td>
                     <td className="py-4 px-4">
                       <div className="text-slate-800 font-medium">{b.responsibleName}</div>
+                       {(b.fiscalBonusHours||0)>0&&<div className="mt-1 text-[11px] font-semibold text-emerald-800">
+                        {b.fiscalBonusHours}h de bônus Excellence aplicadas
+                       </div>}
+                       {(b.fiscalDiscountPercent||0)>0&&<div className="text-[11px] text-slate-500">
+                        {b.fiscalDiscountPercent}% de desconto MVA aplicado
+                       </div>}
                       <div className="text-[11px] text-slate-500">{t(b.responsiblePhone)}</div>
                     </td>
                     <td className="py-4 px-4 font-bold text-navy-900 whitespace-nowrap">
                        <div>{t("R$ ")}{t(b.totalPrice.toFixed(2))}</div>
-                       <span className={`mt-1 inline-block text-[10px] font-semibold ${(paidBookingIds.has(b.id)||creditedBookingIds.has(b.id))?'text-emerald-700':'text-amber-700'}`}>
-                         {creditedBookingIds.has(b.id)?'Coberto por plano de horas':paidBookingIds.has(b.id)?'Pago pelo Stripe':'Pagamento não confirmado'}
+                       <span className={`mt-1 inline-block text-[10px] font-semibold ${(paidBookingIds.has(b.id)||creditedBookingIds.has(b.id)||fiscalCovered(b))?'text-emerald-700':'text-amber-700'}`}>
+                         {fiscalCovered(b)?'Bônus MVA Excellence':creditedBookingIds.has(b.id)?'Coberto por plano de horas':paidBookingIds.has(b.id)?'Pago pelo Stripe':'Pagamento não confirmado'}
                        </span>
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
@@ -397,7 +431,7 @@ export const ClientDashboardView: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-scaleUp">
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between no-print">
-              <span className="font-bold text-sm">{(paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))?"Voucher de Acesso • MVA Hub":"Reserva pendente de pagamento"}</span>
+              <span className="font-bold text-sm">{(paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id)||fiscalCovered(selectedVoucher))?"Voucher de Acesso • MVA Hub":"Reserva pendente de pagamento"}</span>
               <button onClick={() => setSelectedVoucher(null)} className="text-slate-400 hover:text-white p-1">
                 <X className="w-5 h-5" />
               </button>
@@ -407,7 +441,7 @@ export const ClientDashboardView: React.FC = () => {
               <div className="border-2 border-dashed border-orange-200 bg-orange-50/30 p-5 rounded-2xl space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[10px] font-bold text-orange-600 uppercase">{t((paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))?"Reserva Paga e Confirmada":"Reserva Registrada — Pagamento Pendente")}</span>
+                    <span className="text-[10px] font-bold text-orange-600 uppercase">{t((paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id)||fiscalCovered(selectedVoucher))?"Reserva Paga e Confirmada":"Reserva Registrada — Pagamento Pendente")}</span>
                     <h3 className="text-base font-bold text-navy-900">{t(selectedVoucher.spaceName)}</h3>
                     <p className="text-slate-500 text-[11px]">{t(selectedVoucher.coworkingName)}</p>
                   </div>
@@ -435,11 +469,11 @@ export const ClientDashboardView: React.FC = () => {
                   </div>
                 </div>
 
-                {(paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))&&selectedVoucher.status!=='cancelada'?
+                {(paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id)||fiscalCovered(selectedVoucher))&&selectedVoucher.status!=='cancelada'?
                  <div className="pt-3 border-t border-orange-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                    <QrCode className="w-12 h-12 p-1 bg-white border border-slate-300 rounded" />
-                   <div className="text-[11px] text-slate-500"><span>Pagamento validado</span><strong className="block text-navy-900">Check-in na recepção</strong></div>
+                   <div className="text-[11px] text-slate-500"><span>{fiscalCovered(selectedVoucher)?'Bônus Excellence confirmado':'Pagamento validado'}</span><strong className="block text-navy-900">Check-in na recepção</strong></div>
                   </div>
                   <button onClick={() => window.print()} className="px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-semibold flex items-center gap-1.5">
                    <Printer className="w-3.5 h-3.5 text-orange-600"/> Imprimir
