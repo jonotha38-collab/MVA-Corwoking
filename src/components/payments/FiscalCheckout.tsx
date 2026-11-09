@@ -4,6 +4,7 @@ import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
 import { getPlan, quotePlan, money, validCnpj, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
 import { supabase } from '../../lib/supabase';
+import { matchesFiscalApplication } from '../../lib/fiscal-application-flow';
 import { Dialog } from '../ui/Dialog';
 import { StripeCheckoutAction } from './StripeCheckoutAction';
 
@@ -25,10 +26,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
  const [paymentIsLive,setPaymentIsLive]=useState(false);
  const [saving,setSaving]=useState(false);
  const [requestError,setRequestError]=useState('');
- const matchesSelection=(a:Application)=>
-  a.plan_id===planId&&a.term_months===initialTerm
-  &&(initialTerm!==12||(a.transfer_from.trim().length>=3)===transfer)
-  &&(!applicationId||a.id===applicationId);
+ const matchesSelection=(a:Application)=>matchesFiscalApplication(a,{planId,termMonths:initialTerm,transfer,applicationId});
  const [termsAccepted,setTermsAccepted]=useState(false);
  const [company,setCompany]=useState({
    company_name:'',cnpj:'em abertura',cnae:'',
