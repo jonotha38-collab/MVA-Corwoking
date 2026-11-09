@@ -4,11 +4,13 @@ import { supabase } from '../../lib/supabase';
 import { fiscalApplicationQueue, type FiscalQueue } from '../../lib/fiscal-application-flow';
 import { useCoworking } from '../../context/CoworkingContext';
 import type { FiscalApplication } from '../fiscal/FiscalServiceCenter';
+import { FiscalIntakeReview, missingFiscalDocuments } from './FiscalIntakeReview';
+import type { FiscalDocumentKind } from '../../lib/fiscal-intake';
 
 type Provider={id:string;owner_id:string;space_id:string;details:string;status:'submitted'|'approved'|'rejected';admin_notes:string;created_at:string};
 type Unit={id:string;name:string;street_address:string;active:boolean;approved_at:string|null};
 type Contract={id:string;user_id:string;company_name:string;cnpj:string;renewal_date:string;status:string;payment_status:string;payment_is_live:boolean;plan_id:string|null;formalized_at:string|null;application_id:string|null};
-type Doc={id:string;request_id:string|null;contract_id:string|null;file_path:string;file_name:string;category:string;verified:boolean;publicly_verifiable:boolean;verification_code:string};
+type Doc={id:string;request_id:string|null;contract_id:string|null;file_path:string;file_name:string;category:string;verified:boolean;publicly_verifiable:boolean;verification_code:string;document_kind:FiscalDocumentKind|null;signer_index:number|null};
 type FiscalOrder={resource_id:string;status:string;livemode:boolean;paid_at:string|null};
 const FISCAL_QUEUES:{key:FiscalQueue;label:string}[]=[
  {key:'pending',label:'Em análise'},
@@ -40,7 +42,7 @@ export function FiscalOperationsCenter(){
     supabase.from('fiscal_provider_requests').select('*').order('created_at',{ascending:false}).limit(200),
     supabase.from('fiscal_contracts').select('id,user_id,company_name,cnpj,renewal_date,status,payment_status,payment_is_live,plan_id,formalized_at,application_id').order('renewal_date').limit(500),
     supabase.from('fiscal_units').select('id,name,street_address,active,approved_at').order('name'),
-    supabase.from('fiscal_private_documents').select('id,request_id,contract_id,file_path,file_name,category,verified,publicly_verifiable,verification_code').order('created_at',{ascending:false}).limit(500),
+    supabase.from('fiscal_private_documents').select('id,request_id,contract_id,file_path,file_name,category,verified,publicly_verifiable,verification_code,document_kind,signer_index').order('created_at',{ascending:false}).limit(500),
     supabase.from('mva_checkout_orders').select('resource_id,status,livemode,paid_at').eq('kind','fiscal').order('created_at',{ascending:false}).limit(500),
   ]);
   if(ar.error||pr.error||cr.error||ur.error||dr.error||orderRes.error)showToast('Não foi possível carregar todos os registros fiscais. Verifique suas permissões.','error');
@@ -76,7 +78,7 @@ export function FiscalOperationsCenter(){
    const data=provider?{status,admin_notes:(notes[id]||'').slice(0,2000)}:
      {status,review_notes:(notes[id]||'').slice(0,2000)};
    const {error}=await supabase.from(name).update(data).eq('id',id);
-   if(error)showToast('Não foi possível alterar o estado. Confira o registro e a elegibilidade da unidade.','error');
+   if(error)showToast(error.message||'Não foi possível alterar o estado. Confira os registros e documentos.','error');
    else {
      showToast('Análise registrada.','success');
      await reload();
@@ -163,16 +165,17 @@ export function FiscalOperationsCenter(){
     const attached=docs.filter(d=>d.request_id===r.id);
     const payment=orders.find(o=>o.resource_id===r.id);
     const paid=paidApplications.has(r.id);
+    const missing=missingFiscalDocuments(r,attached);
     return <article key={r.id} className="space-y-3 rounded-xl border border-slate-200 p-4">
      <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0"><h4 className="break-words text-sm font-bold text-navy-900">{r.company_name}</h4>
-        <p className="mt-1 text-xs text-slate-500">CNPJ {r.cnpj} · CNAE {r.cnae} · {r.term_months} meses</p>
+        <p className="mt-1 text-xs text-slate-500">{r.applicant_type==='pf'?'Pessoa Física':'CNPJ '+r.cnpj} · Atividade {r.cnae} · {r.term_months} {r.term_months===1?'mês':'meses'}</p>
         <p className="mt-1 text-xs text-slate-600">{r.responsible_name} · {r.contact_email}</p></div>
       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${paid?'bg-emerald-100 text-emerald-900':r.status==='rejected'?'bg-rose-100 text-rose-800':'bg-slate-100 text-navy-800'}`}>
         {paid?'Pagamento confirmado':r.status==='approved'?'Aprovada · Aguardando pagamento':labels[r.status]}
        </span>
      </div>
-     <div className="flex flex-wrap gap-2">{attached.map(d=><button key={d.id} type="button" onClick={()=>void openDoc(d)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs text-blue-700"><FolderLock className="h-4 w-4"/>{d.file_name}</button>)}</div>
+     <FiscalIntakeReview application={r} docs={attached} onOpen={d=>void openDoc(attached.find(item=>item.id===d.id)!)}/>
      {r.status==='approved'
        ? <p className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">Parecer da equipe: {r.review_notes||'Sem observações.'}</p>
        : <label className="block space-y-1"><span className="text-xs font-semibold text-slate-600">Parecer da equipe</span>
@@ -181,7 +184,7 @@ export function FiscalOperationsCenter(){
             placeholder="Motivo da rejeição, pendências documentais e observações de viabilidade…"/></label>}
      {(r.status==='submitted'||r.status==='under_review')&&<div className="flex flex-wrap gap-2">
        <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">Em análise</button>
-       <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'approved')} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white"><CheckCircle2 className="mr-1 inline h-4 w-4"/>Aprovar elegibilidade</button>
+       <button type="button" disabled={busy!==null||missing.length>0} onClick={()=>void review(r.id,'approved')} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white"><CheckCircle2 className="mr-1 inline h-4 w-4"/>Aprovar elegibilidade</button>
        <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'rejected')} className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700"><XCircle className="mr-1 inline h-4 w-4"/>Rejeitar solicitação</button>
       </div>}
      {r.status==='rejected'&&<button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')}
