@@ -97,7 +97,7 @@ export function FiscalApplicantForm({account,planId,term,transfer,onSubmitted}:{
      responsible_name:type==='pf'?pf.full_name.trim():pj.signers[0].name.trim(),
      contact_email:contact.email.trim(),contact_phone:contact.phone.trim(),
      plan_id:planId,term_months:term,transfer_from:transfer?transferFrom.trim():'',
-     applicant_type:type,intake_details:type==='pf'?pf:pj,terms_version:'2026-10-30'
+     applicant_type:type,intake_details:type==='pf'?pf:pj,terms_version:'2026-11-09'
     }).select('id,company_name,plan_id,term_months,transfer_from,status,applicant_type,intake_details').single();
     if(insertError||!data)throw new Error('Não foi possível registrar o pedido. Confira os dados e tente novamente.');
     app=data as CreatedFiscalApplication;
@@ -248,18 +248,16 @@ export function FiscalMissingDocuments({application,accountId}:{
   if(loadError){setError('Não foi possível conferir os documentos enviados.');return}
   setUploaded((data||[]) as DocRow[]);setLoading(false);
  };
- const [requestKey,setRequestKey]=useState(application.id);
- if(requestKey!==application.id){setRequestKey(application.id);setUploaded([]);setLoading(true)}
- // This effect fetches only the current applicant's private attachment metadata.
- // The RLS policy protects the response even if someone changes the request ID.
- // eslint-disable-next-line react-hooks/exhaustive-deps
- useEffect(()=>{void refresh()},[application.id]);
+ // Read only the applicant's private metadata. The RLS policy protects the query.
+ useEffect(()=>{setUploaded([]);setLoading(true);void refresh()},[application.id]);
  const missing=required.filter(req=>!uploaded.some(d=>d.document_kind===req.kind&&d.signer_index===req.signerIndex));
- const upload=async(req:RequiredDocument,file:File|null)=>{
-  if(!file)return;
+ const upload=async(req:RequiredDocument,files:File[])=>{
+  if(!files.length)return;
   setBusy(keyFor(req));setError('');
-  try{await uploadDoc(application.id,accountId,req.kind,req.signerIndex,file);await refresh()}
-  catch(e){setError(e instanceof Error?e.message:'Não foi possível anexar o documento.')}
+  try{
+   for(const file of files)await uploadDoc(application.id,accountId,req.kind,req.signerIndex,file);
+   await refresh();
+  }catch(e){setError(e instanceof Error?e.message:'Não foi possível anexar o documento.')}
   finally{setBusy('')}
  };
  return <div className="space-y-3 rounded-xl border border-orange-200 bg-orange-50 p-4">
@@ -269,7 +267,7 @@ export function FiscalMissingDocuments({application,accountId}:{
   {!loading&&missing.map(req=><label key={keyFor(req)} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3">
    <span className="text-xs font-semibold text-navy-900">{req.label}</span>
    <input type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-    disabled={busy!==''} onChange={e=>{void upload(req,e.target.files?.[0]||null);e.currentTarget.value=''}}
+    multiple={req.kind==='contract_amendments'} disabled={busy!==''} onChange={e=>{void upload(req,Array.from(e.target.files||[]));e.currentTarget.value=''}}
     className="block min-w-0 max-w-full text-xs text-slate-700 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:font-semibold"/>
   </label>)}
   {busy&&<p role="status" className="text-xs text-orange-800">Enviando arquivo com segurança…</p>}
