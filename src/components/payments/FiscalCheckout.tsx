@@ -70,10 +70,14 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
      <dl className="checkout-prices">
        <div><dt>Vigência</dt><dd>{initialTerm===12?'12 meses':'1 mês'}</dd></div>
        <div><dt>Valor normal</dt><dd>{money(quote.fullAmount,language)}</dd></div>
-       {quote.discount>0&&<div><dt>Campanha de transferência</dt><dd>− {money(quote.discount,language)}</dd></div>}
+       {quote.discount>0&&<div><dt>{quote.freeMonths>0?'Campanha de transferência (4 meses)':'Desconto anual de 10%'}</dt><dd>− {money(quote.discount,language)}</dd></div>}
        <div className="checkout-total"><dt>Valor total</dt><dd>{money(quote.amount,language)}</dd></div>
      </dl>
      <p className="checkout-billing-note">Cobrança única para o período escolhido. Não é assinatura com renovação automática.</p>
+     {plan.bonusHours>0&&<div className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs leading-5 text-orange-950">
+      <strong>MVA Excellence:</strong> 2 horas de bônus por mês em sala de atendimento para até 3 pessoas nos três primeiros meses após a formalização, durante a vigência do contrato. <strong>Não acumulativas:</strong> horas não utilizadas expiram ao fim de cada mês contratual. Outras reservas nas salas próprias MVA têm 15% de desconto.
+     </div>}
+     {plan.roomDiscountPercent>0&&plan.bonusHours===0&&<p className="checkout-billing-note">Benefício durante a vigência do contrato: {plan.roomDiscountPercent}% de desconto na locação de salas próprias da MVA, aplicado na reserva.</p>}
      <div className="checkout-security"><LockKeyhole size={16}/><span>Os dados do cartão são coletados pelo Stripe, nunca pela MVA.</span></div>
    </aside>
    <section className="checkout-content">
@@ -104,7 +108,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
        {other?.applicant_type==='pj'&&(other.status==='submitted'||other.status==='under_review')&&
           <FiscalMissingDocuments application={other as unknown as CreatedFiscalApplication} accountId={currentUser.id}/>}
        {(other?.status==='submitted'||other?.status==='under_review'||other?.status==='rejected')&&<a href={contact} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-xs font-bold text-navy-900">Falar com a equipe MVA</a>}
-       <button type="button" onClick={()=>{onClose();setActiveTab('fiscal');document.getElementById('minha-area-fiscal')?.scrollIntoView({behavior:'smooth'})}}
+       <button type="button" onClick={()=>{onClose();setActiveTab('fiscal-status')}}
         className="ml-3 text-xs font-semibold text-amber-900 underline underline-offset-2">Ver minhas solicitações</button>
      </div>}
      {currentUser&&!loading&&match&&<div className="space-y-4">
