@@ -164,7 +164,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
             {canUpload&&app.applicant_type==='pj'&&<button type="button" onClick={()=>onCheckout(app.plan_id,app.term_months===12&&!!app.transfer_from,app.term_months,app.id)}
               className="inline-flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-xs font-semibold text-orange-900 hover:bg-orange-100">
              <Upload className="h-4 w-4"/>Conferir e completar documentos societários</button>}
-             {canUpload&&<label className="inline-flex max-w-full cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-navy-900 hover:bg-slate-50">
+             {canUpload&&app.applicant_type!=='pj'&&<label className="inline-flex max-w-full cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-navy-900 hover:bg-slate-50">
               <Upload className="h-4 w-4"/>{uploading===app.id?'Enviando…':'Anexar documento'}
               <input type="file" accept=".pdf,.jpg,.jpeg,.png" disabled={uploading!==null} className="sr-only" onChange={e=>{void uploadDocument(app,e.target.files?.[0]||null);e.currentTarget.value=''}}/>
             </label>}
