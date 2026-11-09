@@ -55,6 +55,7 @@ export function FiscalView(){
  const [checkoutOpen,setCheckoutOpen]=useState(false);
  const [certificateOpen,setCertificateOpen]=useState(false);
  const [resumeOrderId,setResumeOrderId]=useState<string>();
+ const [checkoutApplicationId,setCheckoutApplicationId]=useState<string>();
  const [units,setUnits]=useState<ServiceUnit[]>([]);
  const [unitsLoading,setUnitsLoading]=useState(true);
  const [returnOrderId]=useState(()=>new URL(window.location.href).searchParams.get('fiscal_order'));
@@ -82,8 +83,14 @@ export function FiscalView(){
 
  // No separate fiscal application form: choose a plan and go to checkout.
  // The payment service must independently validate eligibility before activating contracts.
- const start=(id:FiscalPlanId)=>{
+ const start=(id:FiscalPlanId,approved?:{applicationId:string;term:1|12;transfer:boolean})=>{
    setSelectedPlan(id);
+   setCheckoutApplicationId(approved?.applicationId);
+   if(approved){
+     // Resume the approved application with its own billing term, not the catalog selection.
+     setTerm(approved.term);
+     setTransfer(approved.term===12&&approved.transfer);
+   }
    setResumeOrderId(undefined);
    setCheckoutOpen(true);
  };
@@ -315,12 +322,12 @@ export function FiscalView(){
        <button type="button" aria-expanded={clientAreaOpen} onClick={()=>setClientAreaOpen(v=>!v)} className="flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl border fiscal-line fiscal-surface px-5 py-4 text-left text-sm font-bold fiscal-ink">
         <span className="flex min-w-0 items-center gap-2"><FileCheck2 className="h-5 w-5 shrink-0 text-orange-600"/> Acompanhar solicitações e documentos</span><ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${clientAreaOpen?'rotate-180':''}`}/>
        </button>
-       {clientAreaOpen&&<FiscalServiceCenter mode="dashboard" initialPlan={selectedPlan} onCheckout={id=>start(id)}/>}
+       {clientAreaOpen&&<FiscalServiceCenter mode="dashboard" initialPlan={selectedPlan} onCheckout={(id,appTransfer,appTerm,applicationId)=>start(id,{applicationId,term:appTerm,transfer:appTransfer})}/>}
     </div>}
   </div>
 
-  {checkoutOpen&&<FiscalCheckout planId={selectedPlan} initialTerm={term} transfer={term===12&&transfer} resumeOrderId={resumeOrderId}
-    onClose={()=>{setCheckoutOpen(false);setResumeOrderId(undefined)}} onPaid={()=>{setClientAreaOpen(true);showToast('Status do pagamento atualizado.','info')}}/>}
+  {checkoutOpen&&<FiscalCheckout planId={selectedPlan} initialTerm={term} transfer={term===12&&transfer} applicationId={checkoutApplicationId} resumeOrderId={resumeOrderId}
+    onClose={()=>{setCheckoutOpen(false);setResumeOrderId(undefined);setCheckoutApplicationId(undefined)}} onPaid={()=>{setClientAreaOpen(true);showToast('Status do pagamento atualizado.','info')}}/>}
   {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);start('fiscal')}}/>}
  </div>;
 }
