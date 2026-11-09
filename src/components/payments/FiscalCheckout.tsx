@@ -78,7 +78,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
       <strong>MVA Excellence:</strong> 2 horas de bônus por mês em sala de atendimento para até 3 pessoas nos três primeiros meses após a formalização, durante a vigência do contrato. <strong>Não acumulativas:</strong> horas não utilizadas expiram ao fim de cada mês contratual. Outras reservas nas salas próprias MVA têm 15% de desconto.
      </div>}
      {plan.roomDiscountPercent>0&&plan.bonusHours===0&&<p className="checkout-billing-note">Benefício durante a vigência do contrato: {plan.roomDiscountPercent}% de desconto na locação de salas próprias da MVA, aplicado na reserva.</p>}
-     <div className="checkout-security"><LockKeyhole size={16}/><span>Os dados do cartão são coletados pelo Stripe, nunca pela MVA.</span></div>
+     <div className="checkout-security"><LockKeyhole size={16}/><span>O Stripe processa os dados de pagamento. A MVA não coleta números de cartão ou credenciais bancárias.</span></div>
    </aside>
    <section className="checkout-content">
     <div className="checkout-form space-y-5">
@@ -116,6 +116,9 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
          <FileCheck2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700"/>
          <div><strong className="text-sm text-emerald-900">Contratante elegível para a contratação</strong>
            <p className="mt-1 text-xs leading-relaxed text-emerald-800">{match.company_name}. Os documentos finais dependem do contrato e da confirmação financeira.</p></div>
+       </div>
+       <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-700">
+        <strong>Formas de pagamento:</strong> o Stripe apresenta as opções habilitadas para sua compra. Pix, quando disponível, gera QR Code ou código copia e cola. Pagar ou visualizar o QR Code não libera o endereço: o pagamento precisa ser confirmado e a documentação aprovada pela MVA.
        </div>
        {paymentStatus==='paid'?<div role="status" className="flex items-start gap-2 rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-900">
           <CheckCircle2 className="h-5 w-5 shrink-0"/>{paymentIsLive?'Pagamento real confirmado. A MVA concluirá a formalização antes de autorizar o endereço.':'Pagamento de teste confirmado: nenhuma cobrança real ou liberação de endereço foi realizada.'}

@@ -93,6 +93,23 @@ async function priceOfOwner(planId:string,allowInactiveTest=false){
  if(error)throw error;if(!data)throw new Error('Este plano ainda não foi ativado pela MVA.');
  return data;
 }
+// Pix is enabled in the merchant Stripe Dashboard, never by a browser flag.
+// A failed configuration lookup must never interrupt existing card payments.
+let pixCache:{value:boolean,expires:number}|null=null;
+async function pixEnabledOnPlatform(stripe:Stripe):Promise<boolean>{
+ if(pixCache&&pixCache.expires>Date.now())return pixCache.value;
+ try{
+  const configs=await stripe.paymentMethodConfigurations.list({active:true,limit:20});
+  const defaultConfig=configs.data.find(x=>x.is_default);
+  const pix=defaultConfig?.pix;
+  const enabled=pix?.available===true&&pix?.display_preference?.value==='on';
+  pixCache={value:enabled,expires:Date.now()+30_000};
+  return enabled;
+ }catch(err){
+  console.warn('Pix configuration unavailable; allowing existing payment methods.',err instanceof Error?err.message:'lookup error');
+  return false;
+ }
+}
 function successInfo(session:Stripe.Checkout.Session,orderId?:string){
  if(!session.url)throw new Error('O Stripe não retornou uma página de pagamento.');
  return {url:session.url,sessionId:session.id,orderId,livemode:session.livemode};
@@ -115,9 +132,32 @@ async function customerCheckout(input:{
    throw new Error('Este pedido já possui pagamento registrado. Consulte o histórico.');
  if(order&&(order.stripe_account_id!==accountId || order.amount_cents!==amountCents))
    throw new Error('O valor ou recebedor mudou. Peça revisão à MVA antes de pagar.');
- if(order&&order.stripe_checkout_url&&order.session_expires_at
-    &&new Date(order.session_expires_at).getTime()>Date.now()+60000)
-   return {url:order.stripe_checkout_url,sessionId:order.stripe_checkout_session_id,orderId:order.id,livemode:order.livemode};
+ // Existing sessions were card-only. If Pix is activated later, replace only an
+ // OPEN session with a new dynamic Checkout. A completed session may still be
+ // awaiting an asynchronous Pix confirmation: NEVER create a duplicate charge.
+ if(order?.stripe_checkout_session_id){
+  const stripeOpts=accountId?{stripeAccount:accountId}:undefined;
+  const previous=await stripe.checkout.sessions.retrieve(order.stripe_checkout_session_id,stripeOpts);
+  if(previous.status==='complete'&&order.status==='pending')
+   throw new Error('Este pagamento foi enviado ao Stripe e pode estar em confirmação. Aguarde a atualização da solicitação antes de tentar novamente.');
+  const pixActive=accountId?false:await pixEnabledOnPlatform(stripe);
+  const supportsPix=previous.payment_method_types?.includes('pix')===true;
+  const keepOpen=previous.status==='open' && order.status==='pending'
+   && (previous.expires_at||0)>Math.floor(Date.now()/1000)+60
+   && previous.metadata?.mva_dynamic_methods==='v1'
+   && (!pixActive||supportsPix);
+  if(keepOpen&&previous.url)
+   return {url:previous.url,sessionId:previous.id,orderId:order.id,livemode:previous.livemode};
+  // Stripe confirms that the session is still open or expired; never expire
+  // a completed Checkout or a payment awaiting bank confirmation.
+  if(previous.status==='open')await stripe.checkout.sessions.expire(previous.id,{},stripeOpts);
+  // Reclaim only this order / previous session, after it can no longer be paid.
+  const {data:updated,error:releaseError}=await admin.from('mva_checkout_orders')
+   .update({session_expires_at:new Date(Date.now()-1000).toISOString(),stripe_checkout_url:null,updated_at:new Date().toISOString()})
+   .eq('id',order.id).eq('stripe_checkout_session_id',previous.id)
+   .in('status',['pending','expired','failed']).select('id').maybeSingle();
+  if(releaseError||!updated)throw new Error('O pedido foi atualizado. Atualize o painel antes de tentar novamente.');
+ }
  if(!order){
   const {data:newOrder,error}=await admin.from('mva_checkout_orders').insert({
    kind,user_id:userId,resource_id:resourceId,amount_cents:amountCents,
@@ -137,12 +177,14 @@ async function customerCheckout(input:{
  let created:Stripe.Checkout.Session|null=null;
  try{
   created=await stripe.checkout.sessions.create({
-   mode:'payment',allowed_payment_method_types:['card'],
+   // Dynamic Checkout uses the activated payment methods in the Stripe
+   // Dashboard (card and Pix after merchant activation).
+   mode:'payment',
    customer_email:email,
    client_reference_id:order.id,
    line_items:[{price_data:{currency:'brl',unit_amount:amountCents,
      product_data:{name:title}},quantity:1}],
-   metadata:{mva_kind:kind,mva_order_id:order.id,mva_resource_id:resourceId,...meta},
+   metadata:{mva_kind:kind,mva_order_id:order.id,mva_resource_id:resourceId,mva_dynamic_methods:'v1',...meta},
    payment_intent_data:{metadata:{mva_kind:kind,mva_order_id:order.id}},
    success_url:checkoutUrl(page,'success',order.id),
    cancel_url:checkoutUrl(page,'canceled',order.id),
@@ -178,10 +220,11 @@ Deno.serve(async req=>{
    }
    const stripeAccountVerified=credentialsReady() && await verifyPrimaryStripeAccount();
   const gateway=flagsReady(cfg,testAdmin)&&stripeAccountVerified;
+   const pixAvailable=gateway?await pixEnabledOnPlatform(stripeClient()):false;
    return response({mode:'hosted_checkout',checkout:gateway,
      sandbox:Deno.env.get('STRIPE_BILLING_MODE')==='test',
      sandboxTester:sandboxTester(testAdmin),
-     fiscal:gateway,booking:gateway,
+     fiscal:gateway,booking:gateway,pixAvailable,
      owner:gateway&&cfg.owner_subscriptions_enabled,
      portal:credentialsReady(),
      connect:gateway&&cfg.connect_enabled&&connectedWebhookReady(),
