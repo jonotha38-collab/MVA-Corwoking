@@ -287,13 +287,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-orange-400 uppercase font-semibold block">{t("Valor Final ")}</span>
+                <span className="text-[10px] text-orange-400 uppercase font-semibold block">Valor de referência</span>
                 <div className="text-2xl font-bold text-orange-400">{timeAvailable?brl(totalPrice):'—'}
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900" role="note"><strong>Pagamento seguro após o agendamento.</strong> O horário será registrado primeiro. Depois, escolha pagar pelo Stripe ou utilizar horas de um plano MVA elegível. Reservas de parceiros dependem da habilitação de recebimentos do responsável.</div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900" role="note">
+              <strong>Preço de referência antes dos benefícios.</strong> Se você tiver contrato fiscal ativo com a MVA, o desconto do seu plano e as horas bônus elegíveis serão calculados pelo servidor na confirmação. O valor final será apresentado no comprovante; só haverá cobrança pelo Stripe se restar algo a pagar. Adicionais não recebem desconto. Reservas de parceiros dependem de recebimentos habilitados.
+             </div>
 
             {/* Footer Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -306,7 +308,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 type="submit"
                 disabled={!timeAvailable||submitting}
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >{submitting?'Registrando reserva…':t("Continuar para pagamento ")}</button>
+              >{submitting?'Registrando reserva…':'Confirmar horário e ver valor final'}</button>
             </div>
           </form>
         )}
