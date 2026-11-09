@@ -337,7 +337,7 @@ export const ClientDashboardView: React.FC = () => {
                        </div>}
                        {(b.fiscalDiscountPercent||0)>0&&<div className="text-[11px] text-slate-500">
                         {b.fiscalDiscountPercent}% de desconto MVA aplicado
-                       </div>
+                       </div>}
                       <div className="text-[11px] text-slate-500">{t(b.responsiblePhone)}</div>
                     </td>
                     <td className="py-4 px-4 font-bold text-navy-900 whitespace-nowrap">
