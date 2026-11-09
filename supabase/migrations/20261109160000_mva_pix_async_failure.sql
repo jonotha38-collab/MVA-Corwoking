@@ -121,6 +121,5 @@ begin
 
  return jsonb_build_object('processed',true);
 end;
-$function$
-
+$function$;
 commit;
