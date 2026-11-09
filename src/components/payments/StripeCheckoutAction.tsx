@@ -31,7 +31,7 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
   return()=>{cancelled=true};
  },[action,currentUser?.id]);
  const enabled=!!status?.[FEATURE[action]];
- const oneTimeCheckout=action==='checkout_fiscal'||action==='checkout_booking';
+
  const trigger=async()=>{
   if(!currentUser){setAuthModalTab('login');setAuthModalOpen(true);return}
   if(!enabled||busy)return;
@@ -71,7 +71,7 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
      {busy?'Conectando ao Stripe…':!enabled?(status?.sandbox?'Indisponível para esta conta (teste)':'Pagamento ainda indisponível'):(label||defaultLabels[action])+(status?.sandbox?' (teste)':'')}
      {enabled&&!busy&&<ArrowRight className="h-4 w-4"/>}
    </button>
-   {enabled&&oneTimeCheckout&&status?.pixAvailable&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-200">
+   {enabled&&action==='checkout_fiscal'&&status?.pixAvailable&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-200">
      <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0"/>Pix e cartão disponíveis no Stripe. Se escolher Pix, aguarde a confirmação bancária antes de considerar o pagamento concluído.
    </p>}
    {enabled&&status?.sandbox&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-sky-800 dark:text-sky-200">
