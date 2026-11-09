@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AlertCircle, ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, RefreshCw } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { contiguousEndOptions, hourOf, shortTime, type RoomSlot } from '../../lib/booking-slot-rules';
@@ -26,13 +26,6 @@ export function RoomAvailabilityPicker({spaceId,date,startTime,endTime,onDate,on
  const [updatedAt,setUpdatedAt]=useState('');
  const from=addDate(today,offset);
  const days=useMemo(()=>Array.from({length:7},(_,i)=>addDate(from,i)).filter(d=>d<=addDate(today,60)),[from,today]);
- const load=useCallback(async()=>{
-  setLoading(true);setError('');
-  const {data,error:rpcError}=await supabase.rpc('mva_room_availability',{p_space_id:spaceId,p_from:from,p_days:days.length});
-  if(rpcError){setSlots([]);setError('Não foi possível consultar os horários desta sala. Tente novamente.');}
-  else {setSlots((data||[]) as RoomSlot[]);setUpdatedAt(new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date()));}
-  setLoading(false);
- },[spaceId,from,days.length]);
  useEffect(()=>{let alive=true;setLoading(true);setError('');
   void supabase.rpc('mva_room_availability',{p_space_id:spaceId,p_from:from,p_days:days.length})
    .then(({data,error:rpcError})=>{if(!alive)return;
@@ -84,7 +77,7 @@ export function RoomAvailabilityPicker({spaceId,date,startTime,endTime,onDate,on
     </div>
    </div>
    <p className="text-xs font-semibold capitalize text-navy-900">{dateText(from,{month:'long',year:'numeric'})}</p>
-   <div className="grid grid-cols-7 gap-1.5 sm:gap-2" role="group" aria-label="Dias disponíveis para agendamento">
+   <div className="flex gap-2 overflow-x-auto pb-2" role="group" aria-label="Dias disponíveis para agendamento">
     {days.map(day=>{
      const daySlots=slots.filter(s=>s.booking_date===day);
      const free=daySlots.filter(s=>s.available).length;
@@ -92,7 +85,7 @@ export function RoomAvailabilityPicker({spaceId,date,startTime,endTime,onDate,on
      const selected=day===date;
      return <button key={day} type="button" disabled={disabled} aria-pressed={selected} aria-label={dateText(day,{weekday:'long',day:'numeric',month:'long'})+', '+(loading?'consultando':free?'disponível':'indisponível')}
       onClick={()=>selectDate(day)}
-      className={`flex min-h-[78px] flex-col items-center justify-center gap-1 rounded-xl border px-0.5 py-2 text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600
+      className={`flex min-h-[78px] min-w-[58px] flex-1 flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600
        ${selected&&!disabled?'border-orange-600 bg-navy-950 text-white shadow-sm':disabled?'cursor-not-allowed border-slate-200 bg-slate-200 text-slate-500':'border-slate-200 bg-white text-navy-900 hover:border-orange-500 hover:bg-orange-50'}`}>
        <span className={`text-[10px] font-semibold uppercase ${selected&&!disabled?'text-orange-200':'opacity-70'}`}>{dateText(day,{weekday:'short'}).replace('.','')}</span>
        <strong className="text-base tabular-nums">{dateText(day,{day:'2-digit'})}</strong>
@@ -110,7 +103,7 @@ export function RoomAvailabilityPicker({spaceId,date,startTime,endTime,onDate,on
    {loading?<p className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600" role="status">Consultando ocupação da sala…</p>:
     error?<div role="alert" className="space-y-2 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
      <p className="flex gap-2"><AlertCircle className="h-4 w-4 shrink-0"/>{error}</p>
-     <button type="button" onClick={()=>void load()} className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-navy-900">Tentar novamente</button>
+     <button type="button" onClick={()=>setReload(x=>x+1)} className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-navy-900">Tentar novamente</button>
     </div>:
     !days.includes(date)?<p className="rounded-xl bg-white p-4 text-sm text-slate-600">Escolha um dos dias acima.</p>:
     byDate.length===0?<p className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">Não há horários disponíveis para esse dia.</p>:
