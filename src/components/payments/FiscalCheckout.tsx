@@ -2,15 +2,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Building2, CheckCircle2, FileCheck2, Info, LockKeyhole, ShieldCheck, X } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
-import { getPlan, quotePlan, money, validCnpj, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
+import { getPlan, quotePlan, money, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
 import { supabase } from '../../lib/supabase';
 import { matchesFiscalApplication } from '../../lib/fiscal-application-flow';
 import { Dialog } from '../ui/Dialog';
 import { StripeCheckoutAction } from './StripeCheckoutAction';
+import { FiscalApplicantForm, FiscalMissingDocuments, type CreatedFiscalApplication } from '../fiscal/FiscalApplicantForm';
 
 type Application={
  id:string;company_name:string;plan_id:string;term_months:number;transfer_from:string;
  status:'submitted'|'under_review'|'approved'|'rejected';
+ applicant_type:'legacy'|'pf'|'pj';intake_details:unknown;
 };
 export function FiscalCheckout({planId,initialTerm=12,transfer=false,applicationId,onClose}:{
  planId:FiscalPlanId;initialTerm?:FiscalTermMonths;transfer?:boolean;applicationId?:string;
@@ -24,24 +26,13 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
  const [loading,setLoading]=useState(true);
  const [paymentStatus,setPaymentStatus]=useState('');
  const [paymentIsLive,setPaymentIsLive]=useState(false);
- const [saving,setSaving]=useState(false);
- const [requestError,setRequestError]=useState('');
  const matchesSelection=(a:Application)=>matchesFiscalApplication(a,{planId,termMonths:initialTerm,transfer,applicationId});
- const [termsAccepted,setTermsAccepted]=useState(false);
- const [company,setCompany]=useState({
-   company_name:'',cnpj:'em abertura',cnae:'',
-   responsible_name:'',contact_email:'',contact_phone:'',transfer_from:''
- });
- const change=(field:keyof typeof company,value:string)=>{
-  setCompany(v=>({...v,[field]:value}));
-  setRequestError('');
- };
  useEffect(()=>{
   let live=true;
   if(!currentUser){setLoading(false);return}
   setPaymentStatus('');setPaymentIsLive(false);
   void supabase.from('fiscal_applications')
-   .select('id,company_name,plan_id,term_months,transfer_from,status')
+   .select('id,company_name,plan_id,term_months,transfer_from,status,applicant_type,intake_details')
    .eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(40)
    .then(async({data,error})=>{
     if(!live)return;
@@ -58,59 +49,6 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
    });
   return()=>{live=false};
  },[currentUser?.id,planId,initialTerm,transfer,applicationId]);
- useEffect(()=>{
-  if(currentUser)setCompany(v=>({...v,responsible_name:v.responsible_name||currentUser.name,
-    contact_email:v.contact_email||currentUser.email}));
- },[currentUser?.id]);
- const submitApplication=async()=>{
-  if(!currentUser||saving)return;
-  const name=company.company_name.trim();
-  const cnpj=company.cnpj.trim();
-  const cnae=company.cnae.trim();
-  const responsible=company.responsible_name.trim();
-  const email=company.contact_email.trim();
-  if(name.length<3||name.length>180){
-   setRequestError('Informe a razão social com pelo menos 3 caracteres (máximo 180).');return;
-  }
-  if(!validCnpj(cnpj)){
-   setRequestError('Informe um CNPJ válido ou escreva "em abertura" caso ainda não possua CNPJ.');return;
-  }
-  if(cnae.length<3||cnae.length>120){
-   setRequestError('Informe a atividade econômica ou CNAE com pelo menos 3 caracteres (máximo 120).');return;
-  }
-  if(responsible.length<3||responsible.length>160){
-   setRequestError('Informe o nome do responsável legal (3 a 160 caracteres).');return;
-  }
-  if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-   setRequestError('Informe um e-mail válido, por exemplo contato@empresa.com.br.');return;
-  }
-  if(transfer&&company.transfer_from.trim().length<3){
-   setRequestError('Informe o endereço anterior para o desconto de transferência.');return;
-  }
-  if(!termsAccepted){setRequestError('Aceite as condições da solicitação.');return;}
-  setSaving(true);setRequestError('');
-  try{
-   const {data,error}=await supabase.from('fiscal_applications').insert({
-     user_id:currentUser.id,company_name:name,
-     cnpj,cnae,responsible_name:responsible,
-     contact_email:email,contact_phone:company.contact_phone.trim(),
-     plan_id:planId,term_months:initialTerm,
-     transfer_from:transfer?company.transfer_from.trim():'',
-     terms_version:'2026-10-30'
-   }).select('id,company_name,plan_id,term_months,transfer_from,status').single();
-   if(error||!data)throw error||new Error('Nenhuma resposta.');
-   setApplications(prev=>[data as Application,...prev]);
-   setTermsAccepted(false);
-  }catch(err){
-   console.error('Erro ao registrar a solicitação fiscal',err);
-   const code=(err as {code?:string})?.code;
-   setRequestError(code==='42501'?
-    'Não foi possível enviar: sua sessão não tem permissão. Entre novamente e tente outra vez.':
-    code==='23505'?
-    'Já existe uma solicitação semelhante. Consulte a área fiscal para acompanhar.':
-    'Não foi possível registrar a solicitação. Verifique os campos e tente novamente.');
-  }finally{setSaving(false);}
- };
  const match=useMemo(()=>applications.find(a=>a.status==='approved'&&matchesSelection(a)),[applications,planId,initialTerm,transfer,applicationId]);
  const other=applications.find(matchesSelection);
  const contact='mailto:contato@mvacoworking.com.br?subject='+encodeURIComponent('Análise para contratação · '+plan.name)
@@ -158,39 +96,13 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
            ? 'Há pendências na análise desta empresa. Consulte o parecer da equipe MVA.'
            : 'A contratação precisa de avaliação documental e de elegibilidade. Você não será cobrado enquanto essa etapa estiver pendente.'}
         </p></div></div>
-       {(!other||other.status==='rejected')&&<form className="space-y-3 rounded-xl border border-slate-200 bg-white p-4" onSubmit={e=>{e.preventDefault();void submitApplication()}}>
-         <p className="text-xs font-bold text-navy-900">Dados essenciais para análise cadastral</p>
-         <p className="text-[11px] leading-5 text-slate-600">Nenhum valor será cobrado nesta etapa. A MVA deve verificar a viabilidade do endereço antes de liberar o pagamento.</p>
-         <div className="grid gap-3 sm:grid-cols-2">
-           {([
-             ['company_name','Razão social','Nome da empresa'],
-             ['cnpj','CNPJ ou em abertura','em abertura'],
-             ['cnae','Atividade / CNAE','Ex.: serviços administrativos'],
-             ['responsible_name','Responsável legal','Nome completo'],
-             ['contact_email','E-mail de contato','email@empresa.com'],
-             ['contact_phone','Telefone (opcional)','(79) 99999-9999']
-           ] as const).map(([field,label,placeholder])=><label key={field} className="block min-w-0 space-y-1 text-xs font-semibold text-navy-900">
-             <span>{label}</span>
-             <input className="w-full min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-navy-900 placeholder:text-slate-400"
-               type={field==='contact_email'?'email':'text'} autoComplete={field==='contact_email'?'email':'off'}
-               value={company[field]} onChange={e=>change(field,e.target.value)} placeholder={placeholder}
-               maxLength={field==='contact_email'?254:field==='cnae'?120:field==='responsible_name'?160:180}
-               required={field!=='contact_phone'}/>
-           </label>)}
-         </div>
-         {transfer&&<label className="block space-y-1 text-xs font-semibold text-navy-900"><span>Endereço anterior para transferência</span>
-           <input className="w-full min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-navy-900"
-             value={company.transfer_from} onChange={e=>change('transfer_from',e.target.value)} maxLength={180} required/>
-         </label>}
-         <label className="flex items-start gap-2 text-xs leading-relaxed text-navy-900">
-           <input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} required className="mt-0.5"/>
-           <span>Aceito a análise de elegibilidade e estou ciente de que a contratação depende do contrato e do pagamento confirmado, sem garantia de alvará ou inscrição estadual.</span>
-         </label>
-         {requestError&&<p role="alert" className="text-xs font-semibold text-rose-700">{requestError}</p>}
-         <button type="submit" disabled={saving} className="action-primary checkout-submit">
-           {saving?'Enviando solicitação…':'Solicitar análise para continuar'}
-         </button>
-       </form>}
+       {(!other||other.status==='rejected')&&<FiscalApplicantForm
+          key={planId+'-'+initialTerm+'-'+String(transfer)}
+          account={{id:currentUser.id,name:currentUser.name||'',email:currentUser.email||''}}
+          planId={planId} term={initialTerm} transfer={transfer}
+          onSubmitted={app=>setApplications(prev=>[app as Application,...prev])}/>}
+       {other?.applicant_type==='pj'&&(other.status==='submitted'||other.status==='under_review')&&
+          <FiscalMissingDocuments application={other as unknown as CreatedFiscalApplication} accountId={currentUser.id}/>}
        {(other?.status==='submitted'||other?.status==='under_review'||other?.status==='rejected')&&<a href={contact} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-xs font-bold text-navy-900">Falar com a equipe MVA</a>}
        <button type="button" onClick={()=>{onClose();setActiveTab('fiscal');document.getElementById('minha-area-fiscal')?.scrollIntoView({behavior:'smooth'})}}
         className="ml-3 text-xs font-semibold text-amber-900 underline underline-offset-2">Ver minhas solicitações</button>
@@ -198,7 +110,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
      {currentUser&&!loading&&match&&<div className="space-y-4">
        <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
          <FileCheck2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700"/>
-         <div><strong className="text-sm text-emerald-900">Empresa elegível para a contratação</strong>
+         <div><strong className="text-sm text-emerald-900">Contratante elegível para a contratação</strong>
            <p className="mt-1 text-xs leading-relaxed text-emerald-800">{match.company_name}. Os documentos finais dependem do contrato e da confirmação financeira.</p></div>
        </div>
        {paymentStatus==='paid'?<div role="status" className="flex items-start gap-2 rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-900">
