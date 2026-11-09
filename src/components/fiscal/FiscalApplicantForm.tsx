@@ -87,8 +87,8 @@ export function FiscalApplicantForm({account,planId,term,transfer,onSubmitted}:{
    for(const item of uploadEntries){const problem=validPdfOrImage(item.file);if(problem){setError(item.req.label+': '+problem);return}}
   }
   setBusy(true);setError('');
+  let app=created;
   try{
-   let app=created;
    if(!app){
     const contact=type==='pf'?pf:pj;
     const {data,error:insertError}=await supabase.from('fiscal_applications').insert({
@@ -113,7 +113,13 @@ export function FiscalApplicantForm({account,planId,term,transfer,onSubmitted}:{
    }
    setProgress('');
    onSubmitted(app);
-  }catch(e){setError(e instanceof Error?e.message:'Falha ao enviar a solicitação.');setProgress('');}
+  }catch(e){
+   setProgress('');
+   if(app && type==='pj'){
+    // The application is preserved; reopen the checklist for whichever uploads failed.
+    onSubmitted(app);
+   }else setError(e instanceof Error?e.message:'Falha ao enviar a solicitação.');
+  }
   finally{setBusy(false)}
  };
  const locked=created!==null;
@@ -236,8 +242,10 @@ export function FiscalApplicantForm({account,planId,term,transfer,onSubmitted}:{
 export function FiscalMissingDocuments({application,accountId}:{
  application:CreatedFiscalApplication;accountId:string;
 }){
- const details=application.intake_details as BusinessDetails;
- const required=requiredBusinessDocuments(details);
+ const details=(application.intake_details||{}) as BusinessDetails;
+ const required=requiredBusinessDocuments({...details,
+  signers:Array.isArray(details.signers)?details.signers:[],
+  has_amendments:details.has_amendments===true});
  const [uploaded,setUploaded]=useState<DocRow[]>([]);
  const [loading,setLoading]=useState(true);
  const [busy,setBusy]=useState('');
@@ -262,7 +270,7 @@ export function FiscalMissingDocuments({application,accountId}:{
  };
  return <div className="space-y-3 rounded-xl border border-orange-200 bg-orange-50 p-4">
   <p className="text-sm font-bold text-navy-900"><UploadCloud className="mr-2 inline h-4 w-4"/>Documentação da Pessoa Jurídica</p>
-  <p className="text-xs leading-5 text-slate-700">{loading?'Conferindo anexos…':missing.length===0?'Todos os tipos de comprovantes foram recebidos. Aguarde a conferência humana.':`Faltam ${missing.length} tipo(s) de comprovante(s). Envie os arquivos para permitir a análise.`}</p>
+  <p className="text-xs leading-5 text-slate-700">{loading?'Conferindo anexos…':missing.length===0&&required.length>0?'Todos os tipos de comprovantes foram recebidos. Aguarde a conferência humana.':`Faltam ${missing.length} tipo(s) de comprovante(s). Envie os arquivos para permitir a análise.`}</p>
   {error&&<p role="alert" className="text-xs font-semibold text-rose-700">{error}</p>}
   {!loading&&missing.map(req=><label key={keyFor(req)} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3">
    <span className="text-xs font-semibold text-navy-900">{req.label}</span>
