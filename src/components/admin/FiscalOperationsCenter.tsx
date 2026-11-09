@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Building2, CalendarClock, CheckCircle2, ClipboardCheck, ExternalLink, FileCheck2, FolderLock, RefreshCw, ShieldCheck, Upload, XCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { fiscalApplicationQueue, type FiscalQueue } from '../../lib/fiscal-application-flow';
 import { useCoworking } from '../../context/CoworkingContext';
 import type { FiscalApplication } from '../fiscal/FiscalServiceCenter';
 
@@ -9,7 +10,6 @@ type Unit={id:string;name:string;street_address:string;active:boolean;approved_a
 type Contract={id:string;user_id:string;company_name:string;cnpj:string;renewal_date:string;status:string;payment_status:string;payment_is_live:boolean;plan_id:string|null;formalized_at:string|null;application_id:string|null};
 type Doc={id:string;request_id:string|null;contract_id:string|null;file_path:string;file_name:string;category:string;verified:boolean;publicly_verifiable:boolean;verification_code:string};
 type FiscalOrder={resource_id:string;status:string;livemode:boolean;paid_at:string|null};
-type FiscalQueue='pending'|'approved'|'paid'|'rejected';
 const FISCAL_QUEUES:{key:FiscalQueue;label:string}[]=[
  {key:'pending',label:'Em análise'},
  {key:'approved',label:'Aprovados'},
@@ -130,8 +130,7 @@ export function FiscalOperationsCenter(){
   [r.company_name,r.cnpj,r.cnae,r.contact_email].some(x=>x.toLowerCase().includes(search.trim().toLowerCase()))
  ),[requests,search]);
  const paidApplications=new Set(orders.filter(o=>o.status==='paid'&&o.livemode===true).map(o=>o.resource_id));
- const queueOf=(r:FiscalApplication):FiscalQueue=>r.status==='rejected'?'rejected':
-    r.status!=='approved'?'pending':paidApplications.has(r.id)?'paid':'approved';
+ const queueOf=(r:FiscalApplication):FiscalQueue=>fiscalApplicationQueue(r.status,paidApplications.has(r.id));
  const queueCounts:Record<FiscalQueue,number>={pending:0,approved:0,paid:0,rejected:0};
  requests.forEach(r=>{queueCounts[queueOf(r)]++});
  const visibleRequests=filtered.filter(r=>queueOf(r)===queue);
@@ -176,10 +175,10 @@ export function FiscalOperationsCenter(){
      <div className="flex flex-wrap gap-2">{attached.map(d=><button key={d.id} type="button" onClick={()=>void openDoc(d)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs text-blue-700"><FolderLock className="h-4 w-4"/>{d.file_name}</button>)}</div>
      {r.status==='approved'
        ? <p className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">Parecer da equipe: {r.review_notes||'Sem observações.'}</p>
-       : <label className="block space-y-1"><span className="text-xs font-semibold text-slate-600">Parecer da equipe
+       : <label className="block space-y-1"><span className="text-xs font-semibold text-slate-600">Parecer da equipe</span>
           <textarea value={notes[r.id]??r.review_notes} onChange={e=>setNotes(v=>({...v,[r.id]:e.target.value}))}
-            rows={2} maxLength={2000} className="mt-1 w-full resize-y rounded-lg border border-slate-200 p-3 text-xs text-navy-900"
-            placeholder="Motivo da rejeição, pendências documentais e observações de viabilidade…"/></span></label>}
+            rows={2} maxLength={2000} className="w-full resize-y rounded-lg border border-slate-200 p-3 text-xs text-navy-900"
+            placeholder="Motivo da rejeição, pendências documentais e observações de viabilidade…"/></label>}
      {(r.status==='submitted'||r.status==='under_review')&&<div className="flex flex-wrap gap-2">
        <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">Em análise</button>
        <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'approved')} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white"><CheckCircle2 className="mr-1 inline h-4 w-4"/>Aprovar elegibilidade</button>
