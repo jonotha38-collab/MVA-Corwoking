@@ -4,11 +4,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInGoogle, signOut } from '../../lib/auth';
 import { Preferences } from './Preferences';
-import { ShieldCheck, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen, ArrowLeftRight, House } from 'lucide-react';
+import { ShieldCheck, ClipboardList, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen, ArrowLeftRight, House } from 'lucide-react';
 
 const ITEMS = [
   { tab: 'home', label: 'Início', short: 'Início', icon: House },
   { tab: 'fiscal', label: 'Endereço fiscal', short: 'Fiscal', icon: ShieldCheck },
+  { tab: 'fiscal-status', label: 'Minhas solicitações', short: 'Pedidos', icon: ClipboardList },
   { tab: 'marketplace', label: 'Explorar espaços', short: 'Explorar', icon: Search },
   { tab: 'correspondence', label: 'Correspondência', short: 'Correio', icon: Mail },
   { tab: 'client-dashboard', label: 'Reservas', short: 'Reservas', icon: Briefcase },
@@ -20,7 +21,7 @@ export const Navbar: React.FC = () => {
   const [menu, setMenu] = useState(false);
   const [switchingAccount, setSwitchingAccount] = useState(false);
   const navItems = internAuthorized ? [...ITEMS, { tab: 'intern-rooms', label: 'Salas dos estagiários', short: 'Estágio', icon: DoorOpen }] : ITEMS;
-  const mobileItems = internAuthorized ? navItems.filter(item=>['home','marketplace','fiscal','client-dashboard','intern-rooms'].includes(item.tab)) : navItems.filter(item=>['home','marketplace','fiscal','client-dashboard','owner-dashboard'].includes(item.tab));
+  const mobileItems = internAuthorized ? navItems.filter(item=>['home','marketplace','fiscal-status','client-dashboard','intern-rooms'].includes(item.tab)) : navItems.filter(item=>['home','marketplace','fiscal','fiscal-status','client-dashboard'].includes(item.tab));
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!menu) return;
@@ -136,6 +137,10 @@ export const Navbar: React.FC = () => {
                         className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50">
                         <Briefcase className="h-4 w-4 text-orange-500" aria-hidden />
                         {t("Minhas reservas ")}
+                      </button>
+                      <button role="menuitem" onClick={() => {setMenu(false);setActiveTab('fiscal-status');}}
+                        className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-navy-900 hover:bg-slate-50">
+                        <ClipboardList className="h-4 w-4 text-orange-500" aria-hidden /> Acompanhar endereço fiscal
                       </button>
                       {internAuthorized && (
                         <button role="menuitem" onClick={() => { setMenu(false); setActiveTab('intern-rooms'); }} className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50">

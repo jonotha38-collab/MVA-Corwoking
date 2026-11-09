@@ -18,6 +18,7 @@ import { StripeReturnNotice } from './components/payments/StripeReturnNotice';
 // Public service areas and management screens are loaded when opened to keep the homepage fast.
 const MarketplaceView = lazy(() => import('./components/marketplace/MarketplaceView').then(m => ({ default: m.MarketplaceView })))
 const FiscalView = lazy(() => import('./components/fiscal/FiscalView').then(m => ({ default: m.FiscalView })))
+const FiscalStatusView = lazy(() => import('./components/fiscal/FiscalStatusView').then(m => ({ default: m.FiscalStatusView })))
 const LegalPage = lazy(() => import('./components/legal/LegalPage').then(m => ({ default: m.LegalPage })))
 const CorrespondenceView = lazy(() => import('./components/correspondence/CorrespondenceView').then(m => ({ default: m.CorrespondenceView })))
 const OwnerDashboardView = lazy(() => import('./components/owner/OwnerDashboardView').then(m => ({ default: m.OwnerDashboardView })))
@@ -25,7 +26,7 @@ const ClientDashboardView = lazy(() => import('./components/dashboard/ClientDash
 const InternRoomsView = lazy(() => import('./components/intern/InternRoomsView').then(m => ({ default: m.InternRoomsView })))
 const AdminDashboardView = lazy(() => import('./components/admin/AdminDashboardView').then(m => ({ default: m.AdminDashboardView })))
 
-const PRIVATE = ['owner-dashboard', 'client-dashboard', 'correspondence', 'admin', 'intern-rooms']
+const PRIVATE = ['fiscal-status','owner-dashboard', 'client-dashboard', 'correspondence', 'admin', 'intern-rooms']
 
 import { usePreferences } from './lib/preferences';
 
@@ -136,6 +137,7 @@ export default function App() {
         {activeTab === 'home' && <HomeView />}
         {activeTab === 'marketplace' && <MarketplaceView />}
         {activeTab === 'fiscal' && <FiscalView />}
+        {!blocked && activeTab === 'fiscal-status' && <FiscalStatusView />}
         {!blocked && activeTab === 'correspondence' && <CorrespondenceView />}
         {!blocked && activeTab === 'owner-dashboard' && <OwnerDashboardView />}
         {!blocked && activeTab === 'client-dashboard' && <ClientDashboardView />}

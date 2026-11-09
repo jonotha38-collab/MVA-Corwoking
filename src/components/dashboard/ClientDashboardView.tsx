@@ -12,6 +12,7 @@ import {
   Clock, 
   Mail, 
   FileCheck, 
+  ClipboardList,
   CreditCard, 
   MapPin, 
   CheckCircle2, 
@@ -120,6 +121,17 @@ export const ClientDashboardView: React.FC = () => {
             <Plus className="w-4 h-4" />{t("Agendar Nova Sala ")}</button>
         </div>
       </div>
+
+      <button type="button" onClick={()=>setActiveTab('fiscal-status')}
+        className="group flex w-full flex-wrap items-center justify-between gap-4 rounded-[20px] border border-orange-200 bg-white px-5 py-4 text-left transition-colors hover:border-orange-500 hover:bg-orange-50/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:px-6">
+        <span className="flex items-center gap-3">
+         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-orange-50 text-orange-700"><ClipboardList className="h-5 w-5" aria-hidden/></span>
+         <span><strong className="block text-sm font-bold text-navy-950">Acompanhe seu endereço fiscal</strong>
+          <span className="mt-0.5 block text-xs text-slate-600">Veja análise, documentos pendentes, pagamento e formalização em um só lugar.</span>
+         </span>
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-700">Ver andamento <ArrowUpRight className="h-4 w-4"/></span>
+      </button>
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">

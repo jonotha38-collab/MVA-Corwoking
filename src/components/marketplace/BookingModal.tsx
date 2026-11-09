@@ -1,19 +1,20 @@
 import { t } from '../../lib/preferences';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Space, Booking } from '../../types';
 import { calendarEnabled, connectGoogleCalendar, saveGoogleCalendarEvent, type CalendarSyncResult } from '../../lib/google-calendar';
 import { BookingConfirmation } from './BookingConfirmation';
 import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import { useCoworking } from '../../context/CoworkingContext';
+import { RoomAvailabilityPicker, addDate, maceioDate } from './RoomAvailabilityPicker';
 import { 
   X, 
-  Calendar, 
-  Clock, 
   Users, 
   Check, 
   Video, 
   MapPin
 } from 'lucide-react';
+
+const brl=(value:number)=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(value);
 
 interface BookingModalProps {
   space: Space | null;
@@ -23,13 +24,9 @@ interface BookingModalProps {
 export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) => {
   const { addBooking, currentCompany, currentUser, showToast } = useCoworking();
 
-  const [date, setDate] = useState(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
-  });
-  const [startTime, setStartTime] = useState('09:00');
-  const [endTime, setEndTime] = useState('11:00');
+  const [date, setDate] = useState(() => addDate(maceioDate(), 1));
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [responsibleName, setResponsibleName] = useState(currentUser?.name || '');
   const [responsibleEmail, setResponsibleEmail] = useState(currentUser?.email || currentCompany.contactEmail);
   const [responsiblePhone, setResponsiblePhone] = useState(currentCompany.contactPhone);
@@ -40,13 +37,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
   const [calendarSync, setCalendarSync] = useState<CalendarSyncResult | 'error' | 'saving' | null>(null);
   const [calendarConnecting, setCalendarConnecting] = useState(false);
+  const [timeAvailable,setTimeAvailable] = useState(false);
+  const [availabilityRefresh,setAvailabilityRefresh] = useState(0);
+  const [submitting,setSubmitting] = useState(false);
+  const updateValidity=useCallback((available:boolean)=>setTimeAvailable(available),[]);
 
   if (!space) return null;
 
   // Calculate hours
-  const startH = parseInt(startTime.split(':')[0], 10);
-  const endH = parseInt(endTime.split(':')[0], 10);
-  const durationHours = Math.max(1, endH - startH);
+  const startH = startTime ? Number(startTime.slice(0,2)) : 0;
+  const endH = endTime ? Number(endTime.slice(0,2)) : 0;
+  const durationHours = timeAvailable ? Math.max(0, endH - startH) : 0;
 
   const addonPrices: Record<string, number> = {
     'Gravação da Sala & Suporte A/V': 60,
@@ -67,11 +68,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (endH <= startH) {
-      alert('O horário de término deve ser após o horário de início.');
+    if (submitting) return;
+    if (!timeAvailable || !date || !startTime || !endTime || endH <= startH) {
+      showToast('Escolha um dia e um período disponível antes de continuar.', 'error');
       return;
     }
-
+    setSubmitting(true);
     const newBooking = await addBooking({
       spaceId: space.id,
       spaceName: space.name,
@@ -89,8 +91,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
       addons: selectedAddons,
     });
 
-    if (!newBooking) return;
+    if (!newBooking) {
+      setSubmitting(false);
+      setAvailabilityRefresh(k=>k+1);
+      return;
+    }
     setConfirmedBooking(newBooking);
+    setSubmitting(false);
     if (BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && currentUser && calendarEnabled(currentUser.id)) {
       setCalendarSync('saving');
       try {
@@ -168,52 +175,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
               <div className="flex items-center gap-1">
                 <span className="text-slate-500">{t("Valor hora: ")}</span>
-                <span className="text-sm font-bold text-orange-600">{t("R$ ")}{t(space.pricePerHour)},00</span>
+                <span className="text-sm font-bold text-orange-600">{brl(space.pricePerHour)}</span>
               </div>
             </div>
 
-            {/* Date & Hours Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-orange-600" />{t("Data da Reserva ")}</label>
-                <input
-                  type="date"
-                  required
-                  value={date}
-                  onChange={e => setDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-orange-600" />{t("Início ")}</label>
-                <select
-                  value={startTime}
-                  onChange={e => setStartTime(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
-                >
-                  {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(t => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-orange-600" />{t("Término ")}</label>
-                <select
-                  value={endTime}
-                  onChange={e => setEndTime(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
-                >
-                  {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'].map(t => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            {/* Canonical availability: current bookings are checked on the server before selection. */}
+            <RoomAvailabilityPicker
+              spaceId={space.id}
+              date={date} startTime={startTime} endTime={endTime}
+              onDate={setDate} onStart={setStartTime} onEnd={setEndTime}
+              onValidityChange={updateValidity} refreshKey={availabilityRefresh}
+            />
 
             {/* Responsible and Company */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -299,7 +271,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                           <p className="text-[10px] text-slate-500">{t(addon.desc)}</p>
                         </div>
                       </div>
-                      <span className="font-bold text-navy-900 shrink-0 ml-2">{t("+ R$ ")}{t(addon.price)},00
+                      <span className="font-bold text-navy-900 shrink-0 ml-2">+ {brl(addon.price)}
                       </span>
                     </div>
                   );
@@ -310,13 +282,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             {/* Total calculation bar */}
             <div className="bg-navy-950 text-white p-4 rounded-xl flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-slate-400 block">{t("Total ( ")}{t(durationHours)}{t("h de locação)")}</span>
-                <div className="text-xs text-slate-300">{t("Base: R$ ")}{t(baseTotal)},00 {addonsTotal > 0 && `+ Adicionais: R$ ${addonsTotal},00`}
+                <span className="text-[11px] text-slate-400 block">{timeAvailable?`Total (${durationHours}h de locação)`:'Selecione data, início e duração'}</span>
+                <div className="text-xs text-slate-300">{timeAvailable?`Base: ${brl(baseTotal)}`:'O valor será calculado automaticamente.'}{timeAvailable&&addonsTotal>0&&` + Adicionais: ${brl(addonsTotal)}`}
                 </div>
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-orange-400 uppercase font-semibold block">{t("Valor Final ")}</span>
-                <div className="text-2xl font-bold text-orange-400">{t("R$ ")}{t(totalPrice.toFixed(2))}
+                <div className="text-2xl font-bold text-orange-400">{timeAvailable?brl(totalPrice):'—'}
                 </div>
               </div>
             </div>
@@ -332,8 +304,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               >{t("Cancelar ")}</button>
               <button
                 type="submit"
-                className="px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-md hover:shadow-orange-500/30 transition-all flex items-center gap-2"
-              >{t("Continuar para pagamento ")}</button>
+                disabled={!timeAvailable||submitting}
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >{submitting?'Registrando reserva…':t("Continuar para pagamento ")}</button>
             </div>
           </form>
         )}
