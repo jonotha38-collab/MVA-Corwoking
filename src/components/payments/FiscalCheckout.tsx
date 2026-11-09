@@ -11,8 +11,8 @@ type Application={
  id:string;company_name:string;plan_id:string;term_months:number;transfer_from:string;
  status:'submitted'|'under_review'|'approved'|'rejected';
 };
-export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
- planId:FiscalPlanId;initialTerm?:FiscalTermMonths;transfer?:boolean;
+export function FiscalCheckout({planId,initialTerm=12,transfer=false,applicationId,onClose}:{
+ planId:FiscalPlanId;initialTerm?:FiscalTermMonths;transfer?:boolean;applicationId?:string;
  resumeOrderId?:string;onClose:()=>void;onPaid:()=>void;
 }){
  const {currentUser,setAuthModalOpen,setAuthModalTab,setActiveTab}=useCoworking();
@@ -25,6 +25,10 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
  const [paymentIsLive,setPaymentIsLive]=useState(false);
  const [saving,setSaving]=useState(false);
  const [requestError,setRequestError]=useState('');
+ const matchesSelection=(a:Application)=>
+  a.plan_id===planId&&a.term_months===initialTerm
+  &&(initialTerm!==12||(a.transfer_from.trim().length>=3)===transfer)
+  &&(!applicationId||a.id===applicationId);
  const [termsAccepted,setTermsAccepted]=useState(false);
  const [company,setCompany]=useState({
    company_name:'',cnpj:'em abertura',cnae:'',
@@ -37,6 +41,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
  useEffect(()=>{
   let live=true;
   if(!currentUser){setLoading(false);return}
+  setPaymentStatus('');setPaymentIsLive(false);
   void supabase.from('fiscal_applications')
    .select('id,company_name,plan_id,term_months,transfer_from,status')
    .eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(40)
@@ -45,8 +50,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
     if(error){setLoading(false);return}
     const rows=(data||[]) as Application[];
     setApplications(rows);
-    const best=rows.find(a=>a.plan_id===planId&&a.term_months===initialTerm
-       &&a.status==='approved'&&(!transfer||a.transfer_from.trim().length>=3));
+    const best=rows.find(a=>a.status==='approved'&&matchesSelection(a));
     if(best){
       const {data:order}=await supabase.from('mva_checkout_orders').select('status,livemode')
          .eq('kind','fiscal').eq('resource_id',best.id).maybeSingle();
@@ -55,7 +59,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
     if(live)setLoading(false);
    });
   return()=>{live=false};
- },[currentUser?.id,planId,initialTerm,transfer]);
+ },[currentUser?.id,planId,initialTerm,transfer,applicationId]);
  useEffect(()=>{
   if(currentUser)setCompany(v=>({...v,responsible_name:v.responsible_name||currentUser.name,
     contact_email:v.contact_email||currentUser.email}));
@@ -109,11 +113,8 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
     'Não foi possível registrar a solicitação. Verifique os campos e tente novamente.');
   }finally{setSaving(false);}
  };
- const match=useMemo(()=>applications.find(a=>a.plan_id===planId
-  &&a.term_months===initialTerm && a.status==='approved'
-  &&(!transfer||a.transfer_from.trim().length>=3)),[applications,planId,initialTerm,transfer]);
- const other=applications.find(a=>a.plan_id===planId&&a.term_months===initialTerm
-    &&(!transfer||a.transfer_from.trim().length>=3));
+ const match=useMemo(()=>applications.find(a=>a.status==='approved'&&matchesSelection(a)),[applications,planId,initialTerm,transfer,applicationId]);
+ const other=applications.find(matchesSelection);
  const contact='mailto:contato@mvacoworking.com.br?subject='+encodeURIComponent('Análise para contratação · '+plan.name)
    +'&body='+encodeURIComponent('Olá! Gostaria de solicitar análise para o '+plan.name+' ('+
    initialTerm+' meses'+(transfer?' com transferência de endereço':'')+').');
