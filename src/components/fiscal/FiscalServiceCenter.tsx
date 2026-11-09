@@ -11,6 +11,7 @@ export type FiscalApplication = {
  responsible_name:string; contact_email:string; contact_phone:string; plan_id:FiscalPlanId;
  term_months:1|12; transfer_from:string; unit_id:string|null;
  status:'submitted'|'under_review'|'approved'|'rejected'; review_notes:string; created_at:string;
+ applicant_type:'legacy'|'pf'|'pj'; intake_details:unknown;
 };
 type DocumentRow={id:string;request_id:string|null;contract_id:string|null;file_path:string;file_name:string;category:string;verified:boolean;publicly_verifiable:boolean;verification_code:string};
 type Unit={id:string;name:string;street_address:string;city:string;state:string};
@@ -151,7 +152,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
         const canUpload=app.status==='submitted'||app.status==='under_review';
         return <article key={app.id} className="min-w-0 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <div className="min-w-0"><h4 className="break-words text-sm font-bold text-navy-900">{app.company_name}</h4><p className="mt-1 text-xs text-slate-500">CNPJ {app.cnpj} · {FISCAL_PLANS[app.plan_id].name}</p></div>
+            <div className="min-w-0"><h4 className="break-words text-sm font-bold text-navy-900">{app.company_name}</h4><p className="mt-1 text-xs text-slate-500">{app.applicant_type==='pf'?'Pessoa Física':app.applicant_type==='pj'?'Pessoa Jurídica · CNPJ '+app.cnpj:'CNPJ '+app.cnpj} · {FISCAL_PLANS[app.plan_id].name}</p></div>
             <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${app.status==='approved'?'bg-emerald-50 text-emerald-800':app.status==='rejected'?'bg-rose-50 text-rose-800':'bg-amber-50 text-amber-800'}`}>{labels[app.status]}</span>
           </div>
           <p className="text-xs text-slate-500">Solicitação {new Date(app.created_at).toLocaleDateString('pt-BR')} · {app.term_months===12?'12 meses':'1 mês'}</p>
@@ -160,7 +161,10 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
             <p className="text-xs font-bold text-navy-900">Documentos</p>
             {docs.length===0&&<p className="text-xs text-slate-500">Nenhum documento anexado.</p>}
             {docs.map(doc=><button key={doc.id} type="button" onClick={()=>void openFile(doc)} className="flex max-w-full items-center gap-2 text-left text-xs text-blue-700 hover:underline"><FileCheck2 className="h-4 w-4 shrink-0"/><span className="min-w-0 truncate">{doc.file_name}</span></button>)}
-            {canUpload&&<label className="inline-flex max-w-full cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-navy-900 hover:bg-slate-50">
+            {canUpload&&app.applicant_type==='pj'&&<button type="button" onClick={()=>onCheckout(app.plan_id,app.term_months===12&&!!app.transfer_from,app.term_months,app.id)}
+              className="inline-flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-xs font-semibold text-orange-900 hover:bg-orange-100">
+             <Upload className="h-4 w-4"/>Conferir e completar documentos societários</button>}
+             {canUpload&&app.applicant_type!=='pj'&&<label className="inline-flex max-w-full cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-navy-900 hover:bg-slate-50">
               <Upload className="h-4 w-4"/>{uploading===app.id?'Enviando…':'Anexar documento'}
               <input type="file" accept=".pdf,.jpg,.jpeg,.png" disabled={uploading!==null} className="sr-only" onChange={e=>{void uploadDocument(app,e.target.files?.[0]||null);e.currentTarget.value=''}}/>
             </label>}
