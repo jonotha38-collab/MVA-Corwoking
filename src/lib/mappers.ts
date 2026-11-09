@@ -40,6 +40,7 @@ export const rowToBooking = (r: Row): Booking => ({
   responsibleEmail: r.responsible_email, responsiblePhone: r.responsible_phone, date: r.booking_date,
   startTime: String(r.start_time).slice(0, 5), endTime: String(r.end_time).slice(0, 5),
   durationHours: Number(r.duration_hours), totalPrice: Number(r.total_price), addons: r.addons || [],
+   fiscalBonusHours: Number(r.fiscal_bonus_hours||0),fiscalDiscountPercent: Number(r.fiscal_discount_percent||0),
   status: r.status, checkIn: !!r.check_in, createdAt: String(r.created_at).slice(0, 10),
 });
 
