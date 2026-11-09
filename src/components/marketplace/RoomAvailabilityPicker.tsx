@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AlertCircle, ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, RefreshCw } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { contiguousEndOptions, hourOf, shortTime, type RoomSlot } from '../../lib/booking-slot-rules';
 
-export type RoomSlot={booking_date:string;start_time:string;end_time:string;available:boolean;reason:string};
 const TZ='America/Maceio';
 const dmy=(date:Date)=>new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date)
   .reduce<Record<string,string>>((a,p)=>{a[p.type]=p.value;return a},{});
@@ -11,20 +11,6 @@ export const maceioDate=()=>{
 };
 export const addDate=(iso:string,n:number)=>{const d=new Date(iso+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
 const dateText=(iso:string,opts:Intl.DateTimeFormatOptions)=>new Intl.DateTimeFormat('pt-BR',{timeZone:'UTC',...opts}).format(new Date(iso+'T12:00:00Z'));
-const shortTime=(s:string)=>s.slice(0,5);
-const hourOf=(s:string)=>Number(s.slice(0,2));
-export const contiguousEndOptions=(slots:RoomSlot[],start:string)=> {
- const ordered=slots.filter(s=>s.booking_date===slots[0]?.booking_date).sort((a,b)=>a.start_time.localeCompare(b.start_time));
- const initial=ordered.findIndex(s=>s.start_time.slice(0,5)===start && s.available);
- if(initial<0)return [];
- const result:string[]=[];
- for(let i=initial;i<ordered.length;i++){
-  const item=ordered[i];
-  if(!item.available || (i>initial&&shortTime(ordered[i-1].end_time)!==shortTime(item.start_time)))break;
-  result.push(shortTime(item.end_time));
- }
- return result;
-};
 type Props={
  spaceId:string;date:string;startTime:string;endTime:string;onDate:(iso:string)=>void;
  onStart:(time:string)=>void;onEnd:(time:string)=>void;
@@ -73,7 +59,7 @@ export function RoomAvailabilityPicker({spaceId,date,startTime,endTime,onDate,on
   onStart(nextStart);onEnd(target);
  };
  const selectedHour=(slot:RoomSlot)=>startTime&&endTime&&shortTime(slot.start_time)>=startTime&&shortTime(slot.end_time)<=endTime;
- return <section aria-labelledby="mva-availability-title" className="space-y-5 rounded-[20px] border border-slate-200 bg-[#F8FAFC] p-4 sm:p-6">
+ return <section aria-labelledby="mva-availability-title" className="space-y-5 rounded-[20px] border border-slate-200 bg-slate-50 p-4 sm:p-6">
   <div className="flex flex-wrap items-start justify-between gap-3">
    <div className="flex items-start gap-3">
     <div className="rounded-xl bg-navy-950 p-3 text-white"><CalendarDays className="h-5 w-5" aria-hidden/></div>
@@ -107,7 +93,7 @@ export function RoomAvailabilityPicker({spaceId,date,startTime,endTime,onDate,on
      return <button key={day} type="button" disabled={disabled} aria-pressed={selected} aria-label={dateText(day,{weekday:'long',day:'numeric',month:'long'})+', '+(loading?'consultando':free?'disponível':'indisponível')}
       onClick={()=>selectDate(day)}
       className={`flex min-h-[78px] flex-col items-center justify-center gap-1 rounded-xl border px-0.5 py-2 text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600
-       ${selected&&!disabled?'border-orange-600 bg-navy-950 text-white shadow-sm':disabled?'cursor-not-allowed border-slate-200 bg-slate-200/70 text-slate-500':'border-slate-200 bg-white text-navy-900 hover:border-orange-500 hover:bg-orange-50'}`}>
+       ${selected&&!disabled?'border-orange-600 bg-navy-950 text-white shadow-sm':disabled?'cursor-not-allowed border-slate-200 bg-slate-200 text-slate-500':'border-slate-200 bg-white text-navy-900 hover:border-orange-500 hover:bg-orange-50'}`}>
        <span className={`text-[10px] font-semibold uppercase ${selected&&!disabled?'text-orange-200':'opacity-70'}`}>{dateText(day,{weekday:'short'}).replace('.','')}</span>
        <strong className="text-base tabular-nums">{dateText(day,{day:'2-digit'})}</strong>
        <span className={`text-[9px] font-bold ${selected&&!disabled?'text-white':free?'text-emerald-700':'text-slate-600'}`}>{loading?'…':free?'Livre':'Indisp.'}</span>
