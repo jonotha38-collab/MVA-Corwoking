@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AlertCircle, ArrowRight, Building2, CalendarDays, Check, CheckCircle2, ClipboardList, Clock3, CreditCard, FileCheck2, FileClock, FileText, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowRight, Building2, CalendarDays, Check, CheckCircle2, ClipboardList, Clock3, FileClock, FileText, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
 import { FISCAL_PLANS, type FiscalPlanId } from '../../lib/fiscal-payment';
 import { requiredBusinessDocuments, type BusinessDetails, type FiscalDocumentKind } from '../../lib/fiscal-intake';
 import { FiscalCheckout } from '../payments/FiscalCheckout';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
+import { fiscalSteps, type FiscalMilestone } from '../../lib/fiscal-progress';
 
 type Status='submitted'|'under_review'|'approved'|'rejected';
 type Application={
@@ -16,25 +17,13 @@ type Application={
 type Order={resource_id:string;status:string;livemode:boolean;paid_at:string|null};
 type Contract={id:string;application_id:string|null;status:string;payment_status:string;payment_is_live:boolean;formalized_at:string|null;renewal_date:string};
 type Doc={request_id:string|null;document_kind:FiscalDocumentKind|null;signer_index:number|null};
-type Milestone={title:string;description:string;state:'done'|'current'|'waiting'|'problem';date?:string|null};
 const readableDate=(s:string)=>new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'short',year:'numeric',timeZone:'America/Maceio'}).format(new Date(s));
 const nowDate=()=>{
  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Maceio',day:'2-digit',month:'2-digit',year:'numeric'})
   .formatToParts(new Date()).reduce<Record<string,string>>((acc,p)=>({...acc,[p.type]:p.value}),{});
  return parts.year+'-'+parts.month+'-'+parts.day;
 };
-export function fiscalSteps(app:Application,paid:boolean,active:boolean):Milestone[]{
- const approved=app.status==='approved';
- const rejected=app.status==='rejected';
- return [
-  {title:'Solicitação recebida',description:'Cadastro registrado com segurança pela MVA.',state:'done',date:app.created_at},
-  {title:'Análise cadastral',description:rejected?'A equipe apontou pendências. Consulte o parecer abaixo.':approved?'Cadastro aprovado para contratação.':'Equipe verificando dados, atividade e documentos.',state:rejected?'problem':approved?'done':'current',date:app.reviewed_at},
-  {title:'Pagamento',description:paid?'Pagamento real confirmado pelo Stripe.':rejected?'Etapa indisponível até uma nova aprovação.':approved?'Elegibilidade aprovada: você já pode pagar.':'Liberado somente após aprovação cadastral.',state:paid?'done':rejected?'waiting':approved?'current':'waiting'},
-  {title:'Formalização',description:active?'Contrato formalizado e liberado.':paid?'A MVA está conferindo e assinando os documentos.':'Contrato e documentação serão validados após o pagamento.',state:active?'done':paid?'current':'waiting'},
-  {title:'Endereço autorizado',description:active?'Serviço autorizado conforme as condições e a vigência do contrato.':'O uso do endereço só é permitido após formalização pela MVA.',state:active?'done':'waiting'}
- ];
-}
-function Stage({stage,index}:{stage:Milestone;index:number}){
+function Stage({stage,index}:{stage:FiscalMilestone;index:number}){
  const Icon=stage.state==='done'?Check:stage.state==='problem'?XCircle:stage.state==='current'?Clock3:FileClock;
  const style=stage.state==='done'?'border-emerald-300 bg-emerald-50 text-emerald-800':stage.state==='problem'?'border-rose-300 bg-rose-50 text-rose-800':stage.state==='current'?'border-orange-400 bg-orange-50 text-orange-900':'border-slate-200 bg-slate-50 text-slate-500';
  return <li className="relative flex gap-4 pb-5 last:pb-0">
