@@ -14,6 +14,8 @@ import {
   MapPin
 } from 'lucide-react';
 
+const brl=(value:number)=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(value);
+
 interface BookingModalProps {
   space: Space | null;
   onClose: () => void;
@@ -173,7 +175,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
               <div className="flex items-center gap-1">
                 <span className="text-slate-500">{t("Valor hora: ")}</span>
-                <span className="text-sm font-bold text-orange-600">{t("R$ ")}{t(space.pricePerHour)},00</span>
+                <span className="text-sm font-bold text-orange-600">{brl(space.pricePerHour)}</span>
               </div>
             </div>
 
@@ -269,7 +271,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                           <p className="text-[10px] text-slate-500">{t(addon.desc)}</p>
                         </div>
                       </div>
-                      <span className="font-bold text-navy-900 shrink-0 ml-2">{t("+ R$ ")}{t(addon.price)},00
+                      <span className="font-bold text-navy-900 shrink-0 ml-2">+ {brl(addon.price)}
                       </span>
                     </div>
                   );
@@ -281,12 +283,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             <div className="bg-navy-950 text-white p-4 rounded-xl flex items-center justify-between">
               <div>
                 <span className="text-[11px] text-slate-400 block">{timeAvailable?`Total (${durationHours}h de locação)`:'Selecione data, início e duração'}</span>
-                <div className="text-xs text-slate-300">{timeAvailable?`Base: R$ ${baseTotal.toFixed(2)}`:'O valor será calculado automaticamente.'}{timeAvailable&&addonsTotal>0&&` + Adicionais: R$ ${addonsTotal.toFixed(2)}`}
+                <div className="text-xs text-slate-300">{timeAvailable?`Base: ${brl(baseTotal)}`:'O valor será calculado automaticamente.'}{timeAvailable&&addonsTotal>0&&` + Adicionais: ${brl(addonsTotal)}`}
                 </div>
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-orange-400 uppercase font-semibold block">{t("Valor Final ")}</span>
-                <div className="text-2xl font-bold text-orange-400">{timeAvailable?`R$ ${totalPrice.toFixed(2)}`:'—'}
+                <div className="text-2xl font-bold text-orange-400">{timeAvailable?brl(totalPrice):'—'}
                 </div>
               </div>
             </div>
