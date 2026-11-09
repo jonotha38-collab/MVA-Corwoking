@@ -135,7 +135,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (pending && prof && event === 'SIGNED_IN') {
           localStorage.removeItem('mva:pending-type');
           const fresh = Date.now() - new Date(prof.created_at).getTime() < 5 * 60 * 1000;
-          if (fresh && prof.account_type !== pending && (pending === 'client' || pending === 'coworking_owner')) {
+          if (fresh && prof.account_type !== pending && pending === 'client') {
             const upd = await supabase.from('profiles').update({ account_type: pending }).eq('id', uid).select().maybeSingle();
             if (upd.data) prof = upd.data;
           }
@@ -202,6 +202,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const addSpace: CoworkingContextType['addSpace'] = async (spaceData) => {
     if (!currentUser) { requireLogin(); return false; }
     const admin = isAdmin(currentUser);
+    if (!admin) { showToast('O cadastro de coworkings externos está temporariamente suspenso.', 'info'); return false; }
     const row = {
       ...spaceToRow(spaceData),
       address: formatAddress(spaceData),

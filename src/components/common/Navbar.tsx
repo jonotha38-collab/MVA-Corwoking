@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInGoogle, signOut } from '../../lib/auth';
 import { Preferences } from './Preferences';
-import { ShieldCheck, ClipboardList, Mail, PlusCircle, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen, ArrowLeftRight, House } from 'lucide-react';
+import { ShieldCheck, ClipboardList, Mail, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen, ArrowLeftRight, House } from 'lucide-react';
 
 const ITEMS = [
   { tab: 'home', label: 'Início', short: 'Início', icon: House },
@@ -13,7 +13,6 @@ const ITEMS = [
   { tab: 'marketplace', label: 'Explorar espaços', short: 'Explorar', icon: Search },
   { tab: 'correspondence', label: 'Correspondência', short: 'Correio', icon: Mail },
   { tab: 'client-dashboard', label: 'Reservas', short: 'Reservas', icon: Briefcase },
-  { tab: 'owner-dashboard', label: 'Anunciar espaço', short: 'Anunciar', icon: PlusCircle },
 ];
 
 export const Navbar: React.FC = () => {
@@ -118,16 +117,6 @@ export const Navbar: React.FC = () => {
                         <p className="truncate text-sm font-bold">{currentUser.name}</p>
                         <p className="truncate text-xs text-slate-500">{currentUser.email}</p>
                       </div>
-                      <button
-                        role="menuitem"
-                        onClick={() => {
-                          setMenu(false);
-                          setActiveTab('owner-dashboard');
-                        }}
-                        className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50">
-                        <PlusCircle className="h-4 w-4 text-orange-500" aria-hidden />
-                        {t("Meus espaços ")}
-                      </button>
                       <button
                         role="menuitem"
                         onClick={() => {

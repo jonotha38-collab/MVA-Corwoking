@@ -1,6 +1,6 @@
 import { t } from '../../lib/preferences';
 import React, { useState } from 'react';
-import { X, Building2, User, AlertCircle, MailCheck } from 'lucide-react';
+import { X, AlertCircle, MailCheck } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInEmail, signInGoogle, signUpEmail } from '../../lib/auth';
 import { BlurReveal } from '../ui/BlurReveal';
@@ -17,7 +17,7 @@ const GoogleLogo = () => (
 
 export const AuthModal: React.FC = () => {
   const { authModalOpen, setAuthModalOpen, authModalTab, setAuthModalTab } = useCoworking();
-  const [type, setType] = useState<'coworking_owner' | 'client'>('coworking_owner');
+  const type = 'client' as const;
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
@@ -98,7 +98,7 @@ export const AuthModal: React.FC = () => {
           </h2>
           <p className="text-[11px] text-slate-500 min-h-[2rem]">
             {t(register
-              ? 'Cadastre-se para reservar salas e gerenciar espaços.'
+              ? 'Cadastre-se para reservar salas e acompanhar suas solicitações.'
               : 'Entre para gerenciar suas reservas e endereços.')}
           </p>
 
@@ -117,22 +117,6 @@ export const AuthModal: React.FC = () => {
 
         {/* Corpo do Modal */}
         <div className="p-5 pt-3 space-y-2.5">
-          {register && (
-            <div className="grid grid-cols-2 gap-1.5">
-              {([['coworking_owner', Building2, 'Tenho coworking'], ['client', User, 'Quero reservar']] as const).map(([v, Icon, label]) => (
-                <button 
-                  key={v} 
-                  type="button" 
-                  onClick={() => setType(v)} 
-                  className={`p-2 rounded-lg border text-left text-[11px] font-medium transition-all flex items-center gap-1.5 ${type === v ? 'border-orange-500 bg-orange-50 font-bold text-orange-950' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
-                >
-                  <Icon className={`w-3.5 h-3.5 shrink-0 ${type === v ? 'text-orange-600' : 'text-slate-400'}`} />
-                  <span className="truncate">{t(label)}</span>
-                </button>
-              ))}
-            </div>
-          )}
-
           {/* Botão Google */}
           <button 
             type="button" 
@@ -166,13 +150,6 @@ export const AuthModal: React.FC = () => {
                   label={t("Nome completo")}
                   autoComplete="name"
                   aria-label={t("Nome completo")}
-                />
-              )}
-              {register && type === 'coworking_owner' && (
-                <LabelInput
-                  name="brand"
-                  label={t("Nome do seu coworking (opcional)")}
-                  aria-label={t("Nome do coworking")}
                 />
               )}
               <LabelInput

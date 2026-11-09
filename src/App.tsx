@@ -36,12 +36,12 @@ export default function App() {
   const calendarProcessing = useRef(false)
   const pending = spaces.filter(s => s.approval === 'pendente').length
   const admin = isAdmin(currentUser)
-  const blocked = ready && PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin) || (activeTab === 'intern-rooms' && !internAuthorized))
+  const blocked = ready && PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin) || (activeTab === 'owner-dashboard' && !admin) || (activeTab === 'intern-rooms' && !internAuthorized))
 
   useEffect(() => {
     if (blocked) {
       setActiveTab('home')
-      if (!currentUser) { setAuthModalTab('login'); setAuthModalOpen(true) }
+      if (!currentUser && activeTab !== 'owner-dashboard') { setAuthModalTab('login'); setAuthModalOpen(true) }
     }
     window.scrollTo({ top: 0 })
   }, [activeTab, blocked, currentUser, setActiveTab, setAuthModalOpen, setAuthModalTab])
@@ -74,7 +74,7 @@ export default function App() {
     const publicPage = ['home', 'marketplace', 'fiscal', 'legal'].includes(activeTab);
     const page = publicPage ? activeTab : 'home';
     const entries: Record<string, [string,string]> = {
-      home: ['MVA Coworking | Salas, endereço fiscal e espaços para anunciar','Conheça a MVA Coworking em Aracaju: encontre salas, consulte planos de endereço fiscal e cadastre seu espaço.'],
+      home: ['MVA Coworking | Salas de reunião e endereço fiscal','Conheça a MVA Coworking em Aracaju: reserve salas de reunião e contrate endereço fiscal com acompanhamento online.'],
       marketplace: ['Salas de reunião em Aracaju | MVA Coworking','Encontre ambientes para reunião, atendimento e trabalho. Compare fotos, valores e disponibilidade de salas na MVA e parceiros.'],
       fiscal: ['Endereço fiscal e escritório virtual em Aracaju | MVA Coworking','Conheça os planos de endereço fiscal e comercial, documentação, correspondências e condições de elegibilidade na MVA.'],
       legal: ['Termos e privacidade | MVA Coworking','Consulte as regras de uso, privacidade e proteção de dados da MVA Coworking.'],

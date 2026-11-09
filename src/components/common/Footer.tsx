@@ -1,7 +1,7 @@
 /*@ts-check*/
 import { t } from '../../lib/preferences';
 import React from 'react';
-import { ShieldCheck, Mail, Phone, MapPin, Building2, PlusCircle } from 'lucide-react';
+import { ShieldCheck, Mail, Phone, MapPin, Building2 } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 
 export const Footer: React.FC = () => {
@@ -29,11 +29,11 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
-              {t("Plataforma para espaços de coworking, reservas e correspondências.")}
+              {t("Salas de reunião, endereço fiscal e correspondências da MVA Coworking.")}
             </p>
             <div className="flex items-center gap-1.5 text-orange-400 font-semibold text-[11px]">
               <ShieldCheck className="w-4 h-4 text-orange-400" />
-              <span>{t("Sede MVA em Aracaju • Marketplace de espaços ")}</span>
+              <span>{t("Sede MVA em Aracaju • Reservas e endereço fiscal ")}</span>
             </div>
           </div>
 
@@ -47,14 +47,6 @@ export const Footer: React.FC = () => {
                   className="hover:text-white transition-colors"
                 >
                   {t("Salas de Reunião & Atendimento ")}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setActiveTab('owner-dashboard')}
-                  className="hover:text-orange-400 text-orange-400/90 font-semibold transition-colors flex items-center gap-1">
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  {t("Cadastre seu Coworking ")}
                 </button>
               </li>
               <li>
@@ -108,7 +100,7 @@ export const Footer: React.FC = () => {
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 pt-1">
-                {t("*O espaço físico próprio da MVA existe exclusivamente neste endereço sede. As demais salas e localidades são anunciadas por coworkings parceiros. ")}
+                {t("A MVA atende nesta sede. O cadastro de espaços de terceiros está temporariamente suspenso. ")}
               </p>
             </div>
           </div>
