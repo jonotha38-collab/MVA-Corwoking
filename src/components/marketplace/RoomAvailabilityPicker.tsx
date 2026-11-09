@@ -39,6 +39,9 @@ export function RoomAvailabilityPicker({spaceId,date,startTime,endTime,onDate,on
  const ends=byDate.length?contiguousEndOptions(byDate,startTime):[];
  const valid=!loading&&!error&&ends.includes(endTime)&&hourOf(endTime)>hourOf(startTime);
  useEffect(()=>{onValidityChange(valid)},[valid,onValidityChange]);
+ const navigateWeek=(next:number)=>{
+  setOffset(next);onDate('');onStart('');onEnd('');
+ };
  const selectDate=(next:string)=>{
   if(next===date)return;
   onDate(next);onStart('');onEnd('');
@@ -71,9 +74,9 @@ export function RoomAvailabilityPicker({spaceId,date,startTime,endTime,onDate,on
     <span className="text-xs font-bold uppercase tracking-[.1em] text-slate-600">1. Selecione uma data</span>
     <div className="flex items-center gap-1">
      <button type="button" aria-label="Ver semana anterior" disabled={offset===0||loading}
-      onClick={()=>setOffset(v=>Math.max(0,v-7))} className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-navy-900 disabled:opacity-30"><ArrowLeft className="h-4 w-4"/></button>
+      onClick={()=>navigateWeek(Math.max(0,offset-7))} className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-navy-900 disabled:opacity-30"><ArrowLeft className="h-4 w-4"/></button>
      <button type="button" aria-label="Ver próxima semana" disabled={offset>=56||loading}
-      onClick={()=>setOffset(v=>Math.min(56,v+7))} className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-navy-900 disabled:opacity-30"><ArrowRight className="h-4 w-4"/></button>
+      onClick={()=>navigateWeek(Math.min(56,offset+7))} className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-navy-900 disabled:opacity-30"><ArrowRight className="h-4 w-4"/></button>
     </div>
    </div>
    <p className="text-xs font-semibold capitalize text-navy-900">{dateText(from,{month:'long',year:'numeric'})}</p>
