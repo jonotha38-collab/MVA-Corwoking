@@ -111,6 +111,23 @@ The native select is deliberately retained for platform-owned filter popups.
 Use meaningful photo alt text, decorative icon aria-hidden, visible keyboard
 focus, at least 44px primary touch controls and reduced-motion overrides.
 
+### Solicitações fiscais e agendamentos (áreas autenticadas)
+
+Para a área do cliente, preservar a linguagem institucional e as superfícies do
+`src/theme.css`, sem transportar o tom de marketing para fluxos operacionais.
+O andamento fiscal usa uma linha vertical de etapas com ícones e texto, separando
+explicitamente elegibilidade, pagamento e autorização. A tipografia de títulos
+segue Manrope; os detalhes funcionais permanecem em Inter.
+
+O calendário de reservas usa cartões de dias com rolagem horizontal no celular,
+horários selecionados em azul-marinho com borda cobre, ocupados em superfícies
+neutras desabilitadas e rótulos persistentes: Livre / Ocupado / Encerrado.
+Apenas disponibilidade confirmada pelo RPC habilita o botão de reserva.
+
+Os controles da nova área herdam contraste e tema claro/escuro do arquivo
+`src/theme.css`; novos componentes não criam paleta alternativa.
+Para estados, navegação, recuperação e segurança, consultar `UX-CONTRACT.md`.
+
 ## Do's and Don'ts
 
 - Keep the established MVA branding and verified contact details.
