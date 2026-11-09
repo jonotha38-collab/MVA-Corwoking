@@ -42,7 +42,7 @@ begin
    end loop;
   end if;
  end if;
- if v_cycle is null then v_limit:=0;v_used:=0;end if;
+ if v_cycle is null then v_limit:=0;v_used:=0;v_end:=null;end if;
  return jsonb_build_object(
   'active',true,'planId',v_plan,'roomDiscountPercent',v_pct,
   'bonusHoursTotal',v_limit,'bonusHoursUsed',v_used,
