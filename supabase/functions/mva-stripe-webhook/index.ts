@@ -39,6 +39,7 @@ Deno.serve(async req=>{
  // Strictly handle only the events subscribed for this integration.
  const supported=new Set([
    'checkout.session.completed','checkout.session.async_payment_succeeded',
+   'checkout.session.async_payment_failed',
    'checkout.session.expired','customer.subscription.created',
    'customer.subscription.updated','customer.subscription.deleted',
    'invoice.paid','invoice.payment_failed','account.updated',
