@@ -28,3 +28,9 @@ test('active contracts complete the full timeline',()=>{
  const s=fiscalSteps(req('approved'),true,true);
  assert.equal(s.every(x=>x.state==='done'),true);
 });
+
+test('expired contract must never be presented as an active authorized address',()=>{
+ const s=fiscalSteps(req('approved'),true,false,true);
+ assert.equal(s[3].state,'done');assert.equal(s[4].state,'problem');
+ assert.match(s[4].description,/vigência/);
+});
