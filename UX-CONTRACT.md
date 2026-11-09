@@ -38,3 +38,13 @@ Contrato dos fluxos de **acompanhamento de endereço fiscal** e **reserva de sal
 - `npm run build`: sem erros TypeScript.
 - `npm run test:payments`: testes das regras de blocos horários e das etapas fiscais.
 - Confirmar no navegador mobile/desktop (claro/escuro), conectado/desconectado, com horários ocupados, sem horários, erro RPC, mudança de semana e disputas de ocupação.
+
+
+## Planos de endereço fiscal MVA — versão comercial 09/11/2026
+- Novas contratações: MVA Essencial (R$79,90), MVA Profissional (R$91,90) e MVA Excellence (R$103,00) por um mês.
+- Vigência de 12 meses: pagamento único, 10% de desconto sobre 12 mensalidades; campanha existente de transferência (4 meses descontados) substitui o desconto anual padrão e exige validação humana. Benefícios e preços derivam de `mva_fiscal_prices` no servidor, não dos campos do navegador.
+- Pedidos, contratos e pagamentos iniciados com os IDs antigos `comercial`, `fiscal`, `fiscal_ie` mantêm valores históricos; o catálogo público passa a exibir somente os novos IDs `mva_essencial`, `mva_profissional`, `mva_excellence`.
+- Descontos de 5%, 10% e 15% em horas de salas **próprias MVA** somente com contrato fiscal ativo, pagamento real confirmado, e durante sua vigência. Não se aplicam a extras nem parceiros. Não combinam com créditos de plano independente de horas.
+- Excellence: até duas horas de bônus por mês contratual **nos 3 primeiros meses desde a primeira formalização**, exclusivamente em salas de atendimento próprias para até 3 pessoas. Saldo não é acumulativo e não é transferido; reservas canceladas liberam o saldo daquele ciclo. O servidor decide preço final em uma transação com trava por usuário, sem confiar em valores do frontend.
+- Reserva coberta inteiramente por bônus, sem extras, tem total R$0 e não exige Stripe. Reserva parcialmente coberta paga apenas horas restantes descontadas, mais extras integrais. O registro de reserva não deve ser confundido com comprovante de pagamento.
+- A autorização para utilizar o endereço continua exigindo **aprovação humana** com documentos assinados, mesmo após o Stripe confirmar pagamento.
