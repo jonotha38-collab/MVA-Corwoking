@@ -8,6 +8,14 @@ type Provider={id:string;owner_id:string;space_id:string;details:string;status:'
 type Unit={id:string;name:string;street_address:string;active:boolean;approved_at:string|null};
 type Contract={id:string;user_id:string;company_name:string;cnpj:string;renewal_date:string;status:string;payment_status:string;payment_is_live:boolean;plan_id:string|null;formalized_at:string|null;application_id:string|null};
 type Doc={id:string;request_id:string|null;contract_id:string|null;file_path:string;file_name:string;category:string;verified:boolean;publicly_verifiable:boolean;verification_code:string};
+type FiscalOrder={resource_id:string;status:string;livemode:boolean;paid_at:string|null};
+type FiscalQueue='pending'|'approved'|'paid'|'rejected';
+const FISCAL_QUEUES:{key:FiscalQueue;label:string}[]=[
+ {key:'pending',label:'Em análise'},
+ {key:'approved',label:'Aprovados'},
+ {key:'paid',label:'Pagamento confirmado'},
+ {key:'rejected',label:'Rejeitados'}
+];
 const labels:Record<string,string>={submitted:'Recebida',under_review:'Em análise',approved:'Aprovada',rejected:'Rejeitada'};
 const daysUntil=(value:string)=>Math.ceil((new Date(value+'T12:00:00-03:00').getTime()-Date.now())/86400000);
 
@@ -18,6 +26,8 @@ export function FiscalOperationsCenter(){
  const [contracts,setContracts]=useState<Contract[]>([]);
  const [units,setUnits]=useState<Unit[]>([]);
  const [docs,setDocs]=useState<Doc[]>([]);
+ const [orders,setOrders]=useState<FiscalOrder[]>([]);
+ const [queue,setQueue]=useState<FiscalQueue>('pending');
  const [loading,setLoading]=useState(true);
  const [busy,setBusy]=useState<string|null>(null);
  const [search,setSearch]=useState('');
@@ -25,20 +35,22 @@ export function FiscalOperationsCenter(){
  const reload=useCallback(async()=>{
   if(!currentUser)return;
   setLoading(true);
-  const [ar,pr,cr,ur,dr]=await Promise.all([
+  const [ar,pr,cr,ur,dr,orderRes]=await Promise.all([
     supabase.from('fiscal_applications').select('*').order('created_at',{ascending:false}).limit(500),
     supabase.from('fiscal_provider_requests').select('*').order('created_at',{ascending:false}).limit(200),
     supabase.from('fiscal_contracts').select('id,user_id,company_name,cnpj,renewal_date,status,payment_status,payment_is_live,plan_id,formalized_at,application_id').order('renewal_date').limit(500),
     supabase.from('fiscal_units').select('id,name,street_address,active,approved_at').order('name'),
     supabase.from('fiscal_private_documents').select('id,request_id,contract_id,file_path,file_name,category,verified,publicly_verifiable,verification_code').order('created_at',{ascending:false}).limit(500),
+    supabase.from('mva_checkout_orders').select('resource_id,status,livemode,paid_at').eq('kind','fiscal').order('created_at',{ascending:false}).limit(500),
   ]);
-  if(ar.error||pr.error||cr.error||ur.error||dr.error)showToast('Não foi possível carregar todos os registros fiscais. Verifique suas permissões.','error');
+  if(ar.error||pr.error||cr.error||ur.error||dr.error||orderRes.error)showToast('Não foi possível carregar todos os registros fiscais. Verifique suas permissões.','error');
   else{
    setRequests((ar.data||[]) as FiscalApplication[]);
    setProviders((pr.data||[]) as Provider[]);
    setContracts((cr.data||[]) as Contract[]);
    setUnits((ur.data||[]) as Unit[]);
    setDocs((dr.data||[]) as Doc[]);
+   setOrders((orderRes.data||[]) as FiscalOrder[]);
   }
   setLoading(false);
  },[currentUser?.id,showToast]);
@@ -51,13 +63,25 @@ export function FiscalOperationsCenter(){
    return()=>{window.clearInterval(timer);document.removeEventListener('visibilitychange',refresh)};
   },[currentUser?.id,reload]);
  const review=async(id:string,status:'under_review'|'approved'|'rejected',provider=false)=>{
+   if(!provider&&orders.some(o=>o.resource_id===id&&o.status==='paid'&&o.livemode)){
+     showToast('Pagamento já confirmado. Alterações de elegibilidade exigem reconciliação administrativa.','error');
+     return;
+   }
+   if(!provider&&status==='rejected'&&!(notes[id]||requests.find(r=>r.id===id)?.review_notes||'').trim()){
+     showToast('Informe o motivo da rejeição no parecer da equipe.','error');
+     return;
+   }
    setBusy(id);
    const name=provider?'fiscal_provider_requests':'fiscal_applications';
    const data=provider?{status,admin_notes:(notes[id]||'').slice(0,2000)}:
      {status,review_notes:(notes[id]||'').slice(0,2000)};
    const {error}=await supabase.from(name).update(data).eq('id',id);
    if(error)showToast('Não foi possível alterar o estado. Confira o registro e a elegibilidade da unidade.','error');
-   else {showToast('Análise registrada.','success');await reload()}
+   else {
+     showToast('Análise registrada.','success');
+     await reload();
+     if(!provider)setQueue(status==='approved'?'approved':status==='rejected'?'rejected':'pending');
+   }
    setBusy(null);
  };
  const openDoc=async(doc:Doc)=>{
@@ -105,7 +129,13 @@ export function FiscalOperationsCenter(){
  const filtered=useMemo(()=>requests.filter(r=>
   [r.company_name,r.cnpj,r.cnae,r.contact_email].some(x=>x.toLowerCase().includes(search.trim().toLowerCase()))
  ),[requests,search]);
- const pending=requests.filter(r=>r.status==='submitted'||r.status==='under_review').length;
+ const paidApplications=new Set(orders.filter(o=>o.status==='paid'&&o.livemode===true).map(o=>o.resource_id));
+ const queueOf=(r:FiscalApplication):FiscalQueue=>r.status==='rejected'?'rejected':
+    r.status!=='approved'?'pending':paidApplications.has(r.id)?'paid':'approved';
+ const queueCounts:Record<FiscalQueue,number>={pending:0,approved:0,paid:0,rejected:0};
+ requests.forEach(r=>{queueCounts[queueOf(r)]++});
+ const visibleRequests=filtered.filter(r=>queueOf(r)===queue);
+ const pending=queueCounts.pending;
   const awaitingFormalization=contracts.filter(c=>c.status!=='ativo'&&c.payment_status==='paid'&&c.payment_is_live).length;
  const upcoming=contracts.filter(c=>c.status==='ativo'&&daysUntil(c.renewal_date)<=30&&daysUntil(c.renewal_date)>=0).length;
  return <section className="space-y-6" aria-label="Administração do endereço fiscal">
@@ -124,24 +154,49 @@ export function FiscalOperationsCenter(){
   <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><h3 className="flex items-center gap-2 text-base font-bold text-navy-900"><ClipboardCheck className="h-5 w-5 text-orange-600"/>Solicitações de empresas</h3>
      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa, CNPJ, CNAE…" aria-label="Buscar solicitação" className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm sm:max-w-xs"/></div>
-   {loading?<p className="text-sm text-slate-500">Carregando…</p>:filtered.length===0?<p className="text-sm text-slate-500">Nenhuma solicitação encontrada.</p>:filtered.map(r=>{
+   <div role="tablist" aria-label="Etapas de endereço fiscal" className="flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+     {FISCAL_QUEUES.map(item=><button key={item.key} type="button" role="tab" aria-selected={queue===item.key}
+      onClick={()=>setQueue(item.key)} className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold ${queue===item.key?'border-navy-900 bg-navy-900 text-white':'border-slate-200 bg-white text-navy-900 hover:bg-slate-50'}`}>
+      {item.label}<span className={`rounded-full px-2 py-0.5 text-[11px] ${queue===item.key?'bg-white/20 text-white':'bg-slate-100 text-slate-700'}`}>{queueCounts[item.key]}</span>
+     </button>)}
+    </div>
+    {loading?<p className="text-sm text-slate-500">Carregando…</p>:visibleRequests.length===0?<p className="text-sm text-slate-500">Nenhuma solicitação nesta etapa.</p>:visibleRequests.map(r=>{
     const attached=docs.filter(d=>d.request_id===r.id);
+    const payment=orders.find(o=>o.resource_id===r.id);
+    const paid=paidApplications.has(r.id);
     return <article key={r.id} className="space-y-3 rounded-xl border border-slate-200 p-4">
      <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0"><h4 className="break-words text-sm font-bold text-navy-900">{r.company_name}</h4>
         <p className="mt-1 text-xs text-slate-500">CNPJ {r.cnpj} · CNAE {r.cnae} · {r.term_months} meses</p>
         <p className="mt-1 text-xs text-slate-600">{r.responsible_name} · {r.contact_email}</p></div>
-      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-navy-800">{labels[r.status]}</span>
+      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${paid?'bg-emerald-100 text-emerald-900':r.status==='rejected'?'bg-rose-100 text-rose-800':'bg-slate-100 text-navy-800'}`}>
+        {paid?'Pagamento confirmado':r.status==='approved'?'Aprovada · Aguardando pagamento':labels[r.status]}
+       </span>
      </div>
      <div className="flex flex-wrap gap-2">{attached.map(d=><button key={d.id} type="button" onClick={()=>void openDoc(d)} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs text-blue-700"><FolderLock className="h-4 w-4"/>{d.file_name}</button>)}</div>
-     <label className="block space-y-1"><span className="text-xs font-semibold text-slate-600">Parecer da equipe</span>
-      <textarea value={notes[r.id]??r.review_notes} onChange={e=>setNotes(v=>({...v,[r.id]:e.target.value}))} rows={2} maxLength={2000} className="w-full resize-y rounded-lg border border-slate-200 p-3 text-xs" placeholder="Pendências documentais, observações de viabilidade…"/></label>
-     <div className="flex flex-wrap gap-2">
-      <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">Em análise</button>
-      <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'approved')} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white"><CheckCircle2 className="mr-1 inline h-4 w-4"/>Aprovar elegibilidade</button>
-      <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'rejected')} className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700"><XCircle className="mr-1 inline h-4 w-4"/>Solicitar ajustes</button>
-     </div>
-     <p className="text-[11px] text-slate-500">Aprovar a análise não ativa contratos nem emite declarações. Confirme a viabilidade municipal e a documentação da unidade.</p>
+     {r.status==='approved'
+       ? <p className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">Parecer da equipe: {r.review_notes||'Sem observações.'}</p>
+       : <label className="block space-y-1"><span className="text-xs font-semibold text-slate-600">Parecer da equipe
+          <textarea value={notes[r.id]??r.review_notes} onChange={e=>setNotes(v=>({...v,[r.id]:e.target.value}))}
+            rows={2} maxLength={2000} className="mt-1 w-full resize-y rounded-lg border border-slate-200 p-3 text-xs text-navy-900"
+            placeholder="Motivo da rejeição, pendências documentais e observações de viabilidade…"/></span></label>}
+     {(r.status==='submitted'||r.status==='under_review')&&<div className="flex flex-wrap gap-2">
+       <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">Em análise</button>
+       <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'approved')} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white"><CheckCircle2 className="mr-1 inline h-4 w-4"/>Aprovar elegibilidade</button>
+       <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'rejected')} className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700"><XCircle className="mr-1 inline h-4 w-4"/>Rejeitar solicitação</button>
+      </div>}
+     {r.status==='rejected'&&<button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')}
+         className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-900">Reabrir análise</button>}
+     {r.status==='approved'&&<p role="status" className={`rounded-lg p-3 text-xs font-semibold ${paid?'bg-emerald-50 text-emerald-800':'bg-amber-50 text-amber-900'}`}>
+       {paid
+         ? `Pagamento real confirmado pelo Stripe${payment?.paid_at?' em '+new Date(payment.paid_at).toLocaleDateString('pt-BR'):''}. A liberação dos documentos continua sujeita à aprovação humana.`
+         : payment?.status==='refunded'||payment?.status==='disputed'
+         ? 'Pagamento revertido ou contestado. Verifique o caso antes de permitir nova cobrança.'
+         : payment?.status==='pending'
+         ? `Aguardando confirmação do Stripe · ${r.term_months===1?'1 mês':'12 meses'}.`
+         : `Elegibilidade aprovada · ${r.term_months===1?'1 mês':'12 meses'}. O cliente já pode continuar para o pagamento seguro.`}
+      </p>}
+     <p className="text-[11px] text-slate-500">A análise cadastral não ativa contratos nem emite declarações. Pagamento e formalização são etapas independentes.</p>
     </article>;
    })}
   </div>
