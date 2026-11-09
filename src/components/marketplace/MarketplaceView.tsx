@@ -6,7 +6,7 @@ import { SpaceCard } from './SpaceCard';
 import { SpaceDetailModal } from './SpaceDetailModal';
 import { BookingModal } from './BookingModal';
 import { BookingPlans } from '../payments/BookingPlans';
-import { Search, MapPin, Users, LayoutGrid, X, PlusCircle, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
+import { Search, MapPin, Users, X, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
 import { Reveal } from '../ui/Reveal';
 import { isSpacePubliclyVisible } from '../../lib/space-visibility';
 import heroOffice from '../../assets/hero-office.jpg';
@@ -26,10 +26,9 @@ const STEPS = [
 ];
 
 const FAQ = [
-  ['Como reservo uma sala?', 'Selecione o espaço e registre o horário. A reserva só fica financeiramente confirmada após pagamento Stripe ou uso válido do plano de horas. Salas parceiras dependem do Stripe Connect do responsável.'],
+  ['Como reservo uma sala?', 'Selecione uma sala MVA, escolha o horário disponível e conclua o pagamento pelo Stripe ou use um plano de horas válido.'],
   ['Posso contratar endereço fiscal?', 'Na seção Endereço Fiscal você pode conhecer os planos. O uso do endereço exige análise de elegibilidade, contrato e pagamento confirmado.'],
-  ['Tenho um coworking. Como anuncio?', 'Crie uma conta como coworking, cadastre o espaço com fotos e endereço e envie. A equipe MVA analisa o anúncio antes de publicá-lo.'],
-  ['Por que meu anúncio ainda não apareceu?', 'Todo espaço novo ou alterado passa por aprovação dos administradores. Você acompanha o status (em análise, aprovado ou rejeitado) no painel do anunciante.'],
+  ['É possível cadastrar um coworking parceiro?', 'No momento, a MVA suspendeu temporariamente novos cadastros de coworkings externos. As reservas das salas da sede continuam funcionando normalmente.'],
 ];
 
 export const MarketplaceView: React.FC = () => {
@@ -75,7 +74,6 @@ export const MarketplaceView: React.FC = () => {
     return () => window.clearInterval(timer);
   }, [refreshSpaces]);
   const cities = useMemo(() => ['Todas', ...Array.from(new Set(live.map(s => s.city)))], [live]);
-  const hq = live.find(s => s.isMvaHeadquarters);
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -166,15 +164,7 @@ export const MarketplaceView: React.FC = () => {
             <button onClick={clear} className="mt-5 action-primary px-5 py-2.5 text-sm">{t("Ver todos os espaços ")}</button>
           </div>
         ))}
-        {hq && live.filter(s => !s.isMvaHeadquarters).length === 0 && (
-          <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-navy-200 bg-white p-6 sm:flex-row sm:items-center">
-            <div>
-              <h3 className="font-bold text-navy-900">{t("Seja o primeiro coworking parceiro ")}</h3>
-              <p className="text-sm text-slate-500">{t("Hoje o marketplace reúne as salas da sede MVA. Anuncie o seu espaço e alcance novos clientes. ")}</p>
-            </div>
-            <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-800"><PlusCircle className="h-4 w-4" aria-hidden />{t("Anunciar espaço ")}</button>
-          </div>
-        )}
+
       </section>
 
       {/* Como funciona */}
@@ -205,15 +195,6 @@ export const MarketplaceView: React.FC = () => {
             <button onClick={() => setActiveTab(tab)} className="mt-6 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-bold hover:bg-orange-600">{t(cta)}</button>
           </div>
         ))}
-      </section>
-
-      {/* Anunciante */}
-      <section className="flex flex-col items-start justify-between gap-6 rounded-2xl border border-slate-200 bg-white p-8 md:flex-row md:items-center">
-        <div className="max-w-xl">
-          <h2 className="text-2xl font-bold text-navy-900">{t("Tem um coworking? Anuncie na MVA ")}</h2>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">{t("Cadastre seu espaço com fotos e endereço. Depois da análise e aprovação da equipe MVA, ele aparece para todos os visitantes. ")}</p>
-        </div>
-        <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 action-primary px-6 py-3 text-sm"><LayoutGrid className="h-4 w-4" aria-hidden />{t("Cadastrar meu espaço ")}</button>
       </section>
 
       {/* FAQ */}
