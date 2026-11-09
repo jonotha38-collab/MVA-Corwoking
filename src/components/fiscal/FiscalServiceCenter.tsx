@@ -22,7 +22,7 @@ const daysUntil=(date:string)=>Math.ceil((new Date(date+'T12:00:00-03:00').getTi
 
 export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requireTransfer=false, mode='full', onSubmitted, onCheckout }:{
  initialPlan?:FiscalPlanId; initialTerm?:1|12; requireTransfer?:boolean; mode?:'full'|'application'|'dashboard';
- onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
+ onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean,term:1|12,applicationId:string)=>void;
 }) {
  const {currentUser,setAuthModalOpen,setAuthModalTab,showToast}=useCoworking();
  const [applications,setApplications]=useState<FiscalApplication[]>([]);
@@ -177,7 +177,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
                paid?'A MVA está preparando e validando o contrato e os documentos pertinentes. O uso do endereço ainda não está autorizado; o acesso será liberado após aprovação final.':
                'O pagamento será realizado pelo Stripe. Você só poderá utilizar o endereço após a formalização e a autorização da MVA.'}
             </p>
-            {!paid&&order?.status!=='refunded'&&order?.status!=='disputed'&&<button type="button" onClick={()=>onCheckout(app.plan_id,!!app.transfer_from)}
+            {!paid&&order?.status!=='refunded'&&order?.status!=='disputed'&&<button type="button" onClick={()=>onCheckout(app.plan_id,app.term_months===12&&app.transfer_from.trim().length>=3,app.term_months,app.id)}
              className="rounded-lg bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800">
              {order?.status==='pending'?'Continuar pagamento seguro':'Ir para pagamento seguro'}
             </button>}
