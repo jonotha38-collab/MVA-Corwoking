@@ -55,7 +55,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {t(space.isMvaHeadquarters ? (
                 <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-600 text-white shadow-sm backdrop-blur-md flex items-center gap-1 border border-orange-400">
-                  <Sparkles className="w-3.5 h-3.5 text-orange-200" />{t("SEDE OFICIAL MVA COWORKING ")}</span>
+                  <Sparkles className="w-3.5 h-3.5 text-orange-200" />{t("SEDE OFICIAL MVA COWORKING")}</span>
               ) : (
                 <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-navy-900 text-white backdrop-blur-md border border-navy-700">
                   {categoryLabels[space.category]}
@@ -86,8 +86,8 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 block uppercase font-medium">{t("Capacidade ")}</span>
-                <strong className="text-sm font-bold text-navy-900">{t("Até ")}{t(space.capacity)}{t("pessoas")}</strong>
+                <span className="text-[11px] text-slate-500 block uppercase font-medium">{t("Capacidade")}</span>
+                <strong className="text-sm font-bold text-navy-900">{t("Até")}{t(space.capacity)}{t("pessoas")}</strong>
               </div>
             </div>
 
@@ -96,7 +96,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 block uppercase font-medium">{t("Horário ")}</span>
+                <span className="text-[11px] text-slate-500 block uppercase font-medium">{t("Horário")}</span>
                 <strong className="text-sm font-bold text-navy-900">{t(space.openingHours)}</strong>
               </div>
             </div>
@@ -106,8 +106,8 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
                 <Layers className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 block uppercase font-medium">{t("Valor por hora ")}</span>
-                <strong className="text-sm font-bold text-orange-600">{t("R$ ")}{t(space.pricePerHour)},00</strong>
+                <span className="text-[11px] text-slate-500 block uppercase font-medium">{t("Valor por hora")}</span>
+                <strong className="text-sm font-bold text-orange-600">{t("R$")}{t(space.pricePerHour)},00</strong>
               </div>
             </div>
 
@@ -116,7 +116,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 block uppercase font-medium">{t("Turno (4h) ")}</span>
+                <span className="text-[11px] text-slate-500 block uppercase font-medium">{t("Turno (4h)")}</span>
                 <strong className="text-sm font-bold text-navy-900">
                   {t(space.pricePerShift ? `R$ ${space.pricePerShift},00` : 'Consulte')}
                 </strong>
@@ -128,9 +128,9 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-orange-600" />
-              <span className="text-xs font-bold text-slate-700">{t("Espaço operado por: ")}<strong>{space.coworkingName}</strong></span>
+              <span className="text-xs font-bold text-slate-700">{t("Espaço operado por:")}<strong>{space.coworkingName}</strong></span>
               {space.isMvaHeadquarters && (
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700 border border-orange-200">{t("Sede Oficial ")}</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700 border border-orange-200">{t("Sede Oficial")}</span>
               )}
             </div>
             <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">{space.description}</p>
@@ -138,7 +138,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
 
           {/* Amenities checklist */}
           <div>
-            <h3 className="text-xs font-bold text-navy-900 uppercase tracking-wider mb-2.5">{t("Comodidades Inclusas ")}</h3>
+            <h3 className="text-xs font-bold text-navy-900 uppercase tracking-wider mb-2.5">{t("Comodidades Inclusas")}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {space.amenities.map(amenity => (
                 <div key={amenity} className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 font-medium">
@@ -152,10 +152,10 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
           {/* Footer Action */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200">
             <div>
-              <span className="text-[11px] text-slate-500 block uppercase">{t("Tarifa Avulsa ")}</span>
+              <span className="text-[11px] text-slate-500 block uppercase">{t("Tarifa Avulsa")}</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-navy-900">{t("R$ ")}{t(space.pricePerHour)}</span>
-                <span className="text-xs text-slate-500 font-medium">{t("/hora ")}</span>
+                <span className="text-2xl font-bold text-navy-900">{t("R$")}{t(space.pricePerHour)}</span>
+                <span className="text-xs text-slate-500 font-medium">{t("/hora")}</span>
               </div>
             </div>
 
@@ -163,7 +163,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
               <button
                 onClick={onClose}
                 className="w-1/2 sm:w-auto px-5 py-2.5 text-xs font-semibold text-slate-600 hover:text-navy-900 hover:bg-slate-100 rounded-xl transition-colors"
-              >{t("Voltar ")}</button>
+              >{t("Voltar")}</button>
               <button
                 onClick={() => {
                   onClose();
@@ -171,7 +171,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
                 }}
                 className="w-1/2 sm:w-auto px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-md hover:shadow-orange-500/25 transition-all flex items-center justify-center gap-2"
               >
-                <Calendar className="w-4 h-4" />{t("Agendar Agora ")}</button>
+                <Calendar className="w-4 h-4" />{t("Agendar Agora")}</button>
             </div>
           </div>
 

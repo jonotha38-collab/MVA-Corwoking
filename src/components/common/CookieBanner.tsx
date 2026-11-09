@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Cookie, ShieldCheck, Settings2, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Cookie, Settings2, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { t } from '../../lib/preferences';
-import { getCookieConsent, saveCookieConsent, type CookiePreferences } from '../../lib/cookies';
+import { getCookieConsent, saveCookieConsent } from '../../lib/cookies';
 import { useCoworking } from '../../context/CoworkingContext';
 
 export const CookieBanner: React.FC = () => {
@@ -176,3 +176,4 @@ export const CookieBanner: React.FC = () => {
     </aside>
   );
 };
+

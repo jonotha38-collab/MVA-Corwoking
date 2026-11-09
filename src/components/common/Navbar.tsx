@@ -1,4 +1,3 @@
-/*@ts-check*/
 import { t } from '../../lib/preferences';
 import React, { useEffect, useState, useRef } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
@@ -48,8 +47,8 @@ export const Navbar: React.FC = () => {
             <img src="/logo.png" alt={t("MVA")} className="h-7 w-auto sm:h-8" />
             <span className="hidden h-7 w-px bg-navy-700 sm:block" />
             <span className="hidden text-left leading-tight 2xl:block">
-              <span className="block text-base font-bold text-slate-100">{t("Coworking Hub ")}</span>
-              <span className="hidden text-[11px] text-slate-400 2xl:block">{t("Espaços · Endereço fiscal · Correspondência ")}</span>
+              <span className="block text-base font-bold text-slate-100">{t("Coworking Hub")}</span>
+              <span className="hidden text-[11px] text-slate-400 2xl:block">{t("Espaços · Endereço fiscal · Correspondência")}</span>
             </span>
           </button>
 
@@ -110,7 +109,7 @@ export const Navbar: React.FC = () => {
                         }}
                         className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50">
                         <PlusCircle className="h-4 w-4 text-orange-500" aria-hidden />
-                        {t("Meus espaços ")}
+                        {t("Meus espaços")}
                       </button>
                       <button
                         role="menuitem"
@@ -120,7 +119,7 @@ export const Navbar: React.FC = () => {
                         }}
                         className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50">
                         <Briefcase className="h-4 w-4 text-orange-500" aria-hidden />
-                        {t("Minhas reservas ")}
+                        {t("Minhas reservas")}
                       </button>
                       {internAuthorized && (
                         <button role="menuitem" onClick={() => { setMenu(false); setActiveTab('intern-rooms'); }} className="flex w-full items-center gap-2 px-4 py-3 text-sm hover:bg-slate-50">
@@ -136,7 +135,7 @@ export const Navbar: React.FC = () => {
                         }}
                         className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-3 text-sm text-red-600 hover:bg-red-50">
                         <LogOut className="h-4 w-4" aria-hidden />
-                        {t("Sair ")}
+                        {t("Sair")}
                       </button>
                     </div>
                   )}
@@ -146,14 +145,14 @@ export const Navbar: React.FC = () => {
                   <button
                     onClick={() => openAuth('login')}
                     className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-navy-800 sm:block"
-                  >{t("Entrar ")}
+                  >{t("Entrar")}
                   </button>
                   <button
                     onClick={() => openAuth('register')}
                     className="flex items-center gap-2 action-primary whitespace-nowrap px-4 py-2.5 text-sm"
                   >
                     <User className="h-4 w-4" aria-hidden />
-                    {t("Criar conta ")}
+                    {t("Criar conta")}
                   </button>
                 </div>
               )}

@@ -2,17 +2,15 @@ import { t } from '../../lib/preferences';
 import { Reveal } from '../ui/Reveal';
 import React, { useState, useEffect } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
-import { 
-  ShieldCheck, 
-  Building2, 
-  FileText, 
-  Check, 
-  MapPin, 
-  Printer, 
-  QrCode, 
-  Sparkles, 
-  Scale, 
-  Lock, 
+import {
+  ShieldCheck,
+  Building2,
+  FileText,
+  Check,
+  MapPin,
+  Sparkles,
+  Scale,
+  Lock,
   X,
   FileCheck,
   Calendar,
@@ -20,7 +18,7 @@ import {
   Shield,
   ArrowRight,
   Gift,
-  MessageCircle
+  MessageCircle,
 } from 'lucide-react';
 import { FiscalCheckout } from '../payments/FiscalCheckout';
 import { CertificateDialog } from './CertificateDialog';
@@ -34,26 +32,38 @@ export const FiscalView: React.FC = () => {
   const [showSpecialistModal, setShowSpecialistModal] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<FiscalPlanId>('fiscal');
   const [resumeOrderId, setResumeOrderId] = useState<string>();
-  const [returnedOrderId] = useState(() => new URL(window.location.href).searchParams.get('fiscal_order'));
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    ['fiscal_order', 'payment_intent', 'payment_intent_client_secret', 'redirect_status'].forEach(key => url.searchParams.delete(key));
-    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
-  }, []);
-  const eligible = canIssueCertificate(currentCompany);
-  const startCheckout = (id: FiscalPlanId, transfer = false) => { setSelectedPlanId(id); setIsTransferPromo(transfer); setResumeOrderId(undefined); setShowContractModal(true); };
-  useEffect(() => {
-    if (currentUser) {
-      const saved = returnedOrderId || restoreOrder(currentUser.id);
-      if (saved && /^[0-9a-f-]{36}$/i.test(saved)) { setResumeOrderId(saved); setShowContractModal(true); }
-    }
-  }, [currentUser?.id, returnedOrderId]);
   const [isTransferPromo, setIsTransferPromo] = useState(false);
-  // Specialist Form State
+  const [returnedOrderId] = useState(() => new URL(window.location.href).searchParams.get('fiscal_order'));
   const [specName, setSpecName] = useState('');
   const [specPhone, setSpecPhone] = useState('');
   const [specEmail, setSpecEmail] = useState('');
   const [specCount, setSpecCount] = useState('2');
+
+  const eligible = canIssueCertificate(currentCompany);
+
+  const startCheckout = (id: FiscalPlanId, transfer = false) => {
+    setSelectedPlanId(id);
+    setIsTransferPromo(transfer);
+    setResumeOrderId(undefined);
+    setShowContractModal(true);
+  };
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    ['fiscal_order', 'payment_intent', 'payment_intent_client_secret', 'redirect_status'].forEach(key => {
+      url.searchParams.delete(key);
+    });
+    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const saved = returnedOrderId || restoreOrder(currentUser.id);
+    if (saved && /^[0-9a-f-]{36}$/i.test(saved)) {
+      setResumeOrderId(saved);
+      setShowContractModal(true);
+    }
+  }, [currentUser, returnedOrderId]);
 
   const plans = [
     {
@@ -158,12 +168,12 @@ export const FiscalView: React.FC = () => {
         <div className="max-w-3xl space-y-6 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 backdrop-blur-md">
             <ShieldCheck className="w-4 h-4 text-orange-400" />
-            <span>{t("Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565 ")}</span>
+            <span>{t("Endereço Fiscal Homologado • Sede MVA Rua Dom José Thomaz, 565")}</span>
           </div>
 
-          <h1 className="hero-title max-w-2xl">{t("Seu endereço profissional. O próximo passo da sua empresa. ")}</h1>
+          <h1 className="hero-title max-w-2xl">{t("Seu endereço profissional. O próximo passo da sua empresa.")}</h1>
 
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-medium">{t("Abra ou regularize seu CNPJ na sede MVA ou rede parceira. Reduza custos, preserve seu endereço residencial e reúna os serviços da sua empresa em um só lugar. ")}</p>
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-medium">{t("Abra ou regularize seu CNPJ na sede MVA ou rede parceira. Reduza custos, preserve seu endereço residencial e reúna os serviços da sua empresa em um só lugar.")}</p>
 
           <div className="pt-4 flex flex-col sm:flex-row flex-wrap gap-4">
             <button
@@ -172,7 +182,7 @@ export const FiscalView: React.FC = () => {
               }}
               className="action-primary px-6 py-3.5 text-sm"
             >
-              <FileCheck className="w-5 h-5" />{t("Contratar Endereço Fiscal Online ")}</button>
+              <FileCheck className="w-5 h-5" />{t("Contratar Endereço Fiscal Online")}</button>
             <button
               onClick={() => setShowCertificateModal(true)}
               className="px-6 py-3.5 bg-navy-900/80 hover:bg-navy-800 text-white border border-navy-700/80 backdrop-blur-md rounded-xl text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
@@ -193,9 +203,9 @@ export const FiscalView: React.FC = () => {
               <Building2 className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest block mb-1">{t("Meu contrato de endereço ")}</span>
+              <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest block mb-1">{t("Meu contrato de endereço")}</span>
               <h2 className="text-2xl font-bold text-navy-900 tracking-tight">{currentCompany.companyName}</h2>
-              <p className="text-sm text-slate-500 mt-0.5">{t("CNPJ: ")}<span className="font-mono">{currentCompany.cnpj}</span>{t("• Plano: ")}<strong className="text-slate-700">{t(currentCompany.planName)}</strong>
+              <p className="text-sm text-slate-500 mt-0.5">{t("CNPJ:")}<span className="font-mono">{currentCompany.cnpj}</span>{t("• Plano:")}<strong className="text-slate-700">{t(currentCompany.planName)}</strong>
               </p>
             </div>
           </div>
@@ -207,14 +217,14 @@ export const FiscalView: React.FC = () => {
               onClick={() => setShowCertificateModal(true)}
               className="flex items-center justify-center gap-2 px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold shadow-md transition-colors hover:-translate-y-0.5"
             >
-              <FileText className="w-4 h-4 text-orange-400" />{t("Ver Declaração Oficial ")}</button>
+              <FileText className="w-4 h-4 text-orange-400" />{t("Ver Declaração Oficial")}</button>
           </div>
         </div>
 
         {/* 4 Pillars Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-sm relative z-10">
           <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Endereço Registrado ")}</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Endereço Registrado")}</span>
             <div className="text-sm font-bold text-navy-900 flex items-start gap-2">
               <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
               <span className="leading-tight">{currentCompany.unitAddress}</span>
@@ -222,26 +232,26 @@ export const FiscalView: React.FC = () => {
           </div>
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-emerald-300 transition-colors">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Alvará & Prefeitura ")}</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Alvará & Prefeitura")}</span>
             <div className="text-sm font-bold text-emerald-700 flex items-center gap-2">
               <Check className="w-5 h-5 text-emerald-500 bg-emerald-100 rounded-full p-0.5" />
               <span>{t(currentCompany.alvaraStatus === 'regular' ? 'Regularizado' : 'Em processamento')}</span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium">{t("Consulte a situação com a equipe MVA ")}</p>
+            <p className="text-[11px] text-slate-500 font-medium">{t("Consulte a situação com a equipe MVA")}</p>
           </div>
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-navy-300 transition-colors">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Vigência Contratual ")}</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{t("Vigência Contratual")}</span>
             <div className="text-sm font-bold text-navy-900 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-navy-400" />
               <span>{currentCompany.startDate.split('-').reverse().join('/')} — {currentCompany.renewalDate.split('-').reverse().join('/')}</span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium">{t("Vigência conforme o contrato ")}</p>
+            <p className="text-[11px] text-slate-500 font-medium">{t("Vigência conforme o contrato")}</p>
           </div>
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2 hover:border-orange-300 transition-colors flex flex-col justify-between">
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">{t("Crédito de Reunião ")}</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">{t("Crédito de Reunião")}</span>
               <div className="text-sm font-bold text-navy-900 flex items-center justify-between">
                 <span>{t(currentCompany.meetingHoursUsed)}{t("h /")}{t(currentCompany.meetingHoursAllowance)}{t("h")}</span>
                 <span className="text-orange-600 font-bold">
@@ -265,20 +275,20 @@ export const FiscalView: React.FC = () => {
           <div className="w-10 h-10 rounded-xl bg-navy-950 text-orange-400 flex items-center justify-center font-bold">
             <Scale className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-bold text-navy-900">{t("O que é Endereço Fiscal? ")}</h3>
-          <p className="text-xs text-slate-600 leading-relaxed">{t("É o endereço obrigatório registrado formalmente perante os órgãos públicos: ")}<strong>{t("Receita Federal ")}</strong>, <strong>{t("Junta Comercial ")}</strong>{t("e ")}<strong>{t("Prefeitura Municipal ")}</strong>{t(". Ele serve para fins tributários, alvarás e notificações legais. ")}</p>
+          <h3 className="text-base font-bold text-navy-900">{t("O que é Endereço Fiscal?")}</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">{t("É o endereço obrigatório registrado formalmente perante os órgãos públicos:")}<strong>{t("Receita Federal")}</strong>, <strong>{t("Junta Comercial")}</strong>{t("e")}<strong>{t("Prefeitura Municipal")}</strong>{t(". Ele serve para fins tributários, alvarás e notificações legais.")}</p>
           <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Imprescindível para emissão do CNPJ e Inscrição Municipal ")}</span>
+              <span>{t("Imprescindível para emissão do CNPJ e Inscrição Municipal")}</span>
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Evita expor o endereço da sua residência na internet ")}</span>
+              <span>{t("Evita expor o endereço da sua residência na internet")}</span>
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Totalmente legalizado com declaração de domicílio oficial ")}</span>
+              <span>{t("Totalmente legalizado com declaração de domicílio oficial")}</span>
             </li>
           </ul>
         </div>
@@ -287,20 +297,20 @@ export const FiscalView: React.FC = () => {
           <div className="w-10 h-10 rounded-xl bg-orange-600 text-white flex items-center justify-center font-bold">
             <Lock className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-bold text-navy-900">{t("E o Endereço Comercial? ")}</h3>
-          <p className="text-xs text-slate-600 leading-relaxed">{t("É o endereço corporativo de prestígio que você divulga em seus canais comerciais, cartões de visita e apresentações. Na MVA, os dois funcionam juntos: você conta com o endereço e ainda pode receber seus clientes nas salas de reunião no mesmo local. ")}</p>
+          <h3 className="text-base font-bold text-navy-900">{t("E o Endereço Comercial?")}</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">{t("É o endereço corporativo de prestígio que você divulga em seus canais comerciais, cartões de visita e apresentações. Na MVA, os dois funcionam juntos: você conta com o endereço e ainda pode receber seus clientes nas salas de reunião no mesmo local.")}</p>
           <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Localização de prestígio na Rua Dom José Thomaz, 565 ")}</span>
+              <span>{t("Localização de prestígio na Rua Dom José Thomaz, 565")}</span>
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Recebimento diário de correspondências e encomendas ")}</span>
+              <span>{t("Recebimento diário de correspondências e encomendas")}</span>
             </li>
             <li className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600" />
-              <span>{t("Digitalização imediata de cartas em alta resolução (PDF) ")}</span>
+              <span>{t("Digitalização imediata de cartas em alta resolução (PDF)")}</span>
             </li>
           </ul>
         </div>
@@ -312,11 +322,11 @@ export const FiscalView: React.FC = () => {
           <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-orange-500/15 border border-orange-500/30 px-3.5 py-1 rounded-full text-xs font-bold text-orange-400 tracking-wide uppercase">
               <Gift className="w-4 h-4 text-orange-400" />
-              <span>{t("Campanha Exclusiva de Portabilidade ")}</span>
+              <span>{t("Campanha Exclusiva de Portabilidade")}</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-white">{t("Já tem endereço fiscal? Mude para a MVA e ganhe ")}<span className="text-orange-500 underline decoration-orange-500/50 decoration-2 underline-offset-4">{t("4 MESES GRÁTIS! ")}</span>
+            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-white">{t("Já tem endereço fiscal? Mude para a MVA e ganhe")}<span className="text-orange-500 underline decoration-orange-500/50 decoration-2 underline-offset-4">{t("4 MESES GRÁTIS!")}</span>
             </h3>
-            <p className="text-sm text-slate-300 leading-relaxed font-normal">{t("Se sua empresa já tem endereço fiscal em outro coworking ou escritório virtual e você quer pagar menos com melhor estrutura, transfira seu CNPJ para a MVA. Você ganha ")}<strong className="text-white">{t("4 meses de isenção total ")}</strong>{t("no plano anual e nosso time orienta toda a migração junto à Prefeitura e Junta Comercial. ")}</p>
+            <p className="text-sm text-slate-300 leading-relaxed font-normal">{t("Se sua empresa já tem endereço fiscal em outro coworking ou escritório virtual e você quer pagar menos com melhor estrutura, transfira seu CNPJ para a MVA. Você ganha")}<strong className="text-white">{t("4 meses de isenção total")}</strong>{t("no plano anual e nosso time orienta toda a migração junto à Prefeitura e Junta Comercial.")}</p>
           </div>
           <button
             onClick={() => {
@@ -325,7 +335,7 @@ export const FiscalView: React.FC = () => {
             className="shrink-0 px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all flex items-center gap-2 hover:-translate-y-0.5"
           >
             <Sparkles className="w-4 h-4 text-white" />
-            <span>{t("Transferir CNPJ (4 Meses Grátis) ")}</span>
+            <span>{t("Transferir CNPJ (4 Meses Grátis)")}</span>
           </button>
         </div>
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -334,9 +344,9 @@ export const FiscalView: React.FC = () => {
       {/* Planos de Endereço Fiscal - 4 Colunas Inspiradas na Referência */}
       <div className="space-y-6">
         <Reveal className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs font-bold text-orange-600 tracking-wider uppercase">{t("Planos Corporativos Acessíveis ")}</span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-navy-900">{t("Escolha o Plano Ideal para a sua Empresa ")}</h2>
-          <p className="text-sm text-slate-500">{t("Escolha 1 mês ou 12 meses no checkout. Na transferência anual, pague 8 meses e use 12. ")}</p>
+          <span className="text-xs font-bold text-orange-600 tracking-wider uppercase">{t("Planos Corporativos Acessíveis")}</span>
+          <h2 className="text-2xl sm:text-3xl font-bold text-navy-900">{t("Escolha o Plano Ideal para a sua Empresa")}</h2>
+          <p className="text-sm text-slate-500">{t("Escolha 1 mês ou 12 meses no checkout. Na transferência anual, pague 8 meses e use 12.")}</p>
         </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -377,9 +387,9 @@ export const FiscalView: React.FC = () => {
                   <div className="mb-6 pt-2 border-t border-slate-100">
                     {t(plan.isCustom ? (
                       <div className="space-y-0.5">
-                        <span className="text-xs text-slate-400 block">{t("preço ")}</span>
-                        <div className="text-2xl font-bold text-navy-900">{t("personalizado ")}</div>
-                        <span className="text-[11px] text-slate-400 block mt-1">{t("sob consulta ")}</span>
+                        <span className="text-xs text-slate-400 block">{t("preço")}</span>
+                        <div className="text-2xl font-bold text-navy-900">{t("personalizado")}</div>
+                        <span className="text-[11px] text-slate-400 block mt-1">{t("sob consulta")}</span>
                       </div>
                     ) : (
                       <div className="space-y-0.5">
@@ -411,7 +421,7 @@ export const FiscalView: React.FC = () => {
                       onClick={() => setShowSpecialistModal(true)}
                       className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-navy-900 hover:bg-orange-500 transition-all flex items-center justify-center gap-2 shadow-sm group"
                     >
-                      <span>{t("Fale com especialista ")}</span>
+                      <span>{t("Fale com especialista")}</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                   ) : (
@@ -425,7 +435,7 @@ export const FiscalView: React.FC = () => {
                           : 'bg-navy-900 hover:bg-orange-500 text-white shadow-sm'
                       }`}
                     >
-                      <span>{t("Contratar plano ")}</span>
+                      <span>{t("Contratar plano")}</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                   ))}
@@ -456,29 +466,29 @@ export const FiscalView: React.FC = () => {
               >
                 <X className="w-5 h-5" />
               </button>
-              <span className="text-xs text-orange-400 font-bold uppercase tracking-wider">{t("Atendimento Corporativo ")}</span>
-              <h3 className="text-xl font-bold mt-1">{t("2 ou mais Endereços com Desconto Especial ")}</h3>
-              <p className="text-xs text-slate-300 mt-1">{t("Fale diretamente com nossa equipe para montar uma proposta sob medida com preços escaláveis. ")}</p>
+              <span className="text-xs text-orange-400 font-bold uppercase tracking-wider">{t("Atendimento Corporativo")}</span>
+              <h3 className="text-xl font-bold mt-1">{t("2 ou mais Endereços com Desconto Especial")}</h3>
+              <p className="text-xs text-slate-300 mt-1">{t("Fale diretamente com nossa equipe para montar uma proposta sob medida com preços escaláveis.")}</p>
             </div>
 
             <div className="p-6 space-y-4 text-xs">
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 flex items-start gap-3">
                 <MessageCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block text-sm">{t("Prefere atendimento instantâneo? ")}</strong>
-                  <p className="text-[11px] text-emerald-800 mt-0.5">{t("Nosso especialista em domicílio fiscal responde em minutos no WhatsApp. ")}</p>
+                  <strong className="block text-sm">{t("Prefere atendimento instantâneo?")}</strong>
+                  <p className="text-[11px] text-emerald-800 mt-0.5">{t("Nosso especialista em domicílio fiscal responde em minutos no WhatsApp.")}</p>
                   <a
                     href="https://wa.me/5579998188188?text=Ol%C3%A1!%20Gostaria%20de%20um%20or%C3%A7amento%20personalizado%20para%202%20ou%20mais%20endere%C3%A7os%20fiscais%20na%20MVA."
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs shadow-sm transition-colors"
                   >
-                    <MessageCircle className="w-4 h-4" />{t("Abrir WhatsApp Agora ")}</a>
+                    <MessageCircle className="w-4 h-4" />{t("Abrir WhatsApp Agora")}</a>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 text-[11px] text-slate-400 font-medium uppercase tracking-wider">
-                <span className="h-px flex-1 bg-slate-200" />{t("ou deixe seus dados para contato ")}<span className="h-px flex-1 bg-slate-200" />
+                <span className="h-px flex-1 bg-slate-200" />{t("ou deixe seus dados para contato")}<span className="h-px flex-1 bg-slate-200" />
               </div>
 
               <form 
@@ -490,7 +500,7 @@ export const FiscalView: React.FC = () => {
                 className="space-y-3"
               >
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">{t("Seu Nome / Responsável * ")}</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("Seu Nome / Responsável *")}</label>
                   <input
                     type="text"
                     required
@@ -503,7 +513,7 @@ export const FiscalView: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1">{t("WhatsApp / Telefone * ")}</label>
+                    <label className="block font-semibold text-slate-700 mb-1">{t("WhatsApp / Telefone *")}</label>
                     <input
                       type="text"
                       required
@@ -514,22 +524,22 @@ export const FiscalView: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1">{t("Quantidade de Endereços ")}</label>
+                    <label className="block font-semibold text-slate-700 mb-1">{t("Quantidade de Endereços")}</label>
                     <select
                       value={specCount}
                       onChange={e => setSpecCount(e.target.value)}
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                     >
-                      <option value="2">{t("2 Endereços ")}</option>
-                      <option value="3">{t("3 Endereços ")}</option>
-                      <option value="4-5">{t("4 a 5 Endereços ")}</option>
-                      <option value="6+">{t("Mais de 6 Endereços ")}</option>
+                      <option value="2">{t("2 Endereços")}</option>
+                      <option value="3">{t("3 Endereços")}</option>
+                      <option value="4-5">{t("4 a 5 Endereços")}</option>
+                      <option value="6+">{t("Mais de 6 Endereços")}</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">{t("E-mail corporativo ")}</label>
+                  <label className="block font-semibold text-slate-700 mb-1">{t("E-mail corporativo")}</label>
                   <input
                     type="email"
                     placeholder={t("carlos@empresa.com")}
@@ -544,11 +554,11 @@ export const FiscalView: React.FC = () => {
                     type="button"
                     onClick={() => setShowSpecialistModal(false)}
                     className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                  >{t("Fechar ")}</button>
+                  >{t("Fechar")}</button>
                   <button
                     type="submit"
                     className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-md transition-all"
-                  >{t("Receber Proposta Personalizada ")}</button>
+                  >{t("Receber Proposta Personalizada")}</button>
                 </div>
               </form>
             </div>

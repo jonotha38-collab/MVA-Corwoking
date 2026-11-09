@@ -315,3 +315,4 @@ export const useCoworking = () => {
   if (!ctx) throw new Error('useCoworking must be used within CoworkingProvider');
   return ctx;
 };
+

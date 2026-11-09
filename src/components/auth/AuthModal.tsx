@@ -84,7 +84,7 @@ export const AuthModal: React.FC = () => {
           
           <div className="flex items-center gap-2 mb-2">
             <img src="/logo-orange.png" alt={t("MVA")} className="h-6 w-auto" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">{t("Coworking Hub ")}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">{t("Coworking Hub")}</span>
           </div>
 
           <h2 className="text-lg font-bold tracking-tight text-navy-900 min-h-[1.75rem]">
@@ -107,11 +107,11 @@ export const AuthModal: React.FC = () => {
             <button 
               onClick={() => switchTab('login')} 
               className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${!register ? 'bg-navy-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
-            >{t("Entrar ")}</button>
+            >{t("Entrar")}</button>
             <button 
               onClick={() => switchTab('register')} 
               className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${register ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
-            >{t("Criar conta ")}</button>
+            >{t("Criar conta")}</button>
           </div>
         </div>
 
@@ -141,11 +141,11 @@ export const AuthModal: React.FC = () => {
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-40 transition-all shadow-2xs"
           >
             <GoogleLogo />
-            <span>{t("Continuar com o Google ")}</span>
+            <span>{t("Continuar com o Google")}</span>
           </button>
 
           <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium uppercase tracking-wider">
-            <span className="h-px flex-1 bg-slate-200" />{t("ou com e-mail ")}<span className="h-px flex-1 bg-slate-200" />
+            <span className="h-px flex-1 bg-slate-200" />{t("ou com e-mail")}<span className="h-px flex-1 bg-slate-200" />
           </div>
 
           {t(info ? (
@@ -204,7 +204,7 @@ export const AuthModal: React.FC = () => {
                   aria-required="true" 
                   className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-orange-500 rounded" 
                 />
-                <span>{t("Concordo com os termos da ")}<strong>{t("LGPD ")}</strong>{t("e autorizo o tratamento dos dados pela MVA Coworking. ")}</span>
+                <span>{t("Concordo com os termos da")}<strong>{t("LGPD")}</strong>{t("e autorizo o tratamento dos dados pela MVA Coworking.")}</span>
               </label>
 
               <button 

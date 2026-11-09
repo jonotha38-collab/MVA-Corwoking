@@ -1,11 +1,14 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import { CoworkingProvider } from './context/CoworkingContext.tsx'
+import App from './App'
+import { CoworkingProvider } from './context/CoworkingContext'
 import './index.css'
 import './theme.css'
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root')
+if (!root) throw new Error('Root element #root not found')
+
+createRoot(root).render(
   <StrictMode>
     <CoworkingProvider>
       <App />
