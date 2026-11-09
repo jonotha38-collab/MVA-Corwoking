@@ -84,11 +84,12 @@ export function FiscalStatusView(){
  const contract=app?contracts.find(c=>c.application_id===app.id):null;
  const paid=order?.status==='paid'&&order.livemode===true;
  const active=!!(contract&&contract.status==='ativo'&&contract.payment_status==='paid'&&contract.payment_is_live&&contract.renewal_date>=nowDate());
+ const expired=!!(contract&&contract.status==='ativo'&&contract.payment_status==='paid'&&contract.payment_is_live&&contract.renewal_date<nowDate());
  const blockedPayment=order?.status==='refunded'||order?.status==='disputed';
  const appDocs=app?documents.filter(d=>d.request_id===app.id):[];
  const missing=app?.applicant_type==='pj'?requiredBusinessDocuments(app.intake_details as BusinessDetails)
   .filter(req=>!appDocs.some(d=>d.document_kind===req.kind&&d.signer_index===req.signerIndex)):[];
- const steps=app?fiscalSteps(app,!!paid,active):[];
+ const steps=app?fiscalSteps(app,!!paid,active,expired):[];
  const current=steps.find(s=>s.state==='problem'||s.state==='current')||steps[steps.length-1];
  return <section className="mx-auto max-w-6xl space-y-6 pb-14" aria-labelledby="fiscal-progress-title">
   <header className="relative overflow-hidden rounded-[22px] border border-navy-900 bg-navy-950 px-5 py-7 text-white sm:px-8 sm:py-9">
@@ -129,7 +130,7 @@ export function FiscalStatusView(){
        {applications.map(a=>{
         const aOrder=orders.find(o=>o.resource_id===a.id&&o.status==='paid'&&o.livemode);
         const aContract=contracts.find(c=>c.application_id===a.id&&c.status==='ativo'&&c.payment_status==='paid'&&c.payment_is_live);
-        const label=a.status==='rejected'?'Rejeitado':aContract?'Formalizado':aOrder?'Pagamento confirmado':a.status==='approved'?'Aguardando pagamento':a.status==='under_review'?'Em análise':'Recebido';
+        const label=a.status==='rejected'?'Rejeitado':aContract&&aContract.renewal_date<nowDate()?'Vigência encerrada':aContract?'Formalizado':aOrder?'Pagamento confirmado':a.status==='approved'?'Aguardando pagamento':a.status==='under_review'?'Em análise':'Recebido';
         return <button type="button" key={a.id} onClick={()=>setSelected(a.id)} aria-pressed={app?.id===a.id}
          className={`w-full rounded-2xl border p-4 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 ${app?.id===a.id?'border-orange-500 bg-white shadow-[0_3px_18px_rgba(16,40,64,.08)]':'border-slate-200 bg-white hover:border-orange-300'}`}>
          <div className="flex items-start justify-between gap-3">
@@ -137,7 +138,7 @@ export function FiscalStatusView(){
           {app?.id===a.id&&<Check className="h-4 w-4 shrink-0 text-orange-600"/>}
          </div>
          <p className="mt-1 text-xs text-slate-600">{FISCAL_PLANS[a.plan_id]?.name||'Endereço fiscal'} · {a.term_months===1?'1 mês':'12 meses'}</p>
-         <span className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${a.status==='rejected'?'bg-rose-50 text-rose-800':aContract?'bg-emerald-50 text-emerald-800':a.status==='approved'?'bg-orange-50 text-orange-900':'bg-slate-100 text-slate-700'}`}>{label}</span>
+         <span className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${a.status==='rejected'||aContract&&aContract.renewal_date<nowDate()?'bg-rose-50 text-rose-800':aContract?'bg-emerald-50 text-emerald-800':a.status==='approved'?'bg-orange-50 text-orange-900':'bg-slate-100 text-slate-700'}`}>{label}</span>
         </button>;
        })}
       </div>
@@ -149,11 +150,11 @@ export function FiscalStatusView(){
         <h2 className="mt-2 break-words text-xl font-semibold text-navy-950">{app.company_name}</h2>
         <p className="mt-1 text-xs text-slate-600">Enviado em {readableDate(app.created_at)} · {FISCAL_PLANS[app.plan_id]?.name} · {app.term_months===1?'Mensal':'Anual'}</p>
        </div>
-       <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${active?'bg-emerald-100 text-emerald-800':app.status==='rejected'?'bg-rose-100 text-rose-800':'bg-orange-50 text-orange-900'}`}>
-        {active?'Ativo':app.status==='rejected'?'Ajustes necessários':app.status==='approved'?'Aprovado':'Em andamento'}
+       <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${active?'bg-emerald-100 text-emerald-800':expired||app.status==='rejected'?'bg-rose-100 text-rose-800':'bg-orange-50 text-orange-900'}`}>
+        {active?'Ativo':expired?'Vigência encerrada':app.status==='rejected'?'Ajustes necessários':app.status==='approved'?'Aprovado':'Em andamento'}
        </span>
       </div>
-      <div className={`rounded-xl border p-4 ${app.status==='rejected'?'border-rose-200 bg-rose-50':active?'border-emerald-200 bg-emerald-50':'border-orange-200 bg-orange-50'}`}>
+      <div className={`rounded-xl border p-4 ${app.status==='rejected'||expired?'border-rose-200 bg-rose-50':active?'border-emerald-200 bg-emerald-50':'border-orange-200 bg-orange-50'}`}>
        <p className="text-[11px] font-bold uppercase tracking-[.08em] text-slate-600">Situação atual</p>
        <p className="mt-1 text-sm font-bold text-navy-950">{current?.title}</p>
        <p className="mt-1 text-xs leading-5 text-slate-700">{current?.description}</p>
@@ -172,6 +173,7 @@ export function FiscalStatusView(){
       <div className="border-t border-slate-200 pt-5">
        <p className="mb-3 text-xs font-semibold text-navy-950">Próxima ação</p>
        {active?<div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-semibold text-emerald-900"><CheckCircle2 className="h-4 w-4"/>Endereço autorizado até {contract?.renewal_date.split('-').reverse().join('/')}.</div>:
+        expired?<p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-800">A vigência foi encerrada. Consulte a equipe MVA para solicitar a renovação antes de utilizar o endereço.</p>:
         app.status==='rejected'?<button type="button" onClick={()=>setActiveTab('fiscal')} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy-950 px-4 py-3 text-sm font-semibold text-white">Ver condições para novo pedido<ArrowRight className="h-4 w-4"/></button>:
         app.status==='approved'&&!paid&&!blockedPayment?<StripeCheckoutAction action="checkout_fiscal" resourceId={app.id} label="Continuar para pagamento seguro"/>:
         app.status==='approved'&&blockedPayment?<p className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-800">O pagamento foi revertido ou contestado. Consulte a MVA antes de prosseguir.</p>:
