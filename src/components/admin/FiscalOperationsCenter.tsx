@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Building2, CalendarClock, CheckCircle2, ClipboardCheck, ExternalLink, FileCheck2, FolderLock, RefreshCw, ShieldCheck, Upload, XCircle } from 'lucide-react';
+import { Building2, CalendarClock, CheckCircle2, ClipboardCheck, ExternalLink, FileCheck2, RefreshCw, ShieldCheck, Upload, XCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { fiscalApplicationQueue, type FiscalQueue } from '../../lib/fiscal-application-flow';
 import { useCoworking } from '../../context/CoworkingContext';
