@@ -13,25 +13,43 @@ import { CertificateDialog } from './CertificateDialog';
 import { FiscalServiceCenter } from './FiscalServiceCenter';
 
 type ServiceUnit = { id:string; name:string; street_address:string; city:string; state:string };
-const planIds: FiscalPlanId[] = ['comercial','fiscal','fiscal_ie'];
+const planIds = ['mva_essencial','mva_profissional','mva_excellence'] as const satisfies readonly FiscalPlanId[];
 const brl = (cents:number) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2}).format(cents/100);
 
-const planInfo: Record<FiscalPlanId,{eyebrow:string;summary:string;ideal:string;features:string[];popular?:boolean}> = {
-  comercial:{
-    eyebrow:'Para marcar presença', summary:'Sua marca com um endereço profissional para divulgar nos canais comerciais.',
-    ideal:'Autônomos, prestadores de serviço e empresas que buscam presença comercial.',
-    features:['Endereço comercial para divulgação','Recepção de correspondências, conforme contrato','Consulta de recebimentos no painel','Acesso às salas de reunião disponíveis']
+const planInfo: Record<(typeof planIds)[number],{eyebrow:string;summary:string;ideal:string;features:string[];popular?:boolean}> = {
+  mva_essencial:{
+    eyebrow:'O essencial para começar',
+    summary:'Endereço fiscal com recepção de correspondências e uma presença profissional para sua empresa.',
+    ideal:'Quem precisa formalizar o endereço e ter uma base segura para o negócio.',
+    features:[
+      'Endereço fiscal mediante análise e formalização',
+      'Recebimento de correspondências com aviso no painel',
+      'Acompanhamento da solicitação e dos documentos',
+      '5% de desconto nas salas próprias da MVA'
+    ]
   },
-  fiscal:{
-    eyebrow:'Para o seu CNPJ',summary:'Estrutura de endereço para quem está abrindo ou alterando uma empresa.',
-    ideal:'Prestadores de serviços, negócios digitais e profissionais PJ.',
-    features:['Análise de viabilidade para o endereço fiscal','Documentação de autorização após regularização','Acompanhamento de correspondências','Acesso à estrutura da MVA para reuniões'],
+  mva_profissional:{
+    eyebrow:'Mais estrutura para sua rotina',
+    summary:'A estrutura fiscal essencial com gerenciamento de correspondências, recados e documentos.',
+    ideal:'Profissionais e empresas que precisam de mais organização e flexibilidade.',
+    features:[
+      'Todos os benefícios do MVA Essencial',
+      'Gerenciamento de correspondências, recados e documentos',
+      'Histórico de recebimentos e solicitações no painel',
+      '10% de desconto nas salas próprias da MVA'
+    ]
+  },
+  mva_excellence:{
+    eyebrow:'O plano mais completo',
+    summary:'O endereço da sua empresa com gestão de correspondências e horas de atendimento para começar com presença.',
+    ideal:'Quem valoriza estrutura presencial sem manter uma sala própria.',
+    features:[
+      'Endereço fiscal e gerenciamento de correspondências, recados e documentos',
+      '2 horas de bônus por mês em sala de atendimento para até 3 pessoas, nos 3 primeiros meses',
+      'Horas bônus mensais não acumulativas: o saldo não usado expira ao fim do mês contratual',
+      '15% de desconto nas demais horas e salas próprias da MVA'
+    ],
     popular:true
-  },
-  fiscal_ie:{
-    eyebrow:'Para operações com ICMS',summary:'Uma solução para empresas que precisam avaliar também a inscrição estadual.',
-    ideal:'Comércios, e-commerces e empresas com operações sujeitas ao ICMS.',
-    features:['Análise da atividade e das exigências estaduais','Documentação de endereço fiscal, quando elegível','Gestão de correspondências fiscais','Atendimento para orientação da contratação']
   }
 };
 const faqs = [
@@ -40,7 +58,9 @@ const faqs = [
   {q:'Posso contratar se minha empresa ainda não tem CNPJ?',a:'Sim, você pode iniciar a avaliação como empresa em abertura. A formalização será conduzida conforme os documentos e dados exigidos para o caso.'},
   {q:'Quando recebo a declaração de uso do endereço?',a:'Depois da análise cadastral, formalização do contrato e confirmação real do pagamento, caso a atividade e a unidade sejam elegíveis. A emissão não é imediata por padrão.'},
   {q:'Vocês recebem correspondências e encomendas?',a:'A MVA possui uma área de gestão de correspondências. Os serviços de recebimento, guarda e eventual digitalização dependem das condições do plano, da unidade e de autorização do titular.'},
-  {q:'Posso contratar por um mês ou por um ano?',a:'Sim. A escolha é feita no site. Os valores são apresentados antes da contratação. A campanha de quatro meses de desconto no pagamento anual é condicionada à comprovação de transferência de outro endereço fiscal.'},
+  {q:'Posso contratar por um mês ou por um ano?',a:'Sim. A contratação é pré-paga e não renova automaticamente. O plano anual possui 10% de desconto sobre 12 mensalidades. Quem comprovar transferência de outro endereço fiscal poderá solicitar a campanha de 4 meses grátis; essa condição substitui, sem acumular, os 10% anuais.'},
+  {q:'Como funcionam as 2 horas de bônus do MVA Excellence?',a:'São 2 horas por mês contratual, disponíveis somente durante os três primeiros meses após a primeira formalização do plano e enquanto o contrato estiver ativo. Valem para sala de atendimento MVA de até 3 pessoas, conforme disponibilidade. As horas não são acumulativas: saldo não usado expira ao final de cada mês contratual.'},
+  {q:'Como funciona o desconto nas salas?',a:'O desconto é aplicado automaticamente nas salas próprias da MVA em reservas realizadas durante a vigência de um contrato fiscal ativo e pago: 5% no Essencial, 10% no Profissional e 15% no Excellence. Parceiros, adicionais e horários fora da vigência não estão contemplados.'},
   {q:'Outros coworkings podem oferecer endereço fiscal na MVA?',a:'Proprietários podem solicitar credenciamento de suas unidades. Cada espaço passa por avaliação; o cadastro como coworking não autoriza automaticamente oferecer endereço fiscal.'},
 ];
 const go = (id:string) => document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -48,9 +68,9 @@ const go = (id:string) => document.getElementById(id)?.scrollIntoView({behavior:
 export function FiscalView(){
  const {currentCompany,currentUser,showToast,setAuthModalTab,setAuthModalOpen} = useCoworking();
  const eligible=canIssueCertificate(currentCompany);
- const [term,setTerm]=useState<1|12>(12);
+ const [term,setTerm]=useState<1|12>(1);
  const [transfer,setTransfer]=useState(false);
- const [selectedPlan,setSelectedPlan]=useState<FiscalPlanId>('fiscal');
+ const [selectedPlan,setSelectedPlan]=useState<FiscalPlanId>('mva_excellence');
  const [clientAreaOpen,setClientAreaOpen]=useState(false);
  const [checkoutOpen,setCheckoutOpen]=useState(false);
  const [certificateOpen,setCertificateOpen]=useState(false);
@@ -205,14 +225,14 @@ export function FiscalView(){
    </div>
    {term===12 && <label className="mx-auto flex max-w-2xl cursor-pointer items-start gap-3 rounded-xl border fiscal-highlight-border fiscal-accent-soft px-4 py-3 text-sm fiscal-ink">
     <input type="checkbox" checked={transfer} onChange={e=>setTransfer(e.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-orange-600"/>
-    <span><strong>Já tem endereço fiscal e quer transferir?</strong> Marque para visualizar a campanha de 4 meses grátis no anual, sujeita à comprovação e elegibilidade.</span>
+    <span><strong>Já tem endereço fiscal e quer transferir?</strong> Marque para visualizar a campanha de 4 meses grátis no anual, sujeita à comprovação e elegibilidade. Não acumula com o desconto anual de 10%.</span>
    </label>}
    <div className="grid gap-5 lg:grid-cols-3 lg:items-stretch">
     {planIds.map(id=>{
       const p=FISCAL_PLANS[id], info=planInfo[id],q=planQuote(id);
       const monthlyEquivalent=q.amount/(term===1?1:12);
       return <article key={id} className={`relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border fiscal-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${info.popular?'border-[#d06636] shadow-[0_12px_35px_rgba(183,74,28,.11)]':'fiscal-line'}`}>
-        {info.popular&&<div className="bg-[#14304d] py-2.5 text-center text-[11px] font-bold uppercase tracking-[.16em] text-white">Mais procurado</div>}
+        {info.popular&&<div className="bg-[#14304d] py-2.5 text-center text-[11px] font-bold uppercase tracking-[.16em] text-white">MVA Excellence · o mais completo</div>}
         <div className="flex flex-1 flex-col p-6 sm:p-7">
           <span className="text-[11px] font-bold uppercase tracking-[.12em] fiscal-accent">{info.eyebrow}</span>
           <h3 className="mt-3 min-h-[48px] text-xl font-semibold leading-tight fiscal-ink">{p.name}</h3>
@@ -224,9 +244,9 @@ export function FiscalView(){
               <span className="text-xs fiscal-muted">/ mês equivalente</span>
             </div>
             <p className="mt-2 text-xs leading-relaxed fiscal-muted">
-              {term===12?`Pagamento anual: ${brl(q.amount)}`:`Pagamento de 1 mês: ${brl(q.amount)}`}
+              {term===12?`Pagamento anual à vista: ${brl(q.amount)} · economia de 10% sem transferência`:`Pagamento de 1 mês: ${brl(q.amount)}`}
             </p>
-            {q.discount>0&&<div className="mt-2 inline-flex items-center gap-1.5 rounded-full fiscal-accent-soft px-3 py-1.5 text-[11px] font-bold fiscal-accent"><Gift className="h-3.5 w-3.5"/> Economia estimada: {brl(q.discount)}</div>}
+            {q.discount>0&&<div className="mt-2 inline-flex items-center gap-1.5 rounded-full fiscal-accent-soft px-3 py-1.5 text-[11px] font-bold fiscal-accent"><Gift className="h-3.5 w-3.5"/> {q.freeMonths?'Transferência: 4 meses de desconto':'Desconto anual de 10%'} · economize {brl(q.discount)}</div>}
           </div>
           <button type="button" onClick={()=>start(id)} className={`mt-6 flex min-h-[47px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors disabled:opacity-60 ${info.popular?'bg-[#c65019] text-white hover:bg-[#aa3c0f]':'bg-navy-900 text-white hover:bg-navy-800'}`}>Ver contratação e pagamento <ArrowRight className="h-4 w-4"/></button>
           <div className="mt-6 border-t fiscal-line pt-5">
@@ -237,7 +257,7 @@ export function FiscalView(){
       </article>;
     })}
    </div>
-   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed fiscal-muted">Planos conforme o catálogo atual da MVA. A contratação e a emissão de documentos dependem da viabilidade do endereço, formalização e confirmação do pagamento. O Stripe confirma o pagamento real; o uso do endereço e a entrega dos documentos dependem da aprovação final e da assinatura do contrato pela MVA.</p>
+   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed fiscal-muted">As 2 horas do Excellence são mensais, não acumulativas e válidas apenas nos 3 primeiros meses após a primeira formalização, enquanto houver contrato vigente. A locação depende de disponibilidade. Planos conforme o catálogo atual da MVA. A contratação e a emissão de documentos dependem da viabilidade do endereço, formalização e confirmação do pagamento. O Stripe confirma o pagamento real; o uso do endereço e a entrega dos documentos dependem da aprovação final e da assinatura do contrato pela MVA.</p>
   </section>
 
   {/* Conversion with correct expectations */}
@@ -286,7 +306,7 @@ export function FiscalView(){
    <div className="relative flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
      <div className="max-w-2xl"><span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-orange-300"><Gift className="h-4 w-4"/> Condição especial</span>
        <h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[30px]">Sua empresa já usa outro endereço fiscal?</h2>
-       <p className="mt-3 text-sm leading-relaxed text-slate-300">A MVA oferece uma campanha de transferência com até 4 meses gratuitos na contratação anual, sujeita à elegibilidade e comprovação.</p></div>
+       <p className="mt-3 text-sm leading-relaxed text-slate-300">A MVA oferece uma campanha de transferência com 4 meses de desconto na contratação anual, sujeita à elegibilidade e comprovação. Essa condição substitui o desconto anual padrão de 10%.</p></div>
      <button type="button" onClick={()=>{setTerm(12);setTransfer(true);go('planos-fiscais')}} className="fiscal-white-cta inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold transition sm:w-auto">Ver condição anual <ArrowRight className="h-4 w-4"/></button>
    </div>
   </section>
@@ -328,6 +348,6 @@ export function FiscalView(){
 
   {checkoutOpen&&<FiscalCheckout planId={selectedPlan} initialTerm={term} transfer={term===12&&transfer} applicationId={checkoutApplicationId} resumeOrderId={resumeOrderId}
     onClose={()=>{setCheckoutOpen(false);setResumeOrderId(undefined);setCheckoutApplicationId(undefined)}} onPaid={()=>{setClientAreaOpen(true);showToast('Status do pagamento atualizado.','info')}}/>}
-  {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);start('fiscal')}}/>}
+  {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);start('mva_excellence')}}/>}
  </div>;
 }
