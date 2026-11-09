@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AlertCircle, CalendarDays, CheckCircle2, DoorOpen, LoaderCircle, RefreshCcw, Users } from 'lucide-react';
+import { AlertCircle, CalendarDays, CheckCircle2, DoorOpen, LoaderCircle, RefreshCcw, Users, UserRound } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
 
@@ -13,6 +13,7 @@ type RoomAvailability = {
   places_taken: number;
 };
 type MyReservation = { id: string; room_id: string; reservation_date: string };
+type RoomOccupant = { room_id: string; display_name: string; is_mine: boolean };
 
 function localToday(): string {
   const now = new Date();
@@ -30,41 +31,46 @@ export function InternRoomsView() {
   const [date, setDate] = useState(localToday);
   const [rooms, setRooms] = useState<RoomAvailability[]>([]);
   const [myReservation, setMyReservation] = useState<MyReservation | null>(null);
+  const [occupants, setOccupants] = useState<RoomOccupant[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const requestNumber = useRef(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     if (!currentUser || !internAuthorized) return;
     const request = ++requestNumber.current;
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError('');
-    const [availability, booking] = await Promise.all([
+    const [availability, booking, people] = await Promise.all([
       supabase.rpc('get_intern_room_availability', { p_date: date }),
       supabase.from('intern_room_reservations')
         .select('id, room_id, reservation_date')
         .eq('user_id', currentUser.id).eq('reservation_date', date).eq('status', 'ativa')
         .maybeSingle(),
+      supabase.rpc('get_intern_room_occupants', { p_date: date }),
     ]);
     if (request !== requestNumber.current) return;
-    if (availability.error || booking.error) {
-      console.error('Erro ao carregar as salas internas:', availability.error || booking.error);
+    if (availability.error || booking.error || people.error) {
+      console.error('Erro ao carregar as salas internas:', availability.error || booking.error || people.error);
       setError('Não foi possível consultar as salas. Confira a conexão e se o SQL das salas internas foi instalado no Supabase.');
       setRooms([]);
       setMyReservation(null);
+      setOccupants([]);
     } else {
       setRooms((availability.data || []) as RoomAvailability[]);
       setMyReservation((booking.data || null) as MyReservation | null);
+      setOccupants((people.data || []) as RoomOccupant[]);
     }
     setLoading(false);
   }, [currentUser?.id, internAuthorized, date]);
 
   useEffect(() => { void load(); return () => { requestNumber.current++; }; }, [load]);
   useEffect(() => {
-    const onVisible = () => { if (document.visibilityState === 'visible') void load(); };
+    const onVisible = () => { if (document.visibilityState === 'visible') void load(true); };
     document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    const interval = window.setInterval(onVisible, 30_000);
+    return () => { document.removeEventListener('visibilitychange', onVisible); window.clearInterval(interval); };
   }, [load]);
 
   const reserve = async (room: RoomAvailability) => {
@@ -148,6 +154,7 @@ export function InternRoomsView() {
             <div>
               <h2 className="text-base font-bold text-emerald-900">Sua reserva está confirmada</h2>
               <p className="mt-1 text-sm text-emerald-800">{selected?.room_name || 'Sala de trabalho'} · {friendlyDate(date)}</p>
+              <p className="mt-1 text-xs font-semibold text-emerald-800">Reservado por {occupants.find(person => person.is_mine)?.display_name || currentUser?.name || 'Você'}</p>
               <p className="mt-1 text-xs text-emerald-700">Para trocar de sala, cancele esta reserva e escolha outra vaga disponível.</p>
             </div>
           </div>
@@ -165,6 +172,7 @@ export function InternRoomsView() {
           </div>
         ) : rooms.map((room, index) => {
           const free = Math.max(0, room.room_capacity - room.places_taken);
+          const bookedPeople = occupants.filter(person => person.room_id === room.room_id);
           const mine = myReservation?.room_id === room.room_id;
           const bookable = room.room_active && free > 0 && !myReservation && !saving && date >= localToday();
           return (
@@ -192,6 +200,35 @@ export function InternRoomsView() {
                     <div className="h-full rounded-full bg-orange-600 transition-[width] duration-200" style={{ width: `${Math.min(100, room.places_taken / room.room_capacity * 100)}%` }} />
                   </div>
                 </div>
+                <section aria-label={`Pessoas com reserva em ${room.room_name}`} className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h4 className="flex items-center gap-2 text-sm font-bold text-navy-900">
+                      <UserRound className="h-4 w-4 text-orange-600" aria-hidden />
+                      Quem reservou
+                    </h4>
+                    <span className="text-[11px] font-medium text-slate-500">
+                      {bookedPeople.length} {bookedPeople.length === 1 ? 'pessoa' : 'pessoas'}
+                    </span>
+                  </div>
+                  {bookedPeople.length > 0 ? (
+                    <ul className="grid min-w-0 gap-2" aria-live="polite">
+                      {bookedPeople.map((person, personIndex) => (
+                        <li key={`${room.room_id}-${personIndex}`} className="flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
+                          <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy-100 text-xs font-bold text-navy-900">
+                            {person.display_name.trim().charAt(0).toLocaleUpperCase('pt-BR') || '•'}
+                          </span>
+                          <span className="min-w-0 flex-1 break-words text-sm font-semibold text-navy-900">{person.display_name}</span>
+                          {person.is_mine && <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-800">Você</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs leading-relaxed text-slate-500">
+                      Ninguém reservou uma vaga nesta sala para o dia selecionado.
+                    </p>
+                  )}
+                  <p className="mt-3 text-[11px] leading-relaxed text-slate-500">Visível somente para a equipe autorizada.</p>
+                </section>
                 <button type="button" disabled={!bookable} onClick={() => void reserve(room)}
                   className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors ${mine ? 'bg-emerald-50 text-emerald-800' : bookable ? 'bg-orange-600 text-white hover:bg-orange-500' : 'cursor-not-allowed bg-slate-100 text-slate-500'}`}>
                   {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : mine ? <CheckCircle2 className="h-4 w-4" /> : <CalendarDays className="h-4 w-4" />}

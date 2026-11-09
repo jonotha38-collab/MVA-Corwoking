@@ -46,7 +46,7 @@ export const CookieBanner: React.FC = () => {
   return (
     <aside
       aria-label={t("Preferências de Cookies e Privacidade")}
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-lg z-50 animate-slideIn no-print"
+      className="mva-cookie-banner fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-lg z-50 animate-slideIn no-print"
     >
       <div className="bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700/80 rounded-2xl shadow-2xl p-5 sm:p-6 text-navy-950 dark:text-slate-100 space-y-4">
         {/* Header */}
@@ -176,4 +176,3 @@ export const CookieBanner: React.FC = () => {
     </aside>
   );
 };
-

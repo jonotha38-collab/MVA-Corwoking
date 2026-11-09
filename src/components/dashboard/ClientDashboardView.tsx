@@ -1,7 +1,12 @@
 import { t } from '../../lib/preferences';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
+import { supabase } from '../../lib/supabase';
+import { BookingPlans } from '../payments/BookingPlans';
+import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import { Booking } from '../../types';
+import { calendarEnabled, connectGoogleCalendar, disconnectGoogleCalendar, manualGoogleCalendarLink, recordedCalendarEventUrl } from '../../lib/google-calendar';
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import { 
   Calendar, 
   Clock, 
@@ -15,7 +20,10 @@ import {
   ArrowUpRight, 
   QrCode, 
   X,
-  Sparkles
+  Sparkles,
+  CalendarPlus,
+  Bell,
+  ExternalLink
 } from 'lucide-react';
 
 export const ClientDashboardView: React.FC = () => {
@@ -25,12 +33,40 @@ export const ClientDashboardView: React.FC = () => {
     bookings, 
     correspondence, 
     cancelBooking, 
-    setActiveTab, 
+    setActiveTab,
+    showToast,
   } = useCoworking();
 
   const day = new Date().toISOString().slice(0, 10);
   const addressActive = currentCompany.paymentStatus === 'paid' && currentCompany.paymentIsLive && currentCompany.status === 'ativo' && currentCompany.startDate <= day && currentCompany.renewalDate >= day;
   const [selectedVoucher, setSelectedVoucher] = useState<Booking | null>(null);
+  const [paidBookingIds, setPaidBookingIds] = useState<Set<string>>(() => new Set());
+  const [creditedBookingIds,setCreditedBookingIds]=useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    if(!currentUser){setPaidBookingIds(new Set());setCreditedBookingIds(new Set());return}
+    let mounted=true;
+    void supabase.from('mva_checkout_orders').select('resource_id')
+      .eq('user_id',currentUser.id).eq('kind','booking').eq('status','paid').eq('livemode',true)
+      .then(({data})=>{if(mounted)setPaidBookingIds(new Set((data||[]).map(x=>x.resource_id as string)))});
+    void supabase.from('mva_booking_redemptions').select('booking_id').eq('user_id',currentUser.id).eq('status','applied')
+      .then(({data})=>{if(mounted)setCreditedBookingIds(new Set((data||[]).map(x=>x.booking_id as string)))});
+    return()=>{mounted=false};
+  },[currentUser?.id,bookings.length]);
+  const [clock, setClock] = useState(() => Date.now());
+  const [calendarPreferenceVersion, setCalendarPreferenceVersion] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(() => setClock(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  // Intencional: estado local atualiza o painel imediatamente após desativar.
+  void calendarPreferenceVersion;
+  const connectCalendar = () => {
+    if (!BOOKING_EXTERNAL_INTEGRATIONS_ENABLED || !currentUser) return;
+    void connectGoogleCalendar(currentUser).catch(error => {
+      showToast(error instanceof Error ? error.message : 'Não foi possível conectar o Google Agenda.', 'error');
+    });
+  };
 
   // Filter bookings
   const clientBookings = bookings.filter(b => b.userId === currentUser?.id);
@@ -41,7 +77,12 @@ export const ClientDashboardView: React.FC = () => {
   );
 
   // Next upcoming booking
-  const upcomingBooking = clientBookings.find(b => b.status === 'confirmada');
+  const upcomingBooking = clientBookings
+    .filter(b => b.status === 'confirmada' && new Date(`${b.date}T${b.endTime.slice(0, 5)}:00-03:00`).getTime() > clock)
+    .sort((a, b) => `${a.date}T${a.startTime}`.localeCompare(`${b.date}T${b.startTime}`))[0];
+  const minutesUntil = upcomingBooking
+    ? Math.ceil((new Date(`${upcomingBooking.date}T${upcomingBooking.startTime.slice(0, 5)}:00-03:00`).getTime() - clock) / 60_000)
+    : null;
 
   return (
     <div className="space-y-8 pb-16">
@@ -57,11 +98,11 @@ export const ClientDashboardView: React.FC = () => {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{currentCompany.tradingName || currentUser?.name}</h1>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{t(addressActive ? 'Endereço ativo' : 'Aguardando liberação')}</span>
             </div>
-            <p className="text-xs text-slate-300 mt-0.5">{t("Razão Social:")}<strong>{currentCompany.companyName}</strong>{t("• CNPJ:")}<span className="font-mono">{currentCompany.cnpj}</span>
+            <p className="text-xs text-slate-300 mt-0.5">{t("Razão Social: ")}<strong>{currentCompany.companyName}</strong>{t("• CNPJ: ")}<span className="font-mono">{currentCompany.cnpj}</span>
             </p>
             <div className="flex items-center gap-1.5 text-xs text-orange-400 font-semibold mt-1">
               <MapPin className="w-3.5 h-3.5" />
-              <span>{t("Sede de Domicílio:")}{currentCompany.unitAddress}</span>
+              <span>{t("Sede de Domicílio: ")}{currentCompany.unitAddress}</span>
             </div>
           </div>
         </div>
@@ -71,12 +112,12 @@ export const ClientDashboardView: React.FC = () => {
             onClick={() => setActiveTab('fiscal')}
             className="flex-1 md:flex-initial px-4 py-2.5 bg-navy-850 hover:bg-navy-800 text-slate-200 border border-navy-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
           >
-            <FileCheck className="w-4 h-4 text-orange-400" />{t("Declaração Fiscal")}</button>
+            <FileCheck className="w-4 h-4 text-orange-400" />{t("Declaração Fiscal ")}</button>
           <button
             onClick={() => setActiveTab('marketplace')}
             className="flex-1 md:flex-initial px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-orange-500/25 transition-all flex items-center justify-center gap-1.5"
           >
-            <Plus className="w-4 h-4" />{t("Agendar Nova Sala")}</button>
+            <Plus className="w-4 h-4" />{t("Agendar Nova Sala ")}</button>
         </div>
       </div>
 
@@ -86,13 +127,13 @@ export const ClientDashboardView: React.FC = () => {
         {/* Hours Balance */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Crédito de Horas")}</span>
+            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Crédito de Horas ")}</span>
             <Clock className="w-4 h-4 text-orange-600" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-navy-900">
               {addressActive ? Math.max(0, currentCompany.meetingHoursAllowance - currentCompany.meetingHoursUsed) : 0}{t("h")}</span>
-            <span className="text-xs text-slate-500">{t("disponíveis")}</span>
+            <span className="text-xs text-slate-500">{t("disponíveis ")}</span>
           </div>
           <p className="text-[11px] text-slate-400">
             {t(currentCompany.meetingHoursUsed)}{t("h consumidas de")}{t(currentCompany.meetingHoursAllowance)}{t("h no ciclo atual")}</p>
@@ -104,15 +145,15 @@ export const ClientDashboardView: React.FC = () => {
           className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2 cursor-pointer hover:border-orange-400 transition-colors"
         >
           <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Correspondências")}</span>
+            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Correspondências ")}</span>
             <Mail className="w-4 h-4 text-orange-500" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-navy-900">{t(pendingMails.length)}</span>
-            <span className="text-xs text-orange-600 font-semibold">{t("na recepção")}</span>
+            <span className="text-xs text-orange-600 font-semibold">{t("na recepção ")}</span>
           </div>
           <p className="text-[11px] text-slate-400 flex items-center gap-1">
-            <span>{t("Visualizar e digitalizar em PDF")}</span>
+            <span>{t("Visualizar e digitalizar em PDF ")}</span>
             <ArrowUpRight className="w-3 h-3 text-orange-600" />
           </p>
         </div>
@@ -120,27 +161,27 @@ export const ClientDashboardView: React.FC = () => {
         {/* Active Bookings Count */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Reservas Ativas")}</span>
+            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Reservas Ativas ")}</span>
             <Calendar className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-navy-900">
               {t(clientBookings.filter(b => b.status === 'confirmada').length)}
             </span>
-            <span className="text-xs text-slate-500">{t("agendadas")}</span>
+            <span className="text-xs text-slate-500">{t("agendadas ")}</span>
           </div>
-          <p className="text-[11px] text-slate-400">{t("Próxima:")}{t(upcomingBooking ? `${upcomingBooking.date.split('-').reverse().join('/')}` : 'Nenhuma próxima')}
+          <p className="text-[11px] text-slate-400">{t("Próxima: ")}{t(upcomingBooking ? `${upcomingBooking.date.split('-').reverse().join('/')}` : 'Nenhuma próxima')}
           </p>
         </div>
 
         {/* Monthly Subscription */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Equivalente mensal")}</span>
+            <span className="font-bold uppercase tracking-wider text-[11px]">{t("Equivalente mensal ")}</span>
             <CreditCard className="w-4 h-4 text-navy-900" />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-xs font-semibold text-slate-500">{t("R$")}</span>
+            <span className="text-xs font-semibold text-slate-500">{t("R$ ")}</span>
             <span className="text-3xl font-bold text-navy-900">{t(currentCompany.monthlyFee.toFixed(2))}</span>
           </div>
           <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold">
@@ -151,12 +192,64 @@ export const ClientDashboardView: React.FC = () => {
 
       </div>
 
+      <BookingPlans compact />
+
+      {/* Google Agenda: consentimento separado do login, sem senha ou token persistido aqui. */}
+      {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && currentUser && (
+        <section aria-label="Google Agenda" className="flex flex-col gap-3 rounded-2xl border border-blue-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <CalendarPlus className="mt-0.5 h-6 w-6 shrink-0 text-blue-700" />
+            <div>
+              <h2 className="text-sm font-bold text-navy-900">Suas reservas no Google Agenda</h2>
+              <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                {calendarEnabled(currentUser.id)
+                  ? 'Sincronização ativada. Novos agendamentos serão enviados ao Google quando a autorização estiver válida.'
+                  : 'Conecte sua conta Google para salvar agendamentos e receber avisos 1 hora antes por e-mail e 30 minutos antes no Google Agenda.'}
+              </p>
+            </div>
+          </div>
+          {currentUser.provider === 'google' && (
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <button type="button" onClick={connectCalendar}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 py-2.5 text-xs font-semibold text-white hover:bg-navy-800">
+                <CalendarPlus className="h-4 w-4" />
+                {calendarEnabled(currentUser.id) ? 'Renovar autorização' : 'Conectar Google Agenda'}
+              </button>
+              {calendarEnabled(currentUser.id) && (
+                <button type="button"
+                  onClick={() => {
+                    disconnectGoogleCalendar(currentUser.id);
+                    setCalendarPreferenceVersion(v => v + 1);
+                    showToast('Sincronização automática desativada neste navegador.', 'info');
+                  }}
+                  className="rounded-xl border border-slate-200 px-3 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100">
+                  Desativar
+                </button>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+      {upcomingBooking && minutesUntil !== null && minutesUntil >= 0 && minutesUntil <= 60 && (
+        <section role="status" aria-live="polite" className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <Bell className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+          <div>
+            <h2 className="text-sm font-bold text-amber-900">Seu agendamento está chegando</h2>
+            <p className="mt-1 text-sm text-amber-900">
+              {upcomingBooking.spaceName} começa {minutesUntil <= 1 ? 'em instantes' : `em ${minutesUntil} minutos`}
+              {' · '}{upcomingBooking.startTime.slice(0, 5)}.
+            </p>
+            <p className="mt-1 text-xs text-amber-800">Este aviso aparece ao acessar suas reservas. Para receber alertas fora do site, use o Google Agenda.</p>
+          </div>
+        </section>
+      )}
+
       {/* Upcoming Highlight Card */}
       {upcomingBooking && (
         <div className="bg-gradient-to-r from-navy-900 via-navy-950 to-navy-900 text-white rounded-3xl p-6 sm:p-7 shadow-sm border border-navy-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1">
             <span className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />{t("Sua Próxima Reunião Agendada")}</span>
+              <Sparkles className="w-3.5 h-3.5" />{t("Sua Próxima Reunião Agendada ")}</span>
             <h2 className="text-xl font-bold">{t(upcomingBooking.spaceName)}</h2>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300">
               <span className="flex items-center gap-1">
@@ -179,7 +272,7 @@ export const ClientDashboardView: React.FC = () => {
             onClick={() => setSelectedVoucher(upcomingBooking)}
             className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-2 shrink-0"
           >
-            <QrCode className="w-4 h-4" />{t("Abrir Voucher & QR Code")}</button>
+            <QrCode className="w-4 h-4" />{t("Abrir Voucher & QR Code ")}</button>
         </div>
       )}
 
@@ -187,27 +280,28 @@ export const ClientDashboardView: React.FC = () => {
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-navy-900">{t("Histórico de Reservas de Espaços")}</h2>
-            <p className="text-xs text-slate-500">{t("Acompanhe salas de reunião e atendimento agendadas")}</p>
+            <h2 className="text-base font-bold text-navy-900">{t("Histórico de Reservas de Espaços ")}</h2>
+            <p className="text-xs text-slate-500">{t("Acompanhe salas de reunião e atendimento agendadas ")}</p>
           </div>
           <button
             onClick={() => setActiveTab('marketplace')}
             className="text-xs font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1"
-          >{t("Buscar mais salas")}<ArrowUpRight className="w-3.5 h-3.5" />
+          >{t("Buscar mais salas ")}<ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
+        {clientBookings.length > 0 && <p role="note" className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900"><strong>Pagamento por Stripe ou plano de horas.</strong> O status "Confirmada" registra o horário; confira abaixo se há pagamento real ou crédito de assinatura antes de utilizar a sala.</p>}
         {t(clientBookings.length > 0 ? (
           <div className="overflow-x-auto">
             <div className="overflow-x-auto -mx-1 px-1"><table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
-                  <th className="py-3.5 px-6">{t("Espaço / Coworking")}</th>
-                  <th className="py-3.5 px-4">{t("Data & Horário")}</th>
-                  <th className="py-3.5 px-4">{t("Responsável")}</th>
-                  <th className="py-3.5 px-4">{t("Investimento")}</th>
-                  <th className="py-3.5 px-4">{t("Status")}</th>
-                  <th className="py-3.5 px-6 text-right">{t("Ações")}</th>
+                  <th className="py-3.5 px-6">{t("Espaço / Coworking ")}</th>
+                  <th className="py-3.5 px-4">{t("Data & Horário ")}</th>
+                  <th className="py-3.5 px-4">{t("Responsável ")}</th>
+                  <th className="py-3.5 px-4">{t("Investimento ")}</th>
+                  <th className="py-3.5 px-4">{t("Status ")}</th>
+                  <th className="py-3.5 px-6 text-right">{t("Ações ")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -225,17 +319,21 @@ export const ClientDashboardView: React.FC = () => {
                       <div className="text-slate-800 font-medium">{b.responsibleName}</div>
                       <div className="text-[11px] text-slate-500">{t(b.responsiblePhone)}</div>
                     </td>
-                    <td className="py-4 px-4 font-bold text-navy-900 whitespace-nowrap">{t("R$")}{t(b.totalPrice.toFixed(2))}
+                    <td className="py-4 px-4 font-bold text-navy-900 whitespace-nowrap">
+                       <div>{t("R$ ")}{t(b.totalPrice.toFixed(2))}</div>
+                       <span className={`mt-1 inline-block text-[10px] font-semibold ${(paidBookingIds.has(b.id)||creditedBookingIds.has(b.id))?'text-emerald-700':'text-amber-700'}`}>
+                         {creditedBookingIds.has(b.id)?'Coberto por plano de horas':paidBookingIds.has(b.id)?'Pago pelo Stripe':'Pagamento não confirmado'}
+                       </span>
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
                       {b.status === 'confirmada' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">{t("Confirmada")}</span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">{t("Confirmada ")}</span>
                       )}
                       {b.status === 'concluida' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{t("Concluída")}</span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{t("Concluída ")}</span>
                       )}
                       {b.status === 'cancelada' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">{t("Cancelada")}</span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">{t("Cancelada ")}</span>
                       )}
                     </td>
                     <td className="py-4 px-6 text-right whitespace-nowrap">
@@ -243,7 +341,15 @@ export const ClientDashboardView: React.FC = () => {
                         <button
                           onClick={() => setSelectedVoucher(b)}
                           className="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-lg transition-colors"
-                        >{t("Voucher")}</button>
+                        >{t("Voucher ")}</button>
+                        {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && b.status === 'confirmada' && (
+                          <a href={recordedCalendarEventUrl(currentUser?.id || '', b.id) || manualGoogleCalendarLink(b)}
+                            target="_blank" rel="noopener noreferrer"
+                            aria-label={`Adicionar ${b.spaceName} ao Google Agenda`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-blue-800 hover:bg-blue-50 rounded-lg border border-blue-100">
+                            <ExternalLink className="h-3.5 w-3.5" /> Google Agenda
+                          </a>
+                        )}
                         {b.status === 'confirmada' && (
                           <button
                             onClick={() => {
@@ -252,7 +358,7 @@ export const ClientDashboardView: React.FC = () => {
                               }
                             }}
                             className="px-2.5 py-1 text-[11px] font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                          >{t("Cancelar")}</button>
+                          >{t("Cancelar ")}</button>
                         )}
                       </div>
                     </td>
@@ -264,12 +370,12 @@ export const ClientDashboardView: React.FC = () => {
         ) : (
           <div className="text-center py-12 p-6 space-y-3">
             <Calendar className="w-10 h-10 text-slate-300 mx-auto" />
-            <h3 className="text-sm font-bold text-navy-900">{t("Nenhuma reserva encontrada")}</h3>
-            <p className="text-xs text-slate-500">{t("Agende salas executivas e use seus créditos mensais inclusos.")}</p>
+            <h3 className="text-sm font-bold text-navy-900">{t("Nenhuma reserva encontrada ")}</h3>
+            <p className="text-xs text-slate-500">{t("Agende salas executivas e use seus créditos mensais inclusos. ")}</p>
             <button
               onClick={() => setActiveTab('marketplace')}
               className="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-semibold"
-            >{t("Explorar Salas")}</button>
+            >{t("Explorar Salas ")}</button>
           </div>
         ))}
       </div>
@@ -279,7 +385,7 @@ export const ClientDashboardView: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-scaleUp">
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between no-print">
-              <span className="font-bold text-sm">{t("Voucher de Acesso • MVA Hub")}</span>
+              <span className="font-bold text-sm">{(paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))?"Voucher de Acesso • MVA Hub":"Reserva pendente de pagamento"}</span>
               <button onClick={() => setSelectedVoucher(null)} className="text-slate-400 hover:text-white p-1">
                 <X className="w-5 h-5" />
               </button>
@@ -289,7 +395,7 @@ export const ClientDashboardView: React.FC = () => {
               <div className="border-2 border-dashed border-orange-200 bg-orange-50/30 p-5 rounded-2xl space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[10px] font-bold text-orange-600 uppercase">{t("Reserva Confirmada")}</span>
+                    <span className="text-[10px] font-bold text-orange-600 uppercase">{t((paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))?"Reserva Paga e Confirmada":"Reserva Registrada — Pagamento Pendente")}</span>
                     <h3 className="text-base font-bold text-navy-900">{t(selectedVoucher.spaceName)}</h3>
                     <p className="text-slate-500 text-[11px]">{t(selectedVoucher.coworkingName)}</p>
                   </div>
@@ -300,44 +406,44 @@ export const ClientDashboardView: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3 pt-2 border-t border-orange-100">
                   <div>
-                    <span className="text-slate-400 block">{t("Data")}</span>
+                    <span className="text-slate-400 block">{t("Data ")}</span>
                     <strong className="text-slate-800">{t(selectedVoucher.date.split('-').reverse().join('/'))}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-400 block">{t("Horário")}</span>
+                    <span className="text-slate-400 block">{t("Horário ")}</span>
                     <strong className="text-slate-800">{t(selectedVoucher.startTime)}{t("às")}{t(selectedVoucher.endTime)}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-400 block">{t("Responsável")}</span>
+                    <span className="text-slate-400 block">{t("Responsável ")}</span>
                     <strong className="text-slate-800 truncate block">{t(selectedVoucher.responsibleName)}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-400 block">{t("Total")}</span>
-                    <strong className="text-orange-600 font-bold">{t("R$")}{t(selectedVoucher.totalPrice.toFixed(2))}</strong>
+                    <span className="text-slate-400 block">{t("Total ")}</span>
+                    <strong className="text-orange-600 font-bold">{t("R$ ")}{t(selectedVoucher.totalPrice.toFixed(2))}</strong>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-orange-100 flex items-center justify-between">
+                {(paidBookingIds.has(selectedVoucher.id)||creditedBookingIds.has(selectedVoucher.id))&&selectedVoucher.status!=='cancelada'?
+                 <div className="pt-3 border-t border-orange-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <QrCode className="w-12 h-12 p-1 bg-white border border-slate-300 rounded" />
-                    <div className="text-[11px] text-slate-500">
-                      <span>{t("Validação eletrônica")}</span>
-                      <strong className="block text-navy-900">{t("Check-in na Recepção")}</strong>
-                    </div>
+                   <QrCode className="w-12 h-12 p-1 bg-white border border-slate-300 rounded" />
+                   <div className="text-[11px] text-slate-500"><span>Pagamento validado</span><strong className="block text-navy-900">Check-in na recepção</strong></div>
                   </div>
-                  <button
-                    onClick={() => window.print()}
-                    className="px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-semibold flex items-center gap-1.5"
-                  >
-                    <Printer className="w-3.5 h-3.5 text-orange-600" />{t("Imprimir")}</button>
-                </div>
+                  <button onClick={() => window.print()} className="px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-semibold flex items-center gap-1.5">
+                   <Printer className="w-3.5 h-3.5 text-orange-600"/> Imprimir
+                  </button>
+                 </div>:
+                 <div className="space-y-3 border-t border-orange-100 pt-3">
+                  <p className="text-xs font-semibold text-amber-900">Este comprovante não autoriza o uso da sala enquanto não houver pagamento confirmado.</p>
+                  {selectedVoucher.status==='confirmada'&&<StripeCheckoutAction action="checkout_booking" resourceId={selectedVoucher.id} label="Pagar minha reserva com Stripe"/>}
+                 </div>}
               </div>
 
               <div className="flex justify-end pt-2 no-print">
                 <button
                   onClick={() => setSelectedVoucher(null)}
                   className="px-5 py-2 bg-navy-900 text-white rounded-xl font-bold"
-                >{t("Fechar")}</button>
+                >{t("Fechar ")}</button>
               </div>
             </div>
           </div>

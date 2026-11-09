@@ -9,3 +9,10 @@ verify_jwt = false
 # Public callback: validates Stripe's signature against the raw request body.
 [functions.fiscal-webhook]
 verify_jwt = false
+
+# Authenticated calls validate bearer tokens manually in the function.
+[functions.mva-stripe-gateway]
+verify_jwt = false
+# Public Stripe callback verifies the raw-body HMAC signature before any database access.
+[functions.mva-stripe-webhook]
+verify_jwt = false

@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { canIssueCertificate } from '../lib/fiscal-eligibility';
+import { calendarEnabled, removeGoogleCalendarEvent } from '../lib/google-calendar';
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../config/integrations';
 import { isAdmin, profileToUser } from '../lib/auth';
 import { formatAddress, rowToBooking, rowToCorrespondence, rowToFiscal, rowToSpace, spaceToRow } from '../lib/mappers';
 import type { Booking, Correspondence, FiscalContract, Space, UserAccount } from '../types';
@@ -44,8 +46,10 @@ interface CoworkingContextType {
     type: Correspondence['type']; priority: Correspondence['priority']; notes?: string; lockerNumber?: string;
   }) => Promise<void>;
   requestDigitalization: (id: string) => Promise<void>;
+  completeDigitalization: (id: string, privatePdfPath: string) => Promise<void>;
   markCorrespondenceAsRetrieved: (id: string) => Promise<void>;
   refreshFiscalContracts: () => Promise<void>;
+  refreshSpaces: () => Promise<void>;
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
 }
 
@@ -65,7 +69,13 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [correspondence, setCorrespondence] = useState<Correspondence[]>([]);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [internAuthorized, setInternAuthorized] = useState(false);
-  const [activeTab, setActiveTab] = useState('fiscal');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === 'undefined') return 'home';
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('fiscal_order')) return 'fiscal';
+    const page = params.get('page');
+    return page && ['home','marketplace','fiscal','legal','owner-dashboard','client-dashboard','correspondence','admin','intern-rooms'].includes(page) ? page : 'home';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Todas');
   const [selectedCategory, setSelectedCategory] = useState('todas');
@@ -86,10 +96,17 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [showToast]);
 
   /* ---------- carregamento ---------- */
+  const refreshSpaces = useCallback(async () => {
+    const result = await supabase.from('spaces').select('*').order('created_at', { ascending: false });
+    if (result.error) {
+      fail('Não foi possível carregar os espaços', result.error);
+      return;
+    }
+    setSpaces((result.data || []).map(rowToSpace));
+  }, [fail]);
+
   const loadAll = useCallback(async (uid: string | null) => {
-    const sp = await supabase.from('spaces').select('*').order('created_at', { ascending: false });
-    if (sp.error) fail('Não foi possível carregar os espaços', sp.error);
-    else setSpaces((sp.data || []).map(rowToSpace));
+    await refreshSpaces();
     if (!uid) { setBookings([]); setFiscalContracts([]); setCorrespondence([]); return; }
     const [bk, fc, co] = await Promise.all([
       supabase.from('bookings').select('*').order('created_at', { ascending: false }),
@@ -102,7 +119,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setFiscalContracts((fc.data || []).map(rowToFiscal));
       setCorrespondence((co.data || []).map(rowToCorrespondence));
     }
-  }, [fail]);
+  }, [fail, refreshSpaces]);
 
   /* ---------- sessão ---------- */
   useEffect(() => {
@@ -257,12 +274,25 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const patchBooking = async (id: string, patch: Record<string, unknown>, ok: string) => {
     const { data, error } = await supabase.from('bookings').update(patch).eq('id', id).select().single();
-    if (error) return fail('Não foi possível atualizar a reserva', error);
+    if (error) {
+      if (patch.status === 'cancelada' && error.code === '23514') {
+        showToast('Esta reserva possui pagamento Stripe ativo. Solicite reembolso ou cancelamento da cobrança à MVA antes de cancelar.', 'error');
+        return false;
+      }
+      return fail('Não foi possível atualizar a reserva', error);
+    }
     setBookings(prev => prev.map(x => (x.id === id ? rowToBooking(data) : x)));
     showToast(ok, 'info');
+    return true;
   };
-  const cancelBooking = (id: string) => patchBooking(id, { status: 'cancelada' }, 'Reserva cancelada.');
-  const checkInBooking = (id: string) => patchBooking(id, { check_in: true }, 'Check-in realizado com sucesso!');
+  const cancelBooking = async (id: string) => {
+    const canceled = await patchBooking(id, { status: 'cancelada' }, 'Reserva cancelada.');
+    if (BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && canceled && currentUser && calendarEnabled(currentUser.id)) {
+      const removed = await removeGoogleCalendarEvent(id, currentUser.id);
+      if (!removed) showToast('A reserva foi cancelada, mas confirme também a remoção do evento na sua conta Google Agenda.', 'info');
+    }
+  };
+  const checkInBooking = async (id: string) => { await patchBooking(id, { check_in: true }, 'Check-in realizado com sucesso!'); };
 
   /* ---------- correspondência ---------- */
   const addCorrespondence: CoworkingContextType['addCorrespondence'] = async (i) => {
@@ -273,7 +303,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }).select().single();
     if (error) return fail('Não foi possível registrar a correspondência', error);
     setCorrespondence(prev => [rowToCorrespondence(data), ...prev]);
-    showToast('Correspondência registrada e cliente notificado.', 'success');
+    showToast('Correspondência registrada. O cliente poderá consultá-la no painel.', 'success');
   };
 
   const patchCorr = async (id: string, patch: Record<string, unknown>, ok: string) => {
@@ -283,7 +313,9 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast(ok, 'success');
   };
   const requestDigitalization = (id: string) =>
-    patchCorr(id, { digitalization_requested: true, status: 'digitalizado' }, 'Digitalização solicitada.');
+    patchCorr(id, { digitalization_requested: true }, 'Solicitação de digitalização registrada.');
+  const completeDigitalization = (id: string, privatePdfPath: string) =>
+    patchCorr(id, { status: 'digitalizado', digitalized_doc_url: privatePdfPath, digitalization_requested: false }, 'Digitalização disponibilizada com acesso privado.');
   const markCorrespondenceAsRetrieved = (id: string) =>
     patchCorr(id, { status: 'retirado' }, 'Retirada registrada.');
 
@@ -301,8 +333,8 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       ready, spaces, correspondence, fiscalContracts, bookings, currentCompany, currentUser, internAuthorized, activeTab, searchQuery,
       selectedCity, selectedCategory, toasts, authModalOpen, authModalTab, setActiveTab, setSearchQuery, setSelectedCity,
       setSelectedCategory, setAuthModalOpen, setAuthModalTab, logout, addSpace, updateSpace, deleteSpace, approveSpace,
-      rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization,
-      markCorrespondenceAsRetrieved, refreshFiscalContracts, showToast,
+      rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization, completeDigitalization,
+      markCorrespondenceAsRetrieved, refreshFiscalContracts, refreshSpaces, showToast,
     }}>
       {children}
     </CoworkingContext.Provider>
@@ -315,4 +347,3 @@ export const useCoworking = () => {
   if (!ctx) throw new Error('useCoworking must be used within CoworkingProvider');
   return ctx;
 };
-

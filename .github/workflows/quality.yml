@@ -1,0 +1,25 @@
+name: MVA | Build Verification
+
+on:
+  push:
+    branches: [main, mva-salas-refinamento-2026]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: TypeScript and Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Typecheck and build for production
+        run: npm run build

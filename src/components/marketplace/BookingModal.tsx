@@ -1,6 +1,9 @@
 import { t } from '../../lib/preferences';
 import React, { useState } from 'react';
 import { Space, Booking } from '../../types';
+import { calendarEnabled, connectGoogleCalendar, saveGoogleCalendarEvent, type CalendarSyncResult } from '../../lib/google-calendar';
+import { BookingConfirmation } from './BookingConfirmation';
+import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import { useCoworking } from '../../context/CoworkingContext';
 import { 
   X, 
@@ -9,10 +12,7 @@ import {
   Users, 
   Check, 
   Video, 
-  Printer, 
-  MapPin, 
-  CheckCircle2, 
-  QrCode
+  MapPin
 } from 'lucide-react';
 
 interface BookingModalProps {
@@ -21,7 +21,7 @@ interface BookingModalProps {
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) => {
-  const { addBooking, currentCompany, currentUser } = useCoworking();
+  const { addBooking, currentCompany, currentUser, showToast } = useCoworking();
 
   const [date, setDate] = useState(() => {
     const tomorrow = new Date();
@@ -30,7 +30,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   });
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('11:00');
-  const [responsibleName, setResponsibleName] = useState(currentUser?.name || 'Lucas Ferreira');
+  const [responsibleName, setResponsibleName] = useState(currentUser?.name || '');
   const [responsibleEmail, setResponsibleEmail] = useState(currentUser?.email || currentCompany.contactEmail);
   const [responsiblePhone, setResponsiblePhone] = useState(currentCompany.contactPhone);
   const [companyName, setCompanyName] = useState(currentCompany.companyName);
@@ -38,6 +38,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
   // Addons
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+  const [calendarSync, setCalendarSync] = useState<CalendarSyncResult | 'error' | 'saving' | null>(null);
+  const [calendarConnecting, setCalendarConnecting] = useState(false);
 
   if (!space) return null;
 
@@ -89,8 +91,19 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
 
     if (!newBooking) return;
     setConfirmedBooking(newBooking);
-
-    // Reserva confirmada: confirmação exibida no próprio formulário.
+    if (BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && currentUser && calendarEnabled(currentUser.id)) {
+      setCalendarSync('saving');
+      try {
+        const result = await saveGoogleCalendarEvent(newBooking, currentUser.id, space);
+        setCalendarSync(result);
+        if (result === 'saved') showToast('Agendamento salvo no Google Agenda com lembretes.', 'success');
+      } catch {
+        setCalendarSync('error');
+        showToast('Reserva confirmada, mas a sincronização com o Google Agenda não foi concluída.', 'info');
+      }
+    } else {
+      setCalendarSync('not_connected');
+    }
 
   };
 
@@ -109,7 +122,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
 
           {t(!confirmedBooking ? (
             <div>
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 mb-2">{t("Reserva de Espaço")}</div>
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 mb-2">{t("Reserva de Espaço ")}</div>
               <h2 className="text-xl font-bold tracking-tight">{space.name}</h2>
               <div className="flex items-center gap-2 text-xs text-slate-300 mt-1">
                 <MapPin className="w-3.5 h-3.5 text-orange-400" />
@@ -117,79 +130,33 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
             </div>
           ) : (
-            <div className="text-center py-2">
-              <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto mb-2">
-                <CheckCircle2 className="w-7 h-7" />
-              </div>
-              <h2 className="text-xl font-bold text-white">{t("Reserva Confirmada com Sucesso!")}</h2>
-              <p className="text-xs text-slate-300">{t("Apresente este voucher ao chegar na recepção.")}</p>
+            <div className="pr-12">
+              <span className="text-[11px] font-semibold uppercase tracking-[.2em] text-orange-300">Comprovante MVA Coworking</span>
+              <h2 className="mt-2 text-xl font-bold tracking-tight text-white">Detalhes da sua reserva</h2>
+              <p className="mt-1 text-xs text-slate-300">Confira as informações do seu agendamento abaixo.</p>
             </div>
           ))}
         </div>
 
-        {/* Voucher Screen */}
-        {t(confirmedBooking ? (
-          <div className="p-6 space-y-6">
-            <div className="border-2 border-dashed border-orange-200 bg-orange-50/30 rounded-2xl p-5 relative">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-orange-100 pb-4">
-                <div>
-                  <span className="text-xs font-bold text-orange-600 tracking-wider uppercase">{t("Voucher Oficial")}</span>
-                  <h3 className="text-lg font-bold text-navy-900">{t(confirmedBooking.spaceName)}</h3>
-                  <p className="text-xs text-slate-500">{t(confirmedBooking.coworkingName)}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">{t("Código")}</span>
-                  <div className="font-mono text-base font-bold text-navy-900 bg-white px-3 py-1 rounded-md border border-orange-200 shadow-sm">
-                    {t(confirmedBooking.id.toUpperCase())}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-b border-orange-100 text-xs">
-                <div>
-                  <span className="text-slate-400 block">{t("Data")}</span>
-                  <strong className="text-slate-800 text-sm">{t(confirmedBooking.date.split('-').reverse().join('/'))}</strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">{t("Horário")}</span>
-                  <strong className="text-slate-800 text-sm">{t(confirmedBooking.startTime)}{t("às")}{t(confirmedBooking.endTime)}</strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">{t("Titular")}</span>
-                  <strong className="text-slate-800 text-sm block truncate">{t(confirmedBooking.responsibleName)}</strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">{t("Investimento")}</span>
-                  <strong className="text-orange-600 text-sm font-bold">{t("R$")}{t(confirmedBooking.totalPrice.toFixed(2))}</strong>
-                </div>
-              </div>
-
-              <div className="pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <div className="flex items-center gap-3 text-xs text-slate-600">
-                  <QrCode className="w-12 h-12 text-slate-800 p-1 bg-white rounded border border-slate-200" />
-                  <div>
-                    <span className="font-medium text-navy-900 block">{t("Check-in automático na recepção")}</span>
-                    <span className="text-slate-500">{t("Wi-Fi e suporte inclusos.")}</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
-                >
-                  <Printer className="w-4 h-4 text-orange-600" />{t("Imprimir Comprovante")}</button>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full sm:w-auto px-6 py-2.5 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold shadow-md transition-all"
-              >{t("Concluir & Fechar")}</button>
-            </div>
-          </div>
+        {confirmedBooking ? (
+          <BookingConfirmation
+            booking={confirmedBooking}
+            space={space}
+            userId={currentUser?.id || null}
+            canConnectGoogle={BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && currentUser?.provider === 'google'}
+            sync={calendarSync}
+            connecting={calendarConnecting}
+            onConnect={() => {
+              if (!currentUser) return;
+              setCalendarConnecting(true);
+              if (!BOOKING_EXTERNAL_INTEGRATIONS_ENABLED) return;
+              void connectGoogleCalendar(currentUser, confirmedBooking.id).catch(error => {
+                setCalendarConnecting(false);
+                showToast(error instanceof Error ? error.message : 'Falha ao conectar Google Agenda.', 'error');
+              });
+            }}
+            onClose={onClose}
+          />
         ) : (
           /* Form for new reservation */
           <form onSubmit={handleConfirm} className="p-6 space-y-4 text-xs">
@@ -197,11 +164,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
               <div className="flex items-center gap-2 text-slate-600">
                 <Users className="w-4 h-4 text-slate-400" />
-                <span>{t("Capacidade:")}<strong className="text-navy-900">{t(space.capacity)}{t("pessoas")}</strong></span>
+                <span>{t("Capacidade: ")}<strong className="text-navy-900">{t(space.capacity)}{t("pessoas")}</strong></span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-slate-500">{t("Valor hora:")}</span>
-                <span className="text-sm font-bold text-orange-600">{t("R$")}{t(space.pricePerHour)},00</span>
+                <span className="text-slate-500">{t("Valor hora: ")}</span>
+                <span className="text-sm font-bold text-orange-600">{t("R$ ")}{t(space.pricePerHour)},00</span>
               </div>
             </div>
 
@@ -209,7 +176,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-orange-600" />{t("Data da Reserva")}</label>
+                  <Calendar className="w-3.5 h-3.5 text-orange-600" />{t("Data da Reserva ")}</label>
                 <input
                   type="date"
                   required
@@ -221,7 +188,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
 
               <div>
                 <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-orange-600" />{t("Início")}</label>
+                  <Clock className="w-3.5 h-3.5 text-orange-600" />{t("Início ")}</label>
                 <select
                   value={startTime}
                   onChange={e => setStartTime(e.target.value)}
@@ -235,7 +202,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
 
               <div>
                 <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-orange-600" />{t("Término")}</label>
+                  <Clock className="w-3.5 h-3.5 text-orange-600" />{t("Término ")}</label>
                 <select
                   value={endTime}
                   onChange={e => setEndTime(e.target.value)}
@@ -251,7 +218,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             {/* Responsible and Company */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">{t("Empresa Contratante")}</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("Empresa Contratante ")}</label>
                 <input
                   type="text"
                   required
@@ -262,7 +229,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">{t("Responsável no Local")}</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("Responsável no Local ")}</label>
                 <input
                   type="text"
                   required
@@ -273,7 +240,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">{t("E-mail de Confirmação")}</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("E-mail para contato (sem envio automático) ")}</label>
                 <input
                   type="email"
                   required
@@ -284,7 +251,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">{t("Telefone / WhatsApp")}</label>
+                <label className="block font-semibold text-slate-700 mb-1">{t("Telefone / WhatsApp ")}</label>
                 <input
                   type="text"
                   required
@@ -297,7 +264,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
 
             {/* Optional Addons */}
             <div>
-              <label className="block font-bold text-navy-900 mb-1.5 uppercase text-[11px] tracking-wide">{t("Serviços Opcionais")}</label>
+              <label className="block font-bold text-navy-900 mb-1.5 uppercase text-[11px] tracking-wide">{t("Serviços Opcionais ")}</label>
               <div className="space-y-2">
                 {[
                   {
@@ -332,7 +299,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                           <p className="text-[10px] text-slate-500">{t(addon.desc)}</p>
                         </div>
                       </div>
-                      <span className="font-bold text-navy-900 shrink-0 ml-2">{t("+ R$")}{t(addon.price)},00
+                      <span className="font-bold text-navy-900 shrink-0 ml-2">{t("+ R$ ")}{t(addon.price)},00
                       </span>
                     </div>
                   );
@@ -343,16 +310,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             {/* Total calculation bar */}
             <div className="bg-navy-950 text-white p-4 rounded-xl flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-slate-400 block">{t("Total (")}{t(durationHours)}{t("h de locação)")}</span>
-                <div className="text-xs text-slate-300">{t("Base: R$")}{t(baseTotal)},00 {addonsTotal > 0 && `+ Adicionais: R$ ${addonsTotal},00`}
+                <span className="text-[11px] text-slate-400 block">{t("Total ( ")}{t(durationHours)}{t("h de locação)")}</span>
+                <div className="text-xs text-slate-300">{t("Base: R$ ")}{t(baseTotal)},00 {addonsTotal > 0 && `+ Adicionais: R$ ${addonsTotal},00`}
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-orange-400 uppercase font-semibold block">{t("Valor Final")}</span>
-                <div className="text-2xl font-bold text-orange-400">{t("R$")}{t(totalPrice.toFixed(2))}
+                <span className="text-[10px] text-orange-400 uppercase font-semibold block">{t("Valor Final ")}</span>
+                <div className="text-2xl font-bold text-orange-400">{t("R$ ")}{t(totalPrice.toFixed(2))}
                 </div>
               </div>
             </div>
+
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900" role="note"><strong>Pagamento seguro após o agendamento.</strong> O horário será registrado primeiro. Depois, escolha pagar pelo Stripe ou utilizar horas de um plano MVA elegível. Reservas de parceiros dependem da habilitação de recebimentos do responsável.</div>
 
             {/* Footer Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -360,14 +329,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800"
-              >{t("Cancelar")}</button>
+              >{t("Cancelar ")}</button>
               <button
                 type="submit"
                 className="px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-md hover:shadow-orange-500/30 transition-all flex items-center gap-2"
-              >{t("Confirmar Reserva Instantânea")}</button>
+              >{t("Continuar para pagamento ")}</button>
             </div>
           </form>
-        ))}
+        )}
 
       </div>
     </div>

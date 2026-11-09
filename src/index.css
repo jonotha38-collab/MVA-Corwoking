@@ -154,10 +154,12 @@ button,input,select,textarea { font-family:inherit; }
  .preferences button { min-width:32px; padding:0 5px; }
  header .action-primary { font-size:11px; padding:10px 9px; }
 }
+/* O menu do notebook tem uma linha exclusiva: não comprimimos a marca nem sobrepomos links. */
+@media (min-width:1024px) and (max-width:1279px) {
+ header .preferences button span { display:none; }
+}
 @media (min-width:1280px) and (max-width:1535px) {
- header nav button { font-size:12px !important; padding-left:8px !important; padding-right:8px !important; }
  .preferences button span { display:none; }
- header > div > button img { width:88px; height:auto; }
 }
 
 /* Fiscal checkout — one contained, accessible payment surface. */
@@ -244,3 +246,91 @@ button,input,select,textarea { font-family:inherit; }
 .action-primary { border-radius: 10px; box-shadow: none; }
 .action-primary:hover:not(:disabled) { transform: none; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Layout seguro para notebooks estreitos, telas pequenas e zoom do navegador.
+   Mantém tabelas roláveis sem sacrificar a leitura do conteúdo principal. */
+#root { width:100%; min-width:0; overflow-x:clip; }
+#root main { min-width:0; }
+#root main :is(article,section) { min-width:0; }
+#root main .overflow-x-auto { max-width:100%; overscroll-behavior-x:contain; }
+header nav[aria-label] { scrollbar-width:thin; }
+header nav[aria-label] button { flex-shrink:0; }
+
+/* Layout fluido dos títulos longos (inclusive nas traduções para EN/ES). */
+.hero-title { overflow-wrap:break-word; }
+@media (max-width:639px) {
+ .hero-title { font-size:clamp(1.8rem,7.2vw,2.25rem); }
+ .hero-shell { padding:28px 18px; }
+ #root main { padding-inline:12px; }
+}
+@media (max-width:420px) {
+ header > div:first-of-type > button img { width:clamp(58px,17vw,66px); height:auto; }
+ header .preferences select { width:clamp(62px,19vw,78px); }
+ header .action-primary { padding-inline:8px; }
+}
+@media (max-width:360px) {
+ header > div:first-of-type { gap:4px !important; padding-inline:8px; }
+ header > div:first-of-type > .flex { gap:3px; }
+ header .action-primary { font-size:10px; padding-inline:7px; }
+ #root main { padding-inline:10px; }
+ .hero-shell { padding:24px 14px; }
+}
+
+
+/* Fiscal landing: optical contrast tokens isolated from the global light/dark
+   utilities. Brand navy and copper remain identical across both themes. */
+.mva-fiscal {
+  --fiscal-surface: #ffffff;
+  --fiscal-soft: #f1f5fa;
+  --fiscal-ink: #152b43;
+  --fiscal-muted: #51647b;
+  --fiscal-line: #d8e1eb;
+  --fiscal-accent: #ac4718;
+  --fiscal-accent-soft: #fff1e8;
+  --fiscal-highlight-border: #f1bd9d;
+  color: var(--fiscal-ink);
+}
+:root[data-theme="dark"] .mva-fiscal {
+  --fiscal-surface: #192b40;
+  --fiscal-soft: #243a53;
+  --fiscal-ink: #f2f7ff;
+  --fiscal-muted: #c1cede;
+  --fiscal-line: #38506b;
+  --fiscal-accent: #ffbc88;
+  --fiscal-accent-soft: #372d2c;
+  --fiscal-highlight-border: #8c5d43;
+}
+.mva-fiscal .fiscal-surface { background-color: var(--fiscal-surface); color: var(--fiscal-ink); }
+.mva-fiscal .fiscal-soft { background-color: var(--fiscal-soft); }
+.mva-fiscal .fiscal-ink { color: var(--fiscal-ink); }
+.mva-fiscal .fiscal-muted { color: var(--fiscal-muted); }
+.mva-fiscal .fiscal-line { border-color: var(--fiscal-line); }
+.mva-fiscal .fiscal-accent { color: var(--fiscal-accent); }
+.mva-fiscal .fiscal-accent-soft { background-color: var(--fiscal-accent-soft); }
+.mva-fiscal .fiscal-highlight-border { border-color: var(--fiscal-highlight-border); }
+.mva-fiscal .fiscal-white-cta {
+  background-color: #ffffff;
+  color: #18304c;
+  border: 1px solid transparent;
+}
+.mva-fiscal .fiscal-white-cta:hover { background-color: #fff1e8; color: #172c46; }
+/* Prevent the global theme from altering navy hero imagery, badges or CTA labels. */
+.mva-fiscal [class~="text-white"] { color: #ffffff; }
+.mva-fiscal :is(button, a) { transition-property: background-color,border-color,color,transform,box-shadow; }
+.mva-fiscal a:focus-visible, .mva-fiscal button:focus-visible {
+  outline: 3px solid #fba16b; outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+ .mva-fiscal :is(button,a) { transition: none; }
+}
+
+/* Sales-oriented homepage: preserve readable buttons and consistent dark surfaces. */
+.mva-home-white-cta { background:#ffffff; color:#16314d; border:1px solid #ffffff; }
+.mva-home-white-cta:hover { background:#fff1e8; color:#16314d; }
+:root[data-theme="dark"] .mva-home .mva-home-white-cta { background:#ffffff; color:#16314d; }
+:root[data-theme="dark"] .mva-home .mva-home-white-cta:hover { background:#fff1e8; color:#16314d; }
+.mva-home :is(button,a):focus-visible { outline:3px solid #ffb377; outline-offset:3px; }
+@media (max-width:380px) {
+ .mva-home :is(h1,h2,h3,p) { overflow-wrap:anywhere; }
+ .mva-home button { max-width:100%; }
+}

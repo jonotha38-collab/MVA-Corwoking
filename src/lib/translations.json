@@ -2986,5 +2986,61 @@
   "O valor ou o período retornado não corresponde à sua escolha. Atualize a integração antes de pagar.": [
     "The returned amount or period does not match your choice. Update the integration before paying.",
     "El importe o el período no coincide con tu elección. Actualiza la integración antes de pagar."
+  ],
+  "Anúncio disponível": [
+    "Listing available",
+    "Anuncio disponible"
+  ],
+  "Reserva registrada na plataforma": [
+    "Reservation registered",
+    "Reserva registrada en la plataforma"
+  ],
+  "Registrar minha reserva": [
+    "Register my booking",
+    "Registrar mi reserva"
+  ],
+  "Pagamento online em implantação": [
+    "Online payments coming soon",
+    "Pagos en línea en preparación"
+  ],
+  "O plano e o valor estão disponíveis para consulta. Nenhuma cobrança será efetuada nesta versão.": [
+    "You can review the plan and price. No payment will be charged in this version.",
+    "Puedes consultar el plan y el precio. Esta versión no realizará ningún cobro."
+  ],
+  "Seu cartão não será solicitado agora": [
+    "We will not ask for your card now",
+    "No solicitaremos tu tarjeta ahora"
+  ],
+  "Para sua segurança, a MVA só habilitará o checkout quando o provedor de pagamentos, os webhooks e as regras de contratação estiverem verificados.": [
+    "For your security, checkout will only be enabled once the provider, payment callbacks and contracting terms have been verified.",
+    "Por tu seguridad, el pago solo estará disponible cuando el proveedor, las notificaciones y las condiciones estén verificados."
+  ],
+  "Solicitar informações para contratar": [
+    "Request information about this plan",
+    "Solicitar información para contratar"
+  ],
+  "Voltar e comparar planos": [
+    "Go back to compare plans",
+    "Volver y comparar planes"
+  ],
+  "Ver contratação e pagamento": [
+    "View contracting and payment",
+    "Ver contratación y pago"
+  ],
+  "Pagamento do plano selecionado": [
+    "Payment for selected plan",
+    "Pago del plan elegido"
+  ],
+  "Análise e documentação": [
+    "Eligibility and documents",
+    "Análisis y documentos"
+  ],
+  "Sede MVA em Aracaju • Marketplace de espaços": [
+    "MVA headquarters in Aracaju • Workspace marketplace",
+    "Sede MVA en Aracaju • Marketplace de espacios"
+  ],
+  "Atendimento comercial: consulte os canais abaixo para confirmar horários e disponibilidade antes de visitar.": [
+    "Business enquiries: contact us to confirm hours and availability before visiting.",
+    "Atención comercial: consulta los canales para confirmar horarios y disponibilidad antes de visitar."
   ]
 }

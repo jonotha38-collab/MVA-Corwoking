@@ -1,12 +1,14 @@
 import { t } from '../../lib/preferences';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { Space } from '../../types';
 import { SpaceCard } from './SpaceCard';
 import { SpaceDetailModal } from './SpaceDetailModal';
 import { BookingModal } from './BookingModal';
+import { BookingPlans } from '../payments/BookingPlans';
 import { Search, MapPin, Users, LayoutGrid, X, PlusCircle, Building2, Mail, ShieldCheck, CalendarCheck, Filter, ChevronDown } from 'lucide-react';
 import { Reveal } from '../ui/Reveal';
+import { isSpacePubliclyVisible } from '../../lib/space-visibility';
 import heroOffice from '../../assets/hero-office.jpg';
 
 const CATEGORIES = [
@@ -19,26 +21,59 @@ const CATEGORIES = [
 
 const STEPS = [
   { title: 'Encontre', text: 'Busque por cidade, tipo de sala e capacidade.' },
-  { title: 'Reserve', text: 'Escolha data e horário e confirme na hora.' },
+  { title: 'Reserve e pague', text: 'Escolha data e horário e conclua o pagamento pelo Stripe ou use horas do plano MVA.' },
   { title: 'Use', text: 'Faça o check-in na recepção e trabalhe com toda a infraestrutura.' },
 ];
 
 const FAQ = [
-  ['Como reservo uma sala?', 'Escolha o espaço, clique em reservar, informe data, horário e seus dados. A confirmação é imediata e aparece em "Minhas reservas".'],
-  ['Posso contratar endereço fiscal?', 'Sim. Na página Endereço Fiscal você contrata o plano, acompanha o alvará e recebe a correspondência da sua empresa.'],
+  ['Como reservo uma sala?', 'Selecione o espaço e registre o horário. A reserva só fica financeiramente confirmada após pagamento Stripe ou uso válido do plano de horas. Salas parceiras dependem do Stripe Connect do responsável.'],
+  ['Posso contratar endereço fiscal?', 'Na seção Endereço Fiscal você pode conhecer os planos. O uso do endereço exige análise de elegibilidade, contrato e pagamento confirmado.'],
   ['Tenho um coworking. Como anuncio?', 'Crie uma conta como coworking, cadastre o espaço com fotos e endereço e envie. A equipe MVA analisa o anúncio antes de publicá-lo.'],
   ['Por que meu anúncio ainda não apareceu?', 'Todo espaço novo ou alterado passa por aprovação dos administradores. Você acompanha o status (em análise, aprovado ou rejeitado) no painel do anunciante.'],
 ];
 
 export const MarketplaceView: React.FC = () => {
-  const { spaces, searchQuery, setSearchQuery, selectedCity, setSelectedCity, selectedCategory, setSelectedCategory, setActiveTab } = useCoworking();
+  const { spaces, searchQuery, setSearchQuery, selectedCity, setSelectedCity, selectedCategory, setSelectedCategory, setActiveTab, refreshSpaces } = useCoworking();
   const [capacity, setCapacity] = useState('all');
-  const [sortBy, setSortBy] = useState<'rating' | 'priceAsc' | 'priceDesc' | 'capacity'>('rating');
+  const [sortBy, setSortBy] = useState<'priceAsc' | 'priceDesc' | 'capacity'>('priceAsc');
   const [detail, setDetail] = useState<Space | null>(null);
   const [booking, setBooking] = useState<Space | null>(null);
   const results = useRef<HTMLElement>(null);
 
-  const live = useMemo(() => spaces.filter(s => (s.approval ?? 'aprovado') === 'aprovado' && s.status !== 'hidden'), [spaces]);
+  // Pausado, manutenção ou ocupado nunca entra nas buscas, filtros ou detalhes.
+  const live = useMemo(() => spaces.filter(isSpacePubliclyVisible), [spaces]);
+  // Individual listing URLs can be shared without exposing private spaces.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('space');
+    if (!id || !live.length) return;
+    const space = live.find(item => item.id === id);
+    if (space) setDetail(space);
+  }, [live]);
+  const openDetail = (space: Space) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('page','marketplace');
+    url.searchParams.set('space',space.id);
+    window.history.replaceState(window.history.state,'',url.pathname + url.search + url.hash);
+    setDetail(space);
+  };
+  const closeDetail = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('space');
+    window.history.replaceState(window.history.state,'',url.pathname + url.search + url.hash);
+    setDetail(null);
+  };
+
+  const visibleDetail = detail ? live.find(s => s.id === detail.id) || null : null;
+  const visibleBooking = booking ? live.find(s => s.id === booking.id) || null : null;
+
+  // Se outro responsável pausar a sala com o marketplace já aberto,
+  // sincronizamos a lista periodicamente sem exigir recarregar a página.
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void refreshSpaces();
+    }, 30_000);
+    return () => window.clearInterval(timer);
+  }, [refreshSpaces]);
   const cities = useMemo(() => ['Todas', ...Array.from(new Set(live.map(s => s.city)))], [live]);
   const hq = live.find(s => s.isMvaHeadquarters);
 
@@ -51,13 +86,13 @@ export const MarketplaceView: React.FC = () => {
       .filter(s => !q || [s.name, s.coworkingName, s.street, s.neighborhood, s.city, s.description, ...s.amenities].some(t => t.toLowerCase().includes(q)))
       .sort((a, b) => {
         if (a.isMvaHeadquarters !== b.isMvaHeadquarters) return a.isMvaHeadquarters ? -1 : 1;
-        return sortBy === 'rating' ? b.rating - a.rating : sortBy === 'priceAsc' ? a.pricePerHour - b.pricePerHour : sortBy === 'priceDesc' ? b.pricePerHour - a.pricePerHour : b.capacity - a.capacity;
+        return sortBy === 'priceAsc' ? a.pricePerHour - b.pricePerHour : sortBy === 'priceDesc' ? b.pricePerHour - a.pricePerHour : b.capacity - a.capacity;
       });
   }, [live, selectedCity, selectedCategory, capacity, searchQuery, sortBy]);
 
   const dirty = searchQuery || selectedCity !== 'Todas' || selectedCategory !== 'todas' || capacity !== 'all';
   const clear = () => { setSearchQuery(''); setSelectedCity('Todas'); setSelectedCategory('todas'); setCapacity('all'); };
-  const search = (e: React.FormEvent) => { e.preventDefault(); results.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  const search = (e: React.FormEvent) => { e.preventDefault(); results.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
   const field = 'w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-navy-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30';
 
   return (
@@ -75,43 +110,45 @@ export const MarketplaceView: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/80 to-transparent pointer-events-none" />
         
         <div className="relative max-w-3xl z-10">
-          <p className="eyebrow mb-5 text-orange-300">{t("MVA Coworking · Espaços de trabalho")}</p>
+          <p className="eyebrow mb-5 text-orange-300">{t("MVA Coworking · Espaços de trabalho ")}</p>
           <h1 className="hero-title">
             {`${t('Espaços de coworking e salas de reunião para o seu negócio')}${selectedCity !== 'Todas' ? ` · ${selectedCity}` : ''}`}
           </h1>
-          <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados.")}</p>
+          <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados. ")}</p>
         </div>
         
         <form onSubmit={search} className="relative z-10 mt-10 grid gap-3 rounded-2xl bg-white p-3 shadow-2xl md:grid-cols-12" role="search">
           <div className="relative md:col-span-4"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t("Nome, bairro ou comodidade")} aria-label={t("Buscar espaços")} className={field} /></div>
           <div className="relative md:col-span-3"><MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} aria-label={t("Cidade")} className={field}>{cities.map(c => <option key={c} value={c}>{t(c === 'Todas' ? 'Todas as cidades' : c)}</option>)}</select></div>
-          <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label={t("Capacidade")} className={field}><option value="all">{t("Qualquer capacidade")}</option><option value="small">{t("Até 4 pessoas")}</option><option value="medium">{t("5 a 10 pessoas")}</option><option value="large">{t("Mais de 10 pessoas")}</option></select></div>
-          <button className="action-primary px-5 py-3 text-sm md:col-span-2">{t("Buscar")}</button>
+          <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label={t("Capacidade")} className={field}><option value="all">{t("Qualquer capacidade ")}</option><option value="small">{t("Até 4 pessoas ")}</option><option value="medium">{t("5 a 10 pessoas ")}</option><option value="large">{t("Mais de 10 pessoas ")}</option></select></div>
+          <button className="action-primary px-5 py-3 text-sm md:col-span-2">{t("Buscar ")}</button>
         </form>
         <ul className="relative z-10 mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-200">
-          <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Espaços aprovados pela equipe MVA")}</li>
-          <li className="flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Confirmação imediata")}</li>
-          <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-orange-400" aria-hidden />{t("Endereço fiscal disponível")}</li>
+          <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Espaços aprovados pela equipe MVA ")}</li>
+          <li className="flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-orange-400" aria-hidden />{t("Reserva registrada na plataforma ")}</li>
+          <li className="flex items-center gap-2"><Building2 className="h-4 w-4 text-orange-400" aria-hidden />{t("Endereço fiscal disponível ")}</li>
         </ul>
       </section>
+
+      <BookingPlans />
 
       {/* Resultados */}
       <section ref={results} className="scroll-mt-28" aria-labelledby="resultados">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="resultados" className="text-2xl font-bold text-navy-900">{t("Espaços disponíveis")}</h2>
+            <h2 id="resultados" className="text-2xl font-bold text-navy-900">{t("Espaços disponíveis ")}</h2>
             <p className="text-sm text-slate-500">{t(filtered.length)} {t(filtered.length === 1 ? 'espaço encontrado' : 'espaços encontrados')}</p>
           </div>
           <div className="flex items-center gap-3">
-            {dirty && <button onClick={clear} className="flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700"><X className="h-4 w-4" aria-hidden />{t("Limpar filtros")}</button>}
+            {dirty && <button onClick={clear} className="flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700"><X className="h-4 w-4" aria-hidden />{t("Limpar filtros ")}</button>}
             <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)} aria-label={t("Ordenar")} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">
-              <option value="rating">{t("Melhor avaliados")}</option><option value="priceAsc">{t("Menor preço por hora")}</option><option value="priceDesc">{t("Maior preço por hora")}</option><option value="capacity">{t("Maior capacidade")}</option>
+<option value="priceAsc">{t("Menor preço por hora ")}</option><option value="priceDesc">{t("Maior preço por hora ")}</option><option value="capacity">{t("Maior capacidade ")}</option>
             </select>
           </div>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={t("Tipo de espaço")}>
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-2" role="group" aria-label={t("Tipo de espaço")}>
           {CATEGORIES.map(c => (
-            <button key={c.id} role="tab" aria-selected={selectedCategory === c.id} onClick={() => setSelectedCategory(c.id)}
+            <button key={c.id} type="button" aria-pressed={selectedCategory === c.id} onClick={() => setSelectedCategory(c.id)}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${selectedCategory === c.id ? 'bg-navy-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-navy-900'}`}>
               {t(c.label)}
             </button>
@@ -119,30 +156,30 @@ export const MarketplaceView: React.FC = () => {
         </div>
         {t(filtered.length > 0 ? (
           <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((s, index) => <Reveal key={s.id} delay={Math.min(index, 3) * 0.06} className="flex"><SpaceCard space={s} onSelect={setDetail} onBook={setBooking} /></Reveal>)}
+            {filtered.map((s, index) => <Reveal key={s.id} delay={Math.min(index, 3) * 0.06} className="flex"><SpaceCard space={s} onSelect={openDetail} onBook={setBooking} /></Reveal>)}
           </div>
         ) : (
           <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
             <Filter className="mx-auto h-8 w-8 text-orange-500" aria-hidden />
-            <h3 className="mt-3 text-lg font-bold text-navy-900">{t("Nenhum espaço encontrado")}</h3>
-            <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">{t("Altere a cidade, o tipo de sala ou a busca para ver mais opções.")}</p>
-            <button onClick={clear} className="mt-5 action-primary px-5 py-2.5 text-sm">{t("Ver todos os espaços")}</button>
+            <h3 className="mt-3 text-lg font-bold text-navy-900">{t("Nenhum espaço encontrado ")}</h3>
+            <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">{t("Altere a cidade, o tipo de sala ou a busca para ver mais opções. ")}</p>
+            <button onClick={clear} className="mt-5 action-primary px-5 py-2.5 text-sm">{t("Ver todos os espaços ")}</button>
           </div>
         ))}
         {hq && live.filter(s => !s.isMvaHeadquarters).length === 0 && (
           <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-navy-200 bg-white p-6 sm:flex-row sm:items-center">
             <div>
-              <h3 className="font-bold text-navy-900">{t("Seja o primeiro coworking parceiro")}</h3>
-              <p className="text-sm text-slate-500">{t("Hoje o marketplace reúne as salas da sede MVA. Anuncie o seu espaço e alcance novos clientes.")}</p>
+              <h3 className="font-bold text-navy-900">{t("Seja o primeiro coworking parceiro ")}</h3>
+              <p className="text-sm text-slate-500">{t("Hoje o marketplace reúne as salas da sede MVA. Anuncie o seu espaço e alcance novos clientes. ")}</p>
             </div>
-            <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-800"><PlusCircle className="h-4 w-4" aria-hidden />{t("Anunciar espaço")}</button>
+            <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-800"><PlusCircle className="h-4 w-4" aria-hidden />{t("Anunciar espaço ")}</button>
           </div>
         )}
       </section>
 
       {/* Como funciona */}
       <section aria-labelledby="como">
-        <h2 id="como" className="text-2xl font-bold text-navy-900">{t("Como funciona")}</h2>
+        <h2 id="como" className="text-2xl font-bold text-navy-900">{t("Como funciona ")}</h2>
         <ol className="mt-6 grid gap-6 md:grid-cols-3">
           {STEPS.map((s, i) => (
             <li key={s.title} className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -156,10 +193,10 @@ export const MarketplaceView: React.FC = () => {
 
       {/* Serviços */}
       <section aria-labelledby="servicos" className="grid gap-6 md:grid-cols-2">
-        <h2 id="servicos" className="sr-only">{t("Serviços para empresas")}</h2>
+        <h2 id="servicos" className="sr-only">{t("Serviços para empresas ")}</h2>
         {[
-          { icon: Building2, title: 'Endereço fiscal', text: 'Use o endereço da sede MVA para o CNPJ da sua empresa, com acompanhamento do alvará.', tab: 'fiscal', cta: 'Contratar endereço fiscal' },
-          { icon: Mail, title: 'Recebimento de correspondência', text: 'Cartas, encomendas e documentos recebidos, avisados e digitalizados pela recepção.', tab: 'correspondence', cta: 'Ver correspondências' },
+          { icon: Building2, title: 'Endereço fiscal', text: 'Conheça os planos de endereço fiscal, com análise cadastral e viabilidade municipal antes da contratação.', tab: 'fiscal', cta: 'Contratar endereço fiscal' },
+          { icon: Mail, title: 'Recebimento de correspondência', text: 'Acompanhe recebimentos no painel e solicite digitalização conforme disponibilidade e autorização.', tab: 'correspondence', cta: 'Ver correspondências' },
         ].map(({ icon: Icon, title, text, tab, cta }) => (
           <div key={title} className="rounded-2xl bg-navy-950 p-8 text-white">
             <Icon className="h-7 w-7 text-orange-400" aria-hidden />
@@ -173,16 +210,16 @@ export const MarketplaceView: React.FC = () => {
       {/* Anunciante */}
       <section className="flex flex-col items-start justify-between gap-6 rounded-2xl border border-slate-200 bg-white p-8 md:flex-row md:items-center">
         <div className="max-w-xl">
-          <h2 className="text-2xl font-bold text-navy-900">{t("Tem um coworking? Anuncie na MVA")}</h2>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">{t("Cadastre seu espaço com fotos e endereço. Depois da análise e aprovação da equipe MVA, ele aparece para todos os visitantes.")}</p>
+          <h2 className="text-2xl font-bold text-navy-900">{t("Tem um coworking? Anuncie na MVA ")}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">{t("Cadastre seu espaço com fotos e endereço. Depois da análise e aprovação da equipe MVA, ele aparece para todos os visitantes. ")}</p>
         </div>
-        <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 action-primary px-6 py-3 text-sm"><LayoutGrid className="h-4 w-4" aria-hidden />{t("Cadastrar meu espaço")}</button>
+        <button onClick={() => setActiveTab('owner-dashboard')} className="inline-flex shrink-0 items-center gap-2 action-primary px-6 py-3 text-sm"><LayoutGrid className="h-4 w-4" aria-hidden />{t("Cadastrar meu espaço ")}</button>
       </section>
 
       {/* FAQ */}
       <section aria-labelledby="faq" className="max-w-3xl">
         <Reveal>
-        <h2 id="faq" className="text-2xl font-bold text-navy-900">{t("Perguntas frequentes")}</h2>
+        <h2 id="faq" className="text-2xl font-bold text-navy-900">{t("Perguntas frequentes ")}</h2>
         <div className="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
           {FAQ.map(([q, a]) => (
             <details key={q} className="group px-5 py-4">
@@ -194,8 +231,8 @@ export const MarketplaceView: React.FC = () => {
         </Reveal>
       </section>
 
-      {detail && <SpaceDetailModal space={detail} onClose={() => setDetail(null)} onOpenBooking={setBooking} />}
-      {booking && <BookingModal space={booking} onClose={() => setBooking(null)} />}
+      {visibleDetail && <SpaceDetailModal space={visibleDetail} onClose={closeDetail} onOpenBooking={setBooking} />}
+      {visibleBooking && <BookingModal space={visibleBooking} onClose={() => setBooking(null)} />}
     </div>
   );
 };

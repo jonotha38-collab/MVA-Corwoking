@@ -38,11 +38,17 @@ function friendly(message: string): string {
   return 'Não foi possível concluir. Tente novamente.';
 }
 
+const authReturnUrl = () => {
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') return `${window.location.origin}/`;
+  return 'https://mvacoworking.com.br/';
+};
+
 export async function signUpEmail(p: { name: string; email: string; password: string; accountType: UserAccount['accountType']; brand?: string; lgpdConsentAt?: string }) {
   const { data, error } = await supabase.auth.signUp({
     email: p.email.trim(),
     password: p.password,
-    options: { data: { name: p.name.trim(), account_type: p.accountType, brand: p.brand?.trim() || '', lgpd_consent_at: p.lgpdConsentAt || new Date().toISOString() }, emailRedirectTo: window.location.origin },
+    options: { data: { name: p.name.trim(), account_type: p.accountType, brand: p.brand?.trim() || '', lgpd_consent_at: p.lgpdConsentAt || new Date().toISOString() }, emailRedirectTo: authReturnUrl() },
   });
   if (error) throw new Error(friendly(error.message));
   // Com confirmação de e-mail ativa, e-mail repetido volta sem erro e sem identidades.
@@ -57,10 +63,19 @@ export async function signInEmail(email: string, password: string) {
 
 export async function signInGoogle(accountType: UserAccount['accountType']) {
   try { localStorage.setItem('mva:pending-type', accountType); } catch { /* ignore */ }
-  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: authReturnUrl(),
+      // Sempre exibe o seletor de contas, mesmo que haja uma conta Google ativa no navegador.
+      queryParams: { prompt: 'select_account' },
+    },
+  });
   if (error) throw new Error('Login com Google indisponível. Verifique a configuração no Supabase.');
 }
 
 export async function signOut() {
-  await supabase.auth.signOut();
+  // Troca de conta encerra apenas a sessão neste navegador.
+  const { error } = await supabase.auth.signOut({ scope: 'local' });
+  if (error) throw new Error('Não foi possível encerrar a conta atual. Tente novamente.');
 }
