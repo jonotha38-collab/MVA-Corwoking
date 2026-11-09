@@ -55,7 +55,7 @@ const planInfo: Record<(typeof planIds)[number],{eyebrow:string;summary:string;i
 const faqs = [
   {q:'Qual a diferença entre endereço fiscal e comercial?',a:'O endereço fiscal é o local indicado nos registros da empresa perante os órgãos competentes, conforme a atividade e as regras do município. O comercial é voltado à divulgação e ao contato profissional. É possível avaliar as duas necessidades na contratação.'},
   {q:'Posso abrir um CNPJ com o endereço da MVA?',a:'Depende da atividade econômica, da viabilidade municipal e da documentação da unidade. A equipe analisa a solicitação antes de autorizar o uso do endereço; não há garantia automática de aprovação.'},
-  {q:'Posso contratar se minha empresa ainda não tem CNPJ?',a:'Sim, você pode iniciar a avaliação como empresa em abertura. A formalização será conduzida conforme os documentos e dados exigidos para o caso.'},
+  {q:'Posso contratar se minha empresa ainda não tem CNPJ?',a:'Você pode solicitar análise como Pessoa Física, mas a utilização do endereço como domicílio de um CNPJ depende da regularização e da documentação societária da pessoa jurídica, quando aplicável.'},
   {q:'Quando recebo a declaração de uso do endereço?',a:'Depois da análise cadastral, formalização do contrato e confirmação real do pagamento, caso a atividade e a unidade sejam elegíveis. A emissão não é imediata por padrão.'},
   {q:'Vocês recebem correspondências e encomendas?',a:'A MVA possui uma área de gestão de correspondências. Os serviços de recebimento, guarda e eventual digitalização dependem das condições do plano, da unidade e de autorização do titular.'},
   {q:'Posso contratar por um mês ou por um ano?',a:'Sim. A contratação é pré-paga e não renova automaticamente. O plano anual possui 10% de desconto sobre 12 mensalidades. Quem comprovar transferência de outro endereço fiscal poderá solicitar a campanha de 4 meses grátis; essa condição substitui, sem acumular, os 10% anuais.'},
@@ -244,7 +244,7 @@ export function FiscalView(){
               <span className="text-xs fiscal-muted">/ mês equivalente</span>
             </div>
             <p className="mt-2 text-xs leading-relaxed fiscal-muted">
-              {term===12?`Pagamento anual à vista: ${brl(q.amount)} · economia de 10% sem transferência`:`Pagamento de 1 mês: ${brl(q.amount)}`}
+              {term===12?`Pagamento anual à vista: ${brl(q.amount)}${q.freeMonths?' · condição de transferência':' · 10% de desconto'}`:`Pagamento de 1 mês: ${brl(q.amount)}`}
             </p>
             {q.discount>0&&<div className="mt-2 inline-flex items-center gap-1.5 rounded-full fiscal-accent-soft px-3 py-1.5 text-[11px] font-bold fiscal-accent"><Gift className="h-3.5 w-3.5"/> {q.freeMonths?'Transferência: 4 meses de desconto':'Desconto anual de 10%'} · economize {brl(q.discount)}</div>}
           </div>
