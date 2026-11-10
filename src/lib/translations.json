@@ -4462,5 +4462,237 @@
   "O pagamento não pôde ser iniciado.": [
     "The payment couldn't be started.",
     "No se pudo iniciar el pago."
+  ],
+  "Consultando pagamento": [
+    "Checking payment",
+    "Consultando el pago"
+  ],
+  "Estamos verificando a situação no banco de dados da MVA.": [
+    "We're checking your payment status in the MVA system.",
+    "Estamos verificando el estado del pago en el sistema de MVA."
+  ],
+  "Pagamento real confirmado pelo Stripe": [
+    "Real payment confirmed by Stripe",
+    "Pago real confirmado por Stripe"
+  ],
+  "O pagamento consta como confirmado. A prestação do serviço continua sujeita às condições e aprovações aplicáveis.": [
+    "Payment has been confirmed. Service delivery remains subject to applicable terms and approvals.",
+    "El pago está confirmado. La prestación del servicio sigue sujeta a los términos y aprobaciones correspondientes."
+  ],
+  "Nenhum dinheiro real foi cobrado e nenhum serviço foi liberado por este pagamento de teste.": [
+    "No real money was charged and this test payment does not authorize any service.",
+    "No se cobró dinero real y este pago de prueba no autoriza ningún servicio."
+  ],
+  "Pagamento ainda não confirmado": [
+    "Payment not yet confirmed",
+    "Pago aún no confirmado"
+  ],
+  "O retorno à página não comprova a cobrança. Atualize o painel para consultar a confirmação enviada pelo Stripe.": [
+    "Returning to the site does not confirm a charge. Refresh your dashboard to check Stripe's payment confirmation.",
+    "Volver al sitio no confirma el cobro. Actualiza el panel para consultar la confirmación de Stripe."
+  ],
+  "Checkout interrompido": [
+    "Checkout interrupted",
+    "Pago interrumpido"
+  ],
+  "Você voltou da tela do Stripe. Nenhum pagamento novo foi confirmado nesta etapa.": [
+    "You returned from Stripe. No new payment has been confirmed at this step.",
+    "Has vuelto de Stripe. No se ha confirmado ningún pago nuevo en esta etapa."
+  ],
+  "Cadastro Stripe em avaliação": [
+    "Stripe registration under review",
+    "Registro de Stripe en evaluación"
+  ],
+  "Confira no painel do proprietário quando a conta estiver habilitada para cobranças e repasses.": [
+    "Check your owner dashboard to see when your account is enabled for charges and payouts.",
+    "Consulta el panel del propietario para saber cuándo se habiliten los cobros y transferencias."
+  ],
+  "Dispensar aviso do Stripe": [
+    "Dismiss Stripe notice",
+    "Cerrar aviso de Stripe"
+  ],
+  "Detalhes do agendamento": [
+    "Booking details",
+    "Detalles de la reserva"
+  ],
+  "Reserva paga e confirmada": [
+    "Booking paid and confirmed",
+    "Reserva pagada y confirmada"
+  ],
+  "Reserva registrada — aguardando pagamento": [
+    "Booking registered — awaiting payment",
+    "Reserva registrada — esperando el pago"
+  ],
+  "Seu pagamento ou saldo de horas foi confirmado.": [
+    "Your payment or hours credit has been confirmed.",
+    "Se ha confirmado tu pago o saldo de horas."
+  ],
+  "Escolha uma forma de pagamento para liberar o comprovante financeiro.": [
+    "Choose a payment method to unlock your payment receipt.",
+    "Elige un método de pago para obtener el comprobante."
+  ],
+  "Paga": [
+    "Paid",
+    "Pagada"
+  ],
+  "Pendente": [
+    "Pending",
+    "Pendiente"
+  ],
+  "Horário local · Brasília": [
+    "Local time · Brasília",
+    "Hora local · Brasilia"
+  ],
+  "Responsável pela reserva": [
+    "Booking contact",
+    "Responsable de la reserva"
+  ],
+  "Coberto pelo plano de horas": [
+    "Covered by hours plan",
+    "Cubierto por el plan de horas"
+  ],
+  "Valor pago via Stripe": [
+    "Amount paid via Stripe",
+    "Importe pagado por Stripe"
+  ],
+  "Pagamento de teste (sem cobrança real)": [
+    "Test payment (no real charge)",
+    "Pago de prueba (sin cobro real)"
+  ],
+  "Valor da reserva — pagamento não confirmado": [
+    "Booking total — payment unconfirmed",
+    "Total de la reserva — pago no confirmado"
+  ],
+  "Número do agendamento": [
+    "Booking reference",
+    "Número de reserva"
+  ],
+  "Copiar número da reserva": [
+    "Copy booking reference",
+    "Copiar número de reserva"
+  ],
+  "Copiado": [
+    "Copied",
+    "Copiado"
+  ],
+  "Copiar código": [
+    "Copy code",
+    "Copiar código"
+  ],
+  "Aviso para a recepção": [
+    "Reception notice",
+    "Aviso para recepción"
+  ],
+  "Reserva paga — comprovante válido": [
+    "Booking paid — valid receipt",
+    "Reserva pagada — comprobante válido"
+  ],
+  "Agendamento pendente de pagamento": [
+    "Booking awaiting payment",
+    "Reserva pendiente de pago"
+  ],
+  "Reserva coberta pelas horas mensais já pagas. A recepção poderá verificar o saldo debitado no seu agendamento.": [
+    "The booking is covered by prepaid monthly hours. Reception can verify the hours used.",
+    "La reserva está cubierta por horas mensuales pagadas. Recepción puede verificar las horas utilizadas."
+  ],
+  "Seu pagamento real foi confirmado pelo Stripe. A recepção poderá verificar o comprovante financeiro.": [
+    "Your real payment was confirmed by Stripe. Reception can verify the payment record.",
+    "Stripe ha confirmado tu pago real. Recepción podrá verificar el comprobante de pago."
+  ],
+  "Esta reserva foi paga somente em ambiente de testes. Solicite uma nova reserva para pagamento real.": [
+    "This booking was paid only in test mode. Make a new reservation for a real payment.",
+    "Esta reserva solo se pagó en modo de prueba. Crea una nueva reserva para un pago real."
+  ],
+  "O horário foi registrado, mas ainda não há pagamento confirmado. Efetue o pagamento com Stripe ou utilize horas de um plano elegível antes de usar a sala.": [
+    "The slot has been registered, but payment is not confirmed. Pay with Stripe or use eligible plan hours before using the room.",
+    "El horario está registrado, pero el pago no está confirmado. Paga con Stripe o utiliza horas de un plan elegible antes de usar la sala."
+  ],
+  "Pagamento da reserva": [
+    "Booking payment",
+    "Pago de la reserva"
+  ],
+  "Concluir pagamento da reserva": [
+    "Complete booking payment",
+    "Completar pago de la reserva"
+  ],
+  "Pague a reserva pelo Stripe.": [
+    "Pay for your booking through Stripe.",
+    "Paga tu reserva mediante Stripe."
+  ],
+  "A MVA receberá diretamente. Descontos de 5% ou 10% dos planos fiscais elegíveis serão calculados antes da cobrança nas salas de reunião; adicionais não entram no desconto.": [
+    "MVA receives the payment directly. Eligible address-plan discounts of 5% or 10% apply to meeting-room rental before checkout; add-ons are not discounted.",
+    "MVA recibe el pago directamente. Los descuentos del 5 % o 10 % de los planes elegibles se aplican a las salas de reuniones antes de pagar; no incluyen extras."
+  ],
+  "O pagamento a coworking parceiro depende da conexão Stripe Connect desse responsável.": [
+    "Payments to partner coworkings require the owner's Stripe Connect account to be enabled.",
+    "Los pagos a espacios asociados requieren que el propietario tenga Stripe Connect habilitado."
+  ],
+  "Seu plano possui": [
+    "Your plan has",
+    "Tu plan tiene"
+  ],
+  "horas disponíveis.": [
+    "hours available.",
+    "horas disponibles."
+  ],
+  "Usar": [
+    "Use",
+    "Usar"
+  ],
+  "h do meu plano (sem cobrança adicional)": [
+    "h from my plan (no additional charge)",
+    "h de mi plan (sin cargo adicional)"
+  ],
+  "Abatendo saldo…": [
+    "Applying credit…",
+    "Aplicando saldo…"
+  ],
+  "Lembretes e Google Agenda": [
+    "Reminders and Google Calendar",
+    "Recordatorios y Google Calendar"
+  ],
+  "Não se esqueça da reserva": [
+    "Don't forget your booking",
+    "No olvides tu reserva"
+  ],
+  "Evento sincronizado com o Google Agenda. Os lembretes foram configurados para 1 hora e 30 minutos antes.": [
+    "Event synced with Google Calendar. Reminders are set for 1 hour and 30 minutes before.",
+    "Evento sincronizado con Google Calendar. Los recordatorios están programados para 1 hora y 30 minutos antes."
+  ],
+  "Estamos registrando o evento no Google Agenda…": [
+    "Adding event to Google Calendar…",
+    "Agregando evento a Google Calendar…"
+  ],
+  "Adicione a reserva ao Google Agenda para acompanhar os horários e receber lembretes.": [
+    "Add your booking to Google Calendar to track times and get reminders.",
+    "Añade la reserva a Google Calendar para seguir los horarios y recibir recordatorios."
+  ],
+  "Autorizando…": [
+    "Authorizing…",
+    "Autorizando…"
+  ],
+  "Sincronizar com Google Agenda": [
+    "Sync with Google Calendar",
+    "Sincronizar con Google Calendar"
+  ],
+  "Abrir minha agenda": [
+    "Open my calendar",
+    "Abrir mi calendario"
+  ],
+  "Adicionar manualmente": [
+    "Add manually",
+    "Añadir manualmente"
+  ],
+  "Os alertas dependem das notificações autorizadas no Google.": [
+    "Alerts depend on your Google notification settings.",
+    "Las alertas dependen de tus permisos de notificaciones de Google."
+  ],
+  "Imprimir comprovante": [
+    "Print receipt",
+    "Imprimir comprobante"
+  ],
+  "Concluir": [
+    "Finish",
+    "Finalizar"
   ]
 }
