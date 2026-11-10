@@ -4306,5 +4306,161 @@
   "Não foi possível abrir o documento.": [
     "Couldn't open the document.",
     "No se pudo abrir el documento."
+  ],
+  "Sua declaração oficial, após a formalização.": [
+    "Your official declaration, after formalization.",
+    "Tu declaración oficial, tras la formalización."
+  ],
+  "A MVA confere a elegibilidade, verifica o pagamento, formaliza o contrato e anexa a declaração assinada. Somente depois disso o documento é liberado aqui.": [
+    "MVA reviews your eligibility and payment, finalizes the contract and uploads the signed declaration. Only then is the document made available here.",
+    "MVA revisa la elegibilidad y el pago, formaliza el contrato y adjunta la declaración firmada. Solo entonces podrás acceder al documento."
+  ],
+  "Consultando a contratação…": [
+    "Checking your contract…",
+    "Consultando tu contratación…"
+  ],
+  "Declaração assinada disponível": [
+    "Signed declaration available",
+    "Declaración firmada disponible"
+  ],
+  "Declaração ainda bloqueada": [
+    "Declaration not yet available",
+    "Declaración todavía bloqueada"
+  ],
+  "Entre na sua conta para consultar seus contratos.": [
+    "Sign in to review your contracts.",
+    "Inicia sesión para consultar tus contratos."
+  ],
+  "Verificando vigência, aprovação e pagamento real…": [
+    "Checking validity, approval and real payment…",
+    "Verificando vigencia, aprobación y pago real…"
+  ],
+  "A MVA confirmou o contrato e o pagamento. O documento assinado é entregue pelo armazenamento privado.": [
+    "MVA has verified the contract and payment. The signed document is delivered through private storage.",
+    "MVA ha verificado el contrato y el pago. El documento firmado se entrega desde almacenamiento privado."
+  ],
+  "O plano comercial não inclui declaração de domicílio fiscal.": [
+    "The business address plan does not include a registered-address declaration.",
+    "El plan de dirección comercial no incluye declaración de domicilio fiscal."
+  ],
+  "Pagamento confirmado. Aguarde a formalização humana e a liberação dos documentos.": [
+    "Payment confirmed. Please wait for human review and document release.",
+    "Pago confirmado. Espera la formalización y liberación de los documentos."
+  ],
+  "A emissão depende da aprovação da empresa, da formalização do contrato e do pagamento real.": [
+    "Document release requires company approval, contract formalization and a confirmed real payment.",
+    "La emisión requiere aprobación de la empresa, formalización del contrato y pago real confirmado."
+  ],
+  "Documento assinado e aprovado pela equipe MVA.": [
+    "Document signed and approved by the MVA team.",
+    "Documento firmado y aprobado por el equipo MVA."
+  ],
+  "Baixar declaração assinada em PDF": [
+    "Download signed declaration (PDF)",
+    "Descargar declaración firmada (PDF)"
+  ],
+  "Preparando download…": [
+    "Preparing download…",
+    "Preparando descarga…"
+  ],
+  "Baixar declaração oficial assinada": [
+    "Download official signed declaration",
+    "Descargar declaración oficial firmada"
+  ],
+  "Consultar contratação": [
+    "View my contract",
+    "Consultar contratación"
+  ],
+  "A MVA autoriza o uso do endereço somente após formalização e verificação dos documentos.": [
+    "MVA authorizes address use only after contract formalization and document review.",
+    "MVA autoriza el uso del domicilio solo tras la formalización y verificación de documentos."
+  ],
+  "A declaração assinada ainda não está disponível. Consulte a equipe da MVA.": [
+    "The signed declaration is not available yet. Contact the MVA team.",
+    "La declaración firmada aún no está disponible. Consulta con el equipo MVA."
+  ],
+  "Não foi possível baixar o arquivo aprovado. Atualize a página e tente novamente.": [
+    "Couldn't download the approved file. Refresh and try again.",
+    "No se pudo descargar el archivo aprobado. Actualiza la página e inténtalo de nuevo."
+  ],
+  "A conta está preparada para receber pagamentos.": [
+    "The account is ready to accept payments.",
+    "La cuenta está preparada para recibir pagos."
+  ],
+  "(teste)": [
+    "(test)",
+    "(prueba)"
+  ],
+  "Pagar com Stripe": [
+    "Pay with Stripe",
+    "Pagar con Stripe"
+  ],
+  "Pagar reserva com Stripe": [
+    "Pay booking via Stripe",
+    "Pagar reserva con Stripe"
+  ],
+  "Assinar este plano": [
+    "Subscribe to this plan",
+    "Suscribirse a este plan"
+  ],
+  "Gerenciar assinatura": [
+    "Manage subscription",
+    "Gestionar suscripción"
+  ],
+  "Conectar recebimentos Stripe": [
+    "Connect Stripe payouts",
+    "Conectar cobros Stripe"
+  ],
+  "Assinar plano de atendimento": [
+    "Subscribe to consultation plan",
+    "Suscribirse al plan de atención"
+  ],
+  "Gerenciar meu plano de atendimento": [
+    "Manage my consultation plan",
+    "Gestionar mi plan de atención"
+  ],
+  "Conectando ao Stripe…": [
+    "Connecting to Stripe…",
+    "Conectando a Stripe…"
+  ],
+  "Indisponível para esta conta (teste)": [
+    "Not available for this account (test)",
+    "No disponible para esta cuenta (prueba)"
+  ],
+  "Pagamento ainda indisponível": [
+    "Payment not available yet",
+    "Pago aún no disponible"
+  ],
+  "Sandbox Stripe para administradores: não há cobrança real.": [
+    "Stripe sandbox for administrators: no real charges.",
+    "Sandbox de Stripe para administradores: no hay cobros reales."
+  ],
+  "Não foi possível consultar o gateway Stripe. Atualize a página ou tente novamente.": [
+    "Couldn't reach the Stripe gateway. Refresh the page or try again.",
+    "No se pudo consultar la pasarela Stripe. Actualiza la página o inténtalo de nuevo."
+  ],
+  "O Stripe está em modo de teste: somente contas administradoras autenticadas podem iniciar um pagamento simulado. Nenhuma cobrança real será feita.": [
+    "Stripe is in test mode: only signed-in administrators can start simulated payments. No real charges will be made.",
+    "Stripe está en modo de prueba: solo los administradores autenticados pueden iniciar pagos simulados. No se realizarán cobros reales."
+  ],
+  "O pagamento ainda não foi liberado pela MVA. Nenhuma cobrança será realizada.": [
+    "Payment is not yet enabled by MVA. No charge will be made.",
+    "MVA aún no ha habilitado el pago. No se realizará ningún cobro."
+  ],
+  "Não foi possível abrir o Stripe.": [
+    "Couldn't open Stripe.",
+    "No se pudo abrir Stripe."
+  ],
+  "Link de pagamento indisponível.": [
+    "Payment link unavailable.",
+    "Enlace de pago no disponible."
+  ],
+  "Destino do pagamento não reconhecido.": [
+    "Unrecognized payment destination.",
+    "Destino de pago no reconocido."
+  ],
+  "O pagamento não pôde ser iniciado.": [
+    "The payment couldn't be started.",
+    "No se pudo iniciar el pago."
   ]
 }
