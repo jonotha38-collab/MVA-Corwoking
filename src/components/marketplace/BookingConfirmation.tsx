@@ -32,6 +32,7 @@ const currency = (amount: number, language: Language) => amount.toLocaleString(l
 export function BookingConfirmation({
   booking, space, userId, canConnectGoogle, sync, connecting, onConnect, onClose,
 }: Props) {
+  const {language}=usePreferences();
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [paymentIsLive, setPaymentIsLive] = useState(false);
@@ -204,7 +205,7 @@ export function BookingConfirmation({
         <div>
           <h3 className="text-sm font-bold text-navy-900">{t("Não se esqueça da reserva")}</h3>
           <p className="mt-1 text-xs leading-relaxed text-slate-600">
-            {sync === 'saved'
+            {t(sync === 'saved'
               ? 'Evento sincronizado com o Google Agenda. Os lembretes foram configurados para 1 hora e 30 minutos antes.'
               : sync === 'saving'
                 ? 'Estamos registrando o evento no Google Agenda…'
