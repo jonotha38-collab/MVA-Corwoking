@@ -224,10 +224,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 </div>
                 <div className="flex items-center gap-1">
                   <button type="button" aria-label="Dias anteriores" disabled={weekOffset === 0}
-                    onClick={() => setWeekOffset(x => Math.max(0, x - 7))}
+                    onClick={() => { const next = Math.max(0, weekOffset - 7); setWeekOffset(next); setDate(localDay(next + 1)); setStartTime(''); setEndTime(''); }}
                     className="rounded-lg border border-slate-200 p-2 disabled:opacity-40 hover:bg-slate-50"><ChevronLeft className="h-4 w-4"/></button>
                   <button type="button" aria-label="Próximos dias" disabled={weekOffset >= 84}
-                    onClick={() => setWeekOffset(x => Math.min(84, x + 7))}
+                    onClick={() => { const next = Math.min(84, weekOffset + 7); setWeekOffset(next); setDate(localDay(next + 1)); setStartTime(''); setEndTime(''); }}
                     className="rounded-lg border border-slate-200 p-2 disabled:opacity-40 hover:bg-slate-50"><ChevronRight className="h-4 w-4"/></button>
                 </div>
               </div>
