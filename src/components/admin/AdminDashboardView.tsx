@@ -12,7 +12,8 @@ import {
   Building2, 
   Plus, 
   Users, 
-  Calendar, 
+  Calendar,
+  History,
   DollarSign, 
   ShieldCheck, 
   Sliders, 
@@ -32,7 +33,7 @@ export const AdminDashboardView: React.FC = () => {
   } = useCoworking();
 
   const clock = useBookingClock();
-  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies' | 'fiscal' | 'billing'>('bookings');
+  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'history' | 'companies' | 'fiscal' | 'billing'>('bookings');
   const [showAddSpaceModal, setShowAddSpaceModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<Space | null>(null);
 
@@ -248,6 +249,14 @@ export const AdminDashboardView: React.FC = () => {
           <Calendar className="w-4 h-4" />{t("Agenda & Recepção ( ")}{t(bookings.length)})
         </button>
 
+        <button type="button" aria-pressed={activeAdminTab==='history'}
+          onClick={() => setActiveAdminTab('history')}
+          className={`flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${activeAdminTab==='history'
+            ? 'bg-slate-900 text-white shadow-sm'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}>
+          <History className="h-4 w-4" aria-hidden="true" />{t('Histórico de agendamentos')}
+        </button>
+
         <button
           onClick={() => setActiveAdminTab('companies')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -367,7 +376,8 @@ export const AdminDashboardView: React.FC = () => {
       )}
 
       {/* TAB 2: Reservations and office operations, including intern rooms. */}
-      {activeAdminTab === 'bookings' && <AdminBookingAgenda />}
+      {activeAdminTab === 'bookings' && <AdminBookingAgenda mode="agenda" />}
+      {activeAdminTab === 'history' && <AdminBookingAgenda mode="history" />}
 
       {/* TAB 3: FISCAL ADDRESS CLIENTS */}
       {activeAdminTab === 'companies' && (
