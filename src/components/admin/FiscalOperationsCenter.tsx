@@ -163,7 +163,7 @@ export function FiscalOperationsCenter(){
    {contracts.length===0?<p className="text-sm text-slate-500">Nenhum pagamento fiscal real gerou contrato em formalização até agora.</p>:contracts.map(c=>{
      const valid=c.status==='ativo'&&c.payment_status==='paid'&&c.payment_is_live;
      const contractDocs=docs.filter(d=>d.contract_id===c.id);
-     const requiresAuthorization=c.plan_id==='fiscal'||c.plan_id==='fiscal_ie';
+     const requiresAuthorization=['fiscal','fiscal_ie','mva_essencial','mva_profissional','mva_excellence'].includes(c.plan_id||'');
      const hasContract=contractDocs.some(d=>d.category==='contract');
      const hasAuthorization=contractDocs.some(d=>d.category==='authorization');
      const canFinalize=!valid&&c.status!=='ativo'&&c.payment_status==='paid'&&c.payment_is_live&&hasContract&&(!requiresAuthorization||hasAuthorization);
