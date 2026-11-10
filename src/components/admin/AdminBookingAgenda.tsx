@@ -152,7 +152,9 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
       if (!q) return true;
       return [item.name, item.email, item.phone, item.company, item.room, item.location, item.id]
         .some(value => value.toLocaleLowerCase('pt-BR').includes(q));
-    });
+    }).sort((a,b) => scope==='history'
+      ? `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`)
+      : `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
   }, [items, scope, date, historyDate, mode, type, search, clock]);
   const historyCount = items.filter(item => !isAgendaItemUpcoming(item,clock)).length;
   const unread = notices.filter(n => !readIds.has(n.id));
@@ -267,6 +269,8 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
                 <span>Filtrar por data</span>
                 <input type="date" aria-label="Data no histórico" value={historyDate} onChange={e=>setHistoryDate(e.target.value)}
                   className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-800" />
+                {historyDate && <button type="button" onClick={()=>setHistoryDate('')}
+                  className="min-h-11 rounded-lg px-2 py-1 text-xs font-bold text-orange-700 hover:bg-orange-50">Limpar data</button>}
               </label>
             : <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
                 <Filter className="h-4 w-4" aria-hidden="true" />
@@ -287,7 +291,7 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
         {loading ? <p className="px-6 py-12 text-center text-sm text-slate-500">Carregando agenda administrativa…</p> :
           filtered.length === 0
           ? <div className="px-6 py-14 text-center"><CalendarDays className="mx-auto h-8 w-8 text-slate-300" />
-              <p className="mt-3 text-sm font-semibold text-slate-700">Nenhuma reserva encontrada</p>
+              <p className="mt-3 text-sm font-semibold text-slate-700">{mode==='history'?'Nenhuma reserva encerrada ou cancelada encontrada':'Nenhuma reserva encontrada'}</p>
               <p className="mt-1 text-xs text-slate-500">Altere a data ou os filtros para consultar outros agendamentos.</p>
             </div>
           : <div className="divide-y divide-slate-100">{filtered.map(item =>
@@ -314,7 +318,7 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                   {item.status === 'cancelada'
                     ? <span className="inline-flex items-center gap-1 rounded-lg bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-700"><XCircle className="h-3.5 w-3.5" />Cancelada</span>
-                    : item.type==='commercial' && item.booking && !isBookingUpcoming(item.booking,clock)
+                    : !isAgendaItemUpcoming(item,clock)
                       ? <span className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-slate-700"><CheckCircle2 className="h-3.5 w-3.5" />Encerrada</span>
                       : <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" />{item.checkIn ? 'Check-in feito' : 'Confirmada'}</span>}
                   {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && (['email','calendar'] as const).map(channel => {
