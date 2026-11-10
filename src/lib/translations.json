@@ -4734,5 +4734,45 @@
   "Falar no WhatsApp com a MVA": [
     "Chat with MVA on WhatsApp",
     "Hablar con MVA por WhatsApp"
+  ],
+  "Meus agendamentos": [
+    "My bookings",
+    "Mis reservas"
+  ],
+  "Reservas encerradas saem da lista de próximas e permanecem no histórico.": [
+    "Finished bookings disappear from upcoming reservations and remain available in your history.",
+    "Las reservas finalizadas salen de las próximas reservas y permanecen en el historial."
+  ],
+  "Filtrar agendamentos": [
+    "Filter bookings",
+    "Filtrar reservas"
+  ],
+  "Próximos agendamentos": [
+    "Upcoming bookings",
+    "Próximas reservas"
+  ],
+  "Histórico": [
+    "History",
+    "Historial"
+  ],
+  "Encerrada": [
+    "Finished",
+    "Finalizada"
+  ],
+  "Nenhum agendamento ativo": [
+    "No active bookings",
+    "No hay reservas activas"
+  ],
+  "Nenhum agendamento no histórico": [
+    "No bookings in history",
+    "No hay reservas en el historial"
+  ],
+  "As reservas sairão desta lista automaticamente quando o horário terminar.": [
+    "Bookings will leave this list automatically as soon as their scheduled end time arrives.",
+    "Las reservas saldrán de esta lista automáticamente cuando termine su horario."
+  ],
+  "Os agendamentos anteriores e cancelados aparecerão aqui.": [
+    "Past and canceled bookings will appear here.",
+    "Las reservas anteriores y canceladas aparecerán aquí."
   ]
 }
