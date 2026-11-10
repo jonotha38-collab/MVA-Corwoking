@@ -52,7 +52,7 @@ export function BookingPlans({ compact=false }:{compact?:boolean}) {
    <h2 className="mt-2 text-2xl font-bold text-navy-900">{t(compact?'Seu plano de horas':'Planos mensais de atendimento')}</h2>
    <p className="mt-2 text-sm text-slate-600">{t("Use suas horas em diferentes atendimentos durante o período pago, sempre mediante agendamento e disponibilidade.")}</p>
   </div>
-  {error&&<p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">{error}</p>}
+  {error&&<p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900"{t(error)}</p>}
   {member&&<div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
     <p className="flex items-center gap-2 text-sm font-bold text-emerald-900"><CheckCircle2 className="h-4 w-4"/>{t('Plano')} {t(member.planId.toUpperCase())} — {t(statusLabels[member.status]||member.status)}</p>
     <p className="mt-1 text-sm text-emerald-900">{member.active?`${(member.remainingMinutes/60).toLocaleString(language==='pt'?'pt-BR':language==='en'?'en-US':'es-ES')} ${t('horas disponíveis de atendimento')}`:t('As horas são liberadas somente após o pagamento mensal ser confirmado pelo Stripe.')}</p>
@@ -61,8 +61,8 @@ export function BookingPlans({ compact=false }:{compact?:boolean}) {
     {member.hasStripeCustomer&&<div className="mt-4 max-w-xs"><StripeCheckoutAction action="booking_plan_portal" label={t('Gerenciar minha assinatura')}/></div>}
    </div>}
   {eligibleRooms===0&&<p role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-900">
-   As assinaturas estão cadastradas, mas a contratação fica suspensa até a MVA publicar uma sala própria de atendimento elegível.
-   Nenhuma cobrança será iniciada enquanto não houver uma sala disponível no catálogo.
+   {t('As assinaturas estão cadastradas, mas a contratação fica suspensa até a MVA publicar uma sala própria de atendimento elegível.')}
+   {' '}{t('Nenhuma cobrança será iniciada enquanto não houver uma sala disponível no catálogo.')}
   </p>}
   {compact?<button type="button" onClick={()=>setActiveTab('marketplace')} className="rounded-xl border border-orange-200 px-4 py-2.5 text-xs font-bold text-orange-700 hover:bg-orange-50">{t("Ver planos e agendar salas")}</button>:
    <div className="grid gap-4 md:grid-cols-3">
