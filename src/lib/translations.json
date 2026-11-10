@@ -4694,5 +4694,37 @@
   "Concluir": [
     "Finish",
     "Finalizar"
+  ],
+  "Reserve e pague": [
+    "Book and pay",
+    "Reserva y paga"
+  ],
+  "Escolha data e horário e conclua o pagamento pelo Stripe ou use horas do plano MVA.": [
+    "Choose a date and time, then pay securely with Stripe or use eligible MVA plan hours.",
+    "Elige la fecha y hora; paga mediante Stripe o utiliza horas de tu plan MVA."
+  ],
+  "Conheça os planos de endereço fiscal, com análise cadastral e viabilidade municipal antes da contratação.": [
+    "Explore registered-address plans, subject to company review and local eligibility checks.",
+    "Conoce los planes de domicilio fiscal, sujetos a revisión de la empresa y viabilidad municipal."
+  ],
+  "Acompanhe recebimentos no painel e solicite digitalização conforme disponibilidade e autorização.": [
+    "Track incoming mail and request scans when available and authorized.",
+    "Consulta la correspondencia y solicita digitalizaciones según disponibilidad y autorización."
+  ],
+  "E-mail para contato (sem envio automático)": [
+    "Contact email (no automatic delivery)",
+    "Correo de contacto (sin envío automático)"
+  ],
+  "+ R$": [
+    "+ R$",
+    "+ R$"
+  ],
+  "Total (": [
+    "Total (",
+    "Total ("
+  ],
+  "Base: R$": [
+    "Base: R$",
+    "Base: R$"
   ]
 }
