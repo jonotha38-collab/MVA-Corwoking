@@ -4774,5 +4774,33 @@
   "Os agendamentos anteriores e cancelados aparecerão aqui.": [
     "Past and canceled bookings will appear here.",
     "Las reservas anteriores y canceladas aparecerán aquí."
+  ],
+  "Valor total do plano anual": [
+    "Full annual plan price",
+    "Precio total del plan anual"
+  ],
+  "Valor do plano mensal": [
+    "Monthly plan price",
+    "Precio del plan mensual"
+  ],
+  "/ mês": [
+    "/ month",
+    "/ mes"
+  ],
+  "Equivale a": [
+    "Equivalent to",
+    "Equivale a"
+  ],
+  "por mês no plano anual": [
+    "per month on the annual plan",
+    "por mes con el plan anual"
+  ],
+  "Pagamento único do valor anual, não mensalidade recorrente.": [
+    "The annual amount is charged in one payment, not billed monthly.",
+    "El importe anual se cobra en un solo pago, no como mensualidades recurrentes."
+  ],
+  "Pagamento único por 1 mês, sem renovação automática.": [
+    "One-time payment for 1 month, with no automatic renewal.",
+    "Pago único por 1 mes, sin renovación automática."
   ]
 }
