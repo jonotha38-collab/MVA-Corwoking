@@ -284,6 +284,7 @@ Deno.serve(async req=>{
    const id=string(body.bookingId);if(!validUuid(id))throw new Error('Reserva inválida.');
    const {data:b,error:bError}=await admin.from('bookings').select('*').eq('id',id).eq('user_id',user.id).single();
    if(bError||!b||b.status!=='confirmada')throw new Error('Reserva indisponível para pagamento.');
+   if(b.admin_complimentary===true)throw new Error('Reserva administrativa isenta: nenhum pagamento é necessário.');
    const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Maceio',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
    if(b.booking_date<today)throw new Error('Não é possível pagar uma reserva que já passou.');
    const {data:s,error:sError}=await admin.from('spaces').select('id,owner_id,is_mva_headquarters,approval,status,category,price_per_hour')
