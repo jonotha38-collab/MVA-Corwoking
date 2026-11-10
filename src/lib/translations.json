@@ -3602,5 +3602,197 @@
   "Atendimento para orientação da contratação": [
     "Support throughout your application",
     "Orientación durante la contratación"
+  ],
+  "Planos de atendimento": [
+    "Consultation room plans",
+    "Planes de salas de atención"
+  ],
+  "Consultando planos e disponibilidade...": [
+    "Checking plans and availability...",
+    "Consultando planes y disponibilidad..."
+  ],
+  "Planos mensais de salas de atendimento": [
+    "Monthly consultation room plans",
+    "Planes mensuales de salas de atención"
+  ],
+  "Atendimento por assinatura": [
+    "Consultation by subscription",
+    "Atención por suscripción"
+  ],
+  "Seu plano de horas": [
+    "Your hours plan",
+    "Tu plan de horas"
+  ],
+  "Planos mensais de atendimento": [
+    "Monthly consultation plans",
+    "Planes mensuales de atención"
+  ],
+  "Use suas horas em diferentes atendimentos durante o período pago, sempre mediante agendamento e disponibilidade.": [
+    "Use your hours across several appointments within your paid billing period, subject to booking and availability.",
+    "Utiliza tus horas en diferentes citas durante el período pagado, sujeto a reserva y disponibilidad."
+  ],
+  "Não foi possível carregar os planos.": [
+    "Couldn't load the plans.",
+    "No se pudieron cargar los planes."
+  ],
+  "Não foi possível consultar o saldo do plano. Atualize a página.": [
+    "Couldn't check your plan balance. Please refresh the page.",
+    "No se pudo consultar el saldo del plan. Actualiza la página."
+  ],
+  "Plano": [
+    "Plan",
+    "Plan"
+  ],
+  "Ativo": [
+    "Active",
+    "Activo"
+  ],
+  "Em avaliação": [
+    "Under review",
+    "En evaluación"
+  ],
+  "Pagamento em atraso": [
+    "Past due",
+    "Pago atrasado"
+  ],
+  "Aguardando pagamento": [
+    "Awaiting payment",
+    "Esperando pago"
+  ],
+  "Cancelado": [
+    "Canceled",
+    "Cancelado"
+  ],
+  "Pagamento pendente": [
+    "Payment pending",
+    "Pago pendiente"
+  ],
+  "Pausado": [
+    "Paused",
+    "Pausado"
+  ],
+  "Checkout expirado": [
+    "Checkout expired",
+    "Pago expirado"
+  ],
+  "horas disponíveis de atendimento": [
+    "consultation hours available",
+    "horas de atención disponibles"
+  ],
+  "As horas são liberadas somente após o pagamento mensal ser confirmado pelo Stripe.": [
+    "Hours are released only after Stripe confirms the monthly payment.",
+    "Las horas se liberan solo cuando Stripe confirma el pago mensual."
+  ],
+  "Ciclo pago até": [
+    "Paid billing cycle through",
+    "Ciclo pagado hasta"
+  ],
+  "Horas não acumulam.": [
+    "Hours do not roll over.",
+    "Las horas no son acumulables."
+  ],
+  "Cancelamento agendado para o fim do período.": [
+    "Cancellation scheduled for the end of the billing period.",
+    "Cancelación programada para el final del período."
+  ],
+  "Se você desistiu do checkout, escolha novamente um plano abaixo. O Stripe abrirá a sessão existente ou permitirá uma nova tentativa, sem duplicar sua assinatura.": [
+    "If you left checkout, choose a plan below again. Stripe will resume your session or allow another attempt without creating a duplicate subscription.",
+    "Si saliste del pago, elige de nuevo un plan. Stripe reanudará la sesión o permitirá otro intento sin duplicar tu suscripción."
+  ],
+  "Gerenciar minha assinatura": [
+    "Manage my subscription",
+    "Gestionar mi suscripción"
+  ],
+  "As assinaturas estão cadastradas, mas a contratação fica suspensa até a MVA publicar uma sala própria de atendimento elegível.": [
+    "Subscription plans are configured, but sign-ups are paused until MVA lists an eligible consultation room.",
+    "Los planes están configurados, pero la contratación está suspendida hasta que MVA publique una sala de atención elegible."
+  ],
+  "Nenhuma cobrança será iniciada enquanto não houver uma sala disponível no catálogo.": [
+    "No charges will start until a qualifying room is available in the catalog.",
+    "No se iniciarán cobros hasta que haya una sala elegible en el catálogo."
+  ],
+  "Ver planos e agendar salas": [
+    "View plans and book rooms",
+    "Ver planes y reservar salas"
+  ],
+  "Comece aqui": [
+    "Start here",
+    "Empieza aquí"
+  ],
+  "Bronze": [
+    "Bronze",
+    "Bronce"
+  ],
+  "Prata": [
+    "Silver",
+    "Plata"
+  ],
+  "Ouro": [
+    "Gold",
+    "Oro"
+  ],
+  "BRONZE": [
+    "BRONZE",
+    "BRONCE"
+  ],
+  "PRATA": [
+    "SILVER",
+    "PLATA"
+  ],
+  "OURO": [
+    "GOLD",
+    "ORO"
+  ],
+  "mês": [
+    "month",
+    "mes"
+  ],
+  "hora": [
+    "hour",
+    "hora"
+  ],
+  "horas": [
+    "hours",
+    "horas"
+  ],
+  "horas mensais": [
+    "hours per month",
+    "horas mensuales"
+  ],
+  "mensais": [
+    "per month",
+    "mensuales"
+  ],
+  "Atendimentos em horários reservados": [
+    "Appointments in reserved time slots",
+    "Atenciones en horarios reservados"
+  ],
+  "Uso de salas próprias elegíveis da MVA": [
+    "Use of eligible MVA-owned rooms",
+    "Uso de salas propias elegibles de MVA"
+  ],
+  "Horas não cumulativas a cada ciclo pago": [
+    "Unused hours do not roll over to the next billing cycle",
+    "Las horas no utilizadas no se acumulan al siguiente ciclo"
+  ],
+  "Renovação automática mensal; cancelamento pelo Stripe": [
+    "Renews monthly; cancel through Stripe",
+    "Renovación mensual automática; cancela en Stripe"
+  ],
+  "Assinar": [
+    "Subscribe to",
+    "Suscribirse a"
+  ],
+  "Consulte seu plano acima": [
+    "See your plan above",
+    "Consulta tu plan arriba"
+  ],
+  "Aguardando salas da MVA": [
+    "Waiting for MVA rooms",
+    "Esperando salas de MVA"
+  ],
+  "As horas só ficam disponíveis após confirmação financeira de cada mensalidade. Reservas de parceiros, salas de reunião e adicionais não são cobertos. Cancelamentos com pelo menos 24 horas de antecedência devolvem horas ao saldo do ciclo; cancelamentos tardios não restituem horas automaticamente.": [
+    "Hours become available only after each monthly payment is confirmed. Partner spaces, meeting rooms and add-ons are excluded. Cancellations made at least 24 hours before the booking return hours to the current period; late cancellations do not automatically restore them.",
+    "Las horas se liberan solo tras confirmar cada mensualidad. No se incluyen espacios asociados, salas de reuniones ni servicios adicionales. Las cancelaciones con al menos 24 horas de antelación devuelven horas al ciclo actual; las tardías no se reembolsan automáticamente."
   ]
 }
