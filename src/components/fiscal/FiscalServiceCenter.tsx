@@ -16,11 +16,11 @@ type DocumentRow={id:string;request_id:string|null;contract_id:string|null;file_
 type Unit={id:string;name:string;street_address:string;city:string;state:string};
 type FiscalOrder={resource_id:string;status:string;livemode:boolean;paid_at:string|null};
 const labels:Record<string,string>={submitted:'Recebida',under_review:'Em análise',approved:'Elegível para contratação',rejected:'Ajustes necessários'};
-const PLAN_IDS: FiscalPlanId[]=['comercial','fiscal','fiscal_ie'];
+const PLAN_IDS: FiscalPlanId[]=['mva_essencial','mva_profissional','mva_excellence'];
 const safeError=(e:unknown)=> e instanceof Error?e.message:'Não foi possível concluir. Tente novamente.';
 const daysUntil=(date:string)=>Math.ceil((new Date(date+'T12:00:00-03:00').getTime()-Date.now())/86400000);
 
-export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requireTransfer=false, mode='full', onSubmitted, onCheckout }:{
+export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTerm=12, requireTransfer=false, mode='full', onSubmitted, onCheckout }:{
  initialPlan?:FiscalPlanId; initialTerm?:1|12; requireTransfer?:boolean; mode?:'full'|'application'|'dashboard';
  onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
 }) {
