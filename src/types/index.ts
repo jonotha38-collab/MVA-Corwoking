@@ -100,6 +100,7 @@ export interface Booking {
   endTime: string; // "16:00"
   durationHours: number;
   totalPrice: number;
+  adminComplimentary?: boolean;
   addons: string[];
   status: 'confirmada' | 'concluida' | 'cancelada';
   checkIn: boolean;
