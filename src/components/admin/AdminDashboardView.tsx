@@ -2,6 +2,7 @@ import { t } from '../../lib/preferences';
 import React, { useState, useRef } from 'react';
 import { supabase, uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
+import { isBookingUpcoming, useBookingClock } from '../../lib/booking-visibility';
 import { PendingApprovals } from './PendingApprovals';
 import { AdminBookingAgenda } from './AdminBookingAgenda';
 import { FiscalOperationsCenter } from './FiscalOperationsCenter';
@@ -30,6 +31,7 @@ export const AdminDashboardView: React.FC = () => {
     fiscalContracts 
   } = useCoworking();
 
+  const clock = useBookingClock();
   const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'companies' | 'fiscal' | 'billing'>('bookings');
   const [showAddSpaceModal, setShowAddSpaceModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<Space | null>(null);
@@ -59,7 +61,7 @@ export const AdminDashboardView: React.FC = () => {
 
   // Metrics
   const totalSpaces = spaces.length;
-  const activeBookingsCount = bookings.filter(b => b.status === 'confirmada').length;
+  const activeBookingsCount = bookings.filter(b => isBookingUpcoming(b,clock)).length;
   const totalRevenue = bookings.reduce((acc, curr) => acc + curr.totalPrice, 0) +
     fiscalContracts.reduce((acc, curr) => acc + curr.monthlyFee, 0);
 

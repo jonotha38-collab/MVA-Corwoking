@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { BookingPlans } from '../payments/BookingPlans';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import { Booking } from '../../types';
+import { isBookingUpcoming, useBookingClock } from '../../lib/booking-visibility';
 import { calendarEnabled, connectGoogleCalendar, disconnectGoogleCalendar, manualGoogleCalendarLink, recordedCalendarEventUrl } from '../../lib/google-calendar';
 import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import { 
@@ -52,12 +53,9 @@ export const ClientDashboardView: React.FC = () => {
       .then(({data})=>{if(mounted)setCreditedBookingIds(new Set((data||[]).map(x=>x.booking_id as string)))});
     return()=>{mounted=false};
   },[currentUser?.id,bookings.length]);
-  const [clock, setClock] = useState(() => Date.now());
+  const clock = useBookingClock();
+  const [bookingScope,setBookingScope] = useState<'upcoming'|'history'>('upcoming');
   const [calendarPreferenceVersion, setCalendarPreferenceVersion] = useState(0);
-  useEffect(() => {
-    const timer = window.setInterval(() => setClock(Date.now()), 60_000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   // Intencional: estado local atualiza o painel imediatamente após desativar.
   void calendarPreferenceVersion;
@@ -70,6 +68,9 @@ export const ClientDashboardView: React.FC = () => {
 
   // Filter bookings
   const clientBookings = bookings.filter(b => b.userId === currentUser?.id);
+  const activeBookings = clientBookings.filter(b => isBookingUpcoming(b,clock));
+  const expiredBookings = clientBookings.filter(b => !isBookingUpcoming(b,clock));
+  const visibleBookings = bookingScope==='upcoming' ? activeBookings : expiredBookings;
 
   // Pending correspondence
   const pendingMails = correspondence.filter(
@@ -77,8 +78,7 @@ export const ClientDashboardView: React.FC = () => {
   );
 
   // Next upcoming booking
-  const upcomingBooking = clientBookings
-    .filter(b => b.status === 'confirmada' && new Date(`${b.date}T${b.endTime.slice(0, 5)}:00-03:00`).getTime() > clock)
+  const upcomingBooking = [...activeBookings]
     .sort((a, b) => `${a.date}T${a.startTime}`.localeCompare(`${b.date}T${b.startTime}`))[0];
   const minutesUntil = upcomingBooking
     ? Math.ceil((new Date(`${upcomingBooking.date}T${upcomingBooking.startTime.slice(0, 5)}:00-03:00`).getTime() - clock) / 60_000)
@@ -166,7 +166,7 @@ export const ClientDashboardView: React.FC = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-navy-900">
-              {t(clientBookings.filter(b => b.status === 'confirmada').length)}
+              {t(activeBookings.length)}
             </span>
             <span className="text-xs text-slate-500">{t("agendadas ")}</span>
           </div>
@@ -280,8 +280,8 @@ export const ClientDashboardView: React.FC = () => {
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-navy-900">{t("Histórico de Reservas de Espaços ")}</h2>
-            <p className="text-xs text-slate-500">{t("Acompanhe salas de reunião e atendimento agendadas ")}</p>
+            <h2 className="text-base font-bold text-navy-900">{t("Meus agendamentos")}</h2>
+            <p className="text-xs text-slate-500">{t("Reservas encerradas saem da lista de próximas e permanecem no histórico.")}</p>
           </div>
           <button
             onClick={() => setActiveTab('marketplace')}
@@ -290,8 +290,18 @@ export const ClientDashboardView: React.FC = () => {
           </button>
         </div>
 
-        {clientBookings.length > 0 && <p role="note" className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900"><strong>Pagamento por Stripe ou plano de horas.</strong> O status "Confirmada" registra o horário; confira abaixo se há pagamento real ou crédito de assinatura antes de utilizar a sala.</p>}
-        {t(clientBookings.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2 px-5 pt-4" role="group" aria-label={t('Filtrar agendamentos')}>
+          <button type="button" aria-pressed={bookingScope==='upcoming'} onClick={()=>setBookingScope('upcoming')}
+            className={`min-h-11 rounded-xl border px-4 py-2.5 text-xs font-bold transition-colors ${bookingScope==='upcoming'?'border-orange-500 bg-orange-50 text-orange-800':'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}>
+            {t('Próximos agendamentos')} ({activeBookings.length})
+          </button>
+          <button type="button" aria-pressed={bookingScope==='history'} onClick={()=>setBookingScope('history')}
+            className={`min-h-11 rounded-xl border px-4 py-2.5 text-xs font-bold transition-colors ${bookingScope==='history'?'border-orange-500 bg-orange-50 text-orange-800':'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}>
+            {t('Histórico')} ({expiredBookings.length})
+          </button>
+        </div>
+        {bookingScope==='upcoming' && visibleBookings.length > 0 && <p role="note" className="mx-5 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900"><strong>Pagamento por Stripe ou plano de horas.</strong> O status "Confirmada" registra o horário; confira abaixo se há pagamento real ou crédito de assinatura antes de utilizar a sala.</p>}
+        {t(visibleBookings.length > 0 ? (
           <div className="overflow-x-auto">
             <div className="overflow-x-auto -mx-1 px-1"><table className="w-full text-left border-collapse text-xs">
               <thead>
@@ -305,7 +315,7 @@ export const ClientDashboardView: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {clientBookings.map((b) => (
+                {visibleBookings.map((b) => (
                   <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-bold text-navy-900">{t(b.spaceName)}</div>
@@ -326,8 +336,9 @@ export const ClientDashboardView: React.FC = () => {
                        </span>
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
-                      {b.status === 'confirmada' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">{t("Confirmada ")}</span>
+                      {b.status === 'confirmada' && (isBookingUpcoming(b,clock)
+                        ? <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">{t("Confirmada ")}</span>
+                        : <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{t("Encerrada")}</span>
                       )}
                       {b.status === 'concluida' && (
                         <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{t("Concluída ")}</span>
@@ -342,7 +353,7 @@ export const ClientDashboardView: React.FC = () => {
                           onClick={() => setSelectedVoucher(b)}
                           className="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-lg transition-colors"
                         >{t("Voucher ")}</button>
-                        {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && b.status === 'confirmada' && (
+                        {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && isBookingUpcoming(b,clock) && (
                           <a href={recordedCalendarEventUrl(currentUser?.id || '', b.id) || manualGoogleCalendarLink(b)}
                             target="_blank" rel="noopener noreferrer"
                             aria-label={`Adicionar ${b.spaceName} ao Google Agenda`}
@@ -350,7 +361,7 @@ export const ClientDashboardView: React.FC = () => {
                             <ExternalLink className="h-3.5 w-3.5" /> Google Agenda
                           </a>
                         )}
-                        {b.status === 'confirmada' && (
+                        {isBookingUpcoming(b,clock) && (
                           <button
                             onClick={() => {
                               if (confirm(`Deseja realmente cancelar a reserva do dia ${b.date}?`)) {
@@ -370,8 +381,8 @@ export const ClientDashboardView: React.FC = () => {
         ) : (
           <div className="text-center py-12 p-6 space-y-3">
             <Calendar className="w-10 h-10 text-slate-300 mx-auto" />
-            <h3 className="text-sm font-bold text-navy-900">{t("Nenhuma reserva encontrada ")}</h3>
-            <p className="text-xs text-slate-500">{t("Agende salas executivas e use seus créditos mensais inclusos. ")}</p>
+            <h3 className="text-sm font-bold text-navy-900">{t(bookingScope==='upcoming'?'Nenhum agendamento ativo':'Nenhum agendamento no histórico')}</h3>
+            <p className="text-xs text-slate-500">{t(bookingScope==='upcoming'?'As reservas sairão desta lista automaticamente quando o horário terminar.':'Os agendamentos anteriores e cancelados aparecerão aqui.')}</p>
             <button
               onClick={() => setActiveTab('marketplace')}
               className="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-semibold"
