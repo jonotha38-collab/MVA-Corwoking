@@ -93,7 +93,7 @@ export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTer
        unit_id:form.unit_id||null,terms_version:'2026-10-30',
      });
      if(insertError)throw insertError;
-     showToast('Solicitação enviada. A equipe analisará o endereço e a atividade da empresa.','success');
+     showToast(t('Solicitação enviada. A equipe analisará o endereço e a atividade da empresa.'),'success');
      setConsent(false);await load();onSubmitted?.();
    }catch(e){setError('Não foi possível enviar a solicitação. Confira os dados e tente novamente.')}
    finally{setBusy(false)}
@@ -102,10 +102,10 @@ export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTer
    if(!file||!currentUser)return;
    const ext=file.name.split('.').pop()?.toLowerCase()||'';
    if(!['pdf','png','jpg','jpeg'].includes(ext)||file.size>10*1024*1024){
-     showToast('Escolha PDF, PNG ou JPG de até 10 MB.','error');return;
+     showToast(t('Escolha PDF, PNG ou JPG de até 10 MB.'),'error');return;
    }
    const mime=ext==='pdf'?'application/pdf':ext==='png'?'image/png':'image/jpeg';
-   if(file.type!==mime){showToast('O formato do arquivo não corresponde à extensão.','error');return}
+   if(file.type!==mime){showToast(t('O formato do arquivo não corresponde à extensão.'),'error');return}
    setUploading(app.id);
    try{
      const filePath=`requests/${app.id}/${crypto.randomUUID()}.${ext}`;
@@ -116,13 +116,13 @@ export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTer
        file_name:file.name.slice(0,180),category:'registration',
      });
      if(metaError)throw metaError;
-     showToast('Documento enviado de forma privada para análise.','success');await load();
-   }catch{showToast('Não foi possível enviar o documento. Confira sua sessão e tente novamente.','error')}
+     showToast(t('Documento enviado de forma privada para análise.'),'success');await load();
+   }catch{showToast(t('Não foi possível enviar o documento. Confira sua sessão e tente novamente.'),'error')}
    finally{setUploading(null)}
  };
  const openFile=async(d:DocumentRow)=>{
    const {data,error:err}=await supabase.storage.from('fiscal-private').createSignedUrl(d.file_path,60);
-   if(err||!data?.signedUrl){showToast('Não foi possível abrir o documento.','error');return}
+   if(err||!data?.signedUrl){showToast(t('Não foi possível abrir o documento.'),'error');return}
    window.open(data.signedUrl,'_blank','noopener,noreferrer');
  };
  const input=(key:keyof typeof form,label:string,required=true)=><label className="block min-w-0 space-y-1.5" key={key}>
@@ -222,7 +222,7 @@ export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTer
     </div>
     <label className="block space-y-1.5"><span className="text-xs font-semibold">{t('Endereço anterior')} {t(requireTransfer&&term===12?'(obrigatório para campanha)':'(se estiver transferindo)')}</span><input required={requireTransfer&&term===12} value={form.transfer_from} onChange={e=>update('transfer_from',e.target.value)} maxLength={180} placeholder={t('Opcional')} className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm"/></label>
     <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-700"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} className="mt-0.5 accent-orange-600"/>
-      <span>Declaro que os dados são verdadeiros e autorizo a análise cadastral (termos versão 30/10/2026). Entendo que a solicitação <strong>{t("não concede uso imediato do endereço")}</strong>{t(", não substitui a viabilidade municipal e não constitui contrato assinado ou pagamento.")}</span>
+      <span>{t('Declaro que os dados são verdadeiros e autorizo a análise cadastral (termos versão 30/10/2026). Entendo que a solicitação')} <strong>{t('não concede uso imediato do endereço')}</strong>{t(', não substitui a viabilidade municipal e não constitui contrato assinado ou pagamento.')}</span>
     </label>
     <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-sm font-bold text-white hover:bg-orange-500 disabled:opacity-60 sm:w-auto">
       <FilePlus2 className="h-4 w-4"/>{t(busy?'Enviando…':currentUser?'Enviar solicitação para análise':'Entrar para solicitar')}
