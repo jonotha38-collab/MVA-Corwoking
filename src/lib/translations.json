@@ -3378,5 +3378,229 @@
   "Espaço de trabalho moderno": [
     "Modern workspace",
     "Espacio de trabajo moderno"
+  ],
+  "Sua empresa no endereço certo": [
+    "Your business at the right address",
+    "Tu empresa en la dirección correcta"
+  ],
+  "Endereço fiscal profissional com gestão de correspondências e documentação segura.": [
+    "Professional registered address with mail management and secure documentation.",
+    "Domicilio fiscal profesional con gestión de correspondencia y documentación segura."
+  ],
+  "Empresas em abertura e prestadores de serviços que buscam o essencial.": [
+    "Startups and service providers looking for the essentials.",
+    "Empresas en constitución y profesionales que buscan lo esencial."
+  ],
+  "Endereço fiscal, sujeito à viabilidade e formalização": [
+    "Registered address, subject to eligibility review and formalization",
+    "Domicilio fiscal sujeto a evaluación de viabilidad y formalización"
+  ],
+  "Gestão de correspondências e documentos": [
+    "Mail and document management",
+    "Gestión de correspondencia y documentos"
+  ],
+  "Acompanhamento pelo painel do cliente": [
+    "Track progress through your client dashboard",
+    "Seguimiento desde el panel del cliente"
+  ],
+  "Salas de reunião disponíveis mediante agendamento, pela tarifa regular": [
+    "Meeting rooms available by booking at standard rates",
+    "Salas de reuniones disponibles con reserva a tarifa regular"
+  ],
+  "Mais praticidade no seu dia a dia": [
+    "More convenience in your daily business",
+    "Más comodidad en tu día a día"
+  ],
+  "A estrutura de endereço fiscal da MVA com economia nas suas reuniões profissionais.": [
+    "MVA's registered address service with savings on your business meetings.",
+    "El domicilio fiscal de MVA con ahorro en tus reuniones profesionales."
+  ],
+  "Profissionais e empresas que utilizam salas de reunião ocasionalmente.": [
+    "Professionals and businesses that occasionally use meeting rooms.",
+    "Profesionales y empresas que utilizan salas de reuniones ocasionalmente."
+  ],
+  "Todos os benefícios do MVA Essencial": [
+    "All MVA Essencial benefits",
+    "Todos los beneficios de MVA Essencial"
+  ],
+  "5% de desconto na locação de salas de reunião da sede MVA": [
+    "5% off meeting room bookings at MVA headquarters",
+    "5 % de descuento en las salas de reuniones de la sede MVA"
+  ],
+  "Acesso à documentação assinada após formalização": [
+    "Access signed documents after contract formalization",
+    "Acceso a documentos firmados después de la formalización"
+  ],
+  "Nosso plano mais completo": [
+    "Our most complete plan",
+    "Nuestro plan más completo"
+  ],
+  "Endereço fiscal com vantagens para receber clientes e apoio contábil.": [
+    "Registered address with advantages for receiving clients and accounting support.",
+    "Domicilio fiscal con ventajas para recibir clientes y apoyo contable."
+  ],
+  "Empresas e profissionais que recebem clientes e querem serviços adicionais.": [
+    "Businesses and professionals who welcome clients and want additional services.",
+    "Empresas y profesionales que reciben clientes y desean servicios adicionales."
+  ],
+  "Todos os benefícios do MVA Profissional": [
+    "All MVA Profissional benefits",
+    "Todos los beneficios de MVA Profissional"
+  ],
+  "10% de desconto nas salas de reunião da sede MVA (em vez de 5%)": [
+    "10% off meeting rooms at MVA headquarters (instead of 5%)",
+    "10 % de descuento en las salas de reuniones de la sede MVA (en lugar del 5 %)"
+  ],
+  "2 horas mensais de bônus em sala de atendimento nos 3 primeiros meses, não cumulativas": [
+    "2 bonus hours per month in a consultation room for the first 3 months; unused hours do not roll over",
+    "2 horas mensuales de bonificación en salas de atención durante los primeros 3 meses; no son acumulables"
+  ],
+  "1 consulta gratuita com contador por contratação, mediante agendamento": [
+    "One free accountant consultation per contract, by appointment",
+    "Una consulta gratuita con contador por contratación, con cita previa"
+  ],
+  "Gestão de correspondências e documentação": [
+    "Mail and document management",
+    "Gestión de correspondencia y documentación"
+  ],
+  "Qual a diferença entre endereço fiscal e comercial?": [
+    "What is the difference between a registered and a business address?",
+    "¿Cuál es la diferencia entre domicilio fiscal y dirección comercial?"
+  ],
+  "O endereço fiscal é o local indicado nos registros da empresa perante os órgãos competentes, conforme a atividade e as regras do município. O comercial é voltado à divulgação e ao contato profissional. É possível avaliar as duas necessidades na contratação.": [
+    "The registered address is listed in official company records, depending on the activity and local regulations. A business address is used for marketing and professional contact. Both needs can be assessed during the application.",
+    "El domicilio fiscal figura en los registros oficiales de la empresa según su actividad y las normas municipales. La dirección comercial se utiliza para promoción y contacto profesional. Ambas necesidades pueden evaluarse en la contratación."
+  ],
+  "Posso abrir um CNPJ com o endereço da MVA?": [
+    "Can I register a company using MVA's address?",
+    "¿Puedo registrar una empresa usando la dirección de MVA?"
+  ],
+  "Depende da atividade econômica, da viabilidade municipal e da documentação da unidade. A equipe analisa a solicitação antes de autorizar o uso do endereço; não há garantia automática de aprovação.": [
+    "It depends on your business activity, municipal approval and documentation for the premises. Our team reviews each application before authorizing address use; approval is not automatic.",
+    "Depende de la actividad económica, la viabilidad municipal y la documentación de la sede. El equipo evalúa cada solicitud antes de autorizar el uso del domicilio; la aprobación no es automática."
+  ],
+  "Posso contratar se minha empresa ainda não tem CNPJ?": [
+    "Can I apply if my company is not yet registered?",
+    "¿Puedo contratar si mi empresa todavía no está registrada?"
+  ],
+  "Sim, você pode iniciar a avaliação como empresa em abertura. A formalização será conduzida conforme os documentos e dados exigidos para o caso.": [
+    "Yes. You can begin the review as a company in formation. Formalization will follow the documentation required for your circumstances.",
+    "Sí. Puedes iniciar la evaluación como empresa en constitución. La formalización seguirá los documentos y datos exigidos para tu caso."
+  ],
+  "Quando recebo a declaração de uso do endereço?": [
+    "When will I receive the address-use declaration?",
+    "¿Cuándo recibiré la declaración de uso del domicilio?"
+  ],
+  "Depois da análise cadastral, formalização do contrato e confirmação real do pagamento, caso a atividade e a unidade sejam elegíveis. A emissão não é imediata por padrão.": [
+    "After company review, contract formalization and confirmed payment, if your business and premises are eligible. Documents are not issued immediately by default.",
+    "Después de la evaluación, formalización del contrato y confirmación del pago, siempre que la actividad y la sede sean elegibles. La emisión no suele ser inmediata."
+  ],
+  "Vocês recebem correspondências e encomendas?": [
+    "Do you receive mail and parcels?",
+    "¿Reciben correspondencia y paquetes?"
+  ],
+  "A MVA possui uma área de gestão de correspondências. Os serviços de recebimento, guarda e eventual digitalização dependem das condições do plano, da unidade e de autorização do titular.": [
+    "MVA offers mail management. Receiving, storage and optional scanning depend on plan terms, location and customer authorization.",
+    "MVA cuenta con gestión de correspondencia. La recepción, custodia y digitalización opcional dependen del plan, la sede y la autorización del titular."
+  ],
+  "Posso contratar por um mês ou por um ano?": [
+    "Can I subscribe for one month or one year?",
+    "¿Puedo contratar por un mes o por un año?"
+  ],
+  "Sim. A escolha é feita no site. Os valores são apresentados antes da contratação. A campanha de quatro meses de desconto no pagamento anual é condicionada à comprovação de transferência de outro endereço fiscal.": [
+    "Yes. Select your term on the site. Prices are shown before checkout. The four-month annual transfer discount requires proof that you are transferring an existing registered address.",
+    "Sí. Puedes elegir la duración en el sitio y ver los importes antes de pagar. El descuento anual de cuatro meses exige comprobar el traslado desde otro domicilio fiscal."
+  ],
+  "Outros coworkings podem oferecer endereço fiscal na MVA?": [
+    "Can other coworking locations provide registered addresses through MVA?",
+    "¿Pueden otros coworkings ofrecer domicilio fiscal a través de MVA?"
+  ],
+  "Proprietários podem solicitar credenciamento de suas unidades. Cada espaço passa por avaliação; o cadastro como coworking não autoriza automaticamente oferecer endereço fiscal.": [
+    "Owners may apply for location accreditation. Each space is reviewed; listing as a coworking does not automatically authorize registered address services.",
+    "Los propietarios pueden solicitar la acreditación de sus sedes. Cada espacio se evalúa; darse de alta como coworking no autoriza automáticamente a ofrecer domicilio fiscal."
+  ],
+  "Para marcar presença": [
+    "Make your presence known",
+    "Hazte presente"
+  ],
+  "Sua marca com um endereço profissional para divulgar nos canais comerciais.": [
+    "Give your brand a professional address for business communications.",
+    "Dale a tu marca una dirección profesional para divulgar en canales comerciales."
+  ],
+  "Autônomos, prestadores de serviço e empresas que buscam presença comercial.": [
+    "Freelancers, service providers and businesses seeking a professional presence.",
+    "Autónomos, profesionales y empresas que buscan presencia comercial."
+  ],
+  "Endereço comercial para divulgação": [
+    "Business address for promotion",
+    "Dirección comercial para promoción"
+  ],
+  "Recepção de correspondências, conforme contrato": [
+    "Mail handling as defined in the contract",
+    "Recepción de correspondencia según contrato"
+  ],
+  "Consulta de recebimentos no painel": [
+    "Track incoming mail in the dashboard",
+    "Consulta de correspondencia en el panel"
+  ],
+  "Acesso às salas de reunião disponíveis": [
+    "Access to available meeting rooms",
+    "Acceso a salas de reuniones disponibles"
+  ],
+  "Para o seu CNPJ": [
+    "For your business registration",
+    "Para el registro de tu empresa"
+  ],
+  "Estrutura de endereço para quem está abrindo ou alterando uma empresa.": [
+    "Address services for setting up or updating a company.",
+    "Servicio de domicilio para crear o modificar una empresa."
+  ],
+  "Prestadores de serviços, negócios digitais e profissionais PJ.": [
+    "Service providers, online businesses and independent professionals.",
+    "Prestadores de servicios, empresas digitales y profesionales independientes."
+  ],
+  "Análise de viabilidade para o endereço fiscal": [
+    "Eligibility review for registered address use",
+    "Evaluación de viabilidad para domicilio fiscal"
+  ],
+  "Documentação de autorização após regularização": [
+    "Authorization documents after compliance checks",
+    "Documentación de autorización tras la regularización"
+  ],
+  "Acompanhamento de correspondências": [
+    "Mail tracking",
+    "Seguimiento de correspondencia"
+  ],
+  "Acesso à estrutura da MVA para reuniões": [
+    "Access to MVA meeting facilities",
+    "Acceso a las instalaciones MVA para reuniones"
+  ],
+  "Para operações com ICMS": [
+    "For businesses subject to ICMS tax",
+    "Para operaciones sujetas a ICMS"
+  ],
+  "Uma solução para empresas que precisam avaliar também a inscrição estadual.": [
+    "A solution for companies needing to assess state tax registration as well.",
+    "Una solución para empresas que también deben evaluar su inscripción estatal."
+  ],
+  "Comércios, e-commerces e empresas com operações sujeitas ao ICMS.": [
+    "Retailers, e-commerce businesses and companies with ICMS-taxed activities.",
+    "Comercios, tiendas online y empresas con operaciones sujetas a ICMS."
+  ],
+  "Análise da atividade e das exigências estaduais": [
+    "Business and state regulatory review",
+    "Evaluación de la actividad y requisitos estatales"
+  ],
+  "Documentação de endereço fiscal, quando elegível": [
+    "Registered address documents when eligible",
+    "Documentos de domicilio fiscal cuando proceda"
+  ],
+  "Gestão de correspondências fiscais": [
+    "Fiscal mail management",
+    "Gestión de correspondencia fiscal"
+  ],
+  "Atendimento para orientação da contratação": [
+    "Support throughout your application",
+    "Orientación durante la contratación"
   ]
 }
