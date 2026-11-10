@@ -402,7 +402,7 @@ Deno.serve(async req=>{
     if(existing.stripe_checkout_session_id&&!existing.stripe_subscription_id){
      const prior=await stripe.checkout.sessions.retrieve(existing.stripe_checkout_session_id);
      if(prior.status==='open'){
-      if(existing.plan_id===plan.id&&prior.url)return response(successInfo(prior),200,origin);
+      if(existing.plan_id===plan.id&&prior.url&&prior.metadata?.mva_live_price_id===plan.stripe_live_price_id)return response(successInfo(prior),200,origin);
       // Expire the old tier before creating a replacement, so there is only one payable session.
       await stripe.checkout.sessions.expire(prior.id);
      }else if(prior.status==='complete'){
@@ -414,7 +414,7 @@ Deno.serve(async req=>{
      customer_email:user.email||me.email,
      client_reference_id:user.id,
      line_items:[{price:plan.stripe_live_price_id,quantity:1}],
-     metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id},
+     metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id,mva_live_price_id:plan.stripe_live_price_id},
      subscription_data:{metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id}},
      success_url:checkoutUrl('client-dashboard','success')+'&stripe_membership=1',
      cancel_url:checkoutUrl('client-dashboard','canceled')+'&stripe_membership=1'
