@@ -93,6 +93,23 @@ async function priceOfOwner(planId:string,allowInactiveTest=false){
  if(error)throw error;if(!data)throw new Error('Este plano ainda não foi ativado pela MVA.');
  return data;
 }
+// Pix is enabled in the merchant Stripe Dashboard, never by a browser flag.
+// A failed configuration lookup must never interrupt existing card payments.
+let pixCache:{value:boolean,expires:number}|null=null;
+async function pixEnabledOnPlatform(stripe:Stripe):Promise<boolean>{
+ if(pixCache&&pixCache.expires>Date.now())return pixCache.value;
+ try{
+  const configs=await stripe.paymentMethodConfigurations.list({active:true,limit:20});
+  const defaultConfig=configs.data.find(x=>x.is_default);
+  const pix=defaultConfig?.pix;
+  const enabled=pix?.available===true&&pix?.display_preference?.value==='on';
+  pixCache={value:enabled,expires:Date.now()+30_000};
+  return enabled;
+ }catch(err){
+  console.warn('Pix configuration unavailable; allowing existing payment methods.',err instanceof Error?err.message:'lookup error');
+  return false;
+ }
+}
 function successInfo(session:Stripe.Checkout.Session,orderId?:string){
  if(!session.url)throw new Error('O Stripe não retornou uma página de pagamento.');
  return {url:session.url,sessionId:session.id,orderId,livemode:session.livemode};
@@ -115,9 +132,32 @@ async function customerCheckout(input:{
    throw new Error('Este pedido já possui pagamento registrado. Consulte o histórico.');
  if(order&&(order.stripe_account_id!==accountId || order.amount_cents!==amountCents))
    throw new Error('O valor ou recebedor mudou. Peça revisão à MVA antes de pagar.');
- if(order&&order.stripe_checkout_url&&order.session_expires_at
-    &&new Date(order.session_expires_at).getTime()>Date.now()+60000)
-   return {url:order.stripe_checkout_url,sessionId:order.stripe_checkout_session_id,orderId:order.id,livemode:order.livemode};
+ // Existing sessions were card-only. If Pix is activated later, replace only an
+ // OPEN session with a new dynamic Checkout. A completed session may still be
+ // awaiting an asynchronous Pix confirmation: NEVER create a duplicate charge.
+ if(order?.stripe_checkout_session_id){
+  const stripeOpts=accountId?{stripeAccount:accountId}:undefined;
+  const previous=await stripe.checkout.sessions.retrieve(order.stripe_checkout_session_id,stripeOpts);
+  if(previous.status==='complete'&&order.status==='pending')
+   throw new Error('Este pagamento foi enviado ao Stripe e pode estar em confirmação. Aguarde a atualização da solicitação antes de tentar novamente.');
+  const pixActive=accountId?false:await pixEnabledOnPlatform(stripe);
+  const supportsPix=previous.payment_method_types?.includes('pix')===true;
+  const keepOpen=previous.status==='open' && order.status==='pending'
+   && (previous.expires_at||0)>Math.floor(Date.now()/1000)+60
+   && previous.metadata?.mva_dynamic_methods==='v1'
+   && (!pixActive||supportsPix);
+  if(keepOpen&&previous.url)
+   return {url:previous.url,sessionId:previous.id,orderId:order.id,livemode:previous.livemode};
+  // Stripe confirms that the session is still open or expired; never expire
+  // a completed Checkout or a payment awaiting bank confirmation.
+  if(previous.status==='open')await stripe.checkout.sessions.expire(previous.id,{},stripeOpts);
+  // Reclaim only this order / previous session, after it can no longer be paid.
+  const {data:updated,error:releaseError}=await admin.from('mva_checkout_orders')
+   .update({session_expires_at:new Date(Date.now()-1000).toISOString(),stripe_checkout_url:null,updated_at:new Date().toISOString()})
+   .eq('id',order.id).eq('stripe_checkout_session_id',previous.id)
+   .in('status',['pending','expired','failed']).select('id').maybeSingle();
+  if(releaseError||!updated)throw new Error('O pedido foi atualizado. Atualize o painel antes de tentar novamente.');
+ }
  if(!order){
   const {data:newOrder,error}=await admin.from('mva_checkout_orders').insert({
    kind,user_id:userId,resource_id:resourceId,amount_cents:amountCents,
@@ -137,12 +177,14 @@ async function customerCheckout(input:{
  let created:Stripe.Checkout.Session|null=null;
  try{
   created=await stripe.checkout.sessions.create({
-   mode:'payment',allowed_payment_method_types:['card'],
+   // Dynamic Checkout uses the activated payment methods in the Stripe
+   // Dashboard (card and Pix after merchant activation).
+   mode:'payment',
    customer_email:email,
    client_reference_id:order.id,
    line_items:[{price_data:{currency:'brl',unit_amount:amountCents,
      product_data:{name:title}},quantity:1}],
-   metadata:{mva_kind:kind,mva_order_id:order.id,mva_resource_id:resourceId,...meta},
+   metadata:{mva_kind:kind,mva_order_id:order.id,mva_resource_id:resourceId,mva_dynamic_methods:'v1',...meta},
    payment_intent_data:{metadata:{mva_kind:kind,mva_order_id:order.id}},
    success_url:checkoutUrl(page,'success',order.id),
    cancel_url:checkoutUrl(page,'canceled',order.id),
@@ -178,10 +220,11 @@ Deno.serve(async req=>{
    }
    const stripeAccountVerified=credentialsReady() && await verifyPrimaryStripeAccount();
   const gateway=flagsReady(cfg,testAdmin)&&stripeAccountVerified;
+   const pixAvailable=gateway?await pixEnabledOnPlatform(stripeClient()):false;
    return response({mode:'hosted_checkout',checkout:gateway,
      sandbox:Deno.env.get('STRIPE_BILLING_MODE')==='test',
      sandboxTester:sandboxTester(testAdmin),
-     fiscal:gateway,booking:gateway,
+     fiscal:gateway,booking:gateway,pixAvailable,
      owner:gateway&&cfg.owner_subscriptions_enabled,
      portal:credentialsReady(),
      connect:gateway&&cfg.connect_enabled&&connectedWebhookReady(),
@@ -224,7 +267,13 @@ Deno.serve(async req=>{
    const months=app.term_months;
    if(months!==1&&months!==12)throw new Error('Vigência fiscal inválida.');
    const transfer=months===12&&app.transfer_from.trim().length>=3;
-   const amount=p.monthly_cents*(months-(transfer?4:0));
+   // Fiscal amounts are calculated only on the server using the active DB catalog.
+   // The existing transfer campaign (4 free months) replaces the regular annual 10% discount.
+   const discountPercent=Number(p.annual_discount_percent)||0;
+   const amount=months===12
+     ?(transfer?p.monthly_cents*8:Math.round(p.monthly_cents*12*(100-discountPercent)/100))
+     :p.monthly_cents;
+   if(!Number.isSafeInteger(amount)||amount<100)throw new Error('Valor do plano inválido.');
    const result=await customerCheckout({kind:'fiscal',resourceId:id,userId:user.id,amountCents:amount,
      title:p.name+' · '+months+' meses',email:app.contact_email,
      accountId:null,meta:{planId:p.id,termMonths:String(months),transfer:String(transfer)},
@@ -237,7 +286,7 @@ Deno.serve(async req=>{
    if(bError||!b||b.status!=='confirmada')throw new Error('Reserva indisponível para pagamento.');
    const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Maceio',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
    if(b.booking_date<today)throw new Error('Não é possível pagar uma reserva que já passou.');
-   const {data:s,error:sError}=await admin.from('spaces').select('id,owner_id,is_mva_headquarters,approval,status')
+   const {data:s,error:sError}=await admin.from('spaces').select('id,owner_id,is_mva_headquarters,approval,status,category,price_per_hour')
       .eq('id',b.space_id).single();
    if(sError||!s||s.approval!=='aprovado'||s.status!=='available')throw new Error('Espaço não está disponível para novos pagamentos.');
    let connected:string|null=null;
@@ -248,11 +297,36 @@ Deno.serve(async req=>{
        throw new Error('Este coworking ainda não concluiu a conexão de recebimentos com Stripe.');
     connected=account.stripe_account_id;
    }
-   const amount=Math.round(Number(b.total_price)*100);
-   if(!Number.isSafeInteger(amount)||amount<100)throw new Error('Valor da reserva inválido.');
+   const fullAmount=Math.round(Number(b.total_price)*100);
+   if(!Number.isSafeInteger(fullAmount)||fullAmount<100)throw new Error('Valor da reserva inválido.');
+   // Meeting-room discounts are exclusively for paid, formalized fiscal-address
+   // contracts at MVA HQ, never for partner spaces or unrelated add-ons.
+   let discountPercent=0;
+   if(s.is_mva_headquarters===true&&s.category==='reuniao'&&b.space_category==='reuniao'){
+    const {data:contracts,error:contractsError}=await admin.from('fiscal_contracts')
+      .select('plan_id').eq('user_id',user.id).eq('status','ativo')
+      .eq('payment_status','paid').eq('payment_is_live',true)
+      .lte('start_date',b.booking_date).gte('renewal_date',b.booking_date);
+    if(contractsError)throw contractsError;
+    const ids=[...new Set((contracts||[]).map(c=>c.plan_id).filter(Boolean))];
+    if(ids.length){
+     const {data:planBenefits,error:benefitError}=await admin.from('mva_fiscal_prices')
+      .select('room_discount_percent').in('id',ids).eq('active',true);
+     if(benefitError)throw benefitError;
+     discountPercent=Math.min(10,Math.max(0,...(planBenefits||[]).map(x=>Number(x.room_discount_percent)||0)));
+    }
+   }
+   // Original booking total is authoritative. Discount only the room rental,
+   // never extras; the amount forwarded to Stripe is also stored in the order.
+   const roomBaseCents=Math.max(0,Math.min(fullAmount,
+      Math.round(Number(s.price_per_hour)*Number(b.duration_hours)*100)));
+   const roomDiscountCents=Math.round(roomBaseCents*discountPercent/100);
+   const amount=fullAmount-roomDiscountCents;
+   if(!Number.isSafeInteger(amount)||amount<100)throw new Error('Valor final da reserva inválido.');
    return response(await customerCheckout({kind:'booking',resourceId:id,userId:user.id,amountCents:amount,
     title:'Reserva · '+b.space_name+' · '+b.booking_date,email:b.responsible_email,
-    accountId:connected,meta:{bookingId:id},page:'client-dashboard'},stripe),200,origin);
+    accountId:connected,meta:{bookingId:id,roomDiscountPercent:String(discountPercent),
+      roomDiscountCents:String(roomDiscountCents)},page:'client-dashboard'},stripe),200,origin);
   }
   // Monthly room-hour membership: credits are granted only by signed invoice.paid events.
   if(action==='booking_plan_status'){
@@ -290,6 +364,12 @@ Deno.serve(async req=>{
   if(action==='redeem_booking_hours'){
    const bookingId=string(body.bookingId);
    if(!validUuid(bookingId))throw new Error('Reserva inválida.');
+   // Do not combine fiscal discounts/free hours with a separate booking-hour subscription.
+   const {data:fiscalBooking,error:fiscalError}=await admin.from('bookings')
+    .select('fiscal_bonus_hours,fiscal_discount_percent').eq('id',bookingId).eq('user_id',user.id).maybeSingle();
+   if(fiscalError||!fiscalBooking)throw new Error('Reserva não encontrada.');
+   if(Number(fiscalBooking.fiscal_bonus_hours)>0||Number(fiscalBooking.fiscal_discount_percent)>0)
+    throw new Error('Esta reserva já recebeu um benefício de endereço fiscal da MVA e não pode acumular créditos de outro plano.');
    const {data,error}=await admin.rpc('mva_redeem_booking_credit',{p_user:user.id,p_booking:bookingId});
    if(error)throw error;
    return response(data,200,origin);
