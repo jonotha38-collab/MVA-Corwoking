@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import { isAdmin } from '../../lib/auth';
 import { uploadSpacePhoto } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
+import { isBookingUpcoming, useBookingClock } from '../../lib/booking-visibility';
 import { Space, SpaceCategory } from '../../types';
 import { FiscalPartnerAccreditation } from './FiscalPartnerAccreditation';
 import { OwnerBillingPanel } from './OwnerBillingPanel';
@@ -33,6 +34,7 @@ export const OwnerDashboardView: React.FC = () => {
     setActiveTab 
   } = useCoworking();
 
+  const clock = useBookingClock();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
@@ -250,7 +252,7 @@ export const OwnerDashboardView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <span className="text-xs text-slate-500 font-medium block">{t("Reservas Confirmadas ")}</span>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl font-bold text-navy-900">{bookings.filter(b => mySpaces.some(s => s.id === b.spaceId) && b.status === 'confirmada').length}</span>
+            <span className="text-3xl font-bold text-navy-900">{bookings.filter(b => mySpaces.some(s => s.id === b.spaceId) && isBookingUpcoming(b,clock)).length}</span>
             <span className="text-xs text-emerald-600 font-semibold">{t("Acompanhe o status na agenda ")}</span>
           </div>
           <span className="text-[11px] text-slate-400 block mt-1">{t("Liquidação financeira depende de integração validada ")}</span>
