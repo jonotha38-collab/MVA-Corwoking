@@ -241,7 +241,7 @@ export function FiscalView(){
    <div className="grid gap-5 lg:grid-cols-3 lg:items-stretch">
     {planIds.map(id=>{
       const p=FISCAL_PLANS[id], info=planInfo[id],q=planQuote(id);
-      const monthlyEquivalent=q.amount/(term===1?1:12);
+      const monthlyEquivalent=q.amount/12;
       return <article key={id} className={`relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border fiscal-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${info.popular?'border-[#d06636] shadow-[0_12px_35px_rgba(183,74,28,.11)]':'fiscal-line'}`}>
         {info.popular&&<div className="bg-[#14304d] py-2.5 text-center text-[11px] font-bold uppercase tracking-[.16em] text-white">{t("Mais procurado")}</div>}
         <div className="flex flex-1 flex-col p-6 sm:p-7">
@@ -249,14 +249,19 @@ export function FiscalView(){
           <h3 className="mt-3 min-h-[48px] text-xl font-semibold leading-tight fiscal-ink">{p.name}</h3>
           <p className="mt-3 min-h-[72px] text-sm leading-[1.7] fiscal-muted">{t(info.summary)}</p>
           <div className="mt-6 border-t fiscal-line pt-5">
-            <p className="text-[11px] font-semibold fiscal-muted">{t("A partir de")}</p>
+            <p className="text-[11px] font-semibold fiscal-muted">{t(term===12?'Valor total do plano anual':'Valor do plano mensal')}</p>
             <div className="mt-1 flex flex-wrap items-baseline gap-1.5">
-              <strong className="text-[clamp(1.9rem,3vw,2.3rem)] font-semibold leading-tight tracking-tight fiscal-ink">{brl(monthlyEquivalent,language)}</strong>
-              <span className="text-xs fiscal-muted">{t("/ mês equivalente")}</span>
+              <strong className="text-[clamp(1.9rem,3vw,2.3rem)] font-semibold leading-tight tracking-tight fiscal-ink">{brl(q.amount,language)}</strong>
+              {term===1&&<span className="text-xs fiscal-muted">{t('/ mês')}</span>}
             </div>
-            <p className="mt-2 text-xs leading-relaxed fiscal-muted">
-              {term===12?`${t('Pagamento anual:')} ${brl(q.amount,language)}`:`${t('Pagamento de 1 mês:')} ${brl(q.amount,language)}`}
-            </p>
+            {term===12?(
+              <p className="mt-2 text-xs leading-relaxed fiscal-muted">
+                {t('Equivale a')} <strong className="font-bold fiscal-ink">{brl(monthlyEquivalent,language)}</strong> {t('por mês no plano anual')}
+                <span className="mt-1 block">{t('Pagamento único do valor anual, não mensalidade recorrente.')}</span>
+              </p>
+            ):(
+              <p className="mt-2 text-xs leading-relaxed fiscal-muted">{t('Pagamento único por 1 mês, sem renovação automática.')}</p>
+            )}
             {q.discount>0&&<div className="mt-2 inline-flex items-center gap-1.5 rounded-full fiscal-accent-soft px-3 py-1.5 text-[11px] font-bold fiscal-accent"><Gift className="h-3.5 w-3.5"/> {t('Economia estimada:')} {brl(q.discount,language)}</div>}
           </div>
           <button type="button" onClick={()=>start(id)} className={`mt-6 flex min-h-[47px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors disabled:opacity-60 ${info.popular?'bg-[#c65019] text-white hover:bg-[#aa3c0f]':'bg-navy-900 text-white hover:bg-navy-800'}`}>{t('Ver contratação e pagamento')} <ArrowRight className="h-4 w-4"/></button>
