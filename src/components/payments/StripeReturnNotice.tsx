@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle2, Clock3, X } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
+import { t, usePreferences } from '../../lib/preferences';
 
 type State='checking'|'paid'|'test'|'pending'|'canceled'|'connect';
 export function StripeReturnNotice(){
  const {currentUser,activeTab}=useCoworking();
+ usePreferences();
  const [params]=useState(()=>{
   const search=new URLSearchParams(window.location.search);
   return {returnType:search.get('stripe_checkout'),order:search.get('stripe_order'),membership:search.get('stripe_membership')==='1'};
@@ -66,8 +68,8 @@ export function StripeReturnNotice(){
   {success?<CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700"/>:
     state==='checking'?<Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-amber-800"/>:
     <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-800"/>}
-  <div className="min-w-0 flex-1"><p className={`text-sm font-bold ${success?'text-emerald-900':'text-amber-900'}`}>{title}</p>
-    <p className={`mt-1 text-xs leading-relaxed ${success?'text-emerald-800':'text-amber-800'}`}>{description}</p></div>
-  <button type="button" onClick={dismiss} aria-label="Dispensar aviso do Stripe" className="shrink-0 rounded-lg p-2 text-slate-600 hover:bg-black/5"><X className="h-4 w-4"/></button>
+  <div className="min-w-0 flex-1"><p className={`text-sm font-bold ${success?'text-emerald-900':'text-amber-900'}`}>{t(title)}</p>
+    <p className={`mt-1 text-xs leading-relaxed ${success?'text-emerald-800':'text-amber-800'}`}>{t(description)}</p></div>
+  <button type="button" onClick={dismiss} aria-label={t('Dispensar aviso do Stripe')} className="shrink-0 rounded-lg p-2 text-slate-600 hover:bg-black/5"><X className="h-4 w-4"/></button>
  </div>;
 }
