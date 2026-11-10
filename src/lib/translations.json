@@ -3794,5 +3794,229 @@
   "As horas só ficam disponíveis após confirmação financeira de cada mensalidade. Reservas de parceiros, salas de reunião e adicionais não são cobertos. Cancelamentos com pelo menos 24 horas de antecedência devolvem horas ao saldo do ciclo; cancelamentos tardios não restituem horas automaticamente.": [
     "Hours become available only after each monthly payment is confirmed. Partner spaces, meeting rooms and add-ons are excluded. Cancellations made at least 24 hours before the booking return hours to the current period; late cancellations do not automatically restore them.",
     "Las horas se liberan solo tras confirmar cada mensualidad. No se incluyen espacios asociados, salas de reuniones ni servicios adicionales. Las cancelaciones con al menos 24 horas de antelación devuelven horas al ciclo actual; las tardías no se reembolsan automáticamente."
+  ],
+  "Fechar checkout": [
+    "Close checkout",
+    "Cerrar pago"
+  ],
+  "SEU PLANO MVA": [
+    "YOUR MVA PLAN",
+    "TU PLAN MVA"
+  ],
+  "Contratação com transparência.": [
+    "Transparent checkout.",
+    "Contratación transparente."
+  ],
+  "Confira o valor do plano antes de avançar ao pagamento hospedado no Stripe.": [
+    "Review your plan price before proceeding to secure Stripe Checkout.",
+    "Comprueba el precio del plan antes de continuar al pago seguro con Stripe."
+  ],
+  "de desconto nas salas de reunião da sede MVA": [
+    "discount on meeting rooms at MVA headquarters",
+    "de descuento en las salas de reuniones de la sede MVA"
+  ],
+  "Salas de reunião pela tarifa regular, sem desconto neste plano": [
+    "Meeting rooms at standard prices; no discount on this plan",
+    "Salas de reuniones a tarifa regular, sin descuento en este plan"
+  ],
+  "1 consulta gratuita com contador por contratação, mediante agendamento.": [
+    "One free accountant consultation per contract, by appointment.",
+    "Una consulta gratuita con contador por contratación, previa cita."
+  ],
+  "2 horas de bônus em sala de atendimento nos 3 primeiros meses, não cumulativas.": [
+    "2 bonus hours in a consultation room for each of the first 3 months, non-cumulative.",
+    "2 horas de bonificación en sala de atención durante los primeros 3 meses, no acumulables."
+  ],
+  "Valor normal": [
+    "Standard price",
+    "Precio regular"
+  ],
+  "Campanha de transferência": [
+    "Address-transfer promotion",
+    "Promoción por traslado"
+  ],
+  "Desconto anual": [
+    "Annual discount",
+    "Descuento anual"
+  ],
+  "Valor total": [
+    "Total amount",
+    "Importe total"
+  ],
+  "Cobrança única para o período escolhido. Não é assinatura com renovação automática.": [
+    "One-time payment for the chosen term. This is not an automatically renewing subscription.",
+    "Pago único por el plazo elegido. No es una suscripción de renovación automática."
+  ],
+  "Os dados do cartão são coletados pelo Stripe, nunca pela MVA.": [
+    "Card details are collected by Stripe, never by MVA.",
+    "Los datos de la tarjeta los recoge Stripe, nunca MVA."
+  ],
+  "Pagamento e liberação": [
+    "Payment and authorization",
+    "Pago y autorización"
+  ],
+  "Contratação de endereço fiscal sujeita à análise da empresa, assinatura do contrato e pagamento confirmado.": [
+    "Registered address service requires company review, a signed contract and confirmed payment.",
+    "El servicio de domicilio fiscal requiere evaluación de la empresa, contrato firmado y pago confirmado."
+  ],
+  "Consultando a situação da contratação…": [
+    "Checking your application status…",
+    "Consultando el estado de tu contratación…"
+  ],
+  "Entre para continuar.": [
+    "Sign in to continue.",
+    "Inicia sesión para continuar."
+  ],
+  "A MVA utiliza sua conta para relacionar a contratação aos documentos e pagamentos da empresa.": [
+    "MVA uses your account to securely link applications, company documents and payments.",
+    "MVA utiliza tu cuenta para vincular de forma segura solicitudes, documentos y pagos."
+  ],
+  "Entrar na minha conta": [
+    "Sign in to my account",
+    "Entrar en mi cuenta"
+  ],
+  "Análise necessária antes de pagar": [
+    "Review required before payment",
+    "Evaluación necesaria antes de pagar"
+  ],
+  "Já existe uma solicitação para este serviço. A equipe da MVA precisa concluir a avaliação.": [
+    "You already have an application for this service. The MVA team must complete its review.",
+    "Ya tienes una solicitud para este servicio. El equipo de MVA debe completar la evaluación."
+  ],
+  "Há pendências na análise desta empresa. Consulte o parecer da equipe MVA.": [
+    "There are outstanding requirements in this company's review. Please check the MVA team's feedback.",
+    "Hay requisitos pendientes en la evaluación de esta empresa. Consulta las observaciones de MVA."
+  ],
+  "A contratação precisa de avaliação documental e de elegibilidade. Você não será cobrado enquanto essa etapa estiver pendente.": [
+    "Your application requires document and eligibility review. You won't be charged while this step is pending.",
+    "La contratación requiere evaluación documental y de elegibilidad. No se te cobrará mientras esté pendiente."
+  ],
+  "Dados essenciais para análise cadastral": [
+    "Required company details for review",
+    "Datos esenciales para la evaluación"
+  ],
+  "Nenhum valor será cobrado nesta etapa. A MVA deve verificar a viabilidade do endereço antes de liberar o pagamento.": [
+    "Nothing is charged at this step. MVA must confirm address eligibility before enabling payment.",
+    "En esta etapa no se cobrará nada. MVA debe verificar la viabilidad del domicilio antes de habilitar el pago."
+  ],
+  "Nome da empresa": [
+    "Company name",
+    "Nombre de la empresa"
+  ],
+  "CNPJ ou em abertura": [
+    "CNPJ or company in formation",
+    "CNPJ o empresa en constitución"
+  ],
+  "em abertura": [
+    "em abertura (company in formation)",
+    "em abertura (empresa en constitución)"
+  ],
+  "Atividade / CNAE": [
+    "Business activity / CNAE",
+    "Actividad económica / CNAE"
+  ],
+  "Ex.: serviços administrativos": [
+    "e.g. administrative services",
+    "Ej.: servicios administrativos"
+  ],
+  "Responsável legal": [
+    "Legal representative",
+    "Representante legal"
+  ],
+  "Telefone (opcional)": [
+    "Phone (optional)",
+    "Teléfono (opcional)"
+  ],
+  "Endereço anterior para transferência": [
+    "Previous address for transfer",
+    "Dirección anterior para traslado"
+  ],
+  "Aceito a análise de elegibilidade e estou ciente de que a contratação depende do contrato e do pagamento confirmado, sem garantia de alvará ou inscrição estadual.": [
+    "I agree to eligibility review and understand that the service requires a signed contract and confirmed payment, with no guarantee of licenses or state tax registration.",
+    "Acepto la evaluación de elegibilidad y entiendo que la contratación exige contrato firmado y pago confirmado, sin garantía de licencias ni inscripción estatal."
+  ],
+  "Enviando solicitação…": [
+    "Sending application…",
+    "Enviando solicitud…"
+  ],
+  "Solicitar análise para continuar": [
+    "Request review to continue",
+    "Solicitar evaluación para continuar"
+  ],
+  "Falar com a equipe MVA": [
+    "Contact the MVA team",
+    "Hablar con el equipo MVA"
+  ],
+  "Ver minhas solicitações": [
+    "View my applications",
+    "Ver mis solicitudes"
+  ],
+  "Empresa elegível para a contratação": [
+    "Company eligible for service",
+    "Empresa elegible para contratar"
+  ],
+  "Os documentos finais dependem do contrato e da confirmação financeira.": [
+    "Final documents depend on the signed contract and payment confirmation.",
+    "Los documentos finales dependen del contrato y de la confirmación del pago."
+  ],
+  "Pagamento real confirmado. A MVA concluirá a formalização antes de autorizar o endereço.": [
+    "Real payment confirmed. MVA will complete the formalization before authorizing address use.",
+    "Pago real confirmado. MVA completará la formalización antes de autorizar el uso del domicilio."
+  ],
+  "Pagamento de teste confirmado: nenhuma cobrança real ou liberação de endereço foi realizada.": [
+    "Test payment confirmed: no real charge or authorization to use the address was made.",
+    "Pago de prueba confirmado: no se realizó ningún cobro real ni se autorizó el uso del domicilio."
+  ],
+  "Continuar para pagamento seguro": [
+    "Continue to secure payment",
+    "Continuar al pago seguro"
+  ],
+  "A escolha do plano não autoriza o uso do endereço e a compra não garante alvará ou inscrição estadual.": [
+    "Choosing a plan does not authorize use of the address, and payment does not guarantee permits or state registration.",
+    "Elegir un plan no autoriza el uso del domicilio, y el pago no garantiza licencias ni inscripción estatal."
+  ],
+  "Voltar aos planos": [
+    "Back to plans",
+    "Volver a los planes"
+  ],
+  "Informe a razão social com pelo menos 3 caracteres (máximo 180).": [
+    "Enter a company name of at least 3 characters (maximum 180).",
+    "Introduce una razón social de al menos 3 caracteres (máximo 180)."
+  ],
+  "Informe um CNPJ válido ou escreva \"em abertura\" caso ainda não possua CNPJ.": [
+    "Enter a valid CNPJ or type \"em abertura\" if you don't have one yet.",
+    "Introduce un CNPJ válido o escribe \"em abertura\" si todavía no tienes uno."
+  ],
+  "Informe a atividade econômica ou CNAE com pelo menos 3 caracteres (máximo 120).": [
+    "Enter your business activity or CNAE (3–120 characters).",
+    "Indica la actividad económica o CNAE (3–120 caracteres)."
+  ],
+  "Informe o nome do responsável legal (3 a 160 caracteres).": [
+    "Enter the legal representative's name (3–160 characters).",
+    "Introduce el nombre del representante legal (3–160 caracteres)."
+  ],
+  "Informe um e-mail válido, por exemplo contato@empresa.com.br.": [
+    "Enter a valid email, such as contato@empresa.com.br.",
+    "Introduce un correo válido, por ejemplo contacto@empresa.com.br."
+  ],
+  "Informe o endereço anterior para o desconto de transferência.": [
+    "Enter the previous address to request the transfer discount.",
+    "Indica la dirección anterior para solicitar el descuento por traslado."
+  ],
+  "Aceite as condições da solicitação.": [
+    "Please accept the application terms.",
+    "Acepta las condiciones de la solicitud."
+  ],
+  "Não foi possível enviar: sua sessão não tem permissão. Entre novamente e tente outra vez.": [
+    "Couldn't send: your session doesn't have permission. Sign in again and retry.",
+    "No se pudo enviar: tu sesión no tiene permisos. Vuelve a entrar e inténtalo."
+  ],
+  "Já existe uma solicitação semelhante. Consulte a área fiscal para acompanhar.": [
+    "A similar application already exists. Check your registered address dashboard.",
+    "Ya existe una solicitud similar. Consúltala en tu panel de domicilio fiscal."
+  ],
+  "Não foi possível registrar a solicitação. Verifique os campos e tente novamente.": [
+    "Couldn't submit your application. Check the fields and try again.",
+    "No se pudo registrar la solicitud. Comprueba los campos e inténtalo de nuevo."
   ]
 }
