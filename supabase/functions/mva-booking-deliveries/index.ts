@@ -97,8 +97,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // until an administrator has connected valid OAuth credentials.
   if(!setting?.enabled)return reply(200,{state:'paused',calendar:false,email:false});
   const mailReady=Boolean(setting.email_enabled&&env('RESEND_API_KEY')&&env('BOOKING_EMAIL_FROM'));
-  const calendarReady=Boolean(setting.calendar_enabled&&env('GOOGLE_CALENDAR_ID')&&env('GOOGLE_OAUTH_CLIENT_ID')
+  const appsScriptReady=Boolean(env('GOOGLE_APPS_SCRIPT_URL')&&env('GOOGLE_APPS_SCRIPT_SECRET'));
+  const oauthReady=Boolean(env('GOOGLE_CALENDAR_ID')&&env('GOOGLE_OAUTH_CLIENT_ID')
     &&env('GOOGLE_OAUTH_CLIENT_SECRET')&&env('GOOGLE_OAUTH_REFRESH_TOKEN'));
+  const calendarReady=Boolean(setting.calendar_enabled&&(appsScriptReady||oauthReady));
   const channels=[...(mailReady?['email']:[]),...(calendarReady?['calendar']:[])];
   if(!channels.length)return reply(200,{state:'awaiting_provider_configuration',email:false,calendar:false});
   const {data:jobs,error:claimError}=await supabase.rpc('claim_mva_delivery_jobs',{
@@ -148,6 +150,26 @@ Deno.serve(async (req: Request): Promise<Response> => {
     };
   }
   async function syncCalendar(job:Job,b:BookingInfo) {
+    if(appsScriptReady) {
+      const start=b.isAllDay ? b.date+'T00:00:00-03:00'
+        : b.date+'T'+b.start.slice(0,5)+':00-03:00';
+      const end=b.isAllDay ? nextDate(b.date)+'T00:00:00-03:00'
+        : b.date+'T'+b.end.slice(0,5)+':00-03:00';
+      const response=await fetch(env('GOOGLE_APPS_SCRIPT_URL'),{
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({
+          secret:env('GOOGLE_APPS_SCRIPT_SECRET'),
+          action:job.action==='canceled'?'cancel':'create',
+          id:eventId(b),cliente:b.name,sala:b.room,inicio:start,fim:end
+        }),
+        redirect:'follow'
+      });
+      if(!response.ok) throw new Error('Apps Script request failed ('+response.status+')');
+      const data=await response.json() as {ok?:boolean;error?:string};
+      if(!data.ok)throw new Error('Apps Script rejected calendar action: '+String(data.error||'unknown').slice(0,80));
+      return eventId(b);
+    }
     const accessToken=await token();
     const url='https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(env('GOOGLE_CALENDAR_ID'))+
       '/events/'+eventId(b);
