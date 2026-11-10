@@ -54,8 +54,8 @@ O Google exige ação humana para conceder autorização de edição da agenda.
    - `GOOGLE_OAUTH_CLIENT_SECRET` — segredo do cliente OAuth;
    - `GOOGLE_OAUTH_REFRESH_TOKEN` — token obtido via consentimento da conta MVA.
 7. No site, acesse **Administração > Google Agenda** e clique em
-   **Testar conexão Google Agenda**. A verificação valida a renovação do token
-   e a permissão `writer` ou `owner` da agenda. Os resultados e a fila aparecem
+   **Testar conexão Google Agenda**. A verificação renova o token e cria/remove um evento privado de diagnóstico
+   para confirmar efetivamente a permissão de escrita (escopo `calendar.events`). Os resultados e a fila aparecem
    exclusivamente para administradores autenticados.
 8. Faça uma reserva real de teste futura e verifique se surge na agenda.
    Após um cancelamento **permitido pelo sistema**, confira se o evento some.
