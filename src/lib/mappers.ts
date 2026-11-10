@@ -39,7 +39,7 @@ export const rowToBooking = (r: Row): Booking => ({
   coworkingName: r.coworking_name, companyName: r.company_name, responsibleName: r.responsible_name,
   responsibleEmail: r.responsible_email, responsiblePhone: r.responsible_phone, date: r.booking_date,
   startTime: String(r.start_time).slice(0, 5), endTime: String(r.end_time).slice(0, 5),
-  durationHours: Number(r.duration_hours), totalPrice: Number(r.total_price), addons: r.addons || [],
+  durationHours: Number(r.duration_hours), totalPrice: Number(r.total_price), adminComplimentary: r.admin_complimentary === true, addons: r.addons || [],
   status: r.status, checkIn: !!r.check_in, createdAt: String(r.created_at).slice(0, 10),
 });
 
