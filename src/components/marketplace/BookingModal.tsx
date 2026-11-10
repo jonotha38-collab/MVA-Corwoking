@@ -67,10 +67,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
     setLoadingSlots(true);
     setSlotsError(false);
     setOccupied([]);
-    void supabase.rpc('mva_occupied_booking_slots', {
+    void Promise.resolve(supabase.rpc('mva_occupied_booking_slots', {
       p_space_id: space.id,
       p_booking_date: date,
-    }).then(({data,error}) => {
+    })).then(({data,error}) => {
       if (!active) return;
       setLoadingSlots(false);
       if (error) { setSlotsError(true); setOccupied([]); return; }
