@@ -94,7 +94,7 @@ export function calendarEventPayload(booking: Booking, space?: Space): CalendarE
     id: calendarEventId(booking.id),
     summary: `Reserva MVA · ${booking.spaceName}`,
     location: space?.address || booking.coworkingName,
-    description: `Reserva de espaço confirmada na MVA Coworking.\nCódigo: ${booking.id}\nConfira os detalhes em https://coworking-mva-du8c.vercel.app/\nHorário local: Brasília (UTC-3).`,
+    description: `Reserva de espaço confirmada na MVA Coworking.\nCódigo: ${booking.id}\nConfira os detalhes em https://mvacoworking.com.br/?page=client-dashboard\nHorário local: Brasília (UTC-3).`,
     start: { dateTime: `${date}T${start}:00-03:00`, timeZone: ZONE },
     end: { dateTime: `${date}T${end}:00-03:00`, timeZone: ZONE },
     reminders: {
