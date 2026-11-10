@@ -142,26 +142,26 @@ export function FiscalView(){
    <div className="relative grid min-w-0 lg:min-h-[540px] lg:grid-cols-[minmax(0,1.16fr)_minmax(0,.84fr)]">
     <div className="min-w-0 space-y-7 px-6 py-11 sm:px-10 sm:py-16 lg:px-12 lg:py-20">
       <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-3.5 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-orange-200">
-        <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true"/> Escritório virtual MVA Coworking
+        <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true"/> {t('Escritório virtual MVA Coworking')}
       </span>
       <h1 id="fiscal-hero-heading" className="max-w-[670px] text-[clamp(2.25rem,4.45vw,4.35rem)] font-semibold leading-[1.09] tracking-[-.052em]">
        {t('Um endereço para sua empresa.')} <span className="text-[#ffad77]">{t("Mais liberdade para você.")}</span>
       </h1>
       <p className="max-w-xl text-[15px] leading-[1.85] text-slate-300 sm:text-[17px]">
-       Endereço fiscal e comercial em Aracaju, com atendimento, correspondências e a estrutura de um coworking de verdade. Tudo em um só lugar.
+       {t('Endereço fiscal e comercial em Aracaju, com atendimento, correspondências e a estrutura de um coworking de verdade. Tudo em um só lugar.')}
       </p>
       <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
        <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl bg-[#cf581f] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-950/20 transition hover:bg-[#b84410]">
-         Conhecer planos e preços <ArrowRight className="h-4 w-4" aria-hidden/>
+         {t('Conhecer planos e preços')} <ArrowRight className="h-4 w-4" aria-hidden/>
        </button>
        <button type="button" onClick={()=>go('como-funciona-fiscal')} className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10">
-         Entenda como funciona <ChevronDown className="h-4 w-4" aria-hidden/>
+         {t('Entenda como funciona')} <ChevronDown className="h-4 w-4" aria-hidden/>
        </button>
       </div>
       <div className="flex flex-wrap gap-x-6 gap-y-3 border-t border-white/10 pt-6 text-xs font-medium text-slate-300">
-       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> Atendimento especializado</span>
-       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> Correspondências no painel</span>
-       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> Contratação com análise</span>
+       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> {t('Atendimento especializado')}</span>
+       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> {t('Correspondências no painel')}</span>
+       <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> {t('Contratação com análise')}</span>
       </div>
     </div>
     <div className="relative min-h-[250px] overflow-hidden lg:min-h-0">
@@ -190,7 +190,7 @@ export function FiscalView(){
      {icon:MonitorSmartphone,title:'Tudo no seu painel',description:'Acesse informações de contrato, solicitações e documentos em uma área reservada.'},
      {icon:UsersRound,title:'Coworking de verdade',description:'Reserve salas de reunião e espaços para encontros presenciais conforme disponibilidade.'},
      {icon:Headphones,title:'Acompanhamento humano',description:'Equipe para orientar a contratação e esclarecer exigências documentais.'}
-    ].map(({icon:Icon,title,description})=><article key={t(title)} className="group min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm transition-colors hover:border-orange-200 sm:p-7">
+    ].map(({icon:Icon,title,description})=><article key={title} className="group min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm transition-colors hover:border-orange-200 sm:p-7">
        <div className="fiscal-icon-badge mb-6 rounded-2xl"><Icon className="h-5 w-5" aria-hidden/></div>
        <h3 className="text-lg font-semibold fiscal-ink">{t(title)}</h3>
        <p className="mt-2 text-sm leading-[1.8] fiscal-muted">{t(description)}</p>
@@ -204,7 +204,7 @@ export function FiscalView(){
       <img src="/hero-office.jpg" alt={t('Espaço de trabalho moderno')} className="absolute inset-0 h-full w-full object-cover opacity-75"/>
       <div className="absolute inset-0 bg-gradient-to-t from-[#10253d]/95 via-[#10253d]/20 to-transparent"/>
       <div className="absolute bottom-7 left-7 right-7 text-white sm:bottom-9 sm:left-9">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold backdrop-blur-sm"><BadgeCheck className="h-3.5 w-3.5"/> Uma estrutura, várias possibilidades</span>
+        <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold backdrop-blur-sm"><BadgeCheck className="h-3.5 w-3.5"/> {t('Uma estrutura, várias possibilidades')}</span>
         <h2 className="mt-4 max-w-sm text-2xl font-semibold leading-snug sm:text-3xl">{t("A solução certa para o momento do seu negócio.")}</h2>
       </div>
     </div>
@@ -214,11 +214,11 @@ export function FiscalView(){
        {icon:BriefcaseBusiness,title:'Endereço comercial',desc:'Para apresentar seu negócio com um endereço profissional em materiais, redes sociais e contatos comerciais.'},
        {icon:ShieldCheck,title:'Endereço fiscal',desc:'Para avaliar o uso do endereço no registro de sua empresa, conforme CNAE e regras municipais.'},
        {icon:FileCheck2,title:'Endereço fiscal com IE',desc:'Para empresas que também precisam verificar exigências relativas à inscrição estadual e ICMS.'}
-      ].map(({icon:Icon,title,desc},i)=><div key={t(title)} className={`flex min-w-0 gap-4 ${i>0?'border-t fiscal-line pt-6':''}`}>
+      ].map(({icon:Icon,title,desc},i)=><div key={title} className={`flex min-w-0 gap-4 ${i>0?'border-t fiscal-line pt-6':''}`}>
         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl fiscal-soft fiscal-ink"><Icon className="h-5 w-5" aria-hidden/></div>
         <div className="min-w-0"><h3 className="text-base font-semibold fiscal-ink">{t(title)}</h3><p className="mt-2 text-sm leading-[1.75] fiscal-muted">{t(desc)}</p></div>
        </div>)}
-      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold fiscal-accent hover:underline">Comparar os planos <ArrowRight className="h-4 w-4"/></button>
+      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold fiscal-accent hover:underline">{t('Comparar os planos')} <ArrowRight className="h-4 w-4"/></button>
     </div>
   </section>
 
@@ -258,10 +258,10 @@ export function FiscalView(){
             </p>
             {q.discount>0&&<div className="mt-2 inline-flex items-center gap-1.5 rounded-full fiscal-accent-soft px-3 py-1.5 text-[11px] font-bold fiscal-accent"><Gift className="h-3.5 w-3.5"/> {t('Economia estimada:')} {brl(q.discount,language)}</div>}
           </div>
-          <button type="button" onClick={()=>start(id)} className={`mt-6 flex min-h-[47px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors disabled:opacity-60 ${info.popular?'bg-[#c65019] text-white hover:bg-[#aa3c0f]':'bg-navy-900 text-white hover:bg-navy-800'}`}>Ver contratação e pagamento <ArrowRight className="h-4 w-4"/></button>
+          <button type="button" onClick={()=>start(id)} className={`mt-6 flex min-h-[47px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors disabled:opacity-60 ${info.popular?'bg-[#c65019] text-white hover:bg-[#aa3c0f]':'bg-navy-900 text-white hover:bg-navy-800'}`}>{t('Ver contratação e pagamento')} <ArrowRight className="h-4 w-4"/></button>
           <div className="mt-6 border-t fiscal-line pt-5">
             <p className="mb-4 text-xs font-semibold fiscal-ink">{t("O que está incluído")}</p>
-            <ul className="space-y-3">{info.features.map(feature=><li key={t(feature)} className="flex items-start gap-2.5 text-[13px] leading-[1.55] fiscal-muted"><Check className="mt-0.5 h-4 w-4 shrink-0 fiscal-accent"/>{t(feature)}</li>)}</ul>
+            <ul className="space-y-3">{info.features.map(feature=><li key={feature} className="flex items-start gap-2.5 text-[13px] leading-[1.55] fiscal-muted"><Check className="mt-0.5 h-4 w-4 shrink-0 fiscal-accent"/>{t(feature)}</li>)}</ul>
           </div>
         </div>
       </article>;
@@ -295,7 +295,7 @@ export function FiscalView(){
       <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">{t("Onde estamos")}</span>
         <h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-4xl">{t("Um endereço com estrutura real.")}</h2>
         <p className="text-sm leading-relaxed fiscal-muted">{t("Conheça as unidades disponíveis para análise. Parceiros só aparecem após credenciamento da MVA.")}</p></div>
-      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold fiscal-accent hover:underline">Escolher meu plano <ArrowUpRight className="h-4 w-4"/></button>
+      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center gap-2 text-sm font-bold fiscal-accent hover:underline">{t('Escolher meu plano')} <ArrowUpRight className="h-4 w-4"/></button>
     </div>
     {unitsLoading?<div className="rounded-2xl border fiscal-line fiscal-surface p-6 text-sm fiscal-muted" role="status">{t("Consultando unidades disponíveis…")}</div>
       :units.length===0?<div className="rounded-2xl border fiscal-line fiscal-surface p-6 text-sm fiscal-muted">{t("Unidades em análise de disponibilidade. Consulte nossa equipe para mais informações.")}</div>
@@ -314,10 +314,10 @@ export function FiscalView(){
   <section className="relative overflow-hidden rounded-[26px] bg-[#112840] px-6 py-9 text-white sm:px-10 sm:py-11">
    <div className="pointer-events-none absolute -right-20 -top-16 h-60 w-60 rounded-full bg-[#d15a21]/20 blur-[75px]" aria-hidden="true"/>
    <div className="relative flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
-     <div className="max-w-2xl"><span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-orange-300"><Gift className="h-4 w-4"/> Condição especial</span>
+     <div className="max-w-2xl"><span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-orange-300"><Gift className="h-4 w-4"/> {t('Condição especial')}</span>
        <h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[30px]">{t("Sua empresa já usa outro endereço fiscal?")}</h2>
        <p className="mt-3 text-sm leading-relaxed text-slate-300">{t("A MVA oferece uma campanha de transferência com até 4 meses gratuitos na contratação anual, sujeita à elegibilidade e comprovação.")}</p></div>
-     <button type="button" onClick={()=>{setTerm(12);setTransfer(true);go('planos-fiscais')}} className="fiscal-white-cta inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold transition sm:w-auto">Ver condição anual <ArrowRight className="h-4 w-4"/></button>
+     <button type="button" onClick={()=>{setTerm(12);setTransfer(true);go('planos-fiscais')}} className="fiscal-white-cta inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold transition sm:w-auto">{t('Ver condição anual')} <ArrowRight className="h-4 w-4"/></button>
    </div>
   </section>
 
@@ -335,9 +335,9 @@ export function FiscalView(){
    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
     <div className="max-w-2xl"><span className="text-[11px] font-bold uppercase tracking-widest text-orange-300">{t("Seu próximo passo")}</span><h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[32px]">{t("Pronto para profissionalizar seu endereço?")}</h2><p className="mt-3 text-sm leading-relaxed text-slate-300">{t("Escolha seu plano com tranquilidade. Nossa equipe confere os requisitos antes de qualquer liberação.")}</p></div>
     <div className="flex flex-col gap-3 sm:flex-row">
-      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#cc541c] px-6 py-3.5 text-sm font-bold text-white hover:bg-[#af410f]">Ver planos <ArrowRight className="h-4 w-4"/></button>
-      <a href="mailto:contato@mvacoworking.com.br?subject=Escrit%C3%B3rio%20virtual%20MVA" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><Headphones className="h-4 w-4"/> Falar com a MVA</a>
-      <button type="button" onClick={showArea} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><FileCheck2 className="h-4 w-4"/> Minha área</button>
+      <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#cc541c] px-6 py-3.5 text-sm font-bold text-white hover:bg-[#af410f]">{t('Ver planos')} <ArrowRight className="h-4 w-4"/></button>
+      <a href="mailto:contato@mvacoworking.com.br?subject=Escrit%C3%B3rio%20virtual%20MVA" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><Headphones className="h-4 w-4"/> {t('Falar com a MVA')}</a>
+      <button type="button" onClick={showArea} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><FileCheck2 className="h-4 w-4"/> {t('Minha área')}</button>
     </div>
    </div>
   </section>
@@ -346,11 +346,11 @@ export function FiscalView(){
   <div id="minha-area-fiscal" className="scroll-mt-32">
     {eligible && currentUser && <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-wider text-emerald-800">{t("Contrato ativo")}</p><p className="mt-1 break-words text-sm font-semibold fiscal-ink">{currentCompany.companyName}</p><p className="mt-1 text-xs fiscal-muted">{t("Acesse sua declaração de endereço fiscal no painel seguro da MVA.")}</p></div>
-      <button type="button" onClick={()=>setCertificateOpen(true)} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 py-3 text-xs font-bold text-white"><FileCheck2 className="h-4 w-4"/> Ver declaração</button>
+      <button type="button" onClick={()=>setCertificateOpen(true)} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 py-3 text-xs font-bold text-white"><FileCheck2 className="h-4 w-4"/> {t('Ver declaração')}</button>
      </div>}
     {currentUser && <div className="space-y-5">
        <button type="button" aria-expanded={clientAreaOpen} onClick={()=>setClientAreaOpen(v=>!v)} className="flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl border fiscal-line fiscal-surface px-5 py-4 text-left text-sm font-bold fiscal-ink">
-        <span className="flex min-w-0 items-center gap-2"><FileCheck2 className="h-5 w-5 shrink-0 text-orange-600"/> Acompanhar solicitações e documentos</span><ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${clientAreaOpen?'rotate-180':''}`}/>
+        <span className="flex min-w-0 items-center gap-2"><FileCheck2 className="h-5 w-5 shrink-0 text-orange-600"/> {t('Acompanhar solicitações e documentos')}</span><ChevronDown className={`h-5 w-5 shrink-0 transition-transform ${clientAreaOpen?'rotate-180':''}`}/>
        </button>
        {clientAreaOpen&&<FiscalServiceCenter mode="dashboard" initialPlan={selectedPlan} onCheckout={id=>start(id)}/>}
     </div>}
