@@ -39,7 +39,8 @@ Deno.serve(async(req:Request)=>{
   const {data:config,error:cfgError}=await service.from('booking_delivery_config')
     .select('enabled,calendar_enabled,email_enabled').eq('id',1).single();
   if(cfgError||!config)return reply(503,{error:'Calendar configuration unavailable'});
-  const credentialsConfigured=Boolean(env('GOOGLE_CALENDAR_ID')&&env('GOOGLE_OAUTH_CLIENT_ID')
+  const appsScriptReady=Boolean(env('GOOGLE_APPS_SCRIPT_URL')&&env('GOOGLE_APPS_SCRIPT_SECRET'));
+  const credentialsConfigured=appsScriptReady||Boolean(env('GOOGLE_CALENDAR_ID')&&env('GOOGLE_OAUTH_CLIENT_ID')
     &&env('GOOGLE_OAUTH_CLIENT_SECRET')&&env('GOOGLE_OAUTH_REFRESH_TOKEN'));
   const count=async(states:string[])=>{
     const {count,error}=await service.from('booking_delivery_jobs')
@@ -60,6 +61,38 @@ Deno.serve(async(req:Request)=>{
     };
     if(body.action==='status')return reply(200,status);
     if(!credentialsConfigured)return reply(200,{...status,verified:false,reason:'Credenciais Google ainda não configuradas no Supabase.'});
+    if(appsScriptReady){
+      const testId='mva-test-'+crypto.randomUUID();
+      const begin=new Date(Date.now()+30*60_000);
+      const end=new Date(Date.now()+45*60_000);
+      const call=async(action:'create'|'cancel')=>{
+        const response=await fetch(env('GOOGLE_APPS_SCRIPT_URL'),{
+          method:'POST',redirect:'follow',
+          headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body:JSON.stringify({
+            secret:env('GOOGLE_APPS_SCRIPT_SECRET'),action,
+            id:testId,cliente:'Teste de conexão MVA',sala:'Verificação temporária',
+            inicio:begin.toISOString(),fim:end.toISOString()
+          })
+        });
+        if(!response.ok)throw new Error('Apps Script HTTP '+response.status);
+        const result=await response.json() as {ok?:boolean;error?:string};
+        if(!result.ok)throw new Error('Apps Script: '+String(result.error||'rejected').slice(0,90));
+      };
+      try{
+        await call('create');
+      }catch(error){
+        return reply(200,{...status,verified:false,
+          reason:'Falha ao criar evento de teste: '+(error instanceof Error?error.message:'erro desconhecido')});
+      }
+      try{
+        await call('cancel');
+      }catch(error){
+        return reply(200,{...status,verified:false,
+          reason:'Evento de teste criado, mas a exclusão falhou. Confira a agenda: '+(error instanceof Error?error.message:'erro desconhecido')});
+      }
+      return reply(200,{...status,verified:true,calendarName:'Google Agenda via Apps Script'});
+    }
     const tokenResponse=await fetch('https://oauth2.googleapis.com/token',{method:'POST',
       body:new URLSearchParams({client_id:env('GOOGLE_OAUTH_CLIENT_ID'),
         client_secret:env('GOOGLE_OAUTH_CLIENT_SECRET'),
