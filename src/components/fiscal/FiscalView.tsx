@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   ArrowRight, ArrowUpRight, BadgeCheck, BriefcaseBusiness, Building2,
   Check, CheckCircle2, ChevronDown, FileCheck2, FileText,
-  Gift, MessageCircle, LockKeyhole, MailCheck, MapPin,
+  Gift, Headphones, MessageCircle, LockKeyhole, MailCheck, MapPin,
   MonitorSmartphone, SearchCheck, ShieldCheck, Sparkles, UsersRound
 } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
