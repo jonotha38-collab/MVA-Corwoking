@@ -4802,5 +4802,49 @@
   "Pagamento único por 1 mês, sem renovação automática.": [
     "One-time payment for 1 month, with no automatic renewal.",
     "Pago único por 1 mes, sin renovación automática."
+  ],
+  "Histórico de agendamentos": [
+    "Booking history",
+    "Historial de reservas"
+  ],
+  "Histórico administrativo de agendamentos": [
+    "Administrative booking history",
+    "Historial administrativo de reservas"
+  ],
+  "Arquivo de reservas": [
+    "Booking archive",
+    "Archivo de reservas"
+  ],
+  "Consulte reservas encerradas e canceladas de clientes e salas internas. Os registros e pagamentos continuam preservados.": [
+    "Review finished and canceled bookings for clients and internal rooms. Records and payment details remain available.",
+    "Consulta reservas finalizadas y canceladas de clientes y salas internas. Los registros y pagos se conservan."
+  ],
+  "Atualizar histórico": [
+    "Refresh history",
+    "Actualizar historial"
+  ],
+  "Filtrar por data": [
+    "Filter by date",
+    "Filtrar por fecha"
+  ],
+  "Data no histórico": [
+    "History date",
+    "Fecha en el historial"
+  ],
+  "Limpar data": [
+    "Clear date",
+    "Limpiar fecha"
+  ],
+  "Nenhuma reserva encerrada ou cancelada encontrada": [
+    "No finished or canceled bookings found",
+    "No se encontraron reservas finalizadas o canceladas"
+  ],
+  "agendamento no histórico": [
+    "booking in history",
+    "reserva en el historial"
+  ],
+  "agendamentos no histórico": [
+    "bookings in history",
+    "reservas en el historial"
   ]
 }
