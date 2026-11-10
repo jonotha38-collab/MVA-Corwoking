@@ -4954,5 +4954,9 @@
   "A sincronização administrativa não exige que os clientes conectem suas contas Google. Eventos de reserva não são comprovantes de pagamento. Notificações automáticas por e-mail permanecem desligadas.": [
     "Administrative synchronization does not require clients to connect Google accounts. Calendar events do not prove payment. Automatic email notifications remain disabled.",
     "La sincronización administrativa no requiere que los clientes conecten cuentas Google. Los eventos no son comprobantes de pago. Las notificaciones automáticas por correo siguen deshabilitadas."
+  ],
+  "O teste cria e remove um evento temporário privado para confirmar a permissão de edição.": [
+    "The test creates and removes a temporary private event to confirm edit permissions.",
+    "La prueba crea y elimina un evento privado temporal para confirmar el permiso de edición."
   ]
 }
