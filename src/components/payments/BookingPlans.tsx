@@ -72,7 +72,8 @@ export function BookingPlans({ compact=false }:{compact?:boolean}) {
        {plan.id==='bronze'&&<span className="rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-bold text-orange-700">Comece aqui</span>}</div>
       <div className="mt-4"><span className="text-3xl font-bold text-navy-950">{money(plan.monthly_cents)}</span><span className="text-xs text-slate-500"> / mês</span></div>
       <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-slate-700"><Clock className="h-4 w-4 text-orange-500"/>{minutes/60} horas mensais</p>
-      <p className="mt-1 text-xs text-slate-500">{money(plan.monthly_cents/(minutes/60))} por hora incluída</p>
+      <p className="mt-1 text-sm font-bold text-orange-700">{money(plan.monthly_cents/(minutes/60))}/hora</p>
+      <p className="mt-1 text-xs text-slate-500">{minutes/60} horas × {money(plan.monthly_cents/(minutes/60))} = {money(plan.monthly_cents)} mensais</p>
       <ul className="mt-4 flex-1 space-y-2 text-xs text-slate-600">
        <li>Atendimentos em horários reservados</li><li>Uso de salas próprias elegíveis da MVA</li>
        <li>Horas não cumulativas a cada ciclo pago</li><li>Renovação automática mensal; cancelamento pelo Stripe</li>
