@@ -133,7 +133,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
       {(plan.id==='mva_essencial'||plan.id==='mva_profissional'||plan.id==='mva_excellence')&&
        <div className="space-y-1.5 rounded-xl border border-slate-200/50 bg-white/5 px-4 py-3 text-xs leading-relaxed">
         <p>{plan.roomDiscountPercent>0
-         ?`${plan.roomDiscountPercent}% {t('de desconto nas salas de reunião da sede MVA')}`
+         ?`${plan.roomDiscountPercent}% ${t('de desconto nas salas de reunião da sede MVA')}`
          :t('Salas de reunião pela tarifa regular, sem desconto neste plano')}</p>
         {plan.accountantConsultations>0&&<p>{t("1 consulta gratuita com contador por contratação, mediante agendamento.")}</p>}
         {plan.id==='mva_excellence'&&<p>{t("2 horas de bônus em sala de atendimento nos 3 primeiros meses, não cumulativas.")}</p>}
@@ -161,11 +161,11 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
        <div className="flex items-start gap-2"><Info className="mt-0.5 h-5 w-5 shrink-0 text-amber-700"/>
         <div><p className="text-sm font-bold text-amber-900">{t("Análise necessária antes de pagar")}</p>
         <p className="mt-1 text-xs leading-relaxed text-amber-800">
-          {other?.status==='submitted'||other?.status==='under_review'
+          {t(other?.status==='submitted'||other?.status==='under_review'
            ? 'Já existe uma solicitação para este serviço. A equipe da MVA precisa concluir a avaliação.'
            : other?.status==='rejected'
            ? 'Há pendências na análise desta empresa. Consulte o parecer da equipe MVA.'
-           : 'A contratação precisa de avaliação documental e de elegibilidade. Você não será cobrado enquanto essa etapa estiver pendente.'}
+           : 'A contratação precisa de avaliação documental e de elegibilidade. Você não será cobrado enquanto essa etapa estiver pendente.')}
         </p></div></div>
        {(!other||other.status==='rejected')&&<form className="space-y-3 rounded-xl border border-slate-200 bg-white p-4" onSubmit={e=>{e.preventDefault();void submitApplication()}}>
          <p className="text-xs font-bold text-navy-900">{t("Dados essenciais para análise cadastral")}</p>
