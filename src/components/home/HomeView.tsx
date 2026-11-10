@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUpRight, CalendarCheck, Check, ChevronDown, ClipboardList, FileCheck2, Mail, MapPin, ShieldCheck, Users } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { isSpacePubliclyVisible } from '../../lib/space-visibility';
 import type { MouseEvent } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
@@ -80,6 +81,7 @@ const extraCopy = {
 export function HomeView() {
  const {setActiveTab, spaces} = useCoworking();
  const {language} = usePreferences();
+ const home = useRef<HTMLDivElement>(null);
  const c = copy[language];
  const e = extraCopy[language];
  const services = [
@@ -89,6 +91,26 @@ export function HomeView() {
  ];
  const featured = spaces.filter(isSpacePubliclyVisible)
   .sort((a,b)=>Number(b.isMvaHeadquarters)-Number(a.isMvaHeadquarters)).slice(0,3);
+ const hasFeaturedRooms = featured.length > 0;
+
+ useEffect(() => {
+  const page = home.current;
+  if (!page || typeof IntersectionObserver === 'undefined') return;
+
+  // Content stays visible before the observer runs and when it is unavailable.
+  const observer = new IntersectionObserver(entries => {
+   for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
+    entry.target.setAttribute('data-home-visible', '');
+    observer.unobserve(entry.target);
+   }
+  }, { rootMargin: '0px 0px -32px' });
+
+  page.querySelectorAll('[data-home-reveal]:not([data-home-visible])')
+   .forEach(element => observer.observe(element));
+  return () => observer.disconnect();
+ }, [hasFeaturedRooms]);
+
  // Preserve real links (including open in new tab) while using the existing SPA navigation.
  const navigate = (event: MouseEvent<HTMLAnchorElement>, page: string) => {
   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -98,7 +120,7 @@ export function HomeView() {
   setActiveTab(page);
  };
  const link = (page: string) => ({href:`?page=${page}`,onClick:(event:MouseEvent<HTMLAnchorElement>)=>navigate(event,page)});
- return <div className="mva-home home-redesign">
+ return <div ref={home} className="mva-home home-redesign">
   <section className="home-hero" aria-labelledby="mva-home-title">
    <div className="home-hero-copy">
     <p className="home-kicker"><span className="home-location-dot"/>{c.eyebrow}</p>
@@ -123,7 +145,7 @@ export function HomeView() {
   <section className="home-services home-section" aria-labelledby="mva-home-services">
    <div className="home-section-heading"><div><p className="home-kicker">{e.servicesLabel}</p><h2 id="mva-home-services">{c.select}</h2></div><p>{e.serviceNote}</p></div>
    <div className="home-service-grid">
-    {services.map(({id,icon:Icon,name,description,cta},i)=><article key={id} className="home-service-card">
+    {services.map(({id,icon:Icon,name,description,cta},i)=><article key={id} className="home-service-card" data-home-reveal>
      <div className="home-service-top"><span className="home-service-icon"><Icon size={23} aria-hidden="true"/></span><span>{e.serviceTags[i]}</span></div>
      <h3>{name}</h3><p>{description}</p>
      <a {...link(id)} className="home-card-link">{cta}<ArrowUpRight size={19} aria-hidden="true"/></a>
@@ -131,8 +153,8 @@ export function HomeView() {
    </div>
   </section>
 
-  {featured.length > 0 && <section className="home-section" aria-labelledby="home-rooms-title">
-   <div className="home-section-heading"><div><p className="home-kicker">{e.roomsLabel}</p><h2 id="home-rooms-title">{e.roomsTitle}</h2></div><a {...link('marketplace')} className="home-text-link">{e.allRooms}<ArrowRight size={18} aria-hidden="true"/></a></div>
+  {hasFeaturedRooms && <section className="home-section" aria-labelledby="home-rooms-title">
+   <div className="home-section-heading" data-home-reveal><div><p className="home-kicker">{e.roomsLabel}</p><h2 id="home-rooms-title">{e.roomsTitle}</h2></div><a {...link('marketplace')} className="home-text-link">{e.allRooms}<ArrowRight size={18} aria-hidden="true"/></a></div>
    <p className="home-section-intro">{e.roomsText}</p>
    <div className="home-room-grid">
     {featured.map(space=><article className="home-room-card" key={space.id}>
@@ -149,7 +171,7 @@ export function HomeView() {
   </section>}
 
   <section className="home-location home-section" aria-labelledby="home-location-title">
-   <div className="home-location-address"><MapPin size={30} strokeWidth={1.5} aria-hidden="true"/><p className="home-kicker">{c.location}</p><h3>{e.address}</h3><p>{e.neighborhood}</p><a href="https://www.google.com/maps/search/?api=1&query=Rua+Dom+Jos%C3%A9+Thomaz+565+S%C3%A3o+Jos%C3%A9+Aracaju+SE" target="_blank" rel="noopener noreferrer" className="home-location-link">{e.directions}<ArrowUpRight size={18} aria-hidden="true"/></a></div>
+   <div className="home-location-address" data-home-reveal><MapPin size={30} strokeWidth={1.5} aria-hidden="true"/><p className="home-kicker">{c.location}</p><h3>{e.address}</h3><p>{e.neighborhood}</p><a href="https://www.google.com/maps/search/?api=1&query=Rua+Dom+Jos%C3%A9+Thomaz+565+S%C3%A3o+Jos%C3%A9+Aracaju+SE" target="_blank" rel="noopener noreferrer" className="home-location-link">{e.directions}<ArrowUpRight size={18} aria-hidden="true"/></a></div>
    <div className="home-location-copy"><p className="home-kicker">{e.placeLabel}</p><h2 id="home-location-title">{e.placeTitle}</h2><p>{c.aboutText}</p><ul>{[c.aboutOne,c.aboutTwo,c.aboutThree].map(item=><li key={item}><Check size={18} aria-hidden="true"/>{item}</li>)}</ul></div>
   </section>
 

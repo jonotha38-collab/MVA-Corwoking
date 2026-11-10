@@ -92,6 +92,16 @@ Favor surface and border separation. The photograph supplies depth. Avoid
 unnecessary card shadows and hover transforms. Keep scrollbars visible and
 consistent in both themes, with standards-based and WebKit fallbacks.
 
+### Motion
+
+The homepage opens with a short upward entrance for the headline, copy and
+actions. The meeting-room photo settles from a 3.5% crop while staying visible.
+Service cards, the room-section heading and the address panel enter once as
+they come into view. Card borders and link arrows respond to hover and keyboard
+focus. The FAQ keeps its native disclosure and adds a brief answer entrance.
+`src/home.css` owns the timing and easing. Reduced motion removes the entrances,
+zoom and arrow movement. All content is readable before scroll detection runs.
+
 ## Shapes
 
 20px panels, 10px controls. Only the hero photograph has an asymmetric lower
