@@ -27,6 +27,12 @@ type AgendaItem = {
   date: string; time: string; status: string; createdAt: string;
   checkIn: boolean; booking?: Booking;
 };
+type AgendaScope = 'day' | 'upcoming' | 'history';
+type AdminAgendaMode = 'agenda' | 'history';
+const isAgendaItemUpcoming = (item: AgendaItem, clock: number): boolean =>
+  item.status !== 'cancelada' && (item.type === 'commercial'
+    ? !!item.booking && isBookingUpcoming(item.booking, clock)
+    : item.date >= mvaLocalDateTime(clock).slice(0,10));
 const formatDate = (s: string) => s ? s.split('-').reverse().join('/') : '—';
 const localToday = () => new Intl.DateTimeFormat('en-CA', {
   year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'America/Maceio',
@@ -34,7 +40,7 @@ const localToday = () => new Intl.DateTimeFormat('en-CA', {
 const actionLabel = (notice: NoticeRow) =>
   `${notice.action === 'created' ? 'Nova reserva' : 'Reserva cancelada'} · ${notice.source === 'intern' ? 'Sala interna' : 'Coworking'}`;
 
-export function AdminBookingAgenda() {
+export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode }) {
   const { currentUser, checkInBooking, showToast } = useCoworking();
   const [items, setItems] = useState<AgendaItem[]>([]);
   const clock = useBookingClock();
@@ -45,7 +51,8 @@ export function AdminBookingAgenda() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [date, setDate] = useState(localToday);
-  const [scope, setScope] = useState<'day' | 'upcoming' | 'all'>('upcoming');
+  const [historyDate, setHistoryDate] = useState('');
+  const [scope, setScope] = useState<AgendaScope>(mode === 'history' ? 'history' : 'upcoming');
   const [type, setType] = useState<'all' | 'commercial' | 'intern'>('all');
   const [search, setSearch] = useState('');
   const [markingRead, setMarkingRead] = useState(false);
@@ -136,26 +143,23 @@ export function AdminBookingAgenda() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLocaleLowerCase('pt-BR');
-    const today = mvaLocalDateTime(clock).slice(0,10);
     return items.filter(item => {
       if (scope === 'day' && item.date !== date) return false;
-      if (scope === 'upcoming' && (item.status === 'cancelada'
-        || (item.type === 'commercial'
-          ? !item.booking || !isBookingUpcoming(item.booking,clock)
-          : item.date < today))) return false;
+      if (scope === 'upcoming' && !isAgendaItemUpcoming(item,clock)) return false;
+      if (scope === 'history' && isAgendaItemUpcoming(item,clock)) return false;
+      if (mode === 'history' && historyDate && item.date !== historyDate) return false;
       if (type !== 'all' && item.type !== type) return false;
       if (!q) return true;
       return [item.name, item.email, item.phone, item.company, item.room, item.location, item.id]
         .some(value => value.toLocaleLowerCase('pt-BR').includes(q));
     });
-  }, [items, scope, date, type, search, clock]);
+  }, [items, scope, date, historyDate, mode, type, search, clock]);
+  const historyCount = items.filter(item => !isAgendaItemUpcoming(item,clock)).length;
   const unread = notices.filter(n => !readIds.has(n.id));
   const todayCount = items.filter(i => i.date === mvaLocalDateTime(clock).slice(0,10)
     && i.status !== 'cancelada'
     && (i.type !== 'commercial' || (i.booking && isBookingUpcoming(i.booking,clock)))).length;
-  const futureCount = items.filter(i => i.status !== 'cancelada'
-    && (i.type === 'commercial' ? !!i.booking && isBookingUpcoming(i.booking,clock)
-      : i.date >= mvaLocalDateTime(clock).slice(0,10))).length;
+  const futureCount = items.filter(i => isAgendaItemUpcoming(i,clock)).length;
   const deliveriesPending = Object.values(deliveryStates).filter(
     status => status === 'pending' || status === 'failed' || status === 'processing'
   ).length;
@@ -176,15 +180,17 @@ export function AdminBookingAgenda() {
   };
 
   return (
-    <section className="space-y-5" aria-label="Agenda administrativa de reservas">
+    <section className="space-y-5" aria-label={mode==='history'?'Histórico administrativo de agendamentos':'Agenda administrativa de reservas'}>
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
           <div>
             <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.15em] text-orange-700">
               <CalendarDays className="h-4 w-4" /> Controle de ocupação
             </span>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-navy-950">Agenda de reservas</h2>
-            <p className="mt-1 max-w-xl text-sm text-slate-600">Identifique quem vai chegar, a sala reservada, a data e o horário. Inclui reservas do marketplace e salas dos estagiários.</p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-navy-950">{mode==='history'?'Histórico de agendamentos':'Agenda de reservas'}</h2>
+            <p className="mt-1 max-w-xl text-sm text-slate-600">{mode==='history'
+              ? 'Consulte reservas encerradas e canceladas de clientes e salas internas. Os registros e pagamentos continuam preservados.'
+              : 'Identifique quem vai chegar, a sala reservada, a data e o horário. Inclui reservas do marketplace e salas dos estagiários.'}</p>
           </div>
           <button type="button" onClick={() => void load()} disabled={loading || refreshing}
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-navy-900 transition-colors hover:bg-slate-50 disabled:opacity-60">
