@@ -137,7 +137,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
          :'Salas de reunião pela tarifa regular, sem desconto neste plano'}</p>
         {plan.accountantConsultations>0&&<p>1 consulta gratuita com contador por contratação, mediante agendamento.</p>}
         {plan.id==='mva_excellence'&&<p>2 horas de bônus em sala de atendimento nos 3 primeiros meses, não cumulativas.</p>}
-       </div>
+       </div>}
      <dl className="checkout-prices">
        <div><dt>Vigência</dt><dd>{initialTerm===12?'12 meses':'1 mês'}</dd></div>
        <div><dt>Valor normal</dt><dd>{money(quote.fullAmount,language)}</dd></div>
