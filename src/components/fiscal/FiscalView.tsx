@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import {
   ArrowRight, ArrowUpRight, BadgeCheck, BriefcaseBusiness, Building2,
   Check, CheckCircle2, ChevronDown, FileCheck2, FileText,
-  Gift, Headphones, LockKeyhole, MailCheck, MapPin,
+  Gift, MessageCircle, LockKeyhole, MailCheck, MapPin,
   MonitorSmartphone, SearchCheck, ShieldCheck, Sparkles, UsersRound
 } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
 import { t, usePreferences, type Language } from '../../lib/preferences';
+import { mvaWhatsAppUrl } from '../../lib/whatsapp';
 import { FISCAL_PLANS, quotePlan, canIssueCertificate, restoreOrder, type FiscalPlanId } from '../../lib/fiscal-payment';
 import { FiscalCheckout } from '../payments/FiscalCheckout';
 import { CertificateDialog } from './CertificateDialog';
@@ -336,7 +337,10 @@ export function FiscalView(){
     <div className="max-w-2xl"><span className="text-[11px] font-bold uppercase tracking-widest text-orange-300">{t("Seu próximo passo")}</span><h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[32px]">{t("Pronto para profissionalizar seu endereço?")}</h2><p className="mt-3 text-sm leading-relaxed text-slate-300">{t("Escolha seu plano com tranquilidade. Nossa equipe confere os requisitos antes de qualquer liberação.")}</p></div>
     <div className="flex flex-col gap-3 sm:flex-row">
       <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#cc541c] px-6 py-3.5 text-sm font-bold text-white hover:bg-[#af410f]">{t('Ver planos')} <ArrowRight className="h-4 w-4"/></button>
-      <a href="mailto:contato@mvacoworking.com.br?subject=Escrit%C3%B3rio%20virtual%20MVA" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><Headphones className="h-4 w-4"/> {t('Falar com a MVA')}</a>
+      <a href={mvaWhatsAppUrl(language,'fiscal')} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#48856b] bg-[#196647] px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#15563c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300">
+        <MessageCircle className="h-4 w-4" aria-hidden="true"/> {t('Tirar dúvidas pelo WhatsApp')}
+       </a>
       <button type="button" onClick={showArea} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10"><FileCheck2 className="h-4 w-4"/> {t('Minha área')}</button>
     </div>
    </div>
