@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AlertCircle, CalendarDays, CheckCircle2, ExternalLink, RefreshCw, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { t } from '../../lib/preferences';
+import { t, usePreferences } from '../../lib/preferences';
 
 type CalendarReport = {
   enabled:boolean;
@@ -17,6 +17,7 @@ type CalendarReport = {
 };
 
 export function AdminGoogleCalendarPanel() {
+  usePreferences();
   const [report,setReport]=useState<CalendarReport|null>(null);
   const [loading,setLoading]=useState(true);
   const [checking,setChecking]=useState(false);
