@@ -5,6 +5,7 @@ import { useCoworking } from '../../context/CoworkingContext';
 import { isBookingUpcoming, useBookingClock } from '../../lib/booking-visibility';
 import { PendingApprovals } from './PendingApprovals';
 import { AdminBookingAgenda } from './AdminBookingAgenda';
+import { AdminGoogleCalendarPanel } from './AdminGoogleCalendarPanel';
 import { FiscalOperationsCenter } from './FiscalOperationsCenter';
 import { BillingAdminOverview } from './BillingAdminOverview';
 import { Space, SpaceCategory } from '../../types';
@@ -33,7 +34,7 @@ export const AdminDashboardView: React.FC = () => {
   } = useCoworking();
 
   const clock = useBookingClock();
-  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'history' | 'companies' | 'fiscal' | 'billing'>('bookings');
+  const [activeAdminTab, setActiveAdminTab] = useState<'spaces' | 'bookings' | 'history' | 'calendar' | 'companies' | 'fiscal' | 'billing'>('bookings');
   const [showAddSpaceModal, setShowAddSpaceModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<Space | null>(null);
 
@@ -257,6 +258,13 @@ export const AdminDashboardView: React.FC = () => {
           <History className="h-4 w-4" aria-hidden="true" />{t('Histórico de agendamentos')}
         </button>
 
+        <button type="button" aria-pressed={activeAdminTab==='calendar'}
+          onClick={()=>setActiveAdminTab('calendar')}
+          className={`flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${activeAdminTab==='calendar'
+            ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}>
+          <Calendar className="h-4 w-4" aria-hidden="true"/>{t('Google Agenda')}
+        </button>
+
         <button
           onClick={() => setActiveAdminTab('companies')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -280,6 +288,7 @@ export const AdminDashboardView: React.FC = () => {
 
     {activeAdminTab === 'fiscal' && <FiscalOperationsCenter />}
     {activeAdminTab === 'billing' && <BillingAdminOverview />}
+    {activeAdminTab === 'calendar' && <AdminGoogleCalendarPanel />}
 
       {/* TAB 1: SPACES MANAGEMENT */}
       {activeAdminTab === 'spaces' && (
