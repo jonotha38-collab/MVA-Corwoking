@@ -4846,5 +4846,113 @@
   "agendamentos no histórico": [
     "bookings in history",
     "reservas en el historial"
+  ],
+  "Google Agenda": [
+    "Google Calendar",
+    "Google Calendar"
+  ],
+  "Integração Google Agenda": [
+    "Google Calendar integration",
+    "Integración con Google Calendar"
+  ],
+  "Reservas da MVA na agenda do Google": [
+    "MVA bookings in Google Calendar",
+    "Reservas de MVA en Google Calendar"
+  ],
+  "As novas reservas de clientes e salas internas são encaminhadas a cada minuto para a agenda administrativa da MVA. Cancelamentos removem o evento correspondente, sem apagar o histórico no site.": [
+    "New client and internal-room bookings are queued every minute for the MVA administrative calendar. Cancellations remove the corresponding event without deleting the site records.",
+    "Las reservas de clientes y salas internas se envían cada minuto al calendario administrativo de MVA. Las cancelaciones eliminan el evento sin borrar el historial del sitio."
+  ],
+  "Atualizar status": [
+    "Refresh status",
+    "Actualizar estado"
+  ],
+  "Consultando integração…": [
+    "Checking integration…",
+    "Consultando integración…"
+  ],
+  "Na fila": [
+    "Queued",
+    "En cola"
+  ],
+  "Sincronizados": [
+    "Synced",
+    "Sincronizados"
+  ],
+  "Falhas": [
+    "Failures",
+    "Errores"
+  ],
+  "Conta Google validada e autorizada a editar a agenda": [
+    "Google account verified and authorized to edit the calendar",
+    "Cuenta Google verificada y autorizada para editar el calendario"
+  ],
+  "Credenciais cadastradas — verifique a permissão da agenda": [
+    "Credentials provided — verify calendar permissions",
+    "Credenciales configuradas — verifica los permisos del calendario"
+  ],
+  "Aguardando autorização da conta Google da MVA": [
+    "Waiting for the MVA Google account to be authorized",
+    "Esperando autorización de la cuenta Google de MVA"
+  ],
+  "Agenda de destino": [
+    "Destination calendar",
+    "Calendario de destino"
+  ],
+  "Fila automática habilitada; aguarda autorização quando necessário.": [
+    "Automatic queue enabled; awaiting authorization where necessary.",
+    "Cola automática habilitada; espera autorización cuando sea necesario."
+  ],
+  "A fila está pausada no Supabase.": [
+    "The queue is paused in Supabase.",
+    "La cola está pausada en Supabase."
+  ],
+  "Verificando autorização…": [
+    "Checking authorization…",
+    "Verificando autorización…"
+  ],
+  "Testar conexão Google Agenda": [
+    "Test Google Calendar connection",
+    "Probar conexión con Google Calendar"
+  ],
+  "Como conectar a agenda oficial": [
+    "How to connect the official calendar",
+    "Cómo conectar el calendario oficial"
+  ],
+  "Esta integração usa autorização OAuth de uma conta Google da MVA, com acesso à agenda mesmo quando ninguém está conectado ao site. As credenciais devem ficar somente nos segredos do Supabase.": [
+    "This integration uses OAuth authorization for an MVA Google account and can access the calendar when nobody is signed into the website. Credentials must be stored only as Supabase secrets.",
+    "Esta integración utiliza OAuth con una cuenta Google de MVA y funciona aunque nadie haya iniciado sesión. Las credenciales deben guardarse solo como secretos de Supabase."
+  ],
+  "Ative a Google Calendar API no Google Cloud e crie um cliente OAuth 2.0 para aplicativo Web.": [
+    "Enable Google Calendar API in Google Cloud and create a web application OAuth 2.0 client.",
+    "Habilita la API de Google Calendar en Google Cloud y crea un cliente OAuth 2.0 para aplicación web."
+  ],
+  "Autorize a conta Google responsável pela agenda com o escopo de eventos e acesso off-line.": [
+    "Authorize the Google account that owns the calendar for event access and offline refresh.",
+    "Autoriza la cuenta Google responsable del calendario para gestionar eventos con acceso sin conexión."
+  ],
+  "Cadastre as quatro variáveis abaixo nos segredos das Edge Functions do Supabase, sem colocá-las no código.": [
+    "Add the four variables below as Supabase Edge Function secrets, never in source code.",
+    "Agrega las cuatro variables siguientes como secretos de las Edge Functions de Supabase, nunca en el código."
+  ],
+  "Clique em Testar conexão Google Agenda. Após a autorização, os agendamentos na fila serão sincronizados automaticamente.": [
+    "Click Test Google Calendar connection. Once authorized, queued bookings will sync automatically.",
+    "Haz clic en Probar conexión con Google Calendar. Después de autorizar, las reservas en cola se sincronizarán automáticamente."
+  ],
+  "Segredos necessários no Supabase": [
+    "Required Supabase secrets",
+    "Secretos necesarios en Supabase"
+  ],
+  "Configurar Google Cloud": [
+    "Configure Google Cloud",
+    "Configurar Google Cloud"
+  ],
+  "Abrir segredos do Supabase": [
+    "Open Supabase secrets",
+    "Abrir secretos de Supabase"
+  ],
+  "A sincronização administrativa não exige que os clientes conectem suas contas Google. Eventos de reserva não são comprovantes de pagamento. Notificações automáticas por e-mail permanecem desligadas.": [
+    "Administrative synchronization does not require clients to connect Google accounts. Calendar events do not prove payment. Automatic email notifications remain disabled.",
+    "La sincronización administrativa no requiere que los clientes conecten cuentas Google. Los eventos no son comprobantes de pago. Las notificaciones automáticas por correo siguen deshabilitadas."
   ]
 }
