@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, Download, FileCheck2, LoaderCircle, LockKeyhole, ShieldCheck, X } from 'lucide-react';
 import { Dialog } from '../ui/Dialog';
-import { t } from '../../lib/preferences';
+import { t, usePreferences } from '../../lib/preferences';
 import { canIssueCertificate } from '../../lib/fiscal-eligibility';
 import { supabase } from '../../lib/supabase';
 import { rowToFiscal } from '../../lib/mappers';
@@ -10,6 +10,7 @@ import type { FiscalContract } from '../../types';
 
 export function CertificateDialog({ onClose, onChoosePlan }: { onClose: () => void; onChoosePlan: () => void }) {
  const { currentUser, currentCompany, setAuthModalOpen, setAuthModalTab } = useCoworking();
+ usePreferences();
  const [freshContract,setFreshContract]=useState<FiscalContract|null>(null);
  const [checking,setChecking]=useState(true);
  const [busy,setBusy]=useState(false);
@@ -54,28 +55,28 @@ export function CertificateDialog({ onClose, onChoosePlan }: { onClose: () => vo
   <div className="certificate-header"><div className="checkout-icon"><FileCheck2 size={23}/></div><button type="button" disabled={busy} onClick={onClose} className="checkout-close" aria-label={t('Fechar')}><X size={21}/></button></div>
   <span className="checkout-kicker">{t('DOCUMENTOS DA EMPRESA')}</span>
   <h2 id="certificate-title">{t('Sua declaração oficial, após a formalização.')}</h2>
-  <p className="certificate-description">A MVA confere a elegibilidade, verifica o pagamento, formaliza o contrato e anexa a declaração assinada. Somente depois disso o documento é liberado aqui.</p>
+  <p className="certificate-description">{t("A MVA confere a elegibilidade, verifica o pagamento, formaliza o contrato e anexa a declaração assinada. Somente depois disso o documento é liberado aqui.")}</p>
   <div className={`certificate-access ${eligible?'is-unlocked':''}`}>
    {eligible?<ShieldCheck size={23}/>:<LockKeyhole size={23}/>}
-   <div><strong>{checking?'Consultando a contratação…':eligible?'Declaração assinada disponível':'Declaração ainda bloqueada'}</strong>
-    <p>{!currentUser?'Entre na sua conta para consultar seus contratos.':
+   <div><strong>{t(checking?'Consultando a contratação…':eligible?'Declaração assinada disponível':'Declaração ainda bloqueada')}</strong>
+    <p>{t(!currentUser?'Entre na sua conta para consultar seus contratos.':
      checking?'Verificando vigência, aprovação e pagamento real…':
      eligible?'A MVA confirmou o contrato e o pagamento. O documento assinado é entregue pelo armazenamento privado.':
      company.planId==='comercial'?'O plano comercial não inclui declaração de domicílio fiscal.':
      company.paymentStatus==='paid'&&company.paymentIsLive===true?'Pagamento confirmado. Aguarde a formalização humana e a liberação dos documentos.':
-     'A emissão depende da aprovação da empresa, da formalização do contrato e do pagamento real.'}</p>
+     'A emissão depende da aprovação da empresa, da formalização do contrato e do pagamento real.')}</p>
    </div>
   </div>
-  {eligible&&<dl className="certificate-company"><div><dt>Empresa</dt><dd>{company.companyName}</dd></div><div><dt>CNPJ</dt><dd>{company.cnpj}</dd></div><div><dt>Endereço autorizado</dt><dd>{company.unitAddress}</dd></div><div><dt>Vigência</dt><dd>{company.startDate.split('-').reverse().join('/')} — {company.renewalDate.split('-').reverse().join('/')}</dd></div></dl>}
-  {error&&<p role="alert" className="checkout-error">{error}</p>}
-  {document?<><div className="checkout-notice" role="status"><FileCheck2 size={20}/><span>Documento assinado e aprovado pela equipe MVA.</span></div>
-    <a href={document.url} download={document.filename} className="action-primary checkout-submit"><Download size={18}/>Baixar declaração assinada em PDF</a></>:
+  {eligible&&<dl className="certificate-company"><div><dt>{t("Empresa")}</dt><dd>{company.companyName}</dd></div><div><dt>{t("CNPJ")}</dt><dd>{company.cnpj}</dd></div><div><dt>{t("Endereço autorizado")}</dt><dd>{company.unitAddress}</dd></div><div><dt>{t("Vigência")}</dt><dd>{company.startDate.split('-').reverse().join('/')} — {company.renewalDate.split('-').reverse().join('/')}</dd></div></dl>}
+  {error&&<p role="alert" className="checkout-error">{t(error)}</p>}
+  {document?<><div className="checkout-notice" role="status"><FileCheck2 size={20}/><span>{t("Documento assinado e aprovado pela equipe MVA.")}</span></div>
+    <a href={document.url} download={document.filename} className="action-primary checkout-submit"><Download size={18}/>{t("Baixar declaração assinada em PDF")}</a></>:
     eligible?<button type="button" onClick={()=>void download()} disabled={busy||checking} className="action-primary checkout-submit">
       {busy?<LoaderCircle size={18} className="animate-spin"/>:<Download size={18}/>}
-      {busy?'Preparando download…':'Baixar declaração oficial assinada'}
+      {t(busy?'Preparando download…':'Baixar declaração oficial assinada')}
      </button>:
-    !currentUser?<button type="button" className="action-primary checkout-submit" onClick={()=>{setAuthModalTab('login');setAuthModalOpen(true)}}>Entrar para consultar<ArrowRight size={17}/></button>:
-    <button type="button" className="action-primary checkout-submit" onClick={onChoosePlan}>Consultar contratação<ArrowRight size={17}/></button>}
-  <p className="checkout-fineprint"><ShieldCheck size={15}/>A MVA autoriza o uso do endereço somente após formalização e verificação dos documentos.</p>
+    !currentUser?<button type="button" className="action-primary checkout-submit" onClick={()=>{setAuthModalTab('login');setAuthModalOpen(true)}}>{t("Entrar para consultar")}<ArrowRight size={17}/></button>:
+    <button type="button" className="action-primary checkout-submit" onClick={onChoosePlan}>{t("Consultar contratação")}<ArrowRight size={17}/></button>}
+  <p className="checkout-fineprint"><ShieldCheck size={15}/>{t("A MVA autoriza o uso do endereço somente após formalização e verificação dos documentos.")}</p>
  </Dialog>;
 }
