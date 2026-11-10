@@ -96,6 +96,7 @@ export function AdminGoogleCalendarPanel() {
             {report.enabled?t('Fila automática habilitada; aguarda autorização quando necessário.')
               :t('A fila está pausada no Supabase.')}
           </p>
+          <p className="mt-3 text-xs text-slate-500">{t('O teste cria e remove um evento temporário privado para confirmar a permissão de edição.')}</p>
           <button type="button" onClick={()=>void refresh(true)} disabled={checking}
             className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-slate-800 disabled:opacity-50">
             <ShieldCheck className="h-4 w-4" aria-hidden="true"/>
