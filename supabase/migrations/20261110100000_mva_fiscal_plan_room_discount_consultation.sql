@@ -78,6 +78,6 @@ begin
  ) on conflict(payment_order_id) do nothing;
  return new;
 end;
-$function$
+$function$;
 
 commit;
