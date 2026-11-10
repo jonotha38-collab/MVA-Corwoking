@@ -52,7 +52,7 @@ export function BookingPlans({ compact=false }:{compact?:boolean}) {
    <h2 className="mt-2 text-2xl font-bold text-navy-900">{t(compact?'Seu plano de horas':'Planos mensais de atendimento')}</h2>
    <p className="mt-2 text-sm text-slate-600">{t("Use suas horas em diferentes atendimentos durante o período pago, sempre mediante agendamento e disponibilidade.")}</p>
   </div>
-  {error&&<p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900"{t(error)}</p>}
+  {error&&<p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">{t(error)}</p>}
   {member&&<div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
     <p className="flex items-center gap-2 text-sm font-bold text-emerald-900"><CheckCircle2 className="h-4 w-4"/>{t('Plano')} {t(member.planId.toUpperCase())} — {t(statusLabels[member.status]||member.status)}</p>
     <p className="mt-1 text-sm text-emerald-900">{member.active?`${(member.remainingMinutes/60).toLocaleString(language==='pt'?'pt-BR':language==='en'?'en-US':'es-ES')} ${t('horas disponíveis de atendimento')}`:t('As horas são liberadas somente após o pagamento mensal ser confirmado pelo Stripe.')}</p>
