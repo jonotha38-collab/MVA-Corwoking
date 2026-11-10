@@ -130,10 +130,18 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,onClose}:{
      <p>Confira o valor do plano antes de avançar ao pagamento hospedado no Stripe.</p>
      <div className="checkout-product"><div className="checkout-product-icon"><Building2 size={22}/></div>
        <div><span>Plano selecionado</span><h3>{plan.name}</h3></div></div>
+      {(plan.id==='mva_essencial'||plan.id==='mva_profissional'||plan.id==='mva_excellence')&&
+       <div className="space-y-1.5 rounded-xl border border-slate-200/50 bg-white/5 px-4 py-3 text-xs leading-relaxed">
+        <p>{plan.roomDiscountPercent>0
+         ?`${plan.roomDiscountPercent}% de desconto nas salas de reunião da sede MVA`
+         :'Salas de reunião pela tarifa regular, sem desconto neste plano'}</p>
+        {plan.accountantConsultations>0&&<p>1 consulta gratuita com contador por contratação, mediante agendamento.</p>}
+        {plan.id==='mva_excellence'&&<p>2 horas de bônus em sala de atendimento nos 3 primeiros meses, não cumulativas.</p>}
+       </div>
      <dl className="checkout-prices">
        <div><dt>Vigência</dt><dd>{initialTerm===12?'12 meses':'1 mês'}</dd></div>
        <div><dt>Valor normal</dt><dd>{money(quote.fullAmount,language)}</dd></div>
-       {quote.discount>0&&<div><dt>Campanha de transferência</dt><dd>− {money(quote.discount,language)}</dd></div>}
+       {quote.discount>0&&<div><dt>{quote.freeMonths>0?'Campanha de transferência':'Desconto anual'}</dt><dd>− {money(quote.discount,language)}</dd></div>}
        <div className="checkout-total"><dt>Valor total</dt><dd>{money(quote.amount,language)}</dd></div>
      </dl>
      <p className="checkout-billing-note">Cobrança única para o período escolhido. Não é assinatura com renovação automática.</p>
