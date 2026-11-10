@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Building2, CalendarClock, FileCheck2, FilePlus2, FolderLock, LockKeyhole, ShieldCheck, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { t, usePreferences } from '../../lib/preferences';
 import { useCoworking } from '../../context/CoworkingContext';
 import { FISCAL_PLANS, type FiscalPlanId, validCnpj } from '../../lib/fiscal-payment';
 import { rowToFiscal } from '../../lib/mappers';
@@ -25,6 +26,7 @@ export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTer
  onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
 }) {
  const {currentUser,setAuthModalOpen,setAuthModalTab,showToast}=useCoworking();
+  const {language}=usePreferences();
  const [applications,setApplications]=useState<FiscalApplication[]>([]);
  const [documents,setDocuments]=useState<DocumentRow[]>([]);
  const [units,setUnits]=useState<Unit[]>([]);
@@ -124,24 +126,24 @@ export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTer
    window.open(data.signedUrl,'_blank','noopener,noreferrer');
  };
  const input=(key:keyof typeof form,label:string,required=true)=><label className="block min-w-0 space-y-1.5" key={key}>
-  <span className="text-xs font-semibold text-navy-900">{label}</span>
+  <span className="text-xs font-semibold text-navy-900">{t(label)}</span>
   <input required={required} value={form[key]} onChange={e=>update(key,e.target.value)}
     maxLength={key==='cnae'?120:key==='contact_email'?254:180}
     className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-navy-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100"/>
  </label>;
- return <section id="gestao-endereco-fiscal" className="min-w-0 scroll-mt-36 space-y-6" aria-label="Área de gestão de endereço fiscal">
+ return <section id="gestao-endereco-fiscal" className="min-w-0 scroll-mt-36 space-y-6" aria-label={t('Área de gestão de endereço fiscal')}>
   {mode==='full'&&<header className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
-   <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-600"><FolderLock className="h-4 w-4"/>Gestão digital</div>
-   <h2 id="fiscal-center-title" className="text-2xl font-bold tracking-tight text-navy-950 sm:text-3xl">Meu endereço fiscal</h2>
-   <p className="max-w-3xl text-sm leading-relaxed text-slate-600">Solicite a análise cadastral, acompanhe a aprovação, envie documentos e administre suas empresas. A autorização de uso do endereço depende de viabilidade, contrato e pagamento confirmado.</p>
+   <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-600"><FolderLock className="h-4 w-4"/>{t("Gestão digital")}</div>
+   <h2 id="fiscal-center-title" className="text-2xl font-bold tracking-tight text-navy-950 sm:text-3xl">{t("Meu endereço fiscal")}</h2>
+   <p className="max-w-3xl text-sm leading-relaxed text-slate-600">{t("Solicite a análise cadastral, acompanhe a aprovação, envie documentos e administre suas empresas. A autorização de uso do endereço depende de viabilidade, contrato e pagamento confirmado.")}</p>
    <div className="grid gap-3 sm:grid-cols-3">
-    {[{icon:ShieldCheck,label:'Análise de atividade'},{icon:FileCheck2,label:'Documentos protegidos'},{icon:CalendarClock,label:'Vigência e renovação'}].map(({icon:Icon,label})=><div key={label} className="flex items-center gap-2 rounded-xl bg-slate-50 p-3 text-xs font-medium text-navy-800"><Icon className="h-4 w-4 shrink-0 text-orange-600"/>{label}</div>)}
+    {[{icon:ShieldCheck,label:'Análise de atividade'},{icon:FileCheck2,label:'Documentos protegidos'},{icon:CalendarClock,label:'Vigência e renovação'}].map(({icon:Icon,label})=><div key={label} className="flex items-center gap-2 rounded-xl bg-slate-50 p-3 text-xs font-medium text-navy-800"><Icon className="h-4 w-4 shrink-0 text-orange-600"/>{t(label)}</div>)}
    </div>
   </header>}
-  {error&&<div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}</div>}
+  {error&&<div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{t(error)}</div>}
   {mode!=='application'&&currentUser && <div className="space-y-4">
-    <div className="flex items-center justify-between gap-3"><h3 className="font-bold text-navy-900">Minhas empresas e solicitações</h3><button type="button" onClick={()=>void load()} className="text-xs font-semibold text-orange-700 hover:underline">Atualizar</button></div>
-    {loading?<p className="text-sm text-slate-500">Carregando solicitações…</p>:applications.length===0?<p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">Você ainda não solicitou um endereço fiscal. Preencha o formulário abaixo para começar.</p>:<div className="grid gap-3 lg:grid-cols-2">
+    <div className="flex items-center justify-between gap-3"><h3 className="font-bold text-navy-900">{t("Minhas empresas e solicitações")}</h3><button type="button" onClick={()=>void load()} className="text-xs font-semibold text-orange-700 hover:underline">{t("Atualizar")}</button></div>
+    {loading?<p className="text-sm text-slate-500">{t("Carregando solicitações…")}</p>:applications.length===0?<p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">{t("Você ainda não solicitou um endereço fiscal. Preencha o formulário abaixo para começar.")}</p>:<div className="grid gap-3 lg:grid-cols-2">
       {applications.map(app=>{
         const docs=documents.filter(d=>d.request_id===app.id);
         const contract=contracts.find(c=>c.applicationId===app.id);
@@ -152,34 +154,34 @@ export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTer
         return <article key={app.id} className="min-w-0 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div className="min-w-0"><h4 className="break-words text-sm font-bold text-navy-900">{app.company_name}</h4><p className="mt-1 text-xs text-slate-500">CNPJ {app.cnpj} · {FISCAL_PLANS[app.plan_id].name}</p></div>
-            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${app.status==='approved'?'bg-emerald-50 text-emerald-800':app.status==='rejected'?'bg-rose-50 text-rose-800':'bg-amber-50 text-amber-800'}`}>{labels[app.status]}</span>
+            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${app.status==='approved'?'bg-emerald-50 text-emerald-800':app.status==='rejected'?'bg-rose-50 text-rose-800':'bg-amber-50 text-amber-800'}`}>{t(labels[app.status])}</span>
           </div>
-          <p className="text-xs text-slate-500">Solicitação {new Date(app.created_at).toLocaleDateString('pt-BR')} · {app.term_months===12?'12 meses':'1 mês'}</p>
+          <p className="text-xs text-slate-500">{t('Solicitação')} {new Date(app.created_at).toLocaleDateString(language==='pt'?'pt-BR':language==='en'?'en-US':'es-ES')} · {t(app.term_months===12?'12 meses':'1 mês')}</p>
           {app.review_notes&&<p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">{app.review_notes}</p>}
           <div className="space-y-2">
-            <p className="text-xs font-bold text-navy-900">Documentos</p>
-            {docs.length===0&&<p className="text-xs text-slate-500">Nenhum documento anexado.</p>}
+            <p className="text-xs font-bold text-navy-900">{t("Documentos")}</p>
+            {docs.length===0&&<p className="text-xs text-slate-500">{t("Nenhum documento anexado.")}</p>}
             {docs.map(doc=><button key={doc.id} type="button" onClick={()=>void openFile(doc)} className="flex max-w-full items-center gap-2 text-left text-xs text-blue-700 hover:underline"><FileCheck2 className="h-4 w-4 shrink-0"/><span className="min-w-0 truncate">{doc.file_name}</span></button>)}
             {canUpload&&<label className="inline-flex max-w-full cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-navy-900 hover:bg-slate-50">
-              <Upload className="h-4 w-4"/>{uploading===app.id?'Enviando…':'Anexar documento'}
+              <Upload className="h-4 w-4"/>{t(uploading===app.id?'Enviando…':'Anexar documento')}
               <input type="file" accept=".pdf,.jpg,.jpeg,.png" disabled={uploading!==null} className="sr-only" onChange={e=>{void uploadDocument(app,e.target.files?.[0]||null);e.currentTarget.value=''}}/>
             </label>}
           </div>
           {app.status==='approved'&&<div role="status" className={`space-y-2 rounded-xl border p-3 ${paid?'border-emerald-200 bg-emerald-50':'border-amber-200 bg-amber-50'}`}>
             <p className={`text-xs font-bold ${paid?'text-emerald-900':'text-amber-900'}`}>
-              {delivered?'Documentos liberados para download':
+              {t(delivered?'Documentos liberados para download':
                paid?'Pagamento confirmado — formalização em andamento':
                order?.status==='refunded'||order?.status==='disputed'?'Pagamento interrompido — fale com a MVA':
-               'Elegibilidade aprovada — aguardando pagamento'}
+               'Elegibilidade aprovada — aguardando pagamento')}
             </p>
             <p className={`text-xs leading-relaxed ${paid?'text-emerald-800':'text-amber-800'}`}>
-              {delivered?(app.plan_id==='comercial'?'A MVA concluiu a formalização. O contrato assinado está disponível abaixo.':'A MVA concluiu a conferência humana. A declaração e o contrato assinados estão disponíveis abaixo.'):
+              {t(delivered?(app.plan_id==='comercial'?'A MVA concluiu a formalização. O contrato assinado está disponível abaixo.':'A MVA concluiu a conferência humana. A declaração e o contrato assinados estão disponíveis abaixo.'):
                paid?'A MVA está preparando e validando o contrato e os documentos pertinentes. O uso do endereço ainda não está autorizado; o acesso será liberado após aprovação final.':
-               'O pagamento será realizado pelo Stripe. Você só poderá utilizar o endereço após a formalização e a autorização da MVA.'}
+               'O pagamento será realizado pelo Stripe. Você só poderá utilizar o endereço após a formalização e a autorização da MVA.')}
             </p>
             {!paid&&order?.status!=='refunded'&&order?.status!=='disputed'&&<button type="button" onClick={()=>onCheckout(app.plan_id,!!app.transfer_from)}
              className="rounded-lg bg-navy-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-navy-800">
-             {order?.status==='pending'?'Continuar pagamento seguro':'Ir para pagamento seguro'}
+             {t(order?.status==='pending'?'Continuar pagamento seguro':'Ir para pagamento seguro')}
             </button>}
           </div>}
         </article>;
@@ -190,42 +192,42 @@ export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTer
        const docs=documents.filter(d=>d.contract_id===c.id);
        return <article key={c.id} className="rounded-2xl border border-slate-200 bg-white p-5">
          <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-bold text-navy-900">{c.companyName} · Contrato</h3>
+          <h3 className="font-bold text-navy-900">{c.companyName} · {t('Contrato')}</h3>
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${c.status==='ativo'?'bg-emerald-50 text-emerald-800':'bg-amber-50 text-amber-800'}`}>
-            {c.status==='ativo'?`Vigência: ${remaining<0?'encerrada':`${remaining} dias restantes`}`:'Aguardando formalização'}
+            {c.status==='ativo'?`${t('Vigência:')} ${remaining<0?t('encerrada'):`${remaining} ${t('dias restantes')}`}`:t('Aguardando formalização')}
           </span>
          </div>
          {c.status==='ativo'
-          ? <p className="mt-2 text-xs text-slate-600">Autorização formalizada pela MVA. Renovação prevista: {c.renewalDate.split('-').reverse().join('/')}. O vencimento não gera cobrança automática.</p>
-          : <p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">Pagamento recebido; aguarde a conferência e assinatura dos documentos. Ainda não é permitido utilizar o endereço.</p>}
-         {c.status==='ativo'&&remaining<=30&&<p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">Consulte a MVA para renovar e manter o serviço regularizado.</p>}
-         <div className="mt-3 flex flex-wrap gap-2">{docs.map(d=><button type="button" key={d.id} onClick={()=>void openFile(d)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-800"><FileCheck2 className="mr-1 inline h-4 w-4"/>{d.category==='contract'?'Contrato assinado':d.category==='authorization'?'Declaração assinada':d.file_name}</button>)}</div>
-         {c.status==='ativo'&&docs.length>0&&<p className="mt-2 text-xs font-medium text-emerald-700">Documentos aprovados disponíveis em acesso privado, para consulta e download.</p>}
+          ? <p className="mt-2 text-xs text-slate-600">{t('Autorização formalizada pela MVA. Renovação prevista:')} {c.renewalDate.split('-').reverse().join('/')} {t('O vencimento não gera cobrança automática.')}</p>
+          : <p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">{t("Pagamento recebido; aguarde a conferência e assinatura dos documentos. Ainda não é permitido utilizar o endereço.")}</p>}
+         {c.status==='ativo'&&remaining<=30&&<p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">{t("Consulte a MVA para renovar e manter o serviço regularizado.")}</p>}
+         <div className="mt-3 flex flex-wrap gap-2">{docs.map(d=><button type="button" key={d.id} onClick={()=>void openFile(d)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-800"><FileCheck2 className="mr-1 inline h-4 w-4"/>{d.category==='contract'?t('Contrato assinado'):d.category==='authorization'?t('Declaração assinada'):d.file_name}</button>)}</div>
+         {c.status==='ativo'&&docs.length>0&&<p className="mt-2 text-xs font-medium text-emerald-700">{t("Documentos aprovados disponíveis em acesso privado, para consulta e download.")}</p>}
           {c.status==='ativo'&&c.paymentStatus==='paid'&&c.paymentIsLive===true&&c.planId==='mva_excellence'&&remaining>=0&&
            <div className="mt-4 space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-            <p className="text-xs font-bold text-emerald-900">Benefício Excellence: 1 consulta gratuita com contador</p>
-            <p className="text-xs text-emerald-800">Uma consulta incluída nesta contratação, mediante agendamento com a equipe MVA.</p>
-            <a className="inline-flex items-center rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-semibold text-white hover:bg-emerald-800" href={`mailto:contato@mvacoworking.com.br?subject=${encodeURIComponent('Agendar consulta com contador — MVA Excellence')}&body=${encodeURIComponent('Olá, gostaria de utilizar a consulta gratuita incluída no MVA Excellence. Contrato: '+c.id)}`}>Solicitar minha consulta gratuita</a>
+            <p className="text-xs font-bold text-emerald-900">{t("Benefício Excellence: 1 consulta gratuita com contador")}</p>
+            <p className="text-xs text-emerald-800">{t("Uma consulta incluída nesta contratação, mediante agendamento com a equipe MVA.")}</p>
+            <a className="inline-flex items-center rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-semibold text-white hover:bg-emerald-800" href={`mailto:contato@mvacoworking.com.br?subject=${encodeURIComponent('Agendar consulta com contador — MVA Excellence')}&body=${encodeURIComponent('Olá, gostaria de utilizar a consulta gratuita incluída no MVA Excellence. Contrato: '+c.id)}`}>{t("Solicitar minha consulta gratuita")}</a>
            </div>}
        </article>;
     })}
   </div>}
   {mode!=='dashboard'&&<form onSubmit={submit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-    <div className="flex items-start gap-3"><Building2 className="mt-0.5 h-6 w-6 shrink-0 text-orange-600"/><div><h3 className="text-lg font-bold text-navy-900">Solicitar análise para contratação</h3><p className="mt-1 text-xs leading-relaxed text-slate-600">Uma solicitação por empresa. Para cadastrar outra empresa, envie um novo formulário.</p></div></div>
+    <div className="flex items-start gap-3"><Building2 className="mt-0.5 h-6 w-6 shrink-0 text-orange-600"/><div><h3 className="text-lg font-bold text-navy-900">{t("Solicitar análise para contratação")}</h3><p className="mt-1 text-xs leading-relaxed text-slate-600">{t("Uma solicitação por empresa. Para cadastrar outra empresa, envie um novo formulário.")}</p></div></div>
     <div className="grid gap-4 md:grid-cols-2">{input('company_name','Razão social')}{input('trading_name','Nome fantasia',false)}{input('cnpj','CNPJ ou "em abertura"')}{input('cnae','Atividade / CNAE')}{input('responsible_name','Responsável legal')}{input('contact_email','E-mail para contato')}{input('contact_phone','Telefone',false)}</div>
     <div className="grid gap-4 md:grid-cols-3">
-      <label className="space-y-1.5"><span className="block text-xs font-semibold">Plano pretendido</span><select value={plan} onChange={e=>setPlan(e.target.value as FiscalPlanId)} className="w-full rounded-xl border border-slate-200 p-3 text-sm">{PLAN_IDS.map(id=><option key={id} value={id}>{FISCAL_PLANS[id].name}</option>)}</select></label>
-      <label className="space-y-1.5"><span className="block text-xs font-semibold">Vigência</span><select value={term} onChange={e=>setTerm(Number(e.target.value) as 1|12)} className="w-full rounded-xl border border-slate-200 p-3 text-sm"><option value={1}>1 mês</option><option value={12}>12 meses</option></select></label>
-      <label className="space-y-1.5"><span className="block text-xs font-semibold">Unidade para análise</span><select value={form.unit_id} onChange={e=>update('unit_id',e.target.value)} className="w-full rounded-xl border border-slate-200 p-3 text-sm"><option value="">Indicação da MVA</option>{units.map(u=><option key={u.id} value={u.id}>{u.name} · {u.city}/{u.state}</option>)}</select></label>
+      <label className="space-y-1.5"><span className="block text-xs font-semibold">{t("Plano pretendido")}</span><select value={plan} onChange={e=>setPlan(e.target.value as FiscalPlanId)} className="w-full rounded-xl border border-slate-200 p-3 text-sm">{PLAN_IDS.map(id=><option key={id} value={id}>{FISCAL_PLANS[id].name}</option>)}</select></label>
+      <label className="space-y-1.5"><span className="block text-xs font-semibold">{t("Vigência")}</span><select value={term} onChange={e=>setTerm(Number(e.target.value) as 1|12)} className="w-full rounded-xl border border-slate-200 p-3 text-sm"><option value={1}>{t('1 mês')}</option><option value={12}>{t('12 meses')}</option></select></label>
+      <label className="space-y-1.5"><span className="block text-xs font-semibold">{t("Unidade para análise")}</span><select value={form.unit_id} onChange={e=>update('unit_id',e.target.value)} className="w-full rounded-xl border border-slate-200 p-3 text-sm"><option value="">{t('Indicação da MVA')}</option>{units.map(u=><option key={u.id} value={u.id}>{u.name} · {u.city}/{u.state}</option>)}</select></label>
     </div>
-    <label className="block space-y-1.5"><span className="text-xs font-semibold">Endereço anterior {requireTransfer&&term===12?'(obrigatório para campanha)':'(se estiver transferindo)'}</span><input required={requireTransfer&&term===12} value={form.transfer_from} onChange={e=>update('transfer_from',e.target.value)} maxLength={180} placeholder="Opcional" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm"/></label>
+    <label className="block space-y-1.5"><span className="text-xs font-semibold">{t('Endereço anterior')} {t(requireTransfer&&term===12?'(obrigatório para campanha)':'(se estiver transferindo)')}</span><input required={requireTransfer&&term===12} value={form.transfer_from} onChange={e=>update('transfer_from',e.target.value)} maxLength={180} placeholder={t('Opcional')} className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm"/></label>
     <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-700"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} className="mt-0.5 accent-orange-600"/>
-      <span>Declaro que os dados são verdadeiros e autorizo a análise cadastral (termos versão 30/10/2026). Entendo que a solicitação <strong>não concede uso imediato do endereço</strong>, não substitui a viabilidade municipal e não constitui contrato assinado ou pagamento.</span>
+      <span>Declaro que os dados são verdadeiros e autorizo a análise cadastral (termos versão 30/10/2026). Entendo que a solicitação <strong>{t("não concede uso imediato do endereço")}</strong>{t(", não substitui a viabilidade municipal e não constitui contrato assinado ou pagamento.")}</span>
     </label>
     <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-sm font-bold text-white hover:bg-orange-500 disabled:opacity-60 sm:w-auto">
-      <FilePlus2 className="h-4 w-4"/>{busy?'Enviando…':currentUser?'Enviar solicitação para análise':'Entrar para solicitar'}
+      <FilePlus2 className="h-4 w-4"/>{t(busy?'Enviando…':currentUser?'Enviar solicitação para análise':'Entrar para solicitar')}
     </button>
-    <p className="flex items-start gap-2 text-xs leading-relaxed text-slate-500"><LockKeyhole className="h-4 w-4 shrink-0"/>Arquivos ficam em armazenamento privado; o acesso é concedido à empresa titular e à administração. Declarações são disponibilizadas somente após aprovação, contrato e pagamento válidos.</p>
+    <p className="flex items-start gap-2 text-xs leading-relaxed text-slate-500"><LockKeyhole className="h-4 w-4 shrink-0"/>{t("Arquivos ficam em armazenamento privado; o acesso é concedido à empresa titular e à administração. Declarações são disponibilizadas somente após aprovação, contrato e pagamento válidos.")}</p>
   </form>}
  </section>;
 }
