@@ -1,8 +1,9 @@
-import { ArrowRight, ArrowUpRight, Building2, CalendarCheck, Check, ChevronDown, FileCheck2, Mail, MapPin, ShieldCheck, Users } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Building2, CalendarCheck, Check, ChevronDown, FileCheck2, Mail, MapPin, MessageCircle, ShieldCheck, Users } from 'lucide-react';
 import { isSpacePubliclyVisible } from '../../lib/space-visibility';
 import type { MouseEvent } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
+import { mvaWhatsAppUrl } from '../../lib/whatsapp';
 import heroOffice from '../../assets/hero-office.jpg';
 
 const copy = {
@@ -17,7 +18,7 @@ const copy = {
   about:'Uma operação real, com gestão digital',aboutText:'A MVA possui sua sede na Rua Dom José Thomaz, 565, bairro São José, em Aracaju. Coworkings parceiros são identificados separadamente no marketplace.',
   aboutOne:'Serviços e valores apresentados antes da solicitação',aboutTwo:'Gestão de reservas e acompanhamento pelo painel',aboutThree:'Privacidade e confirmação de elegibilidade para endereço fiscal',
   process:'Comece pelo que precisa',step1:'Escolha o serviço',step1D:'Veja os detalhes e as opções para sua empresa.',step2:'Confira disponibilidade',step2D:'Compare espaços, preços e condições de contratação.',step3:'Acompanhe no painel',step3D:'Acesse reservas e solicitações pela sua conta.',
-  contactTitle:'Quer conversar antes de decidir?',contactBody:'Fale com a equipe da MVA para esclarecer dúvidas sobre a sede, as salas e os serviços.',contactCta:'Enviar e-mail à MVA',location:'Sede da MVA',online:'Reservas da sede MVA e planos elegíveis podem ser pagos com segurança pelo Stripe. Coworkings parceiros dependem da conexão de recebimentos.'
+  contactTitle:'Quer conversar antes de decidir?',contactBody:'Fale com a equipe da MVA para esclarecer dúvidas sobre a sede, as salas e os serviços.',contactCta:'Enviar e-mail à MVA',contactWhatsApp:'Tirar dúvidas pelo WhatsApp',location:'Sede da MVA',online:'Reservas da sede MVA e planos elegíveis podem ser pagos com segurança pelo Stripe. Coworkings parceiros dependem da conexão de recebimentos.'
  },
  en: {
   eyebrow:'MVA Coworking · Aracaju, Brazil',line1:'Make room for',line2:'your next step.',
@@ -30,7 +31,7 @@ const copy = {
   about:'A real location, digitally managed',aboutText:'MVA operates from Rua Dom José Thomaz, 565, São José, Aracaju, Brazil. Partner coworkings are identified separately.',
   aboutOne:'Understand services and prices beforehand',aboutTwo:'Track bookings on your dashboard',aboutThree:'Private records and eligibility checks for business addresses',
   process:'Getting started',step1:'Select a service',step1D:'Explore details and options.',step2:'Check availability',step2D:'Compare rooms, prices and conditions.',step3:'Track everything',step3D:'Manage bookings and requests in your account.',
-  contactTitle:'Need help deciding?',contactBody:'Reach the MVA team with questions about rooms, the main office and services.',contactCta:'Email MVA',location:'MVA headquarters',online:'MVA headquarters room bookings and eligible plans can be paid securely via Stripe. Partner spaces require payment onboarding.'
+  contactTitle:'Need help deciding?',contactBody:'Reach the MVA team with questions about rooms, the main office and services.',contactCta:'Email MVA',contactWhatsApp:'Ask us on WhatsApp',location:'MVA headquarters',online:'MVA headquarters room bookings and eligible plans can be paid securely via Stripe. Partner spaces require payment onboarding.'
  },
  es: {
   eyebrow:'MVA Coworking · Aracaju, Brasil',line1:'Tu próximo paso',line2:'tiene espacio aquí.',
@@ -43,7 +44,7 @@ const copy = {
   about:'Un lugar real con gestión digital',aboutText:'MVA tiene su sede en Rua Dom José Thomaz, 565, São José, Aracaju, Brasil. Los socios se identifican por separado.',
   aboutOne:'Servicios y precios antes de contratar',aboutTwo:'Reservas organizadas en un panel',aboutThree:'Privacidad y verificación para el domicilio fiscal',
   process:'Cómo empezar',step1:'Elige el servicio',step1D:'Consulta detalles y opciones.',step2:'Verifica disponibilidad',step2D:'Compara salas, precios y condiciones.',step3:'Sigue tu solicitud',step3D:'Gestiona reservas desde tu cuenta.',
-  contactTitle:'¿Necesitas orientación?',contactBody:'Habla con el equipo de MVA sobre salas, la sede y los servicios.',contactCta:'Escribir a MVA',location:'Sede MVA',online:'Las reservas de la sede MVA y los planes elegibles se pueden pagar de forma segura por Stripe. Los espacios asociados requieren conexión de cobros.'
+  contactTitle:'¿Necesitas orientación?',contactBody:'Habla con el equipo de MVA sobre salas, la sede y los servicios.',contactCta:'Escribir a MVA',contactWhatsApp:'Consultar por WhatsApp',location:'Sede MVA',online:'Las reservas de la sede MVA y los planes elegibles se pueden pagar de forma segura por Stripe. Los espacios asociados requieren conexión de cobros.'
  }
 } as const;
 
@@ -163,6 +164,14 @@ export function HomeView() {
    <div>{e.faqs.map(([q,a])=><details key={q}><summary>{q}<ChevronDown size={19} aria-hidden="true"/></summary><p>{a}</p></details>)}</div>
   </section>
 
-  <section className="home-contact home-section" aria-labelledby="home-contact-title"><div><p className="home-kicker">{e.contactLabel}</p><h2 id="home-contact-title">{c.contactTitle}</h2><p>{c.contactBody}</p></div><div className="home-contact-actions"><a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="home-button home-button-light"><Mail size={18} aria-hidden="true"/>{c.contactCta}<ArrowUpRight size={18} aria-hidden="true"/></a><a href="tel:+557932145500" className="home-contact-phone">{e.contactSecondary} · (79) 3214-5500</a></div></section>
+  <section className="home-contact home-section" aria-labelledby="home-contact-title"><div><p className="home-kicker">{e.contactLabel}</p><h2 id="home-contact-title">{c.contactTitle}</h2><p>{c.contactBody}</p></div><div className="home-contact-actions">
+    <a href={mvaWhatsAppUrl(language)} target="_blank" rel="noopener noreferrer" className="home-button home-button-whatsapp">
+      <MessageCircle size={19} aria-hidden="true"/>{c.contactWhatsApp}<ArrowUpRight size={17} aria-hidden="true"/>
+    </a>
+    <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="home-button home-button-light">
+      <Mail size={18} aria-hidden="true"/>{c.contactCta}<ArrowUpRight size={18} aria-hidden="true"/>
+    </a>
+    <a href="tel:+557932145500" className="home-contact-phone">{e.contactSecondary} · (79) 3214-5500</a>
+   </div></section>
  </div>;
 }
