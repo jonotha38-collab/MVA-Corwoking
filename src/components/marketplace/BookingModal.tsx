@@ -54,7 +54,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
 
   const addonsTotal = selectedAddons.reduce((acc, curr) => acc + (addonPrices[curr] || 0), 0);
   const baseTotal = durationHours * space.pricePerHour;
-  const totalPrice = baseTotal + addonsTotal;
+  const adminBooking = currentUser?.isAdmin === true;
+  const totalPrice = adminBooking ? 0 : baseTotal + addonsTotal;
 
   const toggleAddon = (addon: string) => {
     if (selectedAddons.includes(addon)) {
@@ -315,13 +316,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-orange-400 uppercase font-semibold block">{t("Valor Final ")}</span>
-                <div className="text-2xl font-bold text-orange-400">{t("R$ ")}{t(totalPrice.toFixed(2))}
+                <span className="text-[10px] text-orange-400 uppercase font-semibold block">{t(adminBooking ? "Reserva administrativa" : "Valor Final ")}</span>
+                <div className="text-2xl font-bold text-orange-400">{adminBooking ? t("Sem cobrança") : `${t("R$ ")}${t(totalPrice.toFixed(2))}`}
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900" role="note"><strong>Pagamento seguro após o agendamento.</strong> O horário será registrado primeiro. Depois, escolha pagar pelo Stripe ou utilizar horas de um plano MVA elegível. Reservas de parceiros dependem da habilitação de recebimentos do responsável.</div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900" role="note">{adminBooking ? <><strong>Agendamento administrativo isento.</strong> A reserva será confirmada sem pagamento, após validação do perfil pelo servidor. Os horários disponíveis e as regras de conflito continuam valendo.</> : <><strong>Pagamento seguro após o agendamento.</strong> O horário será registrado primeiro. Depois, escolha pagar pelo Stripe ou utilizar horas de um plano MVA elegível. Reservas de parceiros dependem da habilitação de recebimentos do responsável.</>}</div>
 
             {/* Footer Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -333,7 +334,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               <button
                 type="submit"
                 className="px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-md hover:shadow-orange-500/30 transition-all flex items-center gap-2"
-              >{t("Continuar para pagamento ")}</button>
+              >{t(adminBooking ? "Confirmar reserva gratuita" : "Continuar para pagamento ")}</button>
             </div>
           </form>
         )}
