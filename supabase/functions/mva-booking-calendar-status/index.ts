@@ -68,14 +68,37 @@ Deno.serve(async(req:Request)=>{
       reason:'A autorização Google não pôde ser renovada (HTTP '+tokenResponse.status+'). Reconecte a conta.'});
     const tokenBody=await tokenResponse.json() as {access_token?:string};
     if(!tokenBody.access_token)return reply(200,{...status,verified:false,reason:'O Google não retornou acesso válido.'});
-    const verifyResponse=await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList/'
-      +encodeURIComponent(env('GOOGLE_CALENDAR_ID')),{headers:{Authorization:'Bearer '+tokenBody.access_token}});
-    if(!verifyResponse.ok)return reply(200,{...status,verified:false,
-      reason:'Não foi possível acessar a agenda indicada (HTTP '+verifyResponse.status+').'});
-    const googleCalendar=await verifyResponse.json() as {accessRole?:string,summary?:string};
-    if(!['owner','writer'].includes(googleCalendar.accessRole||''))
-      return reply(200,{...status,verified:false,reason:'A conta conectada não tem permissão para criar eventos na agenda.'});
-    return reply(200,{...status,verified:true,calendarName:googleCalendar.summary||'Google Agenda'});
+    // OAuth calendar.events does not authorize calendarList.get. Verify the
+    // actual write permission without requesting broader Calendar scopes:
+    // create a private, transparent event with no attendees and delete it.
+    const calendarBase='https://www.googleapis.com/calendar/v3/calendars/'
+      +encodeURIComponent(env('GOOGLE_CALENDAR_ID'));
+    const diagnosticId='mvatest'+crypto.randomUUID().replaceAll('-','');
+    const startTime=new Date(Date.now()+30*60_000).toISOString();
+    const endTime=new Date(Date.now()+45*60_000).toISOString();
+    const response=await fetch(calendarBase+'/events?sendUpdates=none',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+tokenBody.access_token,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        id:diagnosticId,
+        summary:'Teste de conexão MVA Coworking',
+        description:'Verificação temporária de autorização da integração MVA.',
+        visibility:'private',
+        transparency:'transparent',
+        start:{dateTime:startTime},
+        end:{dateTime:endTime},
+        reminders:{useDefault:false}
+      })
+    });
+    if(!response.ok)return reply(200,{...status,verified:false,
+      reason:'Não foi possível criar evento de teste na agenda (HTTP '+response.status+'). Verifique a agenda de destino e as permissões.'});
+    const removed=await fetch(calendarBase+'/events/'+diagnosticId+'?sendUpdates=none',{
+      method:'DELETE',headers:{Authorization:'Bearer '+tokenBody.access_token}
+    });
+    if(removed.status!==204&&removed.status!==404)
+      return reply(200,{...status,verified:false,
+        reason:'Acesso de escrita confirmado, mas o evento de teste não pôde ser excluído (HTTP '+removed.status+'). Remova-o manualmente.'});
+    return reply(200,{...status,verified:true,calendarName:'Agenda Google autorizada'});
   }catch{
     return reply(500,{error:'Falha ao consultar o status do Google Agenda.'});
   }
