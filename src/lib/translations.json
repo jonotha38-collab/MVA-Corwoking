@@ -4018,5 +4018,293 @@
   "Não foi possível registrar a solicitação. Verifique os campos e tente novamente.": [
     "Couldn't submit your application. Check the fields and try again.",
     "No se pudo registrar la solicitud. Comprueba los campos e inténtalo de nuevo."
+  ],
+  "Área de gestão de endereço fiscal": [
+    "Registered address management area",
+    "Área de gestión de domicilio fiscal"
+  ],
+  "Gestão digital": [
+    "Digital management",
+    "Gestión digital"
+  ],
+  "Meu endereço fiscal": [
+    "My registered address",
+    "Mi domicilio fiscal"
+  ],
+  "Solicite a análise cadastral, acompanhe a aprovação, envie documentos e administre suas empresas. A autorização de uso do endereço depende de viabilidade, contrato e pagamento confirmado.": [
+    "Request a company review, track approval, upload documents and manage your businesses. Address use is authorized only after an eligibility check, signed contract and confirmed payment.",
+    "Solicita la evaluación, sigue la aprobación, envía documentos y administra tus empresas. El uso del domicilio requiere viabilidad, contrato firmado y pago confirmado."
+  ],
+  "Análise de atividade": [
+    "Business activity review",
+    "Evaluación de actividad"
+  ],
+  "Documentos protegidos": [
+    "Protected documents",
+    "Documentos protegidos"
+  ],
+  "Vigência e renovação": [
+    "Contract term and renewal",
+    "Vigencia y renovación"
+  ],
+  "Minhas empresas e solicitações": [
+    "My companies and applications",
+    "Mis empresas y solicitudes"
+  ],
+  "Atualizar": [
+    "Refresh",
+    "Actualizar"
+  ],
+  "Carregando solicitações…": [
+    "Loading applications…",
+    "Cargando solicitudes…"
+  ],
+  "Você ainda não solicitou um endereço fiscal. Preencha o formulário abaixo para começar.": [
+    "You haven't applied for a registered address yet. Fill out the form below to get started.",
+    "Todavía no has solicitado un domicilio fiscal. Completa el formulario para empezar."
+  ],
+  "Solicitação": [
+    "Application",
+    "Solicitud"
+  ],
+  "Recebida": [
+    "Received",
+    "Recibida"
+  ],
+  "Elegível para contratação": [
+    "Eligible for contract",
+    "Elegible para contratación"
+  ],
+  "Ajustes necessários": [
+    "Changes required",
+    "Ajustes necesarios"
+  ],
+  "Documentos": [
+    "Documents",
+    "Documentos"
+  ],
+  "Nenhum documento anexado.": [
+    "No documents attached.",
+    "No hay documentos adjuntos."
+  ],
+  "Enviando…": [
+    "Uploading…",
+    "Enviando…"
+  ],
+  "Anexar documento": [
+    "Attach document",
+    "Adjuntar documento"
+  ],
+  "Documentos liberados para download": [
+    "Documents ready to download",
+    "Documentos disponibles para descargar"
+  ],
+  "Pagamento confirmado — formalização em andamento": [
+    "Payment confirmed — formalization in progress",
+    "Pago confirmado — formalización en curso"
+  ],
+  "Pagamento interrompido — fale com a MVA": [
+    "Payment interrupted — contact MVA",
+    "Pago interrumpido — contacta con MVA"
+  ],
+  "Elegibilidade aprovada — aguardando pagamento": [
+    "Eligibility approved — awaiting payment",
+    "Elegibilidad aprobada — esperando pago"
+  ],
+  "A MVA concluiu a formalização. O contrato assinado está disponível abaixo.": [
+    "MVA has completed formalization. Your signed contract is available below.",
+    "MVA completó la formalización. Tu contrato firmado está disponible abajo."
+  ],
+  "A MVA concluiu a conferência humana. A declaração e o contrato assinados estão disponíveis abaixo.": [
+    "MVA has completed its review. Your signed declaration and contract are available below.",
+    "MVA completó la revisión. Tu declaración y contrato firmados están disponibles abajo."
+  ],
+  "A MVA está preparando e validando o contrato e os documentos pertinentes. O uso do endereço ainda não está autorizado; o acesso será liberado após aprovação final.": [
+    "MVA is preparing and reviewing the contract and supporting documents. You are not yet authorized to use the address; access is released only after final approval.",
+    "MVA está preparando y revisando el contrato y los documentos. El uso del domicilio aún no está autorizado; el acceso se liberará tras la aprobación final."
+  ],
+  "O pagamento será realizado pelo Stripe. Você só poderá utilizar o endereço após a formalização e a autorização da MVA.": [
+    "Payment is processed by Stripe. You may only use the address after contract formalization and MVA authorization.",
+    "El pago se realiza a través de Stripe. Solo podrás utilizar el domicilio tras la formalización y autorización de MVA."
+  ],
+  "Continuar pagamento seguro": [
+    "Continue secure payment",
+    "Continuar pago seguro"
+  ],
+  "Ir para pagamento seguro": [
+    "Proceed to secure payment",
+    "Ir al pago seguro"
+  ],
+  "Contrato": [
+    "Contract",
+    "Contrato"
+  ],
+  "encerrada": [
+    "ended",
+    "finalizada"
+  ],
+  "dias restantes": [
+    "days remaining",
+    "días restantes"
+  ],
+  "Aguardando formalização": [
+    "Awaiting contract formalization",
+    "Esperando formalización"
+  ],
+  "Autorização formalizada pela MVA. Renovação prevista:": [
+    "MVA has authorized the address. Expected renewal date:",
+    "Dirección autorizada por MVA. Renovación prevista:"
+  ],
+  "O vencimento não gera cobrança automática.": [
+    "The contract does not renew or charge automatically.",
+    "El vencimiento no genera cobros automáticos."
+  ],
+  "Pagamento recebido; aguarde a conferência e assinatura dos documentos. Ainda não é permitido utilizar o endereço.": [
+    "Payment received. Please wait for document review and signatures. You cannot use the address yet.",
+    "Pago recibido. Espera la revisión y firma de los documentos. Todavía no puedes usar el domicilio."
+  ],
+  "Consulte a MVA para renovar e manter o serviço regularizado.": [
+    "Contact MVA to renew and keep your service current.",
+    "Consulta a MVA para renovar y mantener el servicio vigente."
+  ],
+  "Contrato assinado": [
+    "Signed contract",
+    "Contrato firmado"
+  ],
+  "Declaração assinada": [
+    "Signed declaration",
+    "Declaración firmada"
+  ],
+  "Documentos aprovados disponíveis em acesso privado, para consulta e download.": [
+    "Approved documents are available in your private account for viewing and download.",
+    "Documentos aprobados disponibles en tu área privada para consulta y descarga."
+  ],
+  "Benefício Excellence: 1 consulta gratuita com contador": [
+    "Excellence benefit: 1 free accountant consultation",
+    "Beneficio Excellence: 1 consulta gratuita con contador"
+  ],
+  "Uma consulta incluída nesta contratação, mediante agendamento com a equipe MVA.": [
+    "One consultation is included with this contract, by appointment arranged with the MVA team.",
+    "Una consulta incluida en esta contratación, previa cita coordinada con MVA."
+  ],
+  "Solicitar minha consulta gratuita": [
+    "Request my free consultation",
+    "Solicitar mi consulta gratuita"
+  ],
+  "Solicitar análise para contratação": [
+    "Request eligibility review",
+    "Solicitar evaluación para contratar"
+  ],
+  "Uma solicitação por empresa. Para cadastrar outra empresa, envie um novo formulário.": [
+    "One application per company. Submit a new form for each additional business.",
+    "Una solicitud por empresa. Para otra empresa, envía un formulario nuevo."
+  ],
+  "Nome fantasia": [
+    "Trading name",
+    "Nombre comercial"
+  ],
+  "CNPJ ou \"em abertura\"": [
+    "CNPJ or \"em abertura\"",
+    "CNPJ o \"em abertura\""
+  ],
+  "E-mail para contato": [
+    "Contact email",
+    "Correo de contacto"
+  ],
+  "Plano pretendido": [
+    "Desired plan",
+    "Plan deseado"
+  ],
+  "Unidade para análise": [
+    "Location for review",
+    "Sede para evaluación"
+  ],
+  "Indicação da MVA": [
+    "MVA's recommendation",
+    "Recomendación de MVA"
+  ],
+  "Endereço anterior": [
+    "Previous address",
+    "Dirección anterior"
+  ],
+  "(obrigatório para campanha)": [
+    "(required for promotion)",
+    "(obligatorio para promoción)"
+  ],
+  "(se estiver transferindo)": [
+    "(if transferring)",
+    "(si estás trasladando)"
+  ],
+  "Opcional": [
+    "Optional",
+    "Opcional"
+  ],
+  "Declaro que os dados são verdadeiros e autorizo a análise cadastral (termos versão 30/10/2026). Entendo que a solicitação": [
+    "I confirm that the information is accurate and authorize the eligibility review (terms version 30 Oct 2026). I understand that the application",
+    "Declaro que los datos son verídicos y autorizo la evaluación (versión de términos 30/10/2026). Entiendo que la solicitud"
+  ],
+  "não concede uso imediato do endereço": [
+    "does not immediately authorize use of the address",
+    "no concede el uso inmediato del domicilio"
+  ],
+  ", não substitui a viabilidade municipal e não constitui contrato assinado ou pagamento.": [
+    ", does not replace municipal approval and is not a signed contract or payment.",
+    ", no sustituye la viabilidad municipal y no constituye contrato firmado ni pago."
+  ],
+  "Enviar solicitação para análise": [
+    "Submit for review",
+    "Enviar solicitud para evaluación"
+  ],
+  "Entrar para solicitar": [
+    "Sign in to apply",
+    "Iniciar sesión para solicitar"
+  ],
+  "Arquivos ficam em armazenamento privado; o acesso é concedido à empresa titular e à administração. Declarações são disponibilizadas somente após aprovação, contrato e pagamento válidos.": [
+    "Files are kept in private storage and accessed only by the company owner and MVA administrators. Declarations are released only after approval, a valid contract and confirmed payment.",
+    "Los archivos se guardan de forma privada y solo la empresa titular y la administración tienen acceso. Las declaraciones se liberan después de la aprobación, contrato válido y pago confirmado."
+  ],
+  "Não foi possível concluir. Tente novamente.": [
+    "Couldn't complete the operation. Try again.",
+    "No se pudo completar. Inténtalo de nuevo."
+  ],
+  "Leia e aceite as condições da solicitação.": [
+    "Read and accept the application terms.",
+    "Lee y acepta las condiciones de la solicitud."
+  ],
+  "Informe o endereço fiscal anterior para solicitar a condição especial de transferência.": [
+    "Enter your previous registered address to request the transfer offer.",
+    "Indica tu domicilio fiscal anterior para solicitar la oferta por traslado."
+  ],
+  "Confira a razão social, o CNPJ (ou em abertura) e a atividade econômica.": [
+    "Check the company name, CNPJ (or \"em abertura\") and business activity.",
+    "Comprueba la razón social, el CNPJ (o \"em abertura\") y la actividad económica."
+  ],
+  "Solicitação enviada. A equipe analisará o endereço e a atividade da empresa.": [
+    "Application sent. The team will review the address and your business activity.",
+    "Solicitud enviada. El equipo revisará el domicilio y la actividad de la empresa."
+  ],
+  "Não foi possível enviar a solicitação. Confira os dados e tente novamente.": [
+    "Couldn't send your application. Check your details and try again.",
+    "No se pudo enviar la solicitud. Comprueba los datos e inténtalo de nuevo."
+  ],
+  "Escolha PDF, PNG ou JPG de até 10 MB.": [
+    "Choose a PDF, PNG or JPG up to 10 MB.",
+    "Elige PDF, PNG o JPG de hasta 10 MB."
+  ],
+  "O formato do arquivo não corresponde à extensão.": [
+    "The file format doesn't match its extension.",
+    "El formato del archivo no coincide con la extensión."
+  ],
+  "Documento enviado de forma privada para análise.": [
+    "Document uploaded privately for review.",
+    "Documento enviado de forma privada para revisión."
+  ],
+  "Não foi possível enviar o documento. Confira sua sessão e tente novamente.": [
+    "Couldn't upload the document. Check your session and try again.",
+    "No se pudo enviar el documento. Verifica tu sesión e inténtalo."
+  ],
+  "Não foi possível abrir o documento.": [
+    "Couldn't open the document.",
+    "No se pudo abrir el documento."
   ]
 }
