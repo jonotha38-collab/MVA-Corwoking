@@ -13,7 +13,7 @@ type BookingInfo = {
 };
 const env = (key: string) => (Deno.env.get(key) || '').trim();
 const ZONE = 'America/Maceio';
-const PROJECT_URL = 'https://coworking-mva-du8c.vercel.app/';
+const PROJECT_URL = 'https://mvacoworking.com.br/?page=client-dashboard';
 
 function constantEqual(a: string, b: string) {
   if (a.length !== b.length || !a) return false;
@@ -38,7 +38,7 @@ function eventData(booking: BookingInfo) {
     id: eventId(booking),
     summary: `MVA · ${booking.room} · ${booking.name}`.slice(0,200),
     location: booking.location,
-    description: `Reserva ${booking.source==='intern'?'interna':'comercial'} MVA Coworking\nParticipante: ${booking.name}\nE-mail: ${booking.email}\nCódigo: ${booking.id}\nConsulte a recepção em ${PROJECT_URL}`,
+    description: `Agendamento ${booking.source==='intern'?'interno':'comercial'} registrado no site MVA Coworking.\nParticipante: ${booking.name}\nE-mail: ${booking.email}\nCódigo: ${booking.id}\nStatus financeiro: confirme o pagamento no painel; o agendamento não é comprovante de pagamento.\nAcesse: ${PROJECT_URL}`,
     visibility: 'private',
     reminders: { useDefault: false, overrides: [{ method:'popup',minutes:30 }] },
   };
@@ -89,13 +89,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
   if(!supabaseUrl || !serviceKey) return reply(503,{error:'Server configuration unavailable'});
   const supabase=createClient(supabaseUrl,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data:setting,error:settingError}=await supabase.from('booking_delivery_config')
-    .select('webhook_secret').eq('id',1).single();
+    .select('webhook_secret,enabled,calendar_enabled,email_enabled').eq('id',1).single();
   if(settingError || !constantEqual(req.headers.get('x-mva-delivery-key')||'',setting?.webhook_secret||'')){
     return reply(401,{error:'Unauthorized'});
   }
-  // Na falta das integrações, as entregas ficam pendentes, sem informar falso sucesso.
-  const mailReady=Boolean(env('RESEND_API_KEY')&&env('BOOKING_EMAIL_FROM'));
-  const calendarReady=Boolean(env('GOOGLE_CALENDAR_ID')&&env('GOOGLE_OAUTH_CLIENT_ID')
+  // Google Calendar runs independently from email. Queued reservations stay pending
+  // until an administrator has connected valid OAuth credentials.
+  if(!setting?.enabled)return reply(200,{state:'paused',calendar:false,email:false});
+  const mailReady=Boolean(setting.email_enabled&&env('RESEND_API_KEY')&&env('BOOKING_EMAIL_FROM'));
+  const calendarReady=Boolean(setting.calendar_enabled&&env('GOOGLE_CALENDAR_ID')&&env('GOOGLE_OAUTH_CLIENT_ID')
     &&env('GOOGLE_OAUTH_CLIENT_SECRET')&&env('GOOGLE_OAUTH_REFRESH_TOKEN'));
   const channels=[...(mailReady?['email']:[]),...(calendarReady?['calendar']:[])];
   if(!channels.length)return reply(200,{state:'awaiting_provider_configuration',email:false,calendar:false});
@@ -127,7 +129,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if(ue || !u.user)throw new Error('User lookup failed');
     const email=u.user.email||'';
     // Notificações apenas para endereços pertencentes à identidade autenticada.
-    if(!email || !u.user.email_confirmed_at)throw new Error('Recipient has no verified email');
+    if(job.channel==='email' && (!email || !u.user.email_confirmed_at))
+      throw new Error('Recipient has no verified email');
     if(job.source==='commercial')return {
       id:job.reservation_id,source:'commercial',status:String(record.status),
       name:String(record.responsible_name||u.user.user_metadata?.name||'Cliente'),
