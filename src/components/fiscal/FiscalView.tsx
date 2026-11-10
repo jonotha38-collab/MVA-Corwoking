@@ -13,7 +13,7 @@ import { CertificateDialog } from './CertificateDialog';
 import { FiscalServiceCenter } from './FiscalServiceCenter';
 
 type ServiceUnit = { id:string; name:string; street_address:string; city:string; state:string };
-const planIds: FiscalPlanId[] = ['comercial','fiscal','fiscal_ie'];
+const planIds: FiscalPlanId[] = ['mva_essencial','mva_profissional','mva_excellence'];
 const brl = (cents:number) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2}).format(cents/100);
 
 const planInfo: Record<FiscalPlanId,{eyebrow:string;summary:string;ideal:string;features:string[];popular?:boolean}> = {
@@ -32,6 +32,41 @@ const planInfo: Record<FiscalPlanId,{eyebrow:string;summary:string;ideal:string;
     eyebrow:'Para operações com ICMS',summary:'Uma solução para empresas que precisam avaliar também a inscrição estadual.',
     ideal:'Comércios, e-commerces e empresas com operações sujeitas ao ICMS.',
     features:['Análise da atividade e das exigências estaduais','Documentação de endereço fiscal, quando elegível','Gestão de correspondências fiscais','Atendimento para orientação da contratação']
+  },
+  mva_essencial:{
+    eyebrow:'Sua empresa no endereço certo',
+    summary:'Endereço fiscal profissional com gestão de correspondências e documentação segura.',
+    ideal:'Empresas em abertura e prestadores de serviços que buscam o essencial.',
+    features:[
+      'Endereço fiscal, sujeito à viabilidade e formalização',
+      'Gestão de correspondências e documentos',
+      'Acompanhamento pelo painel do cliente',
+      'Salas de reunião disponíveis mediante agendamento, pela tarifa regular'
+    ]
+  },
+  mva_profissional:{
+    eyebrow:'Mais praticidade no seu dia a dia',
+    summary:'A estrutura de endereço fiscal da MVA com economia nas suas reuniões profissionais.',
+    ideal:'Profissionais e empresas que utilizam salas de reunião ocasionalmente.',
+    features:[
+      'Todos os benefícios do MVA Essencial',
+      '5% de desconto na locação de salas de reunião da sede MVA',
+      'Gestão de correspondências e documentos',
+      'Acesso à documentação assinada após formalização'
+    ]
+  },
+  mva_excellence:{
+    eyebrow:'Nosso plano mais completo',
+    summary:'Endereço fiscal com vantagens para receber clientes e apoio contábil.',
+    ideal:'Empresas e profissionais que recebem clientes e querem serviços adicionais.',
+    features:[
+      'Todos os benefícios do MVA Profissional',
+      '10% de desconto nas salas de reunião da sede MVA (em vez de 5%)',
+      '2 horas mensais de bônus em sala de atendimento nos 3 primeiros meses, não cumulativas',
+      '1 consulta gratuita com contador por contratação, mediante agendamento',
+      'Gestão de correspondências e documentação'
+    ],
+    popular:true
   }
 };
 const faqs = [
@@ -50,7 +85,7 @@ export function FiscalView(){
  const eligible=canIssueCertificate(currentCompany);
  const [term,setTerm]=useState<1|12>(12);
  const [transfer,setTransfer]=useState(false);
- const [selectedPlan,setSelectedPlan]=useState<FiscalPlanId>('fiscal');
+ const [selectedPlan,setSelectedPlan]=useState<FiscalPlanId>('mva_profissional');
  const [clientAreaOpen,setClientAreaOpen]=useState(false);
  const [checkoutOpen,setCheckoutOpen]=useState(false);
  const [certificateOpen,setCertificateOpen]=useState(false);
@@ -321,6 +356,6 @@ export function FiscalView(){
 
   {checkoutOpen&&<FiscalCheckout planId={selectedPlan} initialTerm={term} transfer={term===12&&transfer} resumeOrderId={resumeOrderId}
     onClose={()=>{setCheckoutOpen(false);setResumeOrderId(undefined)}} onPaid={()=>{setClientAreaOpen(true);showToast('Status do pagamento atualizado.','info')}}/>}
-  {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);start('fiscal')}}/>}
+  {certificateOpen&&<CertificateDialog onClose={()=>setCertificateOpen(false)} onChoosePlan={()=>{setCertificateOpen(false);start('mva_profissional')}}/>}
  </div>;
 }

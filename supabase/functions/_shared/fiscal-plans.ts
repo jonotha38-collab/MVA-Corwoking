@@ -1,8 +1,14 @@
 /** Shared, canonical catalog. Prices are integer BRL cents; only the server authorizes charges. */
 export const FISCAL_PLANS = {
-  comercial: { id: 'comercial', name: 'Endereço Comercial', monthlyCents: 2990, fiscal: false, meetingHours: 0 },
-  fiscal: { id: 'fiscal', name: 'Endereço Fiscal', monthlyCents: 8000, fiscal: true, meetingHours: 0 },
-  fiscal_ie: { id: 'fiscal_ie', name: 'Endereço Fiscal com Inscrição Estadual', monthlyCents: 12000, fiscal: true, meetingHours: 2 },
+  // Historic products are still recognized for previously approved applications.
+  comercial: { id:'comercial',name:'Endereço Comercial',monthlyCents:2990,fiscal:false,meetingHours:0,roomDiscountPercent:0,accountantConsultations:0,annualDiscountPercent:0 },
+  fiscal: { id:'fiscal',name:'Endereço Fiscal',monthlyCents:8000,fiscal:true,meetingHours:0,roomDiscountPercent:0,accountantConsultations:0,annualDiscountPercent:0 },
+  fiscal_ie: { id:'fiscal_ie',name:'Endereço Fiscal com Inscrição Estadual',monthlyCents:12000,fiscal:true,meetingHours:2,roomDiscountPercent:0,accountantConsultations:0,annualDiscountPercent:0 },
+
+  // New MVA-branded fiscal-address plans (amounts are mirrored from DB catalog).
+  mva_essencial: { id:'mva_essencial',name:'MVA Essencial',monthlyCents:7990,fiscal:true,meetingHours:0,roomDiscountPercent:0,accountantConsultations:0,annualDiscountPercent:10 },
+  mva_profissional: { id:'mva_profissional',name:'MVA Profissional',monthlyCents:9190,fiscal:true,meetingHours:0,roomDiscountPercent:5,accountantConsultations:0,annualDiscountPercent:10 },
+  mva_excellence: { id:'mva_excellence',name:'MVA Excellence',monthlyCents:10300,fiscal:true,meetingHours:2,roomDiscountPercent:10,accountantConsultations:1,annualDiscountPercent:10 },
 } as const;
 export type FiscalPlanId = keyof typeof FISCAL_PLANS;
 export type FiscalPlan = typeof FISCAL_PLANS[FiscalPlanId];
@@ -19,7 +25,15 @@ export function getTermMonths(value: unknown = 12): FiscalTermMonths {
 export function quotePlan(plan: FiscalPlan, termMonths: FiscalTermMonths, transfer: boolean) {
   const months = getTermMonths(termMonths);
   const freeMonths = months === 12 && transfer ? 4 : 0;
-  return { amount: plan.monthlyCents * (months - freeMonths), fullAmount: plan.monthlyCents * months, discount: plan.monthlyCents * freeMonths, termMonths: months, freeMonths, currency: 'brl' as const };
+  const fullAmount = plan.monthlyCents * months;
+  // The four-free-month transfer campaign replaces (not stacks with) the
+  // standard annual discount, exactly as enforced by Stripe on the server.
+  const amount = months === 12
+    ? (freeMonths > 0 ? plan.monthlyCents * (months-freeMonths)
+      : Math.round(fullAmount * (100-plan.annualDiscountPercent)/100))
+    : fullAmount;
+  return { amount, fullAmount, discount:fullAmount-amount,
+    termMonths:months,freeMonths,currency:'brl' as const };
 }
 export interface FiscalCompanyInput { companyName: string; tradingName: string; cnpj: string; contactEmail: string; contactPhone: string; }
 export function validCnpj(value: string): boolean {

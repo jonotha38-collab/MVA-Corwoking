@@ -16,11 +16,11 @@ type DocumentRow={id:string;request_id:string|null;contract_id:string|null;file_
 type Unit={id:string;name:string;street_address:string;city:string;state:string};
 type FiscalOrder={resource_id:string;status:string;livemode:boolean;paid_at:string|null};
 const labels:Record<string,string>={submitted:'Recebida',under_review:'Em análise',approved:'Elegível para contratação',rejected:'Ajustes necessários'};
-const PLAN_IDS: FiscalPlanId[]=['comercial','fiscal','fiscal_ie'];
+const PLAN_IDS: FiscalPlanId[]=['mva_essencial','mva_profissional','mva_excellence'];
 const safeError=(e:unknown)=> e instanceof Error?e.message:'Não foi possível concluir. Tente novamente.';
 const daysUntil=(date:string)=>Math.ceil((new Date(date+'T12:00:00-03:00').getTime()-Date.now())/86400000);
 
-export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requireTransfer=false, mode='full', onSubmitted, onCheckout }:{
+export function FiscalServiceCenter({ initialPlan='mva_profissional', initialTerm=12, requireTransfer=false, mode='full', onSubmitted, onCheckout }:{
  initialPlan?:FiscalPlanId; initialTerm?:1|12; requireTransfer?:boolean; mode?:'full'|'application'|'dashboard';
  onSubmitted?:()=>void; onCheckout:(id:FiscalPlanId,transfer:boolean)=>void;
 }) {
@@ -201,6 +201,12 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
          {c.status==='ativo'&&remaining<=30&&<p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">Consulte a MVA para renovar e manter o serviço regularizado.</p>}
          <div className="mt-3 flex flex-wrap gap-2">{docs.map(d=><button type="button" key={d.id} onClick={()=>void openFile(d)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-800"><FileCheck2 className="mr-1 inline h-4 w-4"/>{d.category==='contract'?'Contrato assinado':d.category==='authorization'?'Declaração assinada':d.file_name}</button>)}</div>
          {c.status==='ativo'&&docs.length>0&&<p className="mt-2 text-xs font-medium text-emerald-700">Documentos aprovados disponíveis em acesso privado, para consulta e download.</p>}
+          {c.status==='ativo'&&c.paymentStatus==='paid'&&c.paymentIsLive===true&&c.planId==='mva_excellence'&&remaining>=0&&
+           <div className="mt-4 space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+            <p className="text-xs font-bold text-emerald-900">Benefício Excellence: 1 consulta gratuita com contador</p>
+            <p className="text-xs text-emerald-800">Uma consulta incluída nesta contratação, mediante agendamento com a equipe MVA.</p>
+            <a className="inline-flex items-center rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-semibold text-white hover:bg-emerald-800" href={`mailto:contato@mvacoworking.com.br?subject=${encodeURIComponent('Agendar consulta com contador — MVA Excellence')}&body=${encodeURIComponent('Olá, gostaria de utilizar a consulta gratuita incluída no MVA Excellence. Contrato: '+c.id)}`}>Solicitar minha consulta gratuita</a>
+           </div>}
        </article>;
     })}
   </div>}

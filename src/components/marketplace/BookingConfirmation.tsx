@@ -34,6 +34,7 @@ export function BookingConfirmation({
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [paymentIsLive, setPaymentIsLive] = useState(false);
+   const [amountPaidCents,setAmountPaidCents]=useState<number|null>(null);
   const [creditApplied,setCreditApplied]=useState(false);
   const [creditMinutes,setCreditMinutes]=useState(0);
   const [redeeming,setRedeeming]=useState(false);
@@ -44,11 +45,12 @@ export function BookingConfirmation({
     let live = true;
     const load = async () => {
       const [orders,credits]=await Promise.all([
-       supabase.from('mva_checkout_orders').select('status,livemode').eq('kind','booking').eq('resource_id',booking.id).maybeSingle(),
+       supabase.from('mva_checkout_orders').select('status,livemode,amount_cents').eq('kind','booking').eq('resource_id',booking.id).maybeSingle(),
        supabase.from('mva_booking_redemptions').select('status').eq('booking_id',booking.id).maybeSingle()
       ]);
       if(live){
        setPaymentStatus(orders.data?.status??null);setPaymentIsLive(orders.data?.livemode===true);
+        setAmountPaidCents(orders.data?.amount_cents==null?null:Number(orders.data.amount_cents));
        setCreditApplied(credits.data?.status==='applied');
       }
     };
@@ -145,7 +147,7 @@ export function BookingConfirmation({
           <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" aria-hidden />
             <div><span className="block text-[11px] font-medium text-slate-500">{creditApplied?'Coberto pelo plano de horas':paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor da reserva — pagamento não confirmado'}</span>
-              <strong className="mt-0.5 block text-sm text-navy-900">{currency(booking.totalPrice)}</strong>
+              <strong className="mt-0.5 block text-sm text-navy-900">{currency(paymentStatus==='paid'&&paymentIsLive&&amountPaidCents!==null?amountPaidCents/100:booking.totalPrice)}</strong>
             </div>
           </div>
         </div>
@@ -180,7 +182,7 @@ export function BookingConfirmation({
     {booking.status==='confirmada'&&!financiallyConfirmed&&paymentStatus!=='paid'&&<section aria-label="Pagamento da reserva" className="rounded-2xl border border-slate-200 bg-white p-5">
       <h3 className="mb-2 text-sm font-bold text-navy-900">Concluir pagamento da reserva</h3>
       <p className="mb-4 text-xs leading-relaxed text-slate-600">
-        Pague a reserva com cartão pelo Stripe. {space.isMvaHeadquarters?'A MVA receberá diretamente.':'O pagamento a coworking parceiro só será disponibilizado após a conexão Stripe Connect desse responsável.'}
+        Pague a reserva pelo Stripe. {space.isMvaHeadquarters?'A MVA receberá diretamente. Descontos de 5% ou 10% dos planos fiscais elegíveis serão calculados antes da cobrança nas salas de reunião; adicionais não entram no desconto.':'O pagamento a coworking parceiro depende da conexão Stripe Connect desse responsável.'}
       </p>
       {eligibleForCredit&&creditMinutes>=booking.durationHours*60&&<div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
        <p className="mb-2 text-xs font-semibold text-emerald-900">Seu plano possui {(creditMinutes/60).toLocaleString('pt-BR')} horas disponíveis.</p>

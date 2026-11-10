@@ -23,7 +23,7 @@ export function CertificateDialog({ onClose, onChoosePlan }: { onClose: () => vo
   if(!currentUser){setChecking(false);return}
   void supabase.from('fiscal_contracts').select('*')
    .eq('user_id',currentUser.id).eq('status','ativo').eq('payment_status','paid')
-   .eq('payment_is_live',true).in('plan_id',['fiscal','fiscal_ie'])
+   .eq('payment_is_live',true).in('plan_id',['fiscal','fiscal_ie','mva_essencial','mva_profissional','mva_excellence'])
    .gte('renewal_date',new Date().toISOString().slice(0,10))
    .order('created_at',{ascending:false}).limit(1).maybeSingle()
    .then(({data,error})=>{
