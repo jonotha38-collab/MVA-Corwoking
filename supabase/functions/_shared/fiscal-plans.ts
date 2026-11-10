@@ -6,9 +6,9 @@ export const FISCAL_PLANS = {
   fiscal_ie: { id:'fiscal_ie',name:'Endereço Fiscal com Inscrição Estadual',monthlyCents:12000,fiscal:true,meetingHours:2,roomDiscountPercent:0,accountantConsultations:0,annualDiscountPercent:0 },
 
   // New MVA-branded fiscal-address plans (amounts are mirrored from DB catalog).
-  mva_essencial: { id:'mva_essencial',name:'MVA Essencial',monthlyCents:7990,fiscal:true,meetingHours:0,roomDiscountPercent:0,accountantConsultations:0,annualDiscountPercent:10 },
-  mva_profissional: { id:'mva_profissional',name:'MVA Profissional',monthlyCents:9190,fiscal:true,meetingHours:0,roomDiscountPercent:5,accountantConsultations:0,annualDiscountPercent:10 },
-  mva_excellence: { id:'mva_excellence',name:'MVA Excellence',monthlyCents:10300,fiscal:true,meetingHours:2,roomDiscountPercent:10,accountantConsultations:1,annualDiscountPercent:10 },
+  mva_essencial: { id:'mva_essencial',name:'MVA Essencial',monthlyCents:8500,fiscal:true,meetingHours:0,roomDiscountPercent:0,accountantConsultations:0,annualDiscountPercent:10 },
+  mva_profissional: { id:'mva_profissional',name:'MVA Profissional',monthlyCents:9500,fiscal:true,meetingHours:0,roomDiscountPercent:5,accountantConsultations:0,annualDiscountPercent:10 },
+  mva_excellence: { id:'mva_excellence',name:'MVA Excellence',monthlyCents:11000,fiscal:true,meetingHours:2,roomDiscountPercent:10,accountantConsultations:1,annualDiscountPercent:10 },
 } as const;
 export type FiscalPlanId = keyof typeof FISCAL_PLANS;
 export type FiscalPlan = typeof FISCAL_PLANS[FiscalPlanId];
