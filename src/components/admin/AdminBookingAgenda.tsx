@@ -185,7 +185,7 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
           <div>
             <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.15em] text-orange-700">
-              <CalendarDays className="h-4 w-4" /> Controle de ocupação
+              <CalendarDays className="h-4 w-4" /> {mode==='history'?'Arquivo de reservas':'Controle de ocupação'}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-navy-950">{mode==='history'?'Histórico de agendamentos':'Agenda de reservas'}</h2>
             <p className="mt-1 max-w-xl text-sm text-slate-600">{mode==='history'
@@ -194,10 +194,10 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
           </div>
           <button type="button" onClick={() => void load()} disabled={loading || refreshing}
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-navy-900 transition-colors hover:bg-slate-50 disabled:opacity-60">
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} /> Atualizar agenda
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} /> {mode==='history'?'Atualizar histórico':'Atualizar agenda'}
           </button>
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {mode==='agenda' ? <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[
             { label: 'Hoje', value: todayCount, icon: Clock3 },
             { label: 'Próximas reservas', value: futureCount, icon: CalendarDays },
@@ -211,17 +211,19 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
               <strong className="mt-2 block text-2xl font-bold tabular-nums text-navy-950">{value}</strong>
             </div>
           ))}
-        </div>
+        </div> : <p className="mt-6 inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700">
+          {historyCount} {historyCount===1?'agendamento no histórico':'agendamentos no histórico'}
+        </p>}
       </div>
 
-      {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && deliveriesPending > 0 && <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+      {mode==='agenda' && BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && deliveriesPending > 0 && <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
         <strong>Integrações em processamento:</strong> {deliveriesPending} entrega(s) de e-mail ou Google Agenda pendente(s).
         Se persistirem, confira a configuração do Google e do provedor de e-mails no Supabase.
       </div>}
 
-      {!BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && <p role="status" className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-xs text-slate-600"><strong>E-mail e Google Agenda temporariamente pausados.</strong> A agenda interna e as reservas continuam funcionando normalmente.</p>}
+      {mode==='agenda' && !BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && <p role="status" className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-xs text-slate-600"><strong>E-mail e Google Agenda temporariamente pausados.</strong> A agenda interna e as reservas continuam funcionando normalmente.</p>}
 
-      <section aria-label="Notificações dos agendamentos" className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      {mode==='agenda' && <section aria-label="Notificações dos agendamentos" className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
           <h3 className="flex items-center gap-2 text-sm font-bold text-navy-900">
             <Bell className="h-4 w-4 text-orange-600" /> Novos agendamentos
@@ -248,7 +250,7 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
             </div>;
           }) : <p className="px-5 py-5 text-xs text-slate-500">Nenhum aviso pendente. Novas reservas e cancelamentos aparecerão aqui.</p>}
         </div>
-      </section>
+      </section>}
 
       <div className="rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="grid gap-3 border-b border-slate-100 p-5 lg:grid-cols-[1fr_auto_auto_auto]">
@@ -259,14 +261,21 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
               placeholder="Buscar pessoa, empresa ou sala…"
               className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100" />
           </label>
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-            <Filter className="h-4 w-4" />
-            <span className="sr-only">Período</span>
-            <select value={scope} onChange={e => setScope(e.target.value as typeof scope)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-800">
-              <option value="upcoming">Próximos</option><option value="day">Por data</option><option value="all">Histórico</option>
-            </select>
-          </label>
+          {mode==='history'
+            ? <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <Filter className="h-4 w-4" aria-hidden="true" />
+                <span>Filtrar por data</span>
+                <input type="date" aria-label="Data no histórico" value={historyDate} onChange={e=>setHistoryDate(e.target.value)}
+                  className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-800" />
+              </label>
+            : <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <Filter className="h-4 w-4" aria-hidden="true" />
+                <span className="sr-only">Período</span>
+                <select value={scope} onChange={e => setScope(e.target.value as AgendaScope)}
+                  className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-800">
+                  <option value="upcoming">Próximos</option><option value="day">Por data</option><option value="history">Histórico</option>
+                </select>
+              </label>}
           {scope === 'day' && <input type="date" aria-label="Data da agenda" value={date} onChange={e => setDate(e.target.value)}
             className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-800" />}
           <select value={type} onChange={e => setType(e.target.value as typeof type)} aria-label="Tipo de espaço"
@@ -327,7 +336,7 @@ export function AdminBookingAgenda({ mode = 'agenda' }: { mode?: AdminAgendaMode
               </article>,
             )}</div>}
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
-          <span>Exibindo {filtered.length} agendamento(s) · Somente administradores</span>
+          <span>Exibindo {filtered.length} {mode==='history'?'registro(s) do histórico':'agendamento(s)'} · Somente administradores</span>
           <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5" /> Atualização a cada 30 segundos</span>
         </div>
       </div>
