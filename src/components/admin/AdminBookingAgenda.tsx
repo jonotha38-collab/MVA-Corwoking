@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabase';
 import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
 import { isAdmin } from '../../lib/auth';
 import { rowToBooking } from '../../lib/mappers';
+import { isBookingUpcoming, mvaLocalDateTime, useBookingClock } from '../../lib/booking-visibility';
 import { useCoworking } from '../../context/CoworkingContext';
 import type { Booking } from '../../types';
 
@@ -36,6 +37,7 @@ const actionLabel = (notice: NoticeRow) =>
 export function AdminBookingAgenda() {
   const { currentUser, checkInBooking, showToast } = useCoworking();
   const [items, setItems] = useState<AgendaItem[]>([]);
+  const clock = useBookingClock();
   const [notices, setNotices] = useState<NoticeRow[]>([]);
   const [readIds, setReadIds] = useState<Set<number>>(new Set());
   const [deliveryStates, setDeliveryStates] = useState<Record<string,string>>({});
@@ -134,19 +136,26 @@ export function AdminBookingAgenda() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLocaleLowerCase('pt-BR');
-    const today = localToday();
+    const today = mvaLocalDateTime(clock).slice(0,10);
     return items.filter(item => {
       if (scope === 'day' && item.date !== date) return false;
-      if (scope === 'upcoming' && (item.date < today || item.status === 'cancelada')) return false;
+      if (scope === 'upcoming' && (item.status === 'cancelada'
+        || (item.type === 'commercial'
+          ? !item.booking || !isBookingUpcoming(item.booking,clock)
+          : item.date < today))) return false;
       if (type !== 'all' && item.type !== type) return false;
       if (!q) return true;
       return [item.name, item.email, item.phone, item.company, item.room, item.location, item.id]
         .some(value => value.toLocaleLowerCase('pt-BR').includes(q));
     });
-  }, [items, scope, date, type, search]);
+  }, [items, scope, date, type, search, clock]);
   const unread = notices.filter(n => !readIds.has(n.id));
-  const todayCount = items.filter(i => i.date === localToday() && i.status !== 'cancelada').length;
-  const futureCount = items.filter(i => i.date >= localToday() && i.status !== 'cancelada').length;
+  const todayCount = items.filter(i => i.date === mvaLocalDateTime(clock).slice(0,10)
+    && i.status !== 'cancelada'
+    && (i.type !== 'commercial' || (i.booking && isBookingUpcoming(i.booking,clock)))).length;
+  const futureCount = items.filter(i => i.status !== 'cancelada'
+    && (i.type === 'commercial' ? !!i.booking && isBookingUpcoming(i.booking,clock)
+      : i.date >= mvaLocalDateTime(clock).slice(0,10))).length;
   const deliveriesPending = Object.values(deliveryStates).filter(
     status => status === 'pending' || status === 'failed' || status === 'processing'
   ).length;
@@ -186,7 +195,7 @@ export function AdminBookingAgenda() {
           {[
             { label: 'Hoje', value: todayCount, icon: Clock3 },
             { label: 'Próximas reservas', value: futureCount, icon: CalendarDays },
-            { label: 'Salas internas', value: items.filter(i => i.type === 'intern' && i.status !== 'cancelada' && i.date >= localToday()).length, icon: Users },
+            { label: 'Salas internas', value: items.filter(i => i.type === 'intern' && i.status !== 'cancelada' && i.date >= mvaLocalDateTime(clock).slice(0,10)).length, icon: Users },
             { label: 'Avisos não lidos', value: unread.length, icon: Bell },
           ].map(({ label, value, icon: Icon }) => (
             <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -290,7 +299,9 @@ export function AdminBookingAgenda() {
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                   {item.status === 'cancelada'
                     ? <span className="inline-flex items-center gap-1 rounded-lg bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-700"><XCircle className="h-3.5 w-3.5" />Cancelada</span>
-                    : <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" />{item.checkIn ? 'Check-in feito' : 'Confirmada'}</span>}
+                    : item.type==='commercial' && item.booking && !isBookingUpcoming(item.booking,clock)
+                      ? <span className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-slate-700"><CheckCircle2 className="h-3.5 w-3.5" />Encerrada</span>
+                      : <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" />{item.checkIn ? 'Check-in feito' : 'Confirmada'}</span>}
                   {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && (['email','calendar'] as const).map(channel => {
                     const action = item.status === 'cancelada' ? 'canceled' : 'created';
                     const status = deliveryStates[`${item.type}:${item.id}:${action}:${channel}`];
@@ -301,7 +312,7 @@ export function AdminBookingAgenda() {
                       {channel === 'email' ? 'E-mail' : 'Google Agenda'}: {ok ? 'Enviado' : status === 'failed' ? 'Falhou' : 'Pendente'}
                     </span>;
                   })}
-                  {item.type === 'commercial' && item.status === 'confirmada' && !item.checkIn &&
+                  {item.type === 'commercial' && item.booking && isBookingUpcoming(item.booking,clock) && !item.checkIn &&
                     <button type="button" onClick={() => void checkInBooking(item.id).then(() => load())}
                       className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-navy-900 hover:bg-slate-100">
                       Check-in
