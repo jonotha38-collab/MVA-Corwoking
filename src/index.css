@@ -441,3 +441,23 @@ header nav[aria-label] button { flex-shrink:0; }
 @media print {
   .mva-contact-shortcuts { display: none !important; }
 }
+
+/* Footer contact actions use the same distinct hover treatments as shortcuts. */
+.mva-footer-whatsapp:hover {
+  background-color: #126b41;
+  border-color: #64d9a0;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+.mva-footer-email:hover {
+  background-color: #b84613;
+  border-color: #ffad78;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mva-footer-whatsapp:hover,
+  .mva-footer-email:hover { transform: none; }
+}
+:root[data-a11y-motion="true"] .mva-footer-whatsapp:hover,
+:root[data-a11y-motion="true"] .mva-footer-email:hover { transform: none; }
