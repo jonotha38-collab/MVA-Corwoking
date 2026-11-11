@@ -10,7 +10,6 @@ import { AdminBookingBadge } from './components/admin/AdminBookingBadge'
 import { Footer } from './components/common/Footer'
 import { ToastContainer } from './components/common/ToastContainer'
 import { AccessibilityPanel } from './components/common/AccessibilityPanel'
-import { WhatsAppContact } from './components/common/WhatsAppContact'
 import { AuthModal } from './components/auth/AuthModal'
 import { HomeView } from './components/home/HomeView'
 import { FiscalVerificationView } from './components/fiscal/FiscalVerificationView'
@@ -152,7 +151,6 @@ export default function App() {
       <AuthModal />
       <ToastContainer />
       <AccessibilityPanel />
-      <WhatsAppContact />
       <CookieBanner />
     </div>
   )
