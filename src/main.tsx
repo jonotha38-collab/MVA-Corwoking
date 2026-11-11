@@ -5,6 +5,7 @@ import { CoworkingProvider } from './context/CoworkingContext.tsx'
 import './index.css'
 import './theme.css'
 import './home.css'
+import './glass.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
