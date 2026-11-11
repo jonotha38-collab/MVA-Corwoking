@@ -9,6 +9,7 @@ import { Navbar } from './components/common/Navbar'
 import { AdminBookingBadge } from './components/admin/AdminBookingBadge'
 import { Footer } from './components/common/Footer'
 import { ToastContainer } from './components/common/ToastContainer'
+import { AccessibilityPanel } from './components/common/AccessibilityPanel'
 import { AuthModal } from './components/auth/AuthModal'
 import { HomeView } from './components/home/HomeView'
 import { FiscalVerificationView } from './components/fiscal/FiscalVerificationView'
@@ -149,6 +150,7 @@ export default function App() {
       <Footer />
       <AuthModal />
       <ToastContainer />
+      <AccessibilityPanel />
       <CookieBanner />
     </div>
   )
