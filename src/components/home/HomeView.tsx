@@ -6,6 +6,7 @@ import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
 import heroOffice from '../../assets/hero-office.jpg';
 import { getMvaWhatsAppUrl } from '../../lib/whatsapp';
+import { GlassyContactLink } from '../ui/GlassyContactLink';
 
 const copy = {
  pt: {
@@ -186,6 +187,24 @@ export function HomeView() {
    <div>{e.faqs.map(([q,a])=><details key={q}><summary>{q}<ChevronDown size={19} aria-hidden="true"/></summary><p>{a}</p></details>)}</div>
   </section>
 
-  <section className="home-contact home-section" aria-labelledby="home-contact-title"><div><p className="home-kicker">{e.contactLabel}</p><h2 id="home-contact-title">{c.contactTitle}</h2><p>{c.contactBody}</p></div><div className="home-contact-actions"><a href={getMvaWhatsAppUrl(language)} target="_blank" rel="noopener noreferrer" className="home-button home-button-light home-whatsapp-action" aria-label={c.contactCta}><MessageCircle size={18} aria-hidden="true"/>{c.contactCta}<ArrowUpRight size={18} aria-hidden="true"/></a><a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="home-button home-email-action" aria-label={e.contactSecondary}><Mail size={18} aria-hidden="true"/>{e.contactSecondary}<ArrowUpRight size={18} aria-hidden="true"/></a></div></section>
+  <section className="home-contact home-section" aria-labelledby="home-contact-title">
+   <div>
+    <p className="home-kicker">{e.contactLabel}</p>
+    <h2 id="home-contact-title">{c.contactTitle}</h2>
+    <p>{c.contactBody}</p>
+   </div>
+   <div className="home-contact-actions">
+    <GlassyContactLink href={getMvaWhatsAppUrl(language)} newTab variant="whatsapp" label={c.contactCta}>
+     <MessageCircle size={19} aria-hidden="true"/>
+     <span className="mva-contact-glassy__label">{c.contactCta}</span>
+     <ArrowUpRight size={18} aria-hidden="true"/>
+    </GlassyContactLink>
+    <GlassyContactLink href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" variant="email" label={e.contactSecondary}>
+     <Mail size={19} aria-hidden="true"/>
+     <span className="mva-contact-glassy__label">{e.contactSecondary}</span>
+     <ArrowUpRight size={18} aria-hidden="true"/>
+    </GlassyContactLink>
+   </div>
+  </section>
  </div>;
 }
