@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { X, AlertCircle, MailCheck } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInEmail, signInGoogle, signUpEmail } from '../../lib/auth';
+import { MvaLogo } from '../common/MvaLogo';
 import { BlurReveal } from '../ui/BlurReveal';
 import { LabelInput } from '../ui/LabelInput';
 
@@ -101,7 +102,7 @@ export const AuthModal: React.FC = () => {
           </button>
           
           <div className="flex items-center gap-2 mb-2">
-            <img src="/logo-orange.png" alt={t("MVA")} className="h-6 w-auto" />
+            <MvaLogo tone="surface" label={t("MVA")} className="h-6 w-auto" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">{t("Coworking Hub ")}</span>
           </div>
 

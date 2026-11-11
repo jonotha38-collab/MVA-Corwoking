@@ -3,6 +3,7 @@ import { t } from '../../lib/preferences';
 import React, { useEffect, useState, useRef } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInGoogle, signOut } from '../../lib/auth';
+import { MvaLogo } from './MvaLogo';
 import { Preferences } from './Preferences';
 import { ShieldCheck, ClipboardList, Mail, LogOut, User, ChevronDown, Search, Briefcase, DoorOpen, ArrowLeftRight, House } from 'lucide-react';
 
@@ -81,7 +82,7 @@ export const Navbar: React.FC = () => {
         <div className="relative z-20 mx-auto flex h-16 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:h-20 sm:gap-4 sm:px-6 lg:px-8">
           {/* Logo & Brand */}
           <button onClick={() => setActiveTab('home')} className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3" aria-label={t("MVA Coworking Hub - página inicial")}>
-            <img src="/logo.png" alt={t("MVA")} className="block h-7 w-auto max-w-[88px] object-contain sm:h-8 sm:max-w-[112px] lg:max-w-[128px]" />
+            <MvaLogo className="block h-auto w-[88px] sm:w-[104px]" />
             <span className="hidden h-7 w-px bg-navy-700 sm:block" />
             <span className="hidden min-w-0 text-left leading-tight md:block">
               <span className="block whitespace-nowrap text-sm font-bold text-slate-100 lg:text-base">{t("Coworking Hub ")}</span>

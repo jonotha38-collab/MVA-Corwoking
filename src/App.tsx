@@ -1,5 +1,5 @@
 import { t } from './lib/preferences';
-import { lazy, Suspense, useEffect, useRef } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import { useCoworking } from './context/CoworkingContext'
 import { finishGoogleCalendarConnection, pendingCalendarConnection } from './lib/google-calendar'
@@ -9,7 +9,8 @@ import { Navbar } from './components/common/Navbar'
 import { AdminBookingBadge } from './components/admin/AdminBookingBadge'
 import { Footer } from './components/common/Footer'
 import { ToastContainer } from './components/common/ToastContainer'
-import { AccessibilityPanel } from './components/common/AccessibilityPanel'
+import { MvaLogo, MVA_INTRO_MS } from './components/common/MvaLogo'
+import { AccessibilityPanel, readAccessibilitySettings } from './components/common/AccessibilityPanel'
 import { AuthModal } from './components/auth/AuthModal'
 import { HomeView } from './components/home/HomeView'
 import { FiscalVerificationView } from './components/fiscal/FiscalVerificationView'
@@ -34,10 +35,27 @@ import { usePreferences } from './lib/preferences';
 export default function App() {
   usePreferences();
   const { ready, activeTab, setActiveTab, currentUser, internAuthorized, setAuthModalOpen, setAuthModalTab, spaces, bookings, showToast } = useCoworking()
+  const [playIntro, setPlayIntro] = useState(() =>
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !readAccessibilitySettings().reduceMotion
+  )
   const calendarProcessing = useRef(false)
   const pending = spaces.filter(s => s.approval === 'pendente').length
   const admin = isAdmin(currentUser)
   const blocked = ready && PRIVATE.includes(activeTab) && (!currentUser || (activeTab === 'admin' && !admin) || (activeTab === 'owner-dashboard' && !admin) || (activeTab === 'intern-rooms' && !internAuthorized))
+
+  useEffect(() => {
+    if (!playIntro) return
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const onMotionChange = (event: MediaQueryListEvent) => {
+      if (event.matches) setPlayIntro(false)
+    }
+    const timer = window.setTimeout(() => setPlayIntro(false), MVA_INTRO_MS)
+    motionPreference.addEventListener('change', onMotionChange)
+    return () => {
+      window.clearTimeout(timer)
+      motionPreference.removeEventListener('change', onMotionChange)
+    }
+  }, [playIntro])
 
   useEffect(() => {
     if (blocked) {
@@ -107,10 +125,10 @@ export default function App() {
 
   const verificationCode = new URLSearchParams(window.location.search).get('verify_fiscal');
 
-  if (!ready) {
+  if (!ready || playIntro) {
     return (
       <div className="grid min-h-dvh place-items-center bg-navy-950" role="status" aria-label={t("Carregando")}>
-        <img src="/logo.png" alt={t("MVA")} className="h-10 w-auto animate-pulse" />
+        <MvaLogo animated={playIntro} className="h-auto w-[min(56vw,14rem)]" />
       </div>
     );
   }

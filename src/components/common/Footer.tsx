@@ -2,6 +2,7 @@
 import { t, usePreferences } from '../../lib/preferences';
 import { getMvaWhatsAppDisplay, getMvaWhatsAppUrl } from '../../lib/whatsapp';
 import React from 'react';
+import { MvaLogo } from './MvaLogo';
 import { ShieldCheck, Mail, MessageCircle, MapPin, Building2 } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 
@@ -22,11 +23,7 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="min-w-0 space-y-3">
             <div className="flex min-w-0 flex-wrap items-center gap-2.5 text-white">
-              <img
-                src="/logo.png"
-                alt={t("MVA")}
-                className="h-8 w-auto sm:h-10"
-              />
+              <MvaLogo label={t("MVA")} className="h-8 w-auto sm:h-10" />
               <span className="font-bold text-base tracking-tight text-slate-100">
                 {t("Coworking Hub ")}
               </span>

@@ -1,0 +1,76 @@
+.mva-logo {
+  flex-shrink: 0;
+}
+
+.mva-logo--inverse {
+  fill: #fff;
+  --mva-logo-accent: #ffad78;
+}
+
+.mva-logo--surface {
+  fill: var(--ink);
+  --mva-logo-accent: var(--accent);
+}
+
+.mva-logo__slash {
+  fill: var(--mva-logo-accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mva-logo--animated .mva-logo__m {
+    animation: mva-logo-fold var(--mva-intro-duration) cubic-bezier(.45, 0, .24, 1) both;
+  }
+
+  .mva-logo--animated :is(.mva-logo__v, .mva-logo__a, .mva-logo__slash) {
+    animation: mva-logo-slide calc(var(--mva-intro-duration) - 56ms) cubic-bezier(.42, 0, .22, 1) var(--mva-logo-stagger) both;
+  }
+
+  .mva-logo--animated .mva-logo__slash {
+    animation-name: mva-logo-slide, mva-logo-draw;
+  }
+
+  .mva-logo--animated .mva-logo__a {
+    animation-name: mva-logo-slide, mva-logo-a-opacity;
+  }
+
+  .mva-logo__v {
+    --mva-logo-fold-x: 4px;
+    --mva-logo-stagger: 0ms;
+  }
+
+  .mva-logo__slash--first {
+    --mva-logo-fold-x: -33px;
+    --mva-logo-stagger: 20ms;
+  }
+
+  .mva-logo__slash--second {
+    --mva-logo-fold-x: -56px;
+    --mva-logo-stagger: 38ms;
+  }
+
+  .mva-logo__a {
+    --mva-logo-fold-x: -95px;
+    --mva-logo-stagger: 56ms;
+  }
+
+  @keyframes mva-logo-fold {
+    0%, 4%, 94%, 100% { transform: translateX(0); }
+    35%, 47% { transform: translateX(92.5px); }
+  }
+
+  @keyframes mva-logo-slide {
+    0%, 3%, 92%, 100% { transform: translateX(0); opacity: 1; }
+    36%, 50% { transform: translateX(var(--mva-logo-fold-x)); opacity: 0; }
+    72% { opacity: 1; }
+  }
+
+  @keyframes mva-logo-a-opacity {
+    0%, 4%, 81%, 100% { opacity: 1; }
+    34%, 65% { opacity: 0; }
+  }
+
+  @keyframes mva-logo-draw {
+    0%, 20%, 88%, 100% { clip-path: inset(0); }
+    38%, 63% { clip-path: inset(100% 0 0); }
+  }
+}

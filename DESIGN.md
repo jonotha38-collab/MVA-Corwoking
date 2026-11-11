@@ -102,6 +102,13 @@ focus. The FAQ keeps its native disclosure and adds a brief answer entrance.
 `src/home.css` owns the timing and easing. Reduced motion removes the entrances,
 zoom and arrow movement. All content is readable before scroll detection runs.
 
+A assinatura MVA usa contornos vetoriais com altura e peso consistentes e dois
+traços cobre entre o V e o A. O componente `MvaLogo` é a fonte do desenho.
+Na abertura, os traços se recolhem no M e voltam a formar a marca em 860 ms,
+em paralelo à inicialização. Em carregamentos mais longos, a marca completa
+permanece estática. A preferência de reduzir movimento exibe a marca estática
+desde o início e dispensa a duração mínima da apresentação.
+
 ## Shapes
 
 20px panels, 10px controls. Only the hero photograph has an asymmetric lower

@@ -5,7 +5,7 @@ import { usePreferences } from '../../lib/preferences';
 type Settings = { scale: number; contrast: boolean; underline: boolean; reduceMotion: boolean };
 const defaults: Settings = { scale: 100, contrast: false, underline: false, reduceMotion: false };
 const key = 'mva-accessibility-v1';
-function load(): Settings {
+export function readAccessibilitySettings(): Settings {
   try {
     const data = JSON.parse(localStorage.getItem(key) || '{}') as Partial<Settings>;
     return {
@@ -18,7 +18,7 @@ function load(): Settings {
 }
 export function AccessibilityPanel() {
   const { language } = usePreferences();
-  const [settings, setSettings] = useState<Settings>(load);
+  const [settings, setSettings] = useState<Settings>(readAccessibilitySettings);
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);

@@ -5,6 +5,7 @@ import { usePreferences } from '../../lib/preferences';
 import { getPlan, quotePlan, money, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
 import { supabase } from '../../lib/supabase';
 import { matchesFiscalApplication } from '../../lib/fiscal-application-flow';
+import { MvaLogo } from '../common/MvaLogo';
 import { Dialog } from '../ui/Dialog';
 import { StripeCheckoutAction } from './StripeCheckoutAction';
 import { FiscalApplicantForm, FiscalMissingDocuments, type CreatedFiscalApplication } from '../fiscal/FiscalApplicantForm';
@@ -57,7 +58,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
  const startLogin=()=>{setAuthModalTab('login');setAuthModalOpen(true)};
  return <Dialog titleId="mva-fiscal-checkout-title" onClose={onClose} className="checkout-wide">
   <header className="checkout-heading">
-    <div className="checkout-brand"><img src="/logo.png" alt="MVA Coworking"/><span>Contratação de endereço</span></div>
+    <div className="checkout-brand"><MvaLogo label="MVA Coworking" className="h-auto w-[66px] md:w-[83px]" /><span>Contratação de endereço</span></div>
     <button type="button" aria-label="Fechar checkout" className="checkout-close" onClick={onClose}><X size={20}/></button>
   </header>
   <div className="checkout-layout">
