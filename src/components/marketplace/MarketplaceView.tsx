@@ -94,7 +94,7 @@ export const MarketplaceView: React.FC = () => {
   const field = 'w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-navy-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30';
 
   return (
-    <div className="space-y-16 pb-8">
+    <div className="space-y-16 pb-8 mva-glass-marketplace">
       {/* Hero com busca */}
       <section 
         className="hero-shell relative overflow-hidden bg-navy-950 px-6 py-10 text-white sm:px-12 sm:py-16"
@@ -115,7 +115,7 @@ export const MarketplaceView: React.FC = () => {
           <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados. ")}</p>
         </div>
         
-        <form onSubmit={search} className="relative z-10 mt-10 grid gap-3 rounded-2xl bg-white p-3 shadow-2xl md:grid-cols-12" role="search">
+        <form onSubmit={search} className="mva-glass-search relative z-10 mt-10 grid gap-3 rounded-2xl bg-white p-3 shadow-2xl md:grid-cols-12" role="search">
           <div className="relative md:col-span-4"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t("Nome, bairro ou comodidade")} aria-label={t("Buscar espaços")} className={field} /></div>
           <div className="relative md:col-span-3"><MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} aria-label={t("Cidade")} className={field}>{cities.map(c => <option key={c} value={c}>{t(c === 'Todas' ? 'Todas as cidades' : c)}</option>)}</select></div>
           <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label={t("Capacidade")} className={field}><option value="all">{t("Qualquer capacidade ")}</option><option value="small">{t("Até 4 pessoas ")}</option><option value="medium">{t("5 a 10 pessoas ")}</option><option value="large">{t("Mais de 10 pessoas ")}</option></select></div>
@@ -144,7 +144,7 @@ export const MarketplaceView: React.FC = () => {
             </select>
           </div>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-2" role="group" aria-label={t("Tipo de espaço")}>
+        <div className="mva-glass-filter-strip mt-4 flex gap-2 overflow-x-auto pb-2" role="group" aria-label={t("Tipo de espaço")}>
           {CATEGORIES.map(c => (
             <button key={c.id} type="button" aria-pressed={selectedCategory === c.id} onClick={() => setSelectedCategory(c.id)}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${selectedCategory === c.id ? 'bg-navy-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-navy-900'}`}>
@@ -157,7 +157,7 @@ export const MarketplaceView: React.FC = () => {
             {filtered.map((s, index) => <Reveal key={s.id} delay={Math.min(index, 3) * 0.06} className="flex"><SpaceCard space={s} onSelect={openDetail} onBook={setBooking} /></Reveal>)}
           </div>
         ) : (
-          <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <div className="mva-glass-empty mt-6 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
             <Filter className="mx-auto h-8 w-8 text-orange-500" aria-hidden />
             <h3 className="mt-3 text-lg font-bold text-navy-900">{t("Nenhum espaço encontrado ")}</h3>
             <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">{t("Altere a cidade, o tipo de sala ou a busca para ver mais opções. ")}</p>
@@ -172,7 +172,7 @@ export const MarketplaceView: React.FC = () => {
         <h2 id="como" className="text-2xl font-bold text-navy-900">{t("Como funciona ")}</h2>
         <ol className="mt-6 grid gap-6 md:grid-cols-3">
           {STEPS.map((s, i) => (
-            <li key={s.title} className="rounded-2xl border border-slate-200 bg-white p-6">
+            <li key={s.title} className="mva-glass-step-card rounded-2xl border border-slate-200 bg-white p-6">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-500 text-sm font-bold text-white">{i + 1}</span>
               <h3 className="mt-4 font-bold text-navy-900">{t(s.title)}</h3>
               <p className="mt-1 text-sm leading-relaxed text-slate-500">{t(s.text)}</p>
@@ -188,7 +188,7 @@ export const MarketplaceView: React.FC = () => {
           { icon: Building2, title: 'Endereço fiscal', text: 'Conheça os planos de endereço fiscal, com análise cadastral e viabilidade municipal antes da contratação.', tab: 'fiscal', cta: 'Contratar endereço fiscal' },
           { icon: Mail, title: 'Recebimento de correspondência', text: 'Acompanhe recebimentos no painel e solicite digitalização conforme disponibilidade e autorização.', tab: 'correspondence', cta: 'Ver correspondências' },
         ].map(({ icon: Icon, title, text, tab, cta }) => (
-          <div key={title} className="rounded-2xl bg-navy-950 p-8 text-white">
+          <div key={title} className="mva-glass-dark-panel rounded-2xl bg-navy-950 p-8 text-white">
             <Icon className="h-7 w-7 text-orange-400" aria-hidden />
             <h3 className="mt-4 text-xl font-bold">{t(title)}</h3>
             <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-300">{t(text)}</p>
@@ -201,7 +201,7 @@ export const MarketplaceView: React.FC = () => {
       <section aria-labelledby="faq" className="max-w-3xl">
         <Reveal>
         <h2 id="faq" className="text-2xl font-bold text-navy-900">{t("Perguntas frequentes ")}</h2>
-        <div className="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
+        <div className="mva-glass-faq-panel mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
           {FAQ.map(([q, a]) => (
             <details key={q} className="group px-5 py-4">
               <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-navy-900">{t(q)}<ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" aria-hidden /></summary>
