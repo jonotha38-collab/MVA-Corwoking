@@ -338,3 +338,26 @@ header nav[aria-label] button { flex-shrink:0; }
 /* Tema claro MVA: branco acinzentado nas superfícies de conteúdo.
    Mantém CTAs brancos, contraste da marca e o tema escuro intactos. */
 :root:not([data-theme="dark"]) #root main .bg-white { background-color:var(--surface); }
+
+/* Accessibility preferences — functional, persistent and keyboard-friendly. */
+.mva-accessibility { position:fixed; right:16px; bottom:20px; z-index:70; font-size:14px; }
+.mva-accessibility-trigger { display:flex; align-items:center; gap:8px; min-height:46px; padding:10px 14px; border-radius:999px; background:#172840; color:#fff; border:1px solid #d7dfe7; box-shadow:0 7px 24px #0b13204a; font-weight:650; }
+.mva-accessibility-trigger:hover { background:#263e5b; }
+.mva-accessibility-panel { position:absolute; right:0; bottom:calc(100% + 10px); width:min(340px,calc(100vw - 24px)); max-height:min(70dvh,540px); overflow:auto; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 18px 60px #07162938; }
+.mva-accessibility-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; font-size:15px; }
+.mva-accessibility-heading button,.mva-accessibility-text-size button { display:grid; place-items:center; min-width:44px; min-height:44px; border:1px solid var(--line); border-radius:10px; }
+.mva-accessibility-text-size { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+.mva-accessibility-text-size>div { display:flex; gap:8px; }
+.mva-accessibility-text-size button:disabled { opacity:.35; cursor:not-allowed; }
+.mva-accessibility-option { display:flex; justify-content:space-between; align-items:center; gap:12px; text-align:left; min-height:48px; width:100%; padding:10px 4px; border-top:1px solid var(--line); }
+.mva-accessibility-state { color:var(--muted); white-space:nowrap; font-size:12px; }
+.mva-accessibility-option[aria-pressed="true"] .mva-accessibility-state { color:var(--accent); font-weight:700; }
+.mva-accessibility-reset { display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; width:100%; margin-top:12px; border-radius:10px; border:1px solid var(--line); font-weight:600; }
+:root[data-a11y-links="true"] a:not([class*="btn"]):not(.action-primary) { text-decoration:underline !important; text-underline-offset:3px; }
+:root[data-a11y-motion="true"] *, :root[data-a11y-motion="true"] *::before, :root[data-a11y-motion="true"] *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+:root[data-a11y-contrast="true"] { --page:#fff; --surface:#fff; --soft:#e8edf3; --ink:#081526; --muted:#263b50; --line:#64748b; }
+:root[data-theme="dark"][data-a11y-contrast="true"] { --page:#000; --surface:#07111e; --soft:#122236; --ink:#fff; --muted:#e0e9f4; --line:#b2bfd0; }
+:root[data-a11y-contrast="true"] :is(a,button,input,select,textarea):focus-visible, :is(a,button,input,select,textarea):focus-visible { outline:3px solid #f97316 !important; outline-offset:3px !important; }
+@media (max-width:1023px) { .mva-accessibility { bottom:calc(76px + env(safe-area-inset-bottom)); right:12px; } .mva-accessibility-trigger { padding:10px 12px; } .mva-accessibility-trigger span { display:none; } }
+@media (max-width:420px) { .mva-accessibility-panel { max-height:55dvh; } }
+@media print { .mva-accessibility { display:none !important; } }
