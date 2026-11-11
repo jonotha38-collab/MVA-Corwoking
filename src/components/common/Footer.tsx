@@ -11,6 +11,7 @@ export const Footer: React.FC = () => {
   const whatsappUrl = getMvaWhatsAppUrl(language);
   const whatsappDisplay = getMvaWhatsAppDisplay();
   const chatLabel = { pt: 'Falar com a equipe pelo WhatsApp', en: 'Chat with our team on WhatsApp', es: 'Hablar con el equipo por WhatsApp' }[language];
+  const emailLabel = { pt: 'Enviar e-mail para a equipe', en: 'Email the MVA team', es: 'Enviar correo al equipo MVA' }[language];
 
   return (
     <footer
@@ -122,7 +123,10 @@ export const Footer: React.FC = () => {
                 <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="min-w-0 break-all underline-offset-2 hover:text-white hover:underline">contato@mvacoworking.com.br</a>
               </div>
             </div>
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label={chatLabel} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border border-orange-400/30 bg-orange-700 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-orange-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"><MessageCircle className="h-4 w-4" aria-hidden="true"/>{chatLabel}</a>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label={chatLabel} className="mva-footer-whatsapp inline-flex min-h-11 items-center gap-2 rounded-xl border border-orange-400/30 bg-orange-700 px-4 py-2.5 text-xs font-bold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"><MessageCircle className="h-4 w-4" aria-hidden="true"/>{chatLabel}</a>
+              <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" aria-label={emailLabel} className="mva-footer-email inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-500 bg-navy-800 px-4 py-2.5 text-xs font-bold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"><Mail className="h-4 w-4" aria-hidden="true"/>{emailLabel}</a>
+            </div>
 
           </div>
         </div>
