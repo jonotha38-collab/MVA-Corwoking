@@ -1,13 +1,16 @@
 /*@ts-check*/
-import { t } from '../../lib/preferences';
+import { t, usePreferences } from '../../lib/preferences';
+import { getMvaWhatsAppDisplay, getMvaWhatsAppUrl } from '../../lib/whatsapp';
 import React from 'react';
-import { ShieldCheck, Mail, Phone, MapPin, Building2 } from 'lucide-react';
+import { ShieldCheck, Mail, MessageCircle, MapPin, Building2 } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 
 export const Footer: React.FC = () => {
   const { setActiveTab } = useCoworking();
-  const whatsappNumber = (import.meta.env.VITE_MVA_WHATSAPP_NUMBER || '').replace(/\D/g, '');
-  const whatsappUrl = /^55\d{10,11}$/.test(whatsappNumber) ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Olá! Gostaria de saber mais sobre a MVA Coworking.')}` : null;
+  const { language } = usePreferences();
+  const whatsappUrl = getMvaWhatsAppUrl(language);
+  const whatsappDisplay = getMvaWhatsAppDisplay();
+  const chatLabel = { pt: 'Falar com a equipe pelo WhatsApp', en: 'Chat with our team on WhatsApp', es: 'Hablar con el equipo por WhatsApp' }[language];
 
   return (
     <footer
@@ -111,15 +114,15 @@ export const Footer: React.FC = () => {
             <p className="text-slate-400 text-xs leading-relaxed">{t("Atendimento comercial: consulte os canais abaixo para confirmar horários e disponibilidade antes de visitar.")}</p>
             <div className="space-y-1 text-slate-300">
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-orange-400" />
-                <a href="tel:+557932145500" className="hover:text-white underline-offset-2 hover:underline" aria-label="Ligar para a sede MVA, (79) 3214-5500">(79) 3214-5500 · Telefone</a>
+                <MessageCircle className="w-3.5 h-3.5 text-orange-400" aria-hidden="true" />
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white underline-offset-2 hover:underline" aria-label={`${chatLabel}: ${whatsappDisplay}`}>{whatsappDisplay} · WhatsApp</a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-orange-400" />
                 <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="min-w-0 break-all underline-offset-2 hover:text-white hover:underline">contato@mvacoworking.com.br</a>
               </div>
             </div>
-            {whatsappUrl && <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#1d573e] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#184833]"><Phone className="h-4 w-4"/> Atendimento pelo WhatsApp</a>}
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label={chatLabel} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border border-orange-400/30 bg-orange-700 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-orange-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"><MessageCircle className="h-4 w-4" aria-hidden="true"/>{chatLabel}</a>
 
           </div>
         </div>
