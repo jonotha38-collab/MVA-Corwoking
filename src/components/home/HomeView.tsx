@@ -122,7 +122,7 @@ export function HomeView() {
  const link = (page: string) => ({href:`?page=${page}`,onClick:(event:MouseEvent<HTMLAnchorElement>)=>navigate(event,page)});
  return <div ref={home} className="mva-home home-redesign">
   <section className="home-hero" aria-labelledby="mva-home-title">
-   <div className="home-hero-copy">
+   <div className="home-hero-copy mva-glass-hero-copy">
     <p className="home-kicker"><span className="home-location-dot"/>{c.eyebrow}</p>
     <h1 id="mva-home-title">{c.line1}<span>{c.line2}</span></h1>
     <p className="home-intro">{c.intro}</p>
@@ -171,16 +171,16 @@ export function HomeView() {
   </section>}
 
   <section className="home-location home-section" aria-labelledby="home-location-title">
-   <div className="home-location-address" data-home-reveal><MapPin size={30} strokeWidth={1.5} aria-hidden="true"/><p className="home-kicker">{c.location}</p><h3>{e.address}</h3><p>{e.neighborhood}</p><a href="https://www.google.com/maps/search/?api=1&query=Rua+Dom+Jos%C3%A9+Thomaz+565+S%C3%A3o+Jos%C3%A9+Aracaju+SE" target="_blank" rel="noopener noreferrer" className="home-location-link">{e.directions}<ArrowUpRight size={18} aria-hidden="true"/></a></div>
-   <div className="home-location-copy"><p className="home-kicker">{e.placeLabel}</p><h2 id="home-location-title">{e.placeTitle}</h2><p>{c.aboutText}</p><ul>{[c.aboutOne,c.aboutTwo,c.aboutThree].map(item=><li key={item}><Check size={18} aria-hidden="true"/>{item}</li>)}</ul></div>
+   <div className="home-location-address mva-glass-navy" data-home-reveal><MapPin size={30} strokeWidth={1.5} aria-hidden="true"/><p className="home-kicker">{c.location}</p><h3>{e.address}</h3><p>{e.neighborhood}</p><a href="https://www.google.com/maps/search/?api=1&query=Rua+Dom+Jos%C3%A9+Thomaz+565+S%C3%A3o+Jos%C3%A9+Aracaju+SE" target="_blank" rel="noopener noreferrer" className="home-location-link">{e.directions}<ArrowUpRight size={18} aria-hidden="true"/></a></div>
+   <div className="home-location-copy mva-glass-info-panel"><p className="home-kicker">{e.placeLabel}</p><h2 id="home-location-title">{e.placeTitle}</h2><p>{c.aboutText}</p><ul>{[c.aboutOne,c.aboutTwo,c.aboutThree].map(item=><li key={item}><Check size={18} aria-hidden="true"/>{item}</li>)}</ul></div>
   </section>
 
-  <section className="home-process home-section" aria-labelledby="home-process-title">
+  <section className="home-process home-section mva-glass-steps" aria-labelledby="home-process-title">
    <div className="home-section-heading"><div><p className="home-kicker">MVA Coworking</p><h2 id="home-process-title">{c.process}</h2></div></div>
    <ol>{[[c.step1,c.step1D],[c.step2,c.step2D],[c.step3,c.step3D]].map(([title,desc],i)=><li key={title}><span className="home-step">0{i+1}</span><div><h3>{title}</h3><p>{desc}</p></div></li>)}</ol>
   </section>
 
-  <section className="home-faq home-section" aria-labelledby="home-faq-title">
+  <section className="home-faq home-section mva-glass-faq" aria-labelledby="home-faq-title">
    <div><p className="home-kicker">{e.faqLabel}</p><h2 id="home-faq-title">{e.faqTitle}</h2></div>
    <div>{e.faqs.map(([q,a])=><details key={q}><summary>{q}<ChevronDown size={19} aria-hidden="true"/></summary><p>{a}</p></details>)}</div>
   </section>
