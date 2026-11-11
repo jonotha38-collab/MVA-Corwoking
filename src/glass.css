@@ -1,0 +1,200 @@
+/**
+ * MVA Coworking | Glass surfaces
+ *
+ * Adapted from the two user-provided references: five CSS custom properties
+ * and the provided glass/glow implementation. Uses ONLY existing MVA navy,
+ * copper and orange tones. Does not modify the brand's canonical color tokens.
+ *
+ * Intentional exclusions: checkout, form fields, dialogs and admin tables
+ * stay opaque to protect contrast, usability and payment flows.
+ */
+:root {
+  /* Five references remapped to the brand's already-used colors. */
+  --c1: #0a192f;  /* MVA blue */
+  --c2: #102840;  /* Home navy */
+  --c3: #172840;  /* Institutional ink */
+  --c4: #b84613;  /* MVA copper */
+  --c5: #ffad78;  /* MVA warm accent */
+  --mva-glass-blur: 14px;
+  --mva-glass-shadow: 0 12px 34px rgb(10 25 47 / .07);
+}
+:root[data-theme="dark"] {
+  --mva-glass-shadow: 0 14px 38px rgb(0 0 0 / .18);
+}
+
+/* Solid-color fallback before progressive transparency. */
+.mva-glass-header,
+.mva-glass-mobile-nav { background-color: #080d1a; }
+.home-redesign :is(.home-service-card,.home-room-card),
+.mva-glass-listing { box-shadow: var(--mva-glass-shadow); }
+.mva-fiscal .mva-glass-surface { box-shadow: var(--mva-glass-shadow); }
+
+/* Brand-only ambient light gives the transparent cards something to refract.
+   It belongs to the public catalog sections, never the entire site body. */
+.home-redesign :is(.home-service-grid,.home-room-grid) {
+  position: relative;
+  isolation: isolate;
+}
+.home-redesign :is(.home-service-grid,.home-room-grid)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  inset: -20px -10px;
+  background:
+    radial-gradient(ellipse at 18% 30%, rgb(184 70 19 / .09), transparent 58%),
+    radial-gradient(ellipse at 86% 75%, rgb(16 40 64 / .08), transparent 62%);
+}
+:root[data-theme="dark"] .home-redesign :is(.home-service-grid,.home-room-grid)::before {
+  background:
+    radial-gradient(ellipse at 18% 30%, rgb(184 70 19 / .11), transparent 58%),
+    radial-gradient(ellipse at 86% 75%, rgb(16 40 64 / .18), transparent 62%);
+}
+
+/* Keep colored status badges, solid CTAs and all input controls unchanged. */
+@supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+  .mva-glass-header,
+  .mva-glass-mobile-nav {
+    background-color: rgb(8 13 26 / .90);
+    backdrop-filter: blur(var(--mva-glass-blur)) saturate(1.06);
+    -webkit-backdrop-filter: blur(var(--mva-glass-blur)) saturate(1.06);
+  }
+
+  .home-redesign :is(.home-service-card,.home-room-card),
+  .mva-glass-listing {
+    background-color: rgb(var(--surface-rgb) / .89);
+    backdrop-filter: blur(var(--mva-glass-blur)) saturate(1.05);
+    -webkit-backdrop-filter: blur(var(--mva-glass-blur)) saturate(1.05);
+    border-color: rgb(var(--line-rgb) / .92);
+  }
+  :root[data-theme="dark"] .home-redesign :is(.home-service-card,.home-room-card),
+  :root[data-theme="dark"] .mva-glass-listing {
+    background-color: rgb(var(--surface-rgb) / .91);
+  }
+
+  /* Photo overlays remain navy and sufficiently opaque for white text. */
+  .home-redesign .home-image-label {
+    background-color: rgb(16 40 64 / .86);
+    backdrop-filter: blur(12px) saturate(1.06);
+    -webkit-backdrop-filter: blur(12px) saturate(1.06);
+  }
+  .home-redesign .home-photo-caption {
+    background-color: rgb(16 40 64 / .88);
+    backdrop-filter: blur(18px) saturate(1.04);
+    -webkit-backdrop-filter: blur(18px) saturate(1.04);
+    box-shadow: 0 18px 36px rgb(10 25 47 / .18);
+  }
+
+  .mva-fiscal .mva-glass-surface {
+    background-color: rgb(var(--surface-rgb) / .90);
+    backdrop-filter: blur(var(--mva-glass-blur)) saturate(1.04);
+    -webkit-backdrop-filter: blur(var(--mva-glass-blur)) saturate(1.04);
+    border-color: rgb(var(--line-rgb) / .90);
+  }
+  :root[data-theme="dark"] .mva-fiscal .mva-glass-surface {
+    background-color: rgb(25 43 64 / .94);
+  }
+}
+
+/* Minimal gradient depth on brand-navy contact section. No new hues. */
+.home-redesign .home-contact {
+  background:
+    radial-gradient(ellipse at 88% 14%, rgb(184 70 19 / .15), transparent 55%),
+    linear-gradient(140deg, var(--c2), var(--c1));
+  border: 1px solid rgb(255 255 255 / .10);
+  box-shadow: 0 18px 42px rgb(10 25 47 / .13);
+}
+
+/* Glow from the supplied file, but only while hovering/focusing a card:
+   never an infinite animation in the resting UI. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .home-redesign .home-service-card {
+    position: relative;
+    isolation: isolate;
+    transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+  }
+  .home-redesign .home-service-card::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: inherit;
+    background: conic-gradient(from 180deg, var(--c1),var(--c3),var(--c5),var(--c4),var(--c1));
+    filter: blur(14px);
+    opacity: 0;
+    transition: opacity .22s ease;
+  }
+  .home-redesign .home-service-card:is(:hover,:focus-within) {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 38px rgb(10 25 47 / .10);
+    border-color: rgb(var(--accent-line-rgb));
+  }
+  .home-redesign .home-service-card:is(:hover,:focus-within)::before {
+    opacity: .17;
+    animation: mva-glass-glow 16s linear infinite;
+  }
+  .mva-glass-listing:is(:hover,:focus-within),
+  .mva-fiscal .mva-glass-surface:is(:hover,:focus-within) {
+    box-shadow: 0 15px 38px rgb(10 25 47 / .11);
+  }
+}
+@keyframes mva-glass-glow {
+  to { transform: rotate(360deg); }
+}
+
+/* Don't sacrifice readability for decoration, including the site's own
+   accessibility high-contrast switch and system forced-colors mode. */
+:root[data-a11y-contrast="true"] .home-redesign :is(.home-service-card,.home-room-card),
+:root[data-a11y-contrast="true"] .mva-glass-listing,
+:root[data-a11y-contrast="true"] .mva-fiscal .mva-glass-surface {
+  background: var(--surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--line) !important;
+}
+:root[data-a11y-contrast="true"] .home-redesign .home-service-card::before {
+  display: none !important;
+}
+@media (prefers-contrast: more), (forced-colors: active) {
+  .home-redesign :is(.home-service-card,.home-room-card),
+  .mva-glass-listing,
+  .mva-fiscal .mva-glass-surface {
+    background: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 2px solid var(--line);
+  }
+  .home-redesign .home-service-card::before,
+  .home-redesign :is(.home-service-grid,.home-room-grid)::before {
+    display: none !important;
+  }
+  .home-redesign .home-photo-caption,
+  .home-redesign .home-image-label {
+    background: var(--c2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-redesign .home-service-card,
+  .mva-glass-listing,
+  .mva-fiscal .mva-glass-surface { transition: none !important; transform: none !important; }
+  .home-redesign .home-service-card::before { animation: none !important; }
+}
+:root[data-a11y-motion="true"] .home-redesign .home-service-card::before {
+  animation: none !important;
+}
+@media print {
+  .home-redesign :is(.home-service-card,.home-room-card),
+  .mva-glass-listing,
+  .mva-fiscal .mva-glass-surface,
+  .home-redesign .home-photo-caption {
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  .home-redesign .home-service-card::before,
+  .home-redesign :is(.home-service-grid,.home-room-grid)::before { display: none !important; }
+}
