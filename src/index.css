@@ -101,7 +101,7 @@ button.bg-orange-500:hover, button.bg-orange-600:hover, .btn-primary:hover { bac
 }
 
 /* MVA design system — inverse navy surfaces, consistent copper accents. */
-:root { --page:#f6f7f9; --surface:#fff; --soft:#edf1f6; --ink:#172840; --muted:#5d6b7e; --line:#dce3eb; --accent:#b84613; }
+:root { --page:#eef0f2; --surface:#f9fafb; --soft:#e7ebef; --ink:#172840; --muted:#5d6b7e; --line:#d7dfe7; --accent:#b84613; }
 :root[data-theme="dark"] { --page:#0b1320; --surface:#142033; --soft:#1b2b40; --ink:#edf2fa; --muted:#acbbce; --line:#2b3d54; --accent:#ffae79; }
 body { background:var(--page); color:var(--ink); }
 main { padding-top:32px !important; }
@@ -280,7 +280,7 @@ header nav[aria-label] button { flex-shrink:0; }
 /* Fiscal landing: optical contrast tokens isolated from the global light/dark
    utilities. Brand navy and copper remain identical across both themes. */
 .mva-fiscal {
-  --fiscal-surface: #ffffff;
+  --fiscal-surface: #f9fafb;
   --fiscal-soft: #f1f5fa;
   --fiscal-ink: #152b43;
   --fiscal-muted: #51647b;
@@ -334,3 +334,7 @@ header nav[aria-label] button { flex-shrink:0; }
  .mva-home :is(h1,h2,h3,p) { overflow-wrap:anywhere; }
  .mva-home button { max-width:100%; }
 }
+
+/* Tema claro MVA: branco acinzentado nas superfícies de conteúdo.
+   Mantém CTAs brancos, contraste da marca e o tema escuro intactos. */
+:root:not([data-theme="dark"]) #root main .bg-white { background-color:var(--surface); }
