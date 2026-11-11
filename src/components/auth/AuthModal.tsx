@@ -1,5 +1,5 @@
 import { t } from '../../lib/preferences';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X, AlertCircle, MailCheck } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { signInEmail, signInGoogle, signUpEmail } from '../../lib/auth';
@@ -23,6 +23,23 @@ export const AuthModal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [lgpd, setLgpd] = useState(false);
   const register = authModalTab === 'register';
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!authModalOpen) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusables = () => Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), a[href]') || []).filter(el => el.getClientRects().length > 0);
+    focusables()[0]?.focus();
+    const onKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); setAuthModalOpen(false); }
+      if (event.key !== 'Tab') return;
+      const items = focusables();
+      if (!items.length) { event.preventDefault(); return; }
+      if (event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items[items.length - 1].focus(); }
+      else if (!event.shiftKey && document.activeElement === items[items.length - 1]) { event.preventDefault(); items[0].focus(); }
+    };
+    document.addEventListener('keydown', onKeydown);
+    return () => { document.removeEventListener('keydown', onKeydown); previous?.focus(); };
+  }, [authModalOpen, setAuthModalOpen]);
 
   if (!authModalOpen) return null;
 
@@ -60,6 +77,7 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div 
+      ref={dialogRef}
       role="dialog" 
       aria-modal="true" 
       aria-label={t(register ? 'Criar conta' : 'Entrar')} 
@@ -77,7 +95,7 @@ export const AuthModal: React.FC = () => {
           <button 
             onClick={close} 
             aria-label={t("Fechar")} 
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors bg-slate-100 hover:bg-slate-200 rounded-full p-1"
+            className="absolute top-4 right-4 text-slate-600 hover:text-slate-900 transition-colors bg-slate-100 hover:bg-slate-200 rounded-full p-2 min-h-11 min-w-11 grid place-items-center"
           >
             <X className="w-3.5 h-3.5" />
           </button>
