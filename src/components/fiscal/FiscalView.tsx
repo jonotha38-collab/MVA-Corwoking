@@ -189,7 +189,7 @@ export function FiscalView(){
   </section>
 
   {/* Three conceptual types, inspired by clear content hierarchy rather than visual copying. */}
-  <section className="grid min-w-0 gap-8 overflow-hidden rounded-[26px] border fiscal-line fiscal-surface lg:grid-cols-[.82fr_1.18fr]">
+  <section className="mva-glass-story grid min-w-0 gap-8 overflow-hidden rounded-[26px] border fiscal-line fiscal-surface lg:grid-cols-[.82fr_1.18fr]">
     <div className="relative min-h-[250px] overflow-hidden bg-[#10253d] lg:min-h-[455px]">
       <img src="/hero-office.jpg" alt="Espaço de trabalho moderno" className="absolute inset-0 h-full w-full object-cover opacity-75"/>
       <div className="absolute inset-0 bg-gradient-to-t from-[#10253d]/95 via-[#10253d]/20 to-transparent"/>
@@ -219,7 +219,7 @@ export function FiscalView(){
     <h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-[36px]">Um plano para cada fase da sua empresa.</h2>
     <p className="text-sm leading-relaxed fiscal-muted">Valores claros e serviços que acompanham o seu negócio.</p>
    </div>
-   <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border fiscal-line fiscal-surface p-1.5 shadow-sm" aria-label="Período do plano">
+   <div className="mva-glass-period mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border fiscal-line fiscal-surface p-1.5 shadow-sm" aria-label="Período do plano">
      <button type="button" aria-pressed={term===1} onClick={()=>setTerm(1)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===1?'bg-navy-900 text-white shadow-sm':'fiscal-muted hover:bg-slate-100'}`}>Mensal</button>
      <button type="button" aria-pressed={term===12} onClick={()=>setTerm(12)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===12?'bg-navy-900 text-white shadow-sm':'fiscal-muted hover:bg-slate-100'}`}>Anual · 12 meses</button>
    </div>
@@ -231,7 +231,7 @@ export function FiscalView(){
     {planIds.map(id=>{
       const p=FISCAL_PLANS[id], info=planInfo[id],q=planQuote(id);
       const monthlyEquivalent=q.amount/(term===1?1:12);
-      return <article key={id} className={`relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border fiscal-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${info.popular?'border-[#d06636] shadow-[0_12px_35px_rgba(183,74,28,.11)]':'fiscal-line'}`}>
+      return <article key={id} className={`mva-glass-plan relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border fiscal-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${info.popular?'border-[#d06636] shadow-[0_12px_35px_rgba(183,74,28,.11)]':'fiscal-line'}`}>
         {info.popular&&<div className="bg-[#14304d] py-2.5 text-center text-[11px] font-bold uppercase tracking-[.16em] text-white">MVA Excellence · o mais completo</div>}
         <div className="flex flex-1 flex-col p-6 sm:p-7">
           <span className="text-[11px] font-bold uppercase tracking-[.12em] fiscal-accent">{info.eyebrow}</span>
@@ -290,7 +290,7 @@ export function FiscalView(){
     {unitsLoading?<div className="rounded-2xl border fiscal-line fiscal-surface p-6 text-sm fiscal-muted" role="status">Consultando unidades disponíveis…</div>
       :units.length===0?<div className="rounded-2xl border fiscal-line fiscal-surface p-6 text-sm fiscal-muted">Unidades em análise de disponibilidade. Consulte nossa equipe para mais informações.</div>
       :<div className="grid gap-4 md:grid-cols-2">
-        {units.map(unit=><article key={unit.id} className="flex min-w-0 items-start gap-4 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm">
+        {units.map(unit=><article key={unit.id} className="mva-glass-unit flex min-w-0 items-start gap-4 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#142940] text-orange-300"><MapPin className="h-5 w-5"/></div>
           <div className="min-w-0"><span className="text-[11px] font-semibold uppercase tracking-widest fiscal-accent">Unidade disponível para consulta</span>
             <h3 className="mt-2 break-words text-base font-bold fiscal-ink">{unit.name}</h3>
@@ -314,7 +314,7 @@ export function FiscalView(){
   <section id="duvidas-fiscais" className="scroll-mt-32 space-y-7">
    <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">Sem letras miúdas</span><h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-4xl">Perguntas frequentes.</h2><p className="text-sm leading-relaxed fiscal-muted">As respostas mais importantes antes de contratar seu escritório virtual.</p></div>
    <div className="grid min-w-0 gap-3">
-    {faqs.map(({q,a})=><details key={q} className="group min-w-0 rounded-2xl border fiscal-line fiscal-surface p-4 open:border-orange-200 sm:p-5">
+    {faqs.map(({q,a})=><details key={q} className="mva-glass-faq-item group min-w-0 rounded-2xl border fiscal-line fiscal-surface p-4 open:border-orange-200 sm:p-5">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-sm font-semibold fiscal-ink marker:content-none sm:text-[15px]">{q}<ChevronDown className="h-5 w-5 shrink-0 fiscal-accent transition-transform group-open:rotate-180"/></summary>
       <p className="max-w-4xl pt-4 text-sm leading-[1.8] fiscal-muted">{a}</p>
      </details>)}
