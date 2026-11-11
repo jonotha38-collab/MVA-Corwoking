@@ -1,10 +1,11 @@
-import { ArrowRight, ArrowUpRight, CalendarCheck, Check, ChevronDown, ClipboardList, FileCheck2, Mail, MapPin, ShieldCheck, Users } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CalendarCheck, Check, ChevronDown, ClipboardList, FileCheck2, Mail, MessageCircle, MapPin, ShieldCheck, Users } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { isSpacePubliclyVisible } from '../../lib/space-visibility';
 import type { MouseEvent } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
 import heroOffice from '../../assets/hero-office.jpg';
+import { getMvaWhatsAppUrl } from '../../lib/whatsapp';
 
 const copy = {
  pt: {
@@ -18,7 +19,7 @@ const copy = {
   about:'Uma operação real, com gestão digital',aboutText:'A MVA possui sede própria na Rua Dom José Thomaz, 565, bairro São José, em Aracaju. Conheça os ambientes disponíveis e reserve com segurança.',
   aboutOne:'Serviços e valores apresentados antes da solicitação',aboutTwo:'Gestão de reservas e acompanhamento pelo painel',aboutThree:'Privacidade e confirmação de elegibilidade para endereço fiscal',
   process:'Comece pelo que precisa',step1:'Escolha o serviço',step1D:'Veja os detalhes e as opções para sua empresa.',step2:'Confira disponibilidade',step2D:'Compare espaços, preços e condições de contratação.',step3:'Acompanhe no painel',step3D:'Acesse reservas e solicitações pela sua conta.',
-  contactTitle:'Quer conversar antes de decidir?',contactBody:'Fale com a equipe da MVA para esclarecer dúvidas sobre a sede, as salas e os serviços.',contactCta:'Enviar e-mail à MVA',location:'Sede da MVA',online:'Reservas da sede MVA e planos elegíveis podem ser pagos com segurança pelo Stripe.'
+  contactTitle:'Quer conversar antes de decidir?',contactBody:'Fale com a equipe da MVA para esclarecer dúvidas sobre a sede, as salas e os serviços.',contactCta:'Conversar pelo WhatsApp',location:'Sede da MVA',online:'Reservas da sede MVA e planos elegíveis podem ser pagos com segurança pelo Stripe.'
  },
  en: {
   eyebrow:'MVA Coworking · Aracaju, Brazil',line1:'Make room for',line2:'your next step.',
@@ -31,7 +32,7 @@ const copy = {
   about:'A real location, digitally managed',aboutText:'MVA operates its own facilities at Rua Dom José Thomaz, 565, São José, Aracaju, Brazil. Explore available rooms and book securely.',
   aboutOne:'Understand services and prices beforehand',aboutTwo:'Track bookings on your dashboard',aboutThree:'Private records and eligibility checks for business addresses',
   process:'Getting started',step1:'Select a service',step1D:'Explore details and options.',step2:'Check availability',step2D:'Compare rooms, prices and conditions.',step3:'Track everything',step3D:'Manage bookings and requests in your account.',
-  contactTitle:'Need help deciding?',contactBody:'Reach the MVA team with questions about rooms, the main office and services.',contactCta:'Email MVA',location:'MVA headquarters',online:'MVA headquarters room bookings and eligible plans can be paid securely via Stripe.'
+  contactTitle:'Need help deciding?',contactBody:'Reach the MVA team with questions about rooms, the main office and services.',contactCta:'Chat on WhatsApp',location:'MVA headquarters',online:'MVA headquarters room bookings and eligible plans can be paid securely via Stripe.'
  },
  es: {
   eyebrow:'MVA Coworking · Aracaju, Brasil',line1:'Tu próximo paso',line2:'tiene espacio aquí.',
@@ -44,7 +45,7 @@ const copy = {
   about:'Un lugar real con gestión digital',aboutText:'MVA tiene instalaciones propias en Rua Dom José Thomaz, 565, São José, Aracaju, Brasil. Explora las salas disponibles y reserva con seguridad.',
   aboutOne:'Servicios y precios antes de contratar',aboutTwo:'Reservas organizadas en un panel',aboutThree:'Privacidad y verificación para el domicilio fiscal',
   process:'Cómo empezar',step1:'Elige el servicio',step1D:'Consulta detalles y opciones.',step2:'Verifica disponibilidad',step2D:'Compara salas, precios y condiciones.',step3:'Sigue tu solicitud',step3D:'Gestiona reservas desde tu cuenta.',
-  contactTitle:'¿Necesitas orientación?',contactBody:'Habla con el equipo de MVA sobre salas, la sede y los servicios.',contactCta:'Escribir a MVA',location:'Sede MVA',online:'Las reservas de la sede MVA y los planes elegibles se pueden pagar de forma segura por Stripe.'
+  contactTitle:'¿Necesitas orientación?',contactBody:'Habla con el equipo de MVA sobre salas, la sede y los servicios.',contactCta:'Conversar por WhatsApp',location:'Sede MVA',online:'Las reservas de la sede MVA y los planes elegibles se pueden pagar de forma segura por Stripe.'
  }
 } as const;
 
@@ -56,7 +57,7 @@ const extraCopy = {
   placeLabel:'Perto de você, em Aracaju',placeTitle:'Seu negócio com um ponto de referência.',directions:'Como chegar',address:'Rua Dom José Thomaz, 565',neighborhood:'São José · Aracaju/SE · CEP 49015-090',
   faqLabel:'Antes de começar',faqTitle:'Vamos tirar suas dúvidas.',
   faqs:[['Preciso de uma conta para conhecer os espaços?','Você pode explorar fotos, estrutura e valores sem criar uma conta. Para registrar e acompanhar uma reserva, acesse sua conta na plataforma.'],['Como funciona o endereço fiscal?','Consulte os planos e condições na área de endereço fiscal. A contratação depende da análise de atividade e documentação, elegibilidade e confirmação de pagamento.'],['Os espaços são todos da MVA?','A sede própria da MVA fica na Rua Dom José Thomaz, 565, em Aracaju. No momento, os espaços disponíveis para reserva são da MVA. O cadastro de coworkings externos está temporariamente suspenso.']],
-  contactLabel:'Conte com a MVA',contactSecondary:'Ligar para a sede',serviceNote:'Escolha um serviço para conhecer os detalhes e as condições.',
+  contactLabel:'Conte com a MVA',contactSecondary:'Enviar e-mail',serviceNote:'Escolha um serviço para conhecer os detalhes e as condições.',
  },
  en: {
   servicesLabel:'For every stage of your business',serviceTags:['Work and meet','Establish your business','Track your request'],
@@ -65,7 +66,7 @@ const extraCopy = {
   placeLabel:'Find us in Aracaju',placeTitle:'Give your business a place on the map.',directions:'Get directions',address:'Rua Dom José Thomaz, 565',neighborhood:'São José · Aracaju, Brazil · 49015-090',
   faqLabel:'Before you start',faqTitle:'A few helpful answers.',
   faqs:[['Do I need an account to browse spaces?','You can explore photos, amenities and prices without an account. Sign in to register and track a reservation.'],['How does a business address work?','See plans and terms in the business address section. A contract requires activity and document review, eligibility and confirmed payment.'],['Does MVA own every space?','MVA headquarters is at Rua Dom José Thomaz, 565, Aracaju. Currently, listed rooms belong to MVA. External coworking registrations are temporarily paused.']],
-  contactLabel:'Here to help',contactSecondary:'Call MVA',serviceNote:'Choose a service to explore its details and terms.',
+  contactLabel:'Here to help',contactSecondary:'Send an email',serviceNote:'Choose a service to explore its details and terms.',
  },
  es: {
   servicesLabel:'Para cada etapa de tu negocio',serviceTags:['Trabaja y reúnete','Establece tu empresa','Sigue tu solicitud'],
@@ -74,7 +75,7 @@ const extraCopy = {
   placeLabel:'Cerca de ti, en Aracaju',placeTitle:'Tu negocio con un punto de referencia.',directions:'Cómo llegar',address:'Rua Dom José Thomaz, 565',neighborhood:'São José · Aracaju, Brasil · 49015-090',
   faqLabel:'Antes de empezar',faqTitle:'Resolvemos tus dudas.',
   faqs:[['¿Necesito una cuenta para ver los espacios?','Puedes explorar fotos, servicios y precios sin crear una cuenta. Accede a tu cuenta para registrar y seguir una reserva.'],['¿Cómo funciona el domicilio fiscal?','Consulta planes y condiciones en la sección de domicilio fiscal. La contratación requiere revisión de actividad y documentos, elegibilidad y pago confirmado.'],['¿Todos los espacios son de MVA?','La sede propia de MVA está en Rua Dom José Thomaz, 565, Aracaju. Por ahora, las salas anunciadas son de MVA. El registro de coworkings externos está suspendido temporalmente.']],
-  contactLabel:'Cuenta con MVA',contactSecondary:'Llamar a MVA',serviceNote:'Elige un servicio para conocer sus detalles y condiciones.',
+  contactLabel:'Cuenta con MVA',contactSecondary:'Enviar correo',serviceNote:'Elige un servicio para conocer sus detalles y condiciones.',
  },
 } as const;
 
@@ -185,6 +186,6 @@ export function HomeView() {
    <div>{e.faqs.map(([q,a])=><details key={q}><summary>{q}<ChevronDown size={19} aria-hidden="true"/></summary><p>{a}</p></details>)}</div>
   </section>
 
-  <section className="home-contact home-section" aria-labelledby="home-contact-title"><div><p className="home-kicker">{e.contactLabel}</p><h2 id="home-contact-title">{c.contactTitle}</h2><p>{c.contactBody}</p></div><div className="home-contact-actions"><a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="home-button home-button-light"><Mail size={18} aria-hidden="true"/>{c.contactCta}<ArrowUpRight size={18} aria-hidden="true"/></a><a href="tel:+557932145500" className="home-contact-phone">{e.contactSecondary} · (79) 3214-5500</a></div></section>
+  <section className="home-contact home-section" aria-labelledby="home-contact-title"><div><p className="home-kicker">{e.contactLabel}</p><h2 id="home-contact-title">{c.contactTitle}</h2><p>{c.contactBody}</p></div><div className="home-contact-actions"><a href={getMvaWhatsAppUrl(language)} target="_blank" rel="noopener noreferrer" className="home-button home-button-light" aria-label={c.contactCta}><MessageCircle size={18} aria-hidden="true"/>{c.contactCta}<ArrowUpRight size={18} aria-hidden="true"/></a><a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="home-contact-secondary"><Mail size={16} aria-hidden="true"/>{e.contactSecondary}</a></div></section>
  </div>;
 }
