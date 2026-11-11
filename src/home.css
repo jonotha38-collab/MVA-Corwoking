@@ -118,8 +118,8 @@ button:enabled, summary, select, a { cursor: pointer; }
 .home-contact-actions { display: flex; flex-shrink: 0; flex-direction: column; align-items: center; gap: 13px; }
 .home-button-light { background: #fff; color: var(--home-navy); }
 .home-button-light:hover { background: #fff0e6; }
-.home-contact-phone { display: inline-flex; align-items: center; min-height: 44px; color: #c2d0e0; font-size: 11px; }
-.home-contact-phone:hover { color: #fff; text-decoration: underline; }
+.home-contact-secondary { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; color: #c2d0e0; font-size: 11px; }
+.home-contact-secondary:hover { color: #fff; text-decoration: underline; }
 
 @media (prefers-reduced-motion: no-preference) {
   .home-redesign {
@@ -236,7 +236,7 @@ button:enabled, summary, select, a { cursor: pointer; }
   .home-faq summary { min-height: 70px; }
   .home-contact { flex-direction: column; align-items: stretch; gap: 26px; padding: 28px; }
   .home-contact-actions { align-items: stretch; }
-  .home-contact-phone { justify-content: center; flex-wrap: wrap; text-align: center; }
+  .home-contact-secondary { justify-content: center; flex-wrap: wrap; text-align: center; }
   .home-button { min-height: 50px; font-size: 13px; }
 }
 @media (max-width: 380px) {
