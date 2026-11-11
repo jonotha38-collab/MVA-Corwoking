@@ -257,3 +257,32 @@ button:enabled, summary, select, a { cursor: pointer; }
   .home-redesign a { forced-color-adjust: auto; }
   .home-button, .home-photo-caption, .home-room-bottom a { border: 1px solid ButtonText; }
 }
+
+/* Contact CTAs — distinct, accessible hover colors; do not alter MVA palette. */
+.home-redesign .home-whatsapp-action:hover {
+  background: #126b41;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgb(18 107 65 / .25);
+}
+.home-redesign .home-whatsapp-action:focus-visible {
+  outline-color: #66dda5;
+}
+.home-redesign .home-email-action {
+  border: 1px solid rgb(255 255 255 / .65);
+  background: rgb(255 255 255 / .09);
+  color: #ffffff;
+}
+.home-redesign .home-email-action:hover {
+  border-color: #ffad78;
+  background: #b84613;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgb(184 70 19 / .26);
+}
+.home-redesign .home-email-action:focus-visible {
+  outline: 3px solid #ffad78;
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-redesign .home-whatsapp-action,
+  .home-redesign .home-email-action { transition: none !important; }
+}
