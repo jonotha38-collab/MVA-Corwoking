@@ -297,6 +297,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               <strong>Preço de referência antes dos benefícios.</strong> Se você tiver contrato fiscal ativo com a MVA, o desconto do seu plano e as horas bônus elegíveis serão calculados pelo servidor na confirmação. O valor final será apresentado no comprovante; só haverá cobrança pelo Stripe se restar algo a pagar. Adicionais não recebem desconto. Reservas de parceiros dependem de recebimentos habilitados.
              </div>
 
+            <p className="text-xs leading-relaxed text-slate-600">
+              {t('Quando houver valor a pagar, o prazo é de até 1 hora após o agendamento, limitado ao início da reserva. Sem pagamento, o horário será liberado automaticamente.')}
+            </p>
+
             {/* Footer Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
               <button

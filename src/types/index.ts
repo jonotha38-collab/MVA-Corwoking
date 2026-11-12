@@ -105,6 +105,8 @@ export interface Booking {
   fiscalDiscountPercent?: number;
   status: 'confirmada' | 'concluida' | 'cancelada';
   checkIn: boolean;
+  paymentDueAt?: string | null;
+  paymentExpiredAt?: string | null;
   createdAt: string;
 }
 

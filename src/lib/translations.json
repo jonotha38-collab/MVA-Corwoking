@@ -3146,5 +3146,33 @@
   "Reserva registrada": [
     "Booking recorded",
     "Reserva registrada"
+  ],
+  "Prazo para pagamento": [
+    "Payment deadline",
+    "Plazo de pago"
+  ],
+  "horário de Brasília": [
+    "Brasília time",
+    "hora de Brasilia"
+  ],
+  "Prazo encerrado. Estamos verificando se o pagamento foi recebido.": [
+    "The deadline has passed. We are checking whether payment was received.",
+    "El plazo ha vencido. Estamos verificando si se recibió el pago."
+  ],
+  "Sem pagamento até esse horário, a reserva será cancelada automaticamente e o horário será liberado.": [
+    "If payment is not received by then, the booking will be automatically canceled and the slot released.",
+    "Si no se recibe el pago a tiempo, la reserva se cancelará automáticamente y el horario quedará disponible."
+  ],
+  "Reserva cancelada por falta de pagamento.": [
+    "Booking canceled due to nonpayment.",
+    "Reserva cancelada por falta de pago."
+  ],
+  "Cancelada por falta de pagamento": [
+    "Canceled due to nonpayment",
+    "Cancelada por falta de pago"
+  ],
+  "Quando houver valor a pagar, o prazo é de até 1 hora após o agendamento, limitado ao início da reserva. Sem pagamento, o horário será liberado automaticamente.": [
+    "When payment is required, you have up to one hour after booking, or until the reservation starts if sooner. Unpaid slots are released automatically.",
+    "Si corresponde pagar, el plazo es de hasta una hora desde el agendamiento o hasta el inicio de la reserva, lo que ocurra primero. Sin pago, el horario se libera automáticamente."
   ]
 }

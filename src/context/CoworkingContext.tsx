@@ -50,6 +50,7 @@ interface CoworkingContextType {
   markCorrespondenceAsRetrieved: (id: string) => Promise<void>;
   refreshFiscalContracts: () => Promise<void>;
   refreshSpaces: () => Promise<void>;
+  refreshBookingExpirations: (bookingIds: string[]) => Promise<void>;
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
 }
 
@@ -327,6 +328,16 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setFiscalContracts((data || []).map(rowToFiscal));
   }, []);
 
+  const refreshBookingExpirations = useCallback(async (bookingIds: string[]) => {
+    const { data, error } = await supabase.from('bookings')
+      .select('id,payment_expired_at').in('id', bookingIds).not('payment_expired_at', 'is', null);
+    if (error || !data?.length) return;
+    const expired = new Map(data.map(row => [row.id, row.payment_expired_at]));
+    setBookings(previous => previous.map(booking => expired.has(booking.id)
+      ? { ...booking, status: 'cancelada', paymentExpiredAt: expired.get(booking.id) }
+      : booking));
+  }, []);
+
   const currentCompany = fiscalContracts.find(c => c.userId === currentUser?.id && canIssueCertificate(c)) || fiscalContracts.find(c => c.userId === currentUser?.id) || EMPTY_COMPANY;
 
   return (
@@ -335,7 +346,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       selectedCity, selectedCategory, toasts, authModalOpen, authModalTab, setActiveTab, setSearchQuery, setSelectedCity,
       setSelectedCategory, setAuthModalOpen, setAuthModalTab, logout, addSpace, updateSpace, deleteSpace, approveSpace,
       rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization, completeDigitalization,
-      markCorrespondenceAsRetrieved, refreshFiscalContracts, refreshSpaces, showToast,
+      markCorrespondenceAsRetrieved, refreshFiscalContracts, refreshSpaces, refreshBookingExpirations, showToast,
     }}>
       {children}
     </CoworkingContext.Provider>

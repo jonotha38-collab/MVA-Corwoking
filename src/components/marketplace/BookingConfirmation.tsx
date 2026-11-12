@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useBookingVoucher } from '../../lib/booking-voucher';
 import { BookingVoucherCode } from '../common/BookingVoucherCode';
+import { BookingPaymentDeadline, useBookingPaymentWindow } from '../payments/BookingPaymentDeadline';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import {
   ArrowUpRight, Bell, CalendarDays, CalendarPlus, CheckCircle2,
@@ -42,26 +43,35 @@ export function BookingConfirmation({
   const fiscalCovered=booking.totalPrice===0&&Number(booking.fiscalBonusHours||0)>=booking.durationHours&&booking.durationHours>0&&booking.addons.length===0;
   const eligibleForCredit=space.isMvaHeadquarters&&space.category==='atendimento'&&booking.addons.length===0
     &&!(booking.fiscalBonusHours||booking.fiscalDiscountPercent);
-  const { voucher, reload } = useBookingVoucher(booking.id, creditApplied);
+  const [paymentExpiredAt, setPaymentExpiredAt] = useState(booking.paymentExpiredAt);
+  const paymentClosed = useBookingPaymentWindow(booking.paymentDueAt);
+  const { voucher, reload } = useBookingVoucher(booking.id, creditApplied || !!paymentExpiredAt);
   const complimentary = voucher?.status === 'available' && voucher.coverage === 'complimentary';
   const financiallyConfirmed=complimentary||fiscalCovered||creditApplied||(paymentStatus==='paid'&&paymentIsLive);
   useEffect(() => {
     let live = true;
     const load = async () => {
-      const [orders,credits]=await Promise.all([
+      const [orders,credits,latest]=await Promise.all([
        supabase.from('mva_checkout_orders').select('status,livemode').eq('kind','booking').eq('resource_id',booking.id).maybeSingle(),
-       supabase.from('mva_booking_redemptions').select('status').eq('booking_id',booking.id).maybeSingle()
+       supabase.from('mva_booking_redemptions').select('status').eq('booking_id',booking.id).maybeSingle(),
+       paymentClosed ? supabase.from('bookings').select('payment_expired_at').eq('id',booking.id).maybeSingle() : null
       ]);
       if(live){
        setPaymentStatus(orders.data?.status??null);setPaymentIsLive(orders.data?.livemode===true);
        setCreditApplied(credits.data?.status==='applied');
+       if(latest?.data?.payment_expired_at)setPaymentExpiredAt(latest.data.payment_expired_at);
       }
     };
     void load();
     const recheck = () => { if (document.visibilityState === 'visible') void load(); };
     document.addEventListener('visibilitychange', recheck);
-    return () => { live = false; document.removeEventListener('visibilitychange', recheck); };
-  }, [booking.id]);
+    const timer = paymentClosed && !paymentExpiredAt ? window.setInterval(recheck, 20_000) : undefined;
+    return () => {
+      live = false;
+      document.removeEventListener('visibilitychange', recheck);
+      window.clearInterval(timer);
+    };
+  }, [booking.id, paymentClosed, paymentExpiredAt]);
   useEffect(()=>{
     if(!eligibleForCredit||!userId)return;
     let alive=true;
@@ -102,12 +112,12 @@ export function BookingConfirmation({
             <CheckCircle2 className="h-5 w-5" aria-hidden />
           </span>
           <div>
-            <p className="text-sm font-bold text-navy-900">{complimentary?'Reserva de cortesia confirmada':fiscalCovered?'Reserva coberta pelo MVA Excellence':financiallyConfirmed?'Reserva paga e confirmada':'Reserva registrada — aguardando pagamento'}</p>
-            <p className="text-xs text-slate-600">{complimentary?'Esta reserva administrativa tem cortesia integral.':fiscalCovered?'Suas horas bônus deste mês cobriram integralmente a reserva, sem cobrança extra.':financiallyConfirmed?'Seu pagamento ou saldo de horas foi confirmado.':'Escolha uma forma de pagamento para liberar o comprovante financeiro.'}</p>
+            <p className="text-sm font-bold text-navy-900">{paymentExpiredAt?'Reserva cancelada por falta de pagamento':complimentary?'Reserva de cortesia confirmada':fiscalCovered?'Reserva coberta pelo MVA Excellence':financiallyConfirmed?'Reserva paga e confirmada':'Reserva registrada — aguardando pagamento'}</p>
+            <p className="text-xs text-slate-600">{paymentExpiredAt?'O horário foi liberado para um novo agendamento.':complimentary?'Esta reserva administrativa tem cortesia integral.':fiscalCovered?'Suas horas bônus deste mês cobriram integralmente a reserva, sem cobrança extra.':financiallyConfirmed?'Seu pagamento ou saldo de horas foi confirmado.':'Escolha uma forma de pagamento para liberar o comprovante financeiro.'}</p>
           </div>
         </div>
         <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-semibold text-emerald-800">
-          {complimentary?'Cortesia':financiallyConfirmed?'Paga':'Pendente'}
+          {paymentExpiredAt?'Cancelada':complimentary?'Cortesia':financiallyConfirmed?'Paga':'Pendente'}
         </span>
       </div>
       <div className="p-5 sm:p-6">
@@ -158,7 +168,7 @@ export function BookingConfirmation({
       </div>
     </section>
 
-    <section aria-label="Aviso para a recepção" className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5">
+    {(!paymentClosed || financiallyConfirmed) && <section aria-label="Aviso para a recepção" className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5">
       <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" aria-hidden />
       <div>
         <p className="text-xs font-bold text-navy-900">{complimentary?'Reserva de cortesia confirmada':financiallyConfirmed?'Reserva paga — comprovante válido':'Agendamento pendente de pagamento'}</p>
@@ -169,9 +179,13 @@ export function BookingConfirmation({
            'O horário foi registrado, mas ainda não há pagamento confirmado. Efetue o pagamento com Stripe ou utilize horas de um plano elegível antes de usar a sala.'}
         </p>
       </div>
-    </section>
+    </section>}
 
-    {booking.status==='confirmada'&&!financiallyConfirmed&&paymentStatus!=='paid'&&<section aria-label="Pagamento da reserva" className="rounded-2xl border border-slate-200 bg-white p-5">
+    {!financiallyConfirmed && booking.status === 'confirmada' && (
+      <BookingPaymentDeadline deadline={booking.paymentDueAt} closed={paymentClosed} canceled={!!paymentExpiredAt} />
+    )}
+
+    {booking.status==='confirmada'&&!financiallyConfirmed&&!paymentClosed&&paymentStatus!=='paid'&&<section aria-label="Pagamento da reserva" className="rounded-2xl border border-slate-200 bg-white p-5">
       <h3 className="mb-2 text-sm font-bold text-navy-900">Concluir pagamento da reserva</h3>
       <p className="mb-4 text-xs leading-relaxed text-slate-600">
         Pague a reserva com cartão pelo Stripe. {space.isMvaHeadquarters?'A MVA receberá diretamente.':'O pagamento a coworking parceiro só será disponibilizado após a conexão Stripe Connect desse responsável.'}

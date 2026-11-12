@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { BookingPlans } from '../payments/BookingPlans';
 import { useBookingVoucher } from '../../lib/booking-voucher';
 import { BookingVoucherCode } from '../common/BookingVoucherCode';
+import { BookingPaymentDeadline, useBookingPaymentWindow } from '../payments/BookingPaymentDeadline';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import { Booking } from '../../types';
 import { calendarEnabled, connectGoogleCalendar, disconnectGoogleCalendar, manualGoogleCalendarLink, recordedCalendarEventUrl } from '../../lib/google-calendar';
@@ -39,15 +40,18 @@ export const ClientDashboardView: React.FC = () => {
     currentUser,
     bookings, 
     correspondence, 
-    cancelBooking, 
+    cancelBooking,
+    refreshBookingExpirations,
     setActiveTab,
     showToast,
   } = useCoworking();
 
   const day = new Date().toISOString().slice(0, 10);
   const addressActive = currentCompany.paymentStatus === 'paid' && currentCompany.paymentIsLive && currentCompany.status === 'ativo' && currentCompany.startDate <= day && currentCompany.renewalDate >= day;
-  const [selectedVoucher, setSelectedVoucher] = useState<Booking | null>(null);
-  const { voucher, reload: reloadVoucher } = useBookingVoucher(selectedVoucher?.id);
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null);
+  const selectedVoucher = bookings.find(booking => booking.id === selectedVoucherId);
+  const selectedPaymentClosed = useBookingPaymentWindow(selectedVoucher?.paymentDueAt);
+  const { voucher, reload: reloadVoucher } = useBookingVoucher(selectedVoucher?.id, selectedVoucher?.status === 'cancelada');
   const [paidBookingIds, setPaidBookingIds] = useState<Set<string>>(() => new Set());
   const [creditedBookingIds,setCreditedBookingIds]=useState<Set<string>>(() => new Set());
   const [fiscalRoomPerk,setFiscalRoomPerk]=useState<FiscalRoomPerk|null>(null);
@@ -98,6 +102,25 @@ export const ClientDashboardView: React.FC = () => {
 
   // Filter bookings
   const clientBookings = bookings.filter(b => b.userId === currentUser?.id);
+
+  const expiredPendingIds = clientBookings.filter(booking =>
+    booking.status === 'confirmada' && booking.paymentDueAt &&
+    Date.parse(booking.paymentDueAt) <= clock && !booking.checkIn &&
+    !paidBookingIds.has(booking.id) && !creditedBookingIds.has(booking.id) && !fiscalCovered(booking)
+  ).map(booking => booking.id).join(',');
+  useEffect(() => {
+    if (!expiredPendingIds) return;
+    const check = () => {
+      if (document.visibilityState === 'visible') void refreshBookingExpirations(expiredPendingIds.split(','));
+    };
+    check();
+    const timer = window.setInterval(check, 20_000);
+    document.addEventListener('visibilitychange', check);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', check);
+    };
+  }, [expiredPendingIds, refreshBookingExpirations]);
 
   // Pending correspondence
   const pendingMails = correspondence.filter(
@@ -318,7 +341,7 @@ export const ClientDashboardView: React.FC = () => {
           </div>
 
           <button
-            onClick={() => setSelectedVoucher(upcomingBooking)}
+            onClick={() => setSelectedVoucherId(upcomingBooking.id)}
             className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-2 shrink-0"
           >
             <QrCode className="w-4 h-4" />{t('Abrir voucher')}</button>
@@ -388,13 +411,13 @@ export const ClientDashboardView: React.FC = () => {
                         <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">{t("Concluída ")}</span>
                       )}
                       {b.status === 'cancelada' && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">{t("Cancelada ")}</span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">{t(b.paymentExpiredAt ? 'Cancelada por falta de pagamento' : 'Cancelada')}</span>
                       )}
                     </td>
                     <td className="py-4 px-6 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => setSelectedVoucher(b)}
+                          onClick={() => setSelectedVoucherId(b.id)}
                           className="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-lg transition-colors"
                         >{t("Voucher ")}</button>
                         {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && b.status === 'confirmada' && (
@@ -441,7 +464,7 @@ export const ClientDashboardView: React.FC = () => {
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-scaleUp">
             <div className="bg-navy-950 text-white p-5 flex items-center justify-between no-print">
               <span className="font-bold text-sm">{t('Voucher de Acesso • MVA Hub')}</span>
-              <button onClick={() => setSelectedVoucher(null)} className="text-slate-400 hover:text-white p-1">
+              <button onClick={() => setSelectedVoucherId(null)} className="text-slate-400 hover:text-white p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -483,7 +506,10 @@ export const ClientDashboardView: React.FC = () => {
                     </button>
                   </div>
                 )}
-                {!voucherCanceled && voucherPaymentPending && selectedVoucher.status === 'confirmada' && (
+                {((!voucherCanceled && voucherPaymentPending) || !!selectedVoucher.paymentExpiredAt) && (
+                  <BookingPaymentDeadline deadline={selectedVoucher.paymentDueAt} closed={selectedPaymentClosed} canceled={!!selectedVoucher.paymentExpiredAt} />
+                )}
+                {!voucherCanceled && voucherPaymentPending && !selectedPaymentClosed && selectedVoucher.status === 'confirmada' && (
                   <div className="border-t border-orange-100 pt-3">
                     <StripeCheckoutAction action="checkout_booking" resourceId={selectedVoucher.id} label="Pagar minha reserva com Stripe" />
                   </div>
@@ -492,7 +518,7 @@ export const ClientDashboardView: React.FC = () => {
 
               <div className="flex justify-end pt-2 no-print">
                 <button
-                  onClick={() => setSelectedVoucher(null)}
+                  onClick={() => setSelectedVoucherId(null)}
                   className="px-5 py-2 bg-navy-900 text-white rounded-xl font-bold"
                 >{t("Fechar ")}</button>
               </div>

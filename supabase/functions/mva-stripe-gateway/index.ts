@@ -18,7 +18,7 @@ const response = (data:unknown,status=200,origin=SITE)=>new Response(JSON.string
 });
 const string = (value:unknown)=>typeof value==='string'?value.trim():'';
 const validUuid=(s:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
-function stripeClient(){
+function stripeClient(options?: Stripe.StripeConfig){
  const privateKey=Deno.env.get('STRIPE_SECRET_KEY')||'';
  const mode=Deno.env.get('STRIPE_BILLING_MODE');
  const keyIsTest=/^(sk|rk)_test_/.test(privateKey);
@@ -26,7 +26,7 @@ function stripeClient(){
  if (mode==='test'&&!keyIsTest)throw new Error('Configure uma chave Stripe de TESTE válida no Supabase.');
  if (mode==='live'&&(!keyIsLive||Deno.env.get('STRIPE_LIVE_LAUNCH_APPROVED')!=='true'))throw new Error('Produção Stripe bloqueada até aprovação explícita.');
  if(mode!=='test'&&mode!=='live')throw new Error('Gateway Stripe em preparação.');
- return new Stripe(privateKey);
+ return new Stripe(privateKey,options);
 }
 // Do not allow checkout to charge a different Stripe merchant.
 const EXPECTED_PLATFORM_ACCOUNT = 'acct_1UTlB031eJ9Ivl6i';
@@ -114,11 +114,52 @@ function successInfo(session:Stripe.Checkout.Session,orderId?:string){
  if(!session.url)throw new Error('O Stripe não retornou uma página de pagamento.');
  return {url:session.url,sessionId:session.id,orderId,livemode:session.livemode};
 }
+const paymentDeadlineError = 'O prazo para pagar esta reserva terminou. Faça um novo agendamento.';
+const ensurePaymentWindow = (deadline: string | null | undefined) => {
+ if(deadline && Date.parse(deadline)<=Date.now())throw new Error(paymentDeadlineError);
+};
+const bookingPaymentTime = new Intl.DateTimeFormat('pt-BR',{
+ timeZone:'America/Maceio',dateStyle:'short',timeStyle:'short',
+});
+type ExpiryCandidate = {
+ booking_id:string;stripe_checkout_session_id:string|null;stripe_account_id:string|null;
+ livemode:boolean|null;order_status:string|null;
+};
+async function expireUnpaidBookings(workerKey: string){
+ const {data,error}=await admin.rpc('mva_booking_expiry_candidates',{p_worker_key:workerKey});
+ if(error)throw error;
+ let stripe:Stripe|undefined;
+ const results=await Promise.allSettled((data as ExpiryCandidate[]).map(async booking=>{
+  const sessionId=booking.stripe_checkout_session_id;
+  if(sessionId){
+   if(booking.livemode!==(Deno.env.get('STRIPE_BILLING_MODE')==='live'))return false;
+   stripe??=stripeClient({timeout:8_000,maxNetworkRetries:0});
+   const options=booking.stripe_account_id?{stripeAccount:booking.stripe_account_id}:undefined;
+   let session=await stripe.checkout.sessions.retrieve(sessionId,{expand:['payment_intent']},options);
+   const intent=typeof session.payment_intent==='object'?session.payment_intent:null;
+   if(session.payment_status==='paid'||session.payment_status==='no_payment_required'||
+      intent?.status==='processing'||intent?.status==='succeeded'||intent?.status==='requires_capture')return false;
+   if(session.status==='open')session=await stripe.checkout.sessions.expire(sessionId,{},options);
+   const safeToRelease=session.status==='expired' || (session.status==='complete' &&
+     (intent?.status==='canceled'||(booking.order_status==='failed'&&intent?.status==='requires_payment_method')));
+   if(!safeToRelease||session.payment_status!=='unpaid')return false;
+  }
+  const {data:expired,error:expiryError}=await admin.rpc('mva_cancel_expired_booking',{
+   p_booking_id:booking.booking_id,p_closed_session_id:sessionId,
+  });
+  if(expiryError)throw expiryError;
+  return expired===true;
+ }));
+ const failed=results.filter(result=>result.status==='rejected').length;
+ if(failed)console.warn('MVA booking expiry retries required',failed);
+ return {checked:results.length,canceled:results.filter(result=>result.status==='fulfilled'&&result.value).length,failed};
+}
 async function customerCheckout(input:{
  kind:'fiscal'|'booking',resourceId:string,userId:string,amountCents:number,title:string,
- email:string,accountId:string|null,meta:Record<string,string>,page:string,
+ email:string,accountId:string|null,meta:Record<string,string>,page:string,paymentDueAt?:string|null,
 },stripe:Stripe){
- const {kind,resourceId,userId,amountCents,title,email,accountId,meta,page}=input;
+ const {kind,resourceId,userId,amountCents,title,email,accountId,meta,page,paymentDueAt}=input;
+ ensurePaymentWindow(paymentDueAt);
  let {data:order,error:lookupError}=await admin.from('mva_checkout_orders').select('*')
    .eq('kind',kind).eq('resource_id',resourceId).maybeSingle();
  if(lookupError)throw lookupError;
@@ -146,6 +187,7 @@ async function customerCheckout(input:{
    && (previous.expires_at||0)>Math.floor(Date.now()/1000)+60
    && previous.metadata?.mva_dynamic_methods==='v1'
    && (!pixActive||supportsPix);
+  ensurePaymentWindow(paymentDueAt);
   if(keepOpen&&previous.url)
    return {url:previous.url,sessionId:previous.id,orderId:order.id,livemode:previous.livemode};
   // Stripe confirms that the session is still open or expired; never expire
@@ -173,10 +215,22 @@ async function customerCheckout(input:{
  }
  const {data:claimed,error:claimError}=await admin.rpc('mva_claim_checkout_order',{p_order:order.id});
  if(claimError)throw claimError;
- if(!claimed)throw new Error('Há uma tentativa de pagamento em andamento. Aguarde e tente novamente.');
+ if(!claimed){
+  ensurePaymentWindow(paymentDueAt);
+  throw new Error('Há uma tentativa de pagamento em andamento ou a reserva já foi concluída. Atualize o painel.');
+ }
  let created:Stripe.Checkout.Session|null=null;
  try{
+  ensurePaymentWindow(paymentDueAt);
+  const bookingExpiry = paymentDueAt ? {
+   // Stripe accepts a minimum Checkout duration of 30 minutes. The worker
+   // explicitly expires sessions whose booking deadline comes sooner.
+   expires_at:Math.max(Math.ceil(Date.parse(paymentDueAt)/1000),Math.ceil(Date.now()/1000)+31*60),
+   custom_text:{submit:{message:'Pague até '+bookingPaymentTime.format(new Date(paymentDueAt))+
+     ' (horário de Brasília). Sem pagamento, a reserva será cancelada automaticamente.'}},
+  } : {};
   created=await stripe.checkout.sessions.create({
+   ...bookingExpiry,
    // Dynamic Checkout uses the activated payment methods in the Stripe
    // Dashboard (card and Pix after merchant activation).
    mode:'payment',
@@ -195,6 +249,7 @@ async function customerCheckout(input:{
    livemode:created.livemode,checkout_lock_until:null,updated_at:new Date().toISOString(),
   }).eq('id',order.id);
   if(saveError)throw saveError;
+  ensurePaymentWindow(paymentDueAt);
   return successInfo(created,order.id);
  }catch(e){
   if(created)try{await stripe.checkout.sessions.expire(created.id,{},accountId?{stripeAccount:accountId}:{})}catch{/* manual reconciliation */}
@@ -211,6 +266,16 @@ Deno.serve(async req=>{
  try{
   const body=await req.json() as Body;
   const action=string(body.action);
+  if(action==='expire_unpaid_bookings'){
+   const workerKey=req.headers.get('x-mva-expiry-key')||'';
+   if(!/^[0-9a-f]{64}$/.test(workerKey))return response({error:'Worker não autorizado.'},403,origin);
+   try{return response(await expireUnpaidBookings(workerKey),200,origin)}
+   catch(error){
+    if((error as {code?:string})?.code==='42501')return response({error:'Worker não autorizado.'},403,origin);
+    console.error('MVA booking expiry dispatch failed');
+    return response({error:'Não foi possível processar os vencimentos.'},503,origin);
+   }
+  }
   const cfg=await settings();
   if(action==='status'){
    // Anonymous and ordinary users cannot initiate simulated payments on the public site.
@@ -284,9 +349,11 @@ Deno.serve(async req=>{
    const id=string(body.bookingId);if(!validUuid(id))throw new Error('Reserva inválida.');
    const {data:b,error:bError}=await admin.from('bookings').select('*').eq('id',id).eq('user_id',user.id).single();
    if(bError||!b||b.status!=='confirmada')throw new Error('Reserva indisponível para pagamento.');
+   if(b.admin_complimentary===true)throw new Error('Reserva administrativa isenta: nenhum pagamento é necessário.');
+   ensurePaymentWindow(b.payment_due_at);
    const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Maceio',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
    if(b.booking_date<today)throw new Error('Não é possível pagar uma reserva que já passou.');
-   const {data:s,error:sError}=await admin.from('spaces').select('id,owner_id,is_mva_headquarters,approval,status')
+   const {data:s,error:sError}=await admin.from('spaces').select('id,owner_id,is_mva_headquarters,approval,status,category,price_per_hour')
       .eq('id',b.space_id).single();
    if(sError||!s||s.approval!=='aprovado'||s.status!=='available')throw new Error('Espaço não está disponível para novos pagamentos.');
    let connected:string|null=null;
@@ -297,11 +364,36 @@ Deno.serve(async req=>{
        throw new Error('Este coworking ainda não concluiu a conexão de recebimentos com Stripe.');
     connected=account.stripe_account_id;
    }
-   const amount=Math.round(Number(b.total_price)*100);
-   if(!Number.isSafeInteger(amount)||amount<100)throw new Error('Valor da reserva inválido.');
+   const fullAmount=Math.round(Number(b.total_price)*100);
+   if(!Number.isSafeInteger(fullAmount)||fullAmount<100)throw new Error('Valor da reserva inválido.');
+   // Meeting-room discounts are exclusively for paid, formalized fiscal-address
+   // contracts at MVA HQ, never for partner spaces or unrelated add-ons.
+   let discountPercent=0;
+   if(s.is_mva_headquarters===true&&s.category==='reuniao'&&b.space_category==='reuniao'){
+    const {data:contracts,error:contractsError}=await admin.from('fiscal_contracts')
+      .select('plan_id').eq('user_id',user.id).eq('status','ativo')
+      .eq('payment_status','paid').eq('payment_is_live',true)
+      .lte('start_date',b.booking_date).gte('renewal_date',b.booking_date);
+    if(contractsError)throw contractsError;
+    const ids=[...new Set((contracts||[]).map(c=>c.plan_id).filter(Boolean))];
+    if(ids.length){
+     const {data:planBenefits,error:benefitError}=await admin.from('mva_fiscal_prices')
+      .select('room_discount_percent').in('id',ids).eq('active',true);
+     if(benefitError)throw benefitError;
+     discountPercent=Math.min(10,Math.max(0,...(planBenefits||[]).map(x=>Number(x.room_discount_percent)||0)));
+    }
+   }
+   // Original booking total is authoritative. Discount only the room rental,
+   // never extras; the amount forwarded to Stripe is also stored in the order.
+   const roomBaseCents=Math.max(0,Math.min(fullAmount,
+      Math.round(Number(s.price_per_hour)*Number(b.duration_hours)*100)));
+   const roomDiscountCents=Math.round(roomBaseCents*discountPercent/100);
+   const amount=fullAmount-roomDiscountCents;
+   if(!Number.isSafeInteger(amount)||amount<100)throw new Error('Valor final da reserva inválido.');
    return response(await customerCheckout({kind:'booking',resourceId:id,userId:user.id,amountCents:amount,
     title:'Reserva · '+b.space_name+' · '+b.booking_date,email:b.responsible_email,
-    accountId:connected,meta:{bookingId:id},page:'client-dashboard'},stripe),200,origin);
+    accountId:connected,meta:{bookingId:id,roomDiscountPercent:String(discountPercent),
+      roomDiscountCents:String(roomDiscountCents)},page:'client-dashboard',paymentDueAt:b.payment_due_at},stripe),200,origin);
   }
   // Monthly room-hour membership: credits are granted only by signed invoice.paid events.
   if(action==='booking_plan_status'){
@@ -377,7 +469,7 @@ Deno.serve(async req=>{
     if(existing.stripe_checkout_session_id&&!existing.stripe_subscription_id){
      const prior=await stripe.checkout.sessions.retrieve(existing.stripe_checkout_session_id);
      if(prior.status==='open'){
-      if(existing.plan_id===plan.id&&prior.url)return response(successInfo(prior),200,origin);
+      if(existing.plan_id===plan.id&&prior.url&&prior.metadata?.mva_live_price_id===plan.stripe_live_price_id)return response(successInfo(prior),200,origin);
       // Expire the old tier before creating a replacement, so there is only one payable session.
       await stripe.checkout.sessions.expire(prior.id);
      }else if(prior.status==='complete'){
@@ -389,7 +481,7 @@ Deno.serve(async req=>{
      customer_email:user.email||me.email,
      client_reference_id:user.id,
      line_items:[{price:plan.stripe_live_price_id,quantity:1}],
-     metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id},
+     metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id,mva_live_price_id:plan.stripe_live_price_id},
      subscription_data:{metadata:{mva_kind:'booking_membership',mva_user_id:user.id,mva_booking_plan:plan.id}},
      success_url:checkoutUrl('client-dashboard','success')+'&stripe_membership=1',
      cancel_url:checkoutUrl('client-dashboard','canceled')+'&stripe_membership=1'
