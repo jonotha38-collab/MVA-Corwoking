@@ -8,6 +8,8 @@ import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations
 import { isAdmin } from '../../lib/auth';
 import { rowToBooking } from '../../lib/mappers';
 import { useCoworking } from '../../context/CoworkingContext';
+import { isComplimentaryBooking } from '../../lib/booking-voucher';
+import { RevealBookingVoucher } from '../common/RevealBookingVoucher';
 import { VoucherCheckInForm } from './VoucherCheckInForm';
 import type { Booking } from '../../types';
 
@@ -281,7 +283,7 @@ export function AdminBookingAgenda() {
                     <MapPin className="h-3.5 w-3.5 shrink-0" />{item.location}
                   </p>
                   <span className="mt-1.5 inline-flex rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
-                    {item.type === 'intern' ? 'Sala dos estagiários' : 'Reserva de cliente'}
+                    {item.type === 'intern' ? 'Sala dos estagiários' : isComplimentaryBooking(item.booking) ? 'Cortesia administrativa' : 'Reserva de cliente'}
                   </span>
                 </div>
                 <div className="min-w-0">
@@ -304,6 +306,11 @@ export function AdminBookingAgenda() {
                       {channel === 'email' ? 'E-mail' : 'Google Agenda'}: {ok ? 'Enviado' : status === 'failed' ? 'Falhou' : 'Pendente'}
                     </span>;
                   })}
+                  {isComplimentaryBooking(item.booking) && item.booking?.userId === currentUser?.id
+                    && item.status === 'confirmada' && !item.checkIn
+                    && Date.parse(`${item.date}T${item.booking?.endTime}:00-03:00`) > Date.now() && (
+                      <RevealBookingVoucher bookingId={item.id} />
+                  )}
                   {item.type === 'commercial' && item.status === 'confirmada' && !item.checkIn &&
                     <button type="button" onClick={() => void checkInBooking(item.id).then(() => load())}
                       className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-navy-900 hover:bg-slate-100">

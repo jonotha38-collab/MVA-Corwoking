@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useBookingVoucher } from '../../lib/booking-voucher';
+import { isComplimentaryBooking, useBookingVoucher } from '../../lib/booking-voucher';
 import { BookingVoucherCode } from '../common/BookingVoucherCode';
+import { RevealBookingVoucher } from '../common/RevealBookingVoucher';
 import { BookingPaymentDeadline, useBookingPaymentWindow } from '../payments/BookingPaymentDeadline';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import {
@@ -41,14 +42,15 @@ export function BookingConfirmation({
   const [redeeming,setRedeeming]=useState(false);
   const [creditError,setCreditError]=useState('');
   const fiscalCovered=booking.totalPrice===0&&Number(booking.fiscalBonusHours||0)>=booking.durationHours&&booking.durationHours>0&&booking.addons.length===0;
-  const eligibleForCredit=space.isMvaHeadquarters&&space.category==='atendimento'&&booking.addons.length===0
+  const complimentary = isComplimentaryBooking(booking);
+  const eligibleForCredit=!complimentary&&space.isMvaHeadquarters&&space.category==='atendimento'&&booking.addons.length===0
     &&!(booking.fiscalBonusHours||booking.fiscalDiscountPercent);
   const [paymentExpiredAt, setPaymentExpiredAt] = useState(booking.paymentExpiredAt);
   const paymentClosed = useBookingPaymentWindow(booking.paymentDueAt);
-  const { voucher, reload } = useBookingVoucher(booking.id, creditApplied || !!paymentExpiredAt);
-  const complimentary = voucher?.status === 'available' && voucher.coverage === 'complimentary';
+  const { voucher, reload } = useBookingVoucher(complimentary ? undefined : booking.id, creditApplied || !!paymentExpiredAt);
   const financiallyConfirmed=complimentary||fiscalCovered||creditApplied||(paymentStatus==='paid'&&paymentIsLive);
   useEffect(() => {
+    if (complimentary) return;
     let live = true;
     const load = async () => {
       const [orders,credits,latest]=await Promise.all([
@@ -71,7 +73,7 @@ export function BookingConfirmation({
       document.removeEventListener('visibilitychange', recheck);
       window.clearInterval(timer);
     };
-  }, [booking.id, paymentClosed, paymentExpiredAt]);
+  }, [booking.id, complimentary, paymentClosed, paymentExpiredAt]);
   useEffect(()=>{
     if(!eligibleForCredit||!userId)return;
     let alive=true;
@@ -163,7 +165,7 @@ export function BookingConfirmation({
         </div>
 
         <div className="mt-4">
-          <BookingVoucherCode voucher={voucher} reload={reload} />
+          {complimentary ? <RevealBookingVoucher bookingId={booking.id} /> : <BookingVoucherCode voucher={voucher} reload={reload} />}
         </div>
       </div>
     </section>

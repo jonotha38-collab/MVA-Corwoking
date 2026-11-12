@@ -103,6 +103,7 @@ export interface Booking {
   addons: string[];
   fiscalBonusHours?: number;
   fiscalDiscountPercent?: number;
+  adminComplimentary?: boolean;
   status: 'confirmada' | 'concluida' | 'cancelada';
   checkIn: boolean;
   paymentDueAt?: string | null;

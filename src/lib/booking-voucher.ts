@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { Booking } from '../types';
 import { supabase } from './supabase';
 
 export type BookingVoucher =
@@ -15,6 +16,10 @@ export type VoucherCheckIn =
     startTime: string;
     endTime: string;
   };
+
+export function isComplimentaryBooking(booking?: Booking) {
+  return booking?.adminComplimentary === true && booking.totalPrice === 0;
+}
 
 export function normalizeVoucherInput(value: string) {
   const trimmed = value.trim();

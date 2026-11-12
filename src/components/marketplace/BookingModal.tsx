@@ -23,6 +23,7 @@ interface BookingModalProps {
 
 export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) => {
   const { addBooking, currentCompany, currentUser, showToast } = useCoworking();
+  const administrativeBooking = currentUser?.isAdmin === true;
 
   const [date, setDate] = useState(() => addDate(maceioDate(), 1));
   const [startTime, setStartTime] = useState('');
@@ -271,7 +272,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                           <p className="text-[10px] text-slate-500">{t(addon.desc)}</p>
                         </div>
                       </div>
-                      <span className="font-bold text-navy-900 shrink-0 ml-2">+ {brl(addon.price)}
+                      <span className="font-bold text-navy-900 shrink-0 ml-2">+ {brl(administrativeBooking ? 0 : addon.price)}
                       </span>
                     </div>
                   );
@@ -283,23 +284,25 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
             <div className="bg-navy-950 text-white p-4 rounded-xl flex items-center justify-between">
               <div>
                 <span className="text-[11px] text-slate-400 block">{timeAvailable?`Total (${durationHours}h de locação)`:'Selecione data, início e duração'}</span>
-                <div className="text-xs text-slate-300">{timeAvailable?`Base: ${brl(baseTotal)}`:'O valor será calculado automaticamente.'}{timeAvailable&&addonsTotal>0&&` + Adicionais: ${brl(addonsTotal)}`}
+                <div className="text-xs text-slate-300">{administrativeBooking ? t('Reserva sem cobrança') : timeAvailable ? `Base: ${brl(baseTotal)}` : 'O valor será calculado automaticamente.'}{!administrativeBooking&&timeAvailable&&addonsTotal>0&&` + Adicionais: ${brl(addonsTotal)}`}
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-orange-400 uppercase font-semibold block">Valor de referência</span>
-                <div className="text-2xl font-bold text-orange-400">{timeAvailable?brl(totalPrice):'—'}
+                <span className="text-[10px] text-orange-400 uppercase font-semibold block">{administrativeBooking ? t('Cortesia administrativa') : 'Valor de referência'}</span>
+                <div className="text-2xl font-bold text-orange-400">{timeAvailable?brl(administrativeBooking ? 0 : totalPrice):'—'}
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900" role="note">
-              <strong>Preço de referência antes dos benefícios.</strong> Se você tiver contrato fiscal ativo com a MVA, o desconto do seu plano e as horas bônus elegíveis serão calculados pelo servidor na confirmação. O valor final será apresentado no comprovante; só haverá cobrança pelo Stripe se restar algo a pagar. Adicionais não recebem desconto. Reservas de parceiros dependem de recebimentos habilitados.
-             </div>
+            {!administrativeBooking && <>
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900" role="note">
+                <strong>Preço de referência antes dos benefícios.</strong> Se você tiver contrato fiscal ativo com a MVA, o desconto do seu plano e as horas bônus elegíveis serão calculados pelo servidor na confirmação. O valor final será apresentado no comprovante; só haverá cobrança pelo Stripe se restar algo a pagar. Adicionais não recebem desconto. Reservas de parceiros dependem de recebimentos habilitados.
+               </div>
 
-            <p className="text-xs leading-relaxed text-slate-600">
-              {t('Quando houver valor a pagar, o prazo é de até 1 hora após o agendamento, limitado ao início da reserva. Sem pagamento, o horário será liberado automaticamente.')}
-            </p>
+              <p className="text-xs leading-relaxed text-slate-600">
+                {t('Quando houver valor a pagar, o prazo é de até 1 hora após o agendamento, limitado ao início da reserva. Sem pagamento, o horário será liberado automaticamente.')}
+              </p>
+            </>}
 
             {/* Footer Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -312,7 +315,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                 type="submit"
                 disabled={!timeAvailable||submitting}
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >{submitting?'Registrando reserva…':'Confirmar horário e ver valor final'}</button>
+              >{submitting?'Registrando reserva…':administrativeBooking?t('Confirmar reserva de cortesia'):'Confirmar horário e ver valor final'}</button>
             </div>
           </form>
         )}

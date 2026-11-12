@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
 import { BookingPlans } from '../payments/BookingPlans';
-import { useBookingVoucher } from '../../lib/booking-voucher';
+import { isComplimentaryBooking, useBookingVoucher } from '../../lib/booking-voucher';
 import { BookingVoucherCode } from '../common/BookingVoucherCode';
 import { BookingPaymentDeadline, useBookingPaymentWindow } from '../payments/BookingPaymentDeadline';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
@@ -56,11 +56,12 @@ export const ClientDashboardView: React.FC = () => {
   const [creditedBookingIds,setCreditedBookingIds]=useState<Set<string>>(() => new Set());
   const [fiscalRoomPerk,setFiscalRoomPerk]=useState<FiscalRoomPerk|null>(null);
   const voucherCanceled = selectedVoucher?.status === 'cancelada' || voucher?.status === 'canceled';
-  const voucherConfirmed = voucher?.status === 'available' || voucher?.status === 'used' || (
+  const voucherConfirmed = isComplimentaryBooking(selectedVoucher) || voucher?.status === 'available' || voucher?.status === 'used' || (
     !!selectedVoucher && (paidBookingIds.has(selectedVoucher.id) || creditedBookingIds.has(selectedVoucher.id) || fiscalCovered(selectedVoucher))
   );
-  const voucherPaymentPending = voucher?.status === 'pending' ||
-    ((!voucher || voucher.status === 'error') && !voucherConfirmed);
+  const voucherPaymentPending = !isComplimentaryBooking(selectedVoucher) && (
+    voucher?.status === 'pending' || ((!voucher || voucher.status === 'error') && !voucherConfirmed)
+  );
   useEffect(()=>{
     if(!currentUser){setFiscalRoomPerk(null);return}
     let live=true;
@@ -344,7 +345,7 @@ export const ClientDashboardView: React.FC = () => {
             onClick={() => setSelectedVoucherId(upcomingBooking.id)}
             className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-2 shrink-0"
           >
-            <QrCode className="w-4 h-4" />{t('Abrir voucher')}</button>
+            <QrCode className="w-4 h-4" />{t(isComplimentaryBooking(upcomingBooking) ? 'Mostrar código da sala' : 'Abrir voucher')}</button>
         </div>
       )}
 
@@ -399,8 +400,8 @@ export const ClientDashboardView: React.FC = () => {
                     </td>
                     <td className="py-4 px-4 font-bold text-navy-900 whitespace-nowrap">
                        <div>{t("R$ ")}{t(b.totalPrice.toFixed(2))}</div>
-                       <span className={`mt-1 inline-block text-[10px] font-semibold ${(paidBookingIds.has(b.id)||creditedBookingIds.has(b.id)||fiscalCovered(b))?'text-emerald-700':'text-amber-700'}`}>
-                         {fiscalCovered(b)?'Bônus MVA Excellence':creditedBookingIds.has(b.id)?'Coberto por plano de horas':paidBookingIds.has(b.id)?'Pago pelo Stripe':'Pagamento não confirmado'}
+                       <span className={`mt-1 inline-block text-[10px] font-semibold ${(isComplimentaryBooking(b)||paidBookingIds.has(b.id)||creditedBookingIds.has(b.id)||fiscalCovered(b))?'text-emerald-700':'text-amber-700'}`}>
+                         {isComplimentaryBooking(b)?t('Cortesia administrativa'):fiscalCovered(b)?'Bônus MVA Excellence':creditedBookingIds.has(b.id)?'Coberto por plano de horas':paidBookingIds.has(b.id)?'Pago pelo Stripe':'Pagamento não confirmado'}
                        </span>
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">

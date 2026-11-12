@@ -3174,5 +3174,25 @@
   "Quando houver valor a pagar, o prazo é de até 1 hora após o agendamento, limitado ao início da reserva. Sem pagamento, o horário será liberado automaticamente.": [
     "When payment is required, you have up to one hour after booking, or until the reservation starts if sooner. Unpaid slots are released automatically.",
     "Si corresponde pagar, el plazo es de hasta una hora desde el agendamiento o hasta el inicio de la reserva, lo que ocurra primero. Sin pago, el horario se libera automáticamente."
+  ],
+  "Mostrar código da sala": [
+    "Show room access code",
+    "Mostrar código de acceso a la sala"
+  ],
+  "Ocultar código da sala": [
+    "Hide room access code",
+    "Ocultar código de acceso a la sala"
+  ],
+  "Reserva sem cobrança": [
+    "Free booking",
+    "Reserva sin cargo"
+  ],
+  "Cortesia administrativa": [
+    "Staff courtesy booking",
+    "Reserva de cortesía administrativa"
+  ],
+  "Confirmar reserva de cortesia": [
+    "Confirm complimentary booking",
+    "Confirmar reserva de cortesía"
   ]
 }

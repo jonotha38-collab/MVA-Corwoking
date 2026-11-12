@@ -41,6 +41,7 @@ export const rowToBooking = (r: Row): Booking => ({
   startTime: String(r.start_time).slice(0, 5), endTime: String(r.end_time).slice(0, 5),
   durationHours: Number(r.duration_hours), totalPrice: Number(r.total_price), addons: r.addons || [],
    fiscalBonusHours: Number(r.fiscal_bonus_hours||0),fiscalDiscountPercent: Number(r.fiscal_discount_percent||0),
+  adminComplimentary: r.admin_complimentary === true,
   paymentDueAt: r.payment_due_at ?? null, paymentExpiredAt: r.payment_expired_at ?? null,
   status: r.status, checkIn: !!r.check_in, createdAt: String(r.created_at).slice(0, 10),
 });
