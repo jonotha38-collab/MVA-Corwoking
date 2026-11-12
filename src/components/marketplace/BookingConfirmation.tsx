@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useBookingVoucher } from '../../lib/booking-voucher';
+import { BookingVoucherCode } from '../common/BookingVoucherCode';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import {
-  ArrowUpRight, Bell, CalendarDays, CalendarPlus, Check, CheckCircle2,
-  Clock3, Copy, ExternalLink, MapPin, Printer, ShieldCheck, UserRound,
+  ArrowUpRight, Bell, CalendarDays, CalendarPlus, CheckCircle2,
+  Clock3, ExternalLink, MapPin, Printer, ShieldCheck, UserRound,
 } from 'lucide-react';
 import type { Booking, Space } from '../../types';
 import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations';
@@ -31,7 +33,6 @@ const currency = (amount: number) => amount.toLocaleString('pt-BR', { style: 'cu
 export function BookingConfirmation({
   booking, space, userId, canConnectGoogle, sync, connecting, onConnect, onClose,
 }: Props) {
-  const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [paymentIsLive, setPaymentIsLive] = useState(false);
   const [creditApplied,setCreditApplied]=useState(false);
@@ -41,7 +42,9 @@ export function BookingConfirmation({
   const fiscalCovered=booking.totalPrice===0&&Number(booking.fiscalBonusHours||0)>=booking.durationHours&&booking.durationHours>0&&booking.addons.length===0;
   const eligibleForCredit=space.isMvaHeadquarters&&space.category==='atendimento'&&booking.addons.length===0
     &&!(booking.fiscalBonusHours||booking.fiscalDiscountPercent);
-  const financiallyConfirmed=fiscalCovered||creditApplied||(paymentStatus==='paid'&&paymentIsLive);
+  const { voucher, reload } = useBookingVoucher(booking.id, creditApplied);
+  const complimentary = voucher?.status === 'available' && voucher.coverage === 'complimentary';
+  const financiallyConfirmed=complimentary||fiscalCovered||creditApplied||(paymentStatus==='paid'&&paymentIsLive);
   useEffect(() => {
     let live = true;
     const load = async () => {
@@ -91,15 +94,6 @@ export function BookingConfirmation({
     ? (recordedCalendarEventUrl(userId || '', booking.id) || 'https://calendar.google.com/calendar/u/0/r')
     : manualGoogleCalendarLink(booking, space);
 
-  const copyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(booking.id.toUpperCase());
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  };
-
   return <div className="space-y-5 bg-[#fafbfc] p-5 sm:p-7">
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white" aria-label="Detalhes do agendamento">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4">
@@ -108,12 +102,12 @@ export function BookingConfirmation({
             <CheckCircle2 className="h-5 w-5" aria-hidden />
           </span>
           <div>
-            <p className="text-sm font-bold text-navy-900">{fiscalCovered?'Reserva coberta pelo MVA Excellence':financiallyConfirmed?'Reserva paga e confirmada':'Reserva registrada — aguardando pagamento'}</p>
-            <p className="text-xs text-slate-600">{fiscalCovered?'Suas horas bônus deste mês cobriram integralmente a reserva, sem cobrança extra.':financiallyConfirmed?'Seu pagamento ou saldo de horas foi confirmado.':'Escolha uma forma de pagamento para liberar o comprovante financeiro.'}</p>
+            <p className="text-sm font-bold text-navy-900">{complimentary?'Reserva de cortesia confirmada':fiscalCovered?'Reserva coberta pelo MVA Excellence':financiallyConfirmed?'Reserva paga e confirmada':'Reserva registrada — aguardando pagamento'}</p>
+            <p className="text-xs text-slate-600">{complimentary?'Esta reserva administrativa tem cortesia integral.':fiscalCovered?'Suas horas bônus deste mês cobriram integralmente a reserva, sem cobrança extra.':financiallyConfirmed?'Seu pagamento ou saldo de horas foi confirmado.':'Escolha uma forma de pagamento para liberar o comprovante financeiro.'}</p>
           </div>
         </div>
         <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-semibold text-emerald-800">
-          {financiallyConfirmed?'Paga':'Pendente'}
+          {complimentary?'Cortesia':financiallyConfirmed?'Paga':'Pendente'}
         </span>
       </div>
       <div className="p-5 sm:p-6">
@@ -146,7 +140,7 @@ export function BookingConfirmation({
           </div>
           <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" aria-hidden />
-            <div><span className="block text-[11px] font-medium text-slate-500">{fiscalCovered?'Coberto pelo bônus fiscal MVA Excellence':creditApplied?'Coberto pelo plano de horas':paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor final da reserva — pagamento não confirmado'}</span>
+            <div><span className="block text-[11px] font-medium text-slate-500">{complimentary?'Cortesia administrativa':fiscalCovered?'Coberto pelo bônus fiscal MVA Excellence':creditApplied?'Coberto pelo plano de horas':paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor final da reserva — pagamento não confirmado'}</span>
               <strong className="mt-0.5 block text-sm text-navy-900">{currency(booking.totalPrice)}</strong>
               {(booking.fiscalBonusHours||0)>0&&<p className="mt-1 text-[11px] font-semibold text-emerald-700">
                {booking.fiscalBonusHours}h de bônus MVA Excellence aplicadas · não acumulativas
@@ -158,16 +152,8 @@ export function BookingConfirmation({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3">
-          <div className="min-w-0">
-            <span className="block text-[11px] font-medium text-slate-500">Número do agendamento</span>
-            <code className="mt-0.5 block break-all font-mono text-xs font-semibold text-navy-900">{booking.id.toUpperCase()}</code>
-          </div>
-          <button type="button" onClick={() => void copyCode()} title="Copiar número da reserva"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-navy-800 hover:bg-slate-50">
-            {copied ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Copy className="h-3.5 w-3.5" />}
-            {copied ? 'Copiado' : 'Copiar código'}
-          </button>
+        <div className="mt-4">
+          <BookingVoucherCode voucher={voucher} reload={reload} />
         </div>
       </div>
     </section>
@@ -175,9 +161,9 @@ export function BookingConfirmation({
     <section aria-label="Aviso para a recepção" className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5">
       <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" aria-hidden />
       <div>
-        <p className="text-xs font-bold text-navy-900">{financiallyConfirmed?'Reserva paga — comprovante válido':'Agendamento pendente de pagamento'}</p>
+        <p className="text-xs font-bold text-navy-900">{complimentary?'Reserva de cortesia confirmada':financiallyConfirmed?'Reserva paga — comprovante válido':'Agendamento pendente de pagamento'}</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          {fiscalCovered?'Reserva coberta por horas bônus não acumulativas do MVA Excellence; a recepção pode validar o benefício registrado nesta reserva.':creditApplied?'Reserva coberta pelas horas mensais já pagas. A recepção poderá verificar o saldo debitado no seu agendamento.':
+          {complimentary?'Informe o código do voucher à recepção.':fiscalCovered?'Reserva coberta por horas bônus não acumulativas do MVA Excellence; a recepção pode validar o benefício registrado nesta reserva.':creditApplied?'Reserva coberta pelas horas mensais já pagas. A recepção poderá verificar o saldo debitado no seu agendamento.':
            paymentStatus==='paid'&&paymentIsLive?'Seu pagamento real foi confirmado pelo Stripe. A recepção poderá verificar o comprovante financeiro.':
            paymentStatus==='paid'?'Esta reserva foi paga somente em ambiente de testes. Solicite uma nova reserva para pagamento real.':
            'O horário foi registrado, mas ainda não há pagamento confirmado. Efetue o pagamento com Stripe ou utilize horas de um plano elegível antes de usar a sala.'}

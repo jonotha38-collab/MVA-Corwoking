@@ -3042,5 +3042,109 @@
   "Atendimento comercial: consulte os canais abaixo para confirmar horários e disponibilidade antes de visitar.": [
     "Business enquiries: contact us to confirm hours and availability before visiting.",
     "Atención comercial: consulta los canales para confirmar horarios y disponibilidad antes de visitar."
+  ],
+  "Abrir voucher": [
+    "Open voucher",
+    "Abrir comprobante"
+  ],
+  "Código do voucher": [
+    "Voucher code",
+    "Código del comprobante"
+  ],
+  "Informe os seis números na recepção.": [
+    "Give the six digits to reception.",
+    "Indique los seis dígitos en recepción."
+  ],
+  "O código será liberado após a confirmação do pagamento ou do benefício.": [
+    "The code will be available once the payment or benefit is confirmed.",
+    "El código estará disponible una vez confirmado el pago o el beneficio."
+  ],
+  "A entrada desta reserva já foi registrada.": [
+    "This booking has already been checked in.",
+    "La entrada de esta reserva ya fue registrada."
+  ],
+  "Esta reserva foi cancelada.": [
+    "This booking was canceled.",
+    "Esta reserva fue cancelada."
+  ],
+  "O horário desta reserva já terminou.": [
+    "This booking has already ended.",
+    "El horario de esta reserva ya terminó."
+  ],
+  "Não foi possível consultar o código.": [
+    "Could not retrieve the code.",
+    "No se pudo consultar el código."
+  ],
+  "Consultando código do voucher…": [
+    "Checking the voucher code…",
+    "Consultando el código del comprobante…"
+  ],
+  "Código copiado.": [
+    "Code copied.",
+    "Código copiado."
+  ],
+  "Selecione os números para copiar o código.": [
+    "Select the digits to copy the code.",
+    "Seleccione los dígitos para copiar el código."
+  ],
+  "Copiar código": [
+    "Copy code",
+    "Copiar código"
+  ],
+  "Tentar novamente": [
+    "Try again",
+    "Volver a intentar"
+  ],
+  "Validar voucher": [
+    "Validate voucher",
+    "Validar comprobante"
+  ],
+  "Digite o código informado pelo cliente. Exemplo 482 731.": [
+    "Enter the code provided by the client. Example 482 731.",
+    "Introduzca el código indicado por el cliente. Ejemplo 482 731."
+  ],
+  "Validar e registrar entrada": [
+    "Validate and check in",
+    "Validar y registrar entrada"
+  ],
+  "Validando…": [
+    "Validating…",
+    "Validando…"
+  ],
+  "Digite os seis números ou cole o código completo de um voucher antigo.": [
+    "Enter the six digits or paste the full code from an older voucher.",
+    "Introduzca los seis dígitos o pegue el código completo de un comprobante anterior."
+  ],
+  "Apenas administradores podem validar vouchers.": [
+    "Only administrators can validate vouchers.",
+    "Solo los administradores pueden validar comprobantes."
+  ],
+  "Não foi possível validar o voucher. Tente novamente.": [
+    "Could not validate the voucher. Try again.",
+    "No se pudo validar el comprobante. Vuelva a intentarlo."
+  ],
+  "Entrada registrada.": [
+    "Check-in recorded.",
+    "Entrada registrada."
+  ],
+  "O voucher pode ser validado no dia da reserva.": [
+    "The voucher can be validated on the day of the booking.",
+    "El comprobante se puede validar el día de la reserva."
+  ],
+  "Pagamento ou benefício ainda não confirmado.": [
+    "Payment or benefit is still unconfirmed.",
+    "El pago o beneficio aún no se ha confirmado."
+  ],
+  "Código não encontrado. Confira com o cliente.": [
+    "Code not found. Check with the client.",
+    "Código no encontrado. Verifique con el cliente."
+  ],
+  "Reserva confirmada": [
+    "Booking confirmed",
+    "Reserva confirmada"
+  ],
+  "Reserva registrada": [
+    "Booking recorded",
+    "Reserva registrada"
   ]
 }

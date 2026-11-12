@@ -8,6 +8,7 @@ import { BOOKING_EXTERNAL_INTEGRATIONS_ENABLED } from '../../config/integrations
 import { isAdmin } from '../../lib/auth';
 import { rowToBooking } from '../../lib/mappers';
 import { useCoworking } from '../../context/CoworkingContext';
+import { VoucherCheckInForm } from './VoucherCheckInForm';
 import type { Booking } from '../../types';
 
 type InternReservationRow = {
@@ -198,6 +199,8 @@ export function AdminBookingAgenda() {
           ))}
         </div>
       </div>
+
+      <VoucherCheckInForm onCheckIn={() => void load()} />
 
       {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && deliveriesPending > 0 && <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
         <strong>Integrações em processamento:</strong> {deliveriesPending} entrega(s) de e-mail ou Google Agenda pendente(s).
