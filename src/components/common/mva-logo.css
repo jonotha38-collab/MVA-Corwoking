@@ -4,16 +4,14 @@
 
 .mva-logo--inverse {
   fill: #fff;
-  --mva-logo-accent: #ffad78;
 }
 
 .mva-logo--surface {
   fill: var(--ink);
-  --mva-logo-accent: var(--accent);
 }
 
 .mva-logo__slash {
-  fill: var(--mva-logo-accent);
+  fill: var(--mva-brand-copper);
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -108,7 +108,7 @@ h1,h2,h3 { letter-spacing:-.035em; }
 .hero-shell { border-color:#293c53; }
 .hero-title { max-width:760px; font-weight:600; line-height:1.12; letter-spacing:-.045em; }
 .hero-shell p { line-height:1.8; }
-.action-primary { background:#b84613; border-radius:10px; }
+.action-primary { background:var(--mva-brand-copper); border-radius:10px; }
 .action-primary:hover:not(:disabled) { background:#97370d; }
 .preferences { display:flex; align-items:center; gap:7px; color:#d5deeb; flex-shrink:0; }
 .preferences select { background:transparent; color:inherit; border:0; font-size:12px; width:91px; cursor:pointer; padding:8px 0; }

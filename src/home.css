@@ -3,7 +3,7 @@
   --home-display: 'Manrope', 'Inter', system-ui, sans-serif;
   --home-navy: #102840;
   --home-on-navy: #ffffff;
-  --home-copper: #b84613;
+  --home-copper: var(--mva-brand-copper);
   --home-copper-hover: #97370d;
   --home-orange: #ffad78;
   --home-radius: 20px;

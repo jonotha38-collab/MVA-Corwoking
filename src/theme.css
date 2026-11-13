@@ -1,6 +1,7 @@
 /* MVA theme tokens. One palette drives surfaces, controls and legacy Tailwind utilities. */
 :root {
   color-scheme: light;
+  --mva-brand-copper: #b84613;
   --mva-shadow-low: 0 1px 2px rgb(12 24 42 / .035), 0 5px 14px -9px rgb(12 24 42 / .16);
   --mva-shadow-raised: 0 2px 4px rgb(12 24 42 / .055), 0 12px 30px -16px rgb(12 24 42 / .25);
   --mva-shadow-overlay: 0 4px 12px rgb(12 24 42 / .08), 0 20px 44px -16px rgb(12 24 42 / .34);
