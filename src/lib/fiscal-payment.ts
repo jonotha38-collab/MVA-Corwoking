@@ -2,6 +2,7 @@ import { supabase } from './supabase';
 export { FISCAL_PLANS, HEADQUARTERS, getPlan, getTermMonths, quotePlan, validCnpj, validateCompany } from '../../supabase/functions/_shared/fiscal-plans';
 export type { FiscalPlanId, FiscalPlan, FiscalCompanyInput, FiscalTermMonths } from '../../supabase/functions/_shared/fiscal-plans';
 export { canIssueCertificate } from './fiscal-eligibility';
+export const EXCELLENCE_ACCOUNTING_CONSULTATION = '1 hora grátis de consultoria com um contador, sob agendamento.';
 export interface PaymentOrder { id: string; status: 'pending' | 'paid' | 'refunded' | 'disputed' | 'canceled'; amount: number; currency: string; plan_id: string; contract_id: string | null; livemode: boolean; transfer: boolean; term_months: 1 | 12; }
 export interface PaymentSession { clientSecret: string; order: PaymentOrder; }
 export const paymentConfigured = import.meta.env.VITE_FISCAL_PAYMENTS_ENABLED === 'true' && /^pk_(test|live)_/.test(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');

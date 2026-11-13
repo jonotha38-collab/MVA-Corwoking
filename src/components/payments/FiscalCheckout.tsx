@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Building2, CheckCircle2, FileCheck2, Info, LockKeyhole, ShieldCheck, X } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
-import { getPlan, quotePlan, money, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
+import { EXCELLENCE_ACCOUNTING_CONSULTATION, getPlan, quotePlan, money, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
 import { supabase } from '../../lib/supabase';
 import { matchesFiscalApplication } from '../../lib/fiscal-application-flow';
 import { MvaLogo } from '../common/MvaLogo';
@@ -78,6 +78,7 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
      {plan.bonusHours>0&&<div className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs leading-5 text-orange-950">
       <strong>MVA Excellence:</strong> 2 horas de bônus por mês em sala de atendimento para até 3 pessoas nos três primeiros meses após a formalização, durante a vigência do contrato. <strong>Não acumulativas:</strong> horas não utilizadas expiram ao fim de cada mês contratual.
      </div>}
+     {plan.id==='mva_excellence'&&<p className="checkout-billing-note">{EXCELLENCE_ACCOUNTING_CONSULTATION}</p>}
      {plan.roomDiscountPercent>0&&<p className="checkout-billing-note">Durante a vigência do contrato, você tem {plan.roomDiscountPercent}% de desconto na reserva de salas de reunião próprias da MVA.</p>}
      <div className="checkout-security"><LockKeyhole size={16}/><span>O Stripe processa os dados de pagamento. A MVA não coleta números de cartão ou credenciais bancárias.</span></div>
    </aside>

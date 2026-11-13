@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
-import { FISCAL_PLANS, quotePlan, canIssueCertificate, restoreOrder, type FiscalPlanId } from '../../lib/fiscal-payment';
+import { EXCELLENCE_ACCOUNTING_CONSULTATION, FISCAL_PLANS, quotePlan, canIssueCertificate, restoreOrder, type FiscalPlanId } from '../../lib/fiscal-payment';
 import { FiscalCheckout } from '../payments/FiscalCheckout';
 import { CertificateDialog } from './CertificateDialog';
 import { FiscalServiceCenter } from './FiscalServiceCenter';
@@ -37,8 +37,8 @@ const planInfo: Record<(typeof planIds)[number],{eyebrow:string;features:string[
     eyebrow:'O plano mais completo',
     features:[
       'Endereço fiscal e gerenciamento de correspondências, recados e documentos',
-      '2 horas de bônus por mês em sala de atendimento para até 3 pessoas, nos 3 primeiros meses',
-      'Horas bônus mensais não acumulativas: o saldo não usado expira ao fim do mês contratual'
+      '2 horas de bônus por mês em sala de atendimento para até 3 pessoas, nos 3 primeiros meses após a formalização. As horas não são acumulativas.',
+      EXCELLENCE_ACCOUNTING_CONSULTATION
     ],
     popular:true
   }
@@ -249,7 +249,7 @@ export function FiscalView(){
       </article>;
     })}
    </div>
-   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed fiscal-muted">As 2 horas do Excellence são mensais, não acumulativas e válidas apenas nos 3 primeiros meses após a primeira formalização, enquanto houver contrato vigente. A locação depende de disponibilidade. Planos conforme o catálogo atual da MVA. A contratação e a emissão de documentos dependem da viabilidade do endereço, formalização e confirmação do pagamento. O Stripe confirma o pagamento real; o uso do endereço e a entrega dos documentos dependem da aprovação final e da assinatura do contrato pela MVA.</p>
+   <p className="mx-auto max-w-3xl text-center text-xs leading-relaxed fiscal-muted">A locação depende de disponibilidade. Planos conforme o catálogo atual da MVA. A contratação e a emissão de documentos dependem da viabilidade do endereço, formalização e confirmação do pagamento. O Stripe confirma o pagamento real; o uso do endereço e a entrega dos documentos dependem da aprovação final e da assinatura do contrato pela MVA.</p>
   </section>
 
   {/* Conversion with correct expectations */}
