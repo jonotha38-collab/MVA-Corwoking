@@ -180,7 +180,7 @@ export function FiscalView(){
      {icon:UsersRound,title:'Coworking de verdade',description:'Reserve salas de reunião e espaços para encontros presenciais conforme disponibilidade.'},
      {icon:Headphones,title:'Acompanhamento humano',description:'Equipe para orientar a contratação e esclarecer exigências documentais.'}
     ].map(({icon:Icon,title,description})=><article key={title} className="group min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 transition-colors hover:border-orange-200 sm:p-7">
-       <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-[#fff1e8] fiscal-accent"><Icon className="h-5 w-5" aria-hidden/></div>
+       <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl fiscal-accent-soft fiscal-accent"><Icon className="h-5 w-5" aria-hidden/></div>
        <h3 className="text-lg font-semibold fiscal-ink">{title}</h3>
        <p className="mt-2 text-sm leading-[1.8] fiscal-muted">{description}</p>
      </article>)}
@@ -272,7 +272,7 @@ export function FiscalView(){
      {icon:FileText,number:'02',title:'Análise e documentação',desc:'Na tela de pagamento, informe apenas os dados necessários à contratação. A equipe da MVA verificará a atividade e a documentação.'},
      {icon:BadgeCheck,number:'03',title:'Contrato e liberação',desc:'Depois da aprovação e do pagamento confirmado, os documentos pertinentes ficam disponíveis no painel.'}
     ].map(({icon:Icon,number,title,desc})=><article key={number} className="relative min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 sm:p-7">
-      <div className="flex items-center justify-between"><span className="text-sm font-bold tracking-widest fiscal-accent">{number}</span><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#fff1e8] fiscal-accent"><Icon className="h-5 w-5"/></div></div>
+      <div className="flex items-center justify-between"><span className="text-sm font-bold tracking-widest fiscal-accent">{number}</span><div className="grid h-11 w-11 place-items-center rounded-xl fiscal-accent-soft fiscal-accent"><Icon className="h-5 w-5"/></div></div>
       <h3 className="mt-7 text-lg font-semibold fiscal-ink">{title}</h3>
       <p className="mt-2 text-sm leading-[1.75] fiscal-muted">{desc}</p>
      </article>)}
