@@ -36,20 +36,19 @@ button:enabled, summary, select, a { cursor: pointer; }
 .home-hero h1 span { display: block; color: var(--accent); }
 .home-intro { max-width: 455px; margin-top: 26px; font-size: 16px; line-height: 1.85; color: var(--muted); }
 .home-hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 24px; margin-top: 32px; }
-.home-button { display: inline-flex; align-items: center; justify-content: center; gap: 14px; min-height: 50px; padding: 14px 21px; border-radius: 10px; font-size: 13px; font-weight: 650; line-height: 1.5; transition: background .2s, box-shadow .2s, transform .12s; }
+.home-button { display: inline-flex; align-items: center; justify-content: center; gap: 14px; min-height: 50px; padding: 14px 21px; border-radius: 10px; font-size: 13px; font-weight: 650; line-height: 1.5; transition: background .2s, border-color .2s; }
 .home-button-primary { background: var(--home-copper); color: #fff; }
-.home-button-primary:hover { background: var(--home-copper-hover); box-shadow: 0 4px 16px #10284018; }
-.home-button:active { box-shadow: inset 0 2px 5px #0002; }
+.home-button-primary:hover { background: var(--home-copper-hover); }
 .home-text-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; color: var(--ink); font-size: 13px; font-weight: 650; }
 .home-text-link:hover { color: var(--accent); }
 .home-hero-note { display: flex; align-items: center; gap: 7px; margin-top: 25px; font-size: 11px; line-height: 1.7; color: var(--muted); }
 .home-hero-note svg { flex-shrink: 0; color: var(--accent); }
-.home-hero-visual { position: relative; min-width: 0; aspect-ratio: .98; margin: 0; border-radius: var(--home-radius) var(--home-radius) 64px var(--home-radius); overflow: hidden; background: var(--home-navy); }
+.home-hero-visual { position: relative; min-width: 0; aspect-ratio: .98; margin: 0; border-radius: var(--home-radius) var(--home-radius) 64px var(--home-radius); overflow: hidden; background: var(--home-navy); box-shadow: var(--mva-shadow-raised); }
 .home-hero-visual > img { width: 100%; height: 100%; object-fit: cover; object-position: 58% center; }
 .home-hero-visual::after { position: absolute; right: 0; bottom: 0; width: 48px; height: 48px; border-top-left-radius: 15px; background: var(--home-copper); content: ''; }
 .home-image-label { position: absolute; left: 22px; top: 22px; display: flex; align-items: center; gap: 8px; border: 1px solid #ffffff4d; border-radius: 6px; padding: 8px 12px; background: #102840e8; color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .home-image-label .home-location-dot { color: var(--home-orange); }
-.home-photo-caption { position: absolute; right: 20px; bottom: 22px; left: 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 19px 21px; border: 1px solid #ffffff30; border-radius: 12px; background: #102840ed; color: #fff; }
+.home-photo-caption { position: absolute; right: 20px; bottom: 22px; left: 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 19px 21px; border: 1px solid #ffffff30; border-radius: 12px; background: #102840f2; color: #fff; }
 .home-photo-caption span { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--home-orange); }
 .home-photo-caption p { max-width: 240px; margin-top: 6px; font-family: var(--home-display); font-size: 18px; font-weight: 500; line-height: 1.45; }
 .home-photo-caption a { display: grid; flex-shrink: 0; place-items: center; width: 44px; height: 44px; border: 1px solid #ffffff50; border-radius: 50%; color: #fff; transition: background .2s; }
@@ -110,7 +109,7 @@ button:enabled, summary, select, a { cursor: pointer; }
 .home-faq details[open] summary svg { transform: rotate(180deg); }
 .home-faq summary:hover { color: var(--accent); }
 .home-faq details > p { padding: 0 28px 24px 0; color: var(--muted); font-size: 13px; line-height: 1.9; }
-.home-contact { display: flex; align-items: center; justify-content: space-between; gap: 36px; border-radius: var(--home-radius); padding: 42px; background: var(--home-navy); color: var(--home-on-navy); }
+.home-contact { display: flex; align-items: center; justify-content: space-between; gap: 36px; border-radius: var(--home-radius); padding: 42px; border: 1px solid #293c53; background: var(--home-navy); color: var(--home-on-navy); }
 .home-contact > div:first-child { max-width: 530px; }
 .home-contact .home-kicker { color: var(--home-orange); }
 .home-contact h2 { font-size: clamp(1.65rem, 2.7vw, 2.3rem); }
@@ -258,187 +257,71 @@ button:enabled, summary, select, a { cursor: pointer; }
   .home-button, .home-photo-caption, .home-room-bottom a { border: 1px solid ButtonText; }
 }
 
-/* Frosted, layered glass buttons scoped ONLY to the homepage contact section.
-   Adapted from the supplied HTML/CSS/JS: same press/lift/blur/grain/parallax
-   interaction, but uses actual links and the existing MVA/WhatsApp colors. */
+/* Contact links share the button finish and retain their service colors on hover. */
 .home-redesign .home-contact-actions {
   width: clamp(250px, 28vw, 330px);
   max-width: 100%;
   align-items: stretch;
-  gap: 14px;
+  gap: 12px;
 }
 .home-redesign .mva-contact-glassy {
-  --_surface: #126b41;
-  --_hover-surface: #126b41;
-  --_motion-duration: 220ms;
-  --_x-motion: 0px;
-  --_y-motion: 0px;
-  position: relative;
-  isolation: isolate;
-  display: block;
-  width: 100%;
+  --contact-color: #126b41;
   min-width: 0;
-  min-height: 56px;
-  padding: 0;
-  border: 0;
-  border-radius: 15px;
-  background: transparent;
-  color: #102840;
-  text-align: center;
-  text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
+  border-radius: 12px;
 }
-.home-redesign .mva-contact-glassy--email {
-  --_surface: #b84613;
-  --_hover-surface: #b84613;
-}
-.home-redesign .mva-contact-glassy::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--_surface);
-  box-shadow: 0 8px 20px rgb(0 0 0 / .14);
-  transform: translate3d(0, 0, 0) scale(1);
-  transition: transform var(--_motion-duration) cubic-bezier(.22,1,.36,1),
-              box-shadow var(--_motion-duration) ease;
-}
+.home-redesign .mva-contact-glassy--email { --contact-color: #b84613; }
 .home-redesign .mva-contact-glassy__face {
-  position: relative;
-  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 56px;
-  padding: 15px 20px;
-  overflow: hidden;
-  border: 1px solid rgb(255 255 255 / .86);
+  min-height: 54px;
+  padding: 14px 18px;
+  border: 1px solid #ffffff24;
   border-radius: inherit;
-  background-color: rgb(255 255 255 / .96);
-  background-image: linear-gradient(130deg, rgb(255 255 255 / .20), transparent 60%);
+  background: #f3f5f7;
   color: #102840;
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / .84), 0 5px 20px rgb(0 0 0 / .07);
-  -webkit-backdrop-filter: blur(0px);
-  backdrop-filter: blur(0px);
-  transition: transform var(--_motion-duration) cubic-bezier(.22,1,.36,1),
-              background-color var(--_motion-duration) ease,
-              color var(--_motion-duration) ease,
-              border-color var(--_motion-duration) ease,
-              box-shadow var(--_motion-duration) ease,
-              backdrop-filter var(--_motion-duration) ease,
-              -webkit-backdrop-filter var(--_motion-duration) ease;
+  box-shadow: var(--mva-shadow-low);
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
 }
-.home-redesign .mva-contact-glassy__face::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: inherit;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 171 171' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.74' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: .045;
-  transition: opacity var(--_motion-duration) ease;
-}
-.home-redesign .mva-contact-glassy__face > svg {
-  position: relative;
-  z-index: 1;
-  flex: 0 0 auto;
-}
+.home-redesign .mva-contact-glassy__face > svg { flex: 0 0 auto; }
+.home-redesign .mva-contact-glassy__face > svg:first-child { color: var(--contact-color); }
 .home-redesign .mva-contact-glassy__label {
-  position: relative;
-  z-index: 1;
   flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: break-word;
 }
-@media (hover: hover) and (pointer: fine) {
-  .home-redesign .mva-contact-glassy:hover .mva-contact-glassy__face,
-  .home-redesign .mva-contact-glassy:focus-visible .mva-contact-glassy__face {
-    background-color: var(--_hover-surface);
-    color: #ffffff;
-    border-color: rgb(255 255 255 / .78);
-    -webkit-backdrop-filter: blur(8px) saturate(1.08);
-    backdrop-filter: blur(8px) saturate(1.08);
-    transform: translateY(-6px);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / .32), 0 13px 28px rgb(0 0 0 / .20);
+@media (hover: hover) {
+  .home-redesign .mva-contact-glassy:hover .mva-contact-glassy__face {
+    background: var(--contact-color);
+    color: #fff;
   }
-  .home-redesign .mva-contact-glassy:hover::after,
-  .home-redesign .mva-contact-glassy:focus-visible::after {
-    transform: translate3d(var(--_x-motion), calc(5px + var(--_y-motion)), 0) scale(.94);
-  }
-  .home-redesign .mva-contact-glassy:hover .mva-contact-glassy__face::before,
-  .home-redesign .mva-contact-glassy:focus-visible .mva-contact-glassy__face::before {
-    opacity: .13;
-  }
-  .home-redesign .mva-contact-glassy:active .mva-contact-glassy__face {
-    transform: translateY(-2px);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / .28), 0 7px 15px rgb(0 0 0 / .16);
-  }
-  .home-redesign .mva-contact-glassy:active::after {
-    transform: translate3d(var(--_x-motion), calc(3px + var(--_y-motion)), 0) scale(.89);
-  }
+  .home-redesign .mva-contact-glassy:hover .mva-contact-glassy__face > svg:first-child { color: inherit; }
 }
 .home-redesign .mva-contact-glassy:focus-visible {
-  outline: 3px solid #ffad78;
-  outline-offset: 5px;
+  outline: 3px solid var(--home-orange);
+  outline-offset: 4px;
 }
 @media (max-width: 767px) {
-  .home-redesign .home-contact-actions {
-    width: 100%;
-    max-width: none;
-  }
-  .home-redesign .mva-contact-glassy__face { padding: 14px 16px; }
-}
-@media (max-width: 380px) {
-  .home-redesign .mva-contact-glassy__face { gap: 9px; font-size: 12px; }
-}
-@media (prefers-reduced-motion: reduce), (hover: none) {
-  .home-redesign .mva-contact-glassy,
-  .home-redesign .mva-contact-glassy::after,
-  .home-redesign .mva-contact-glassy__face,
-  .home-redesign .mva-contact-glassy__face::before {
-    transition: none !important;
-  }
-  .home-redesign .mva-contact-glassy__face { transform: none !important; }
-  .home-redesign .mva-contact-glassy::after { transform: none !important; }
-}
-:root[data-a11y-motion="true"] .home-redesign .mva-contact-glassy,
-:root[data-a11y-motion="true"] .home-redesign .mva-contact-glassy::after,
-:root[data-a11y-motion="true"] .home-redesign .mva-contact-glassy__face {
-  transition: none !important;
-  transform: none !important;
+  .home-redesign .home-contact-actions { width: 100%; }
+  .home-redesign .mva-contact-glassy__face { padding: 13px 15px; }
 }
 :root[data-a11y-contrast="true"] .home-redesign .mva-contact-glassy__face {
-  background: var(--surface) !important;
-  color: var(--ink) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-color: var(--line) !important;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
 }
-:root[data-a11y-contrast="true"] .home-redesign .mva-contact-glassy__face::before { display: none; }
 @media (prefers-contrast: more), (forced-colors: active) {
   .home-redesign .mva-contact-glassy__face {
-    background: ButtonFace !important;
-    color: ButtonText !important;
-    backdrop-filter: none !important;
-    border: 2px solid ButtonText !important;
-    transform: none !important;
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
   }
-  .home-redesign .mva-contact-glassy::after,
-  .home-redesign .mva-contact-glassy__face::before { display: none; }
+  .home-redesign .mva-contact-glassy__face > svg:first-child { color: inherit; }
 }
 @media print {
-  .home-redesign .mva-contact-glassy__face {
-    color: #000 !important;
-    background: #fff !important;
-    box-shadow: none !important;
-    transform: none !important;
-  }
+  .home-redesign .mva-contact-glassy__face { background: #fff; color: #000; }
 }

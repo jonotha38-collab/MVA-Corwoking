@@ -77,7 +77,7 @@ export const Navbar: React.FC = () => {
     <>
       {/* ==================== HEADER ==================== */}
       <header
-        className={`mva-glass-header sticky top-0 z-40 border-b border-navy-800 bg-navy-950/95 text-white backdrop-blur-md no-print ${isScrolled ? 'shadow-lg' : ''}`}
+        className={`mva-glass-header sticky top-0 z-40 border-b border-navy-800 bg-navy-950/95 text-white no-print ${isScrolled ? 'shadow-sm' : ''}`}
       >
         <div className="relative z-20 mx-auto flex h-16 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:h-20 sm:gap-4 sm:px-6 lg:px-8">
           {/* Logo & Brand */}
@@ -208,7 +208,7 @@ export const Navbar: React.FC = () => {
       {/* ==================== Mobile Navigation ==================== */}
       <nav
         aria-label={t("Principal")}
-        className="mva-glass-mobile-nav fixed inset-x-0 bottom-0 z-40 border-t border-navy-800 bg-navy-950/95 backdrop-blur-md lg:hidden no-print"
+        className="mva-glass-mobile-nav fixed inset-x-0 bottom-0 z-40 border-t border-navy-800 bg-navy-950/95 lg:hidden no-print"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <ul className="mx-auto grid w-full max-w-2xl grid-cols-5">

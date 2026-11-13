@@ -222,7 +222,7 @@ export const OwnerDashboardView: React.FC = () => {
 
         <button
           onClick={handleOpenAdd}
-          className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-orange-500/25 transition-all flex items-center gap-2 shrink-0"
+          className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2 shrink-0"
         >
           <Plus className="w-4 h-4" />{t("Adicionar Espaço / Sala ")}</button>
       </div>

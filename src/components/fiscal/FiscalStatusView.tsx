@@ -132,7 +132,7 @@ export function FiscalStatusView(){
         const aContract=contracts.find(c=>c.application_id===a.id&&c.status==='ativo'&&c.payment_status==='paid'&&c.payment_is_live);
         const label=a.status==='rejected'?'Rejeitado':aContract&&aContract.renewal_date<nowDate()?'Vigência encerrada':aContract?'Formalizado':aOrder?'Pagamento confirmado':a.status==='approved'?'Aguardando pagamento':a.status==='under_review'?'Em análise':'Recebido';
         return <button type="button" key={a.id} onClick={()=>setSelected(a.id)} aria-pressed={app?.id===a.id}
-         className={`w-full rounded-2xl border p-4 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 ${app?.id===a.id?'border-orange-500 bg-white shadow-[0_3px_18px_rgba(16,40,64,.08)]':'border-slate-200 bg-white hover:border-orange-300'}`}>
+         className={`w-full rounded-2xl border p-4 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 ${app?.id===a.id?'border-orange-500 bg-white shadow-sm':'border-slate-200 bg-white hover:border-orange-300'}`}>
          <div className="flex items-start justify-between gap-3">
           <span className="min-w-0 break-words text-sm font-bold text-navy-950">{a.company_name}</span>
           {app?.id===a.id&&<Check className="h-4 w-4 shrink-0 text-orange-600"/>}

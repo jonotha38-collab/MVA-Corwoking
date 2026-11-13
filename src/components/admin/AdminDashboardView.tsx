@@ -166,7 +166,7 @@ export const AdminDashboardView: React.FC = () => {
 
         <button
           onClick={handleOpenAdd}
-          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-emerald-500/25 transition-all flex items-center gap-2 shrink-0"
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2 shrink-0"
         >
           <Plus className="w-4 h-4" />{t("Cadastrar Nova Sala ")}</button>
       </div>

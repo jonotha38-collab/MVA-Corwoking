@@ -7,9 +7,6 @@ import './theme.css'
 import './home.css'
 import './glass.css'
 import './button-glass.css'
-import { installGlobalGlassMotion } from './lib/global-glass-motion'
-
-installGlobalGlassMotion()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

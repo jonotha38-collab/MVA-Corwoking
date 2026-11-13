@@ -88,9 +88,20 @@ cookie preference panel sits above it and scrolls when expanded on short screens
 
 ## Elevation & Depth
 
-Favor surface and border separation. The photograph supplies depth. Avoid
-unnecessary card shadows and hover transforms. Keep scrollbars visible and
-consistent in both themes, with standards-based and WebKit fallbacks.
+Na página inicial, a fotografia da MVA dá profundidade à abertura. A chamada
+principal, o processo e as perguntas frequentes ficam sobre o fundo da página.
+Cartões de serviço, salas e planos usam superfícies sólidas e bordas consistentes.
+O destaque de um plano vem da borda cobre. A referência visual é a composição
+fotográfica da [Fora](https://www.foraspace.com/) e o catálogo da
+[Industrious](https://www.industriousoffice.com/locations).
+
+`src/theme.css` define três níveis de sombra, com valores para os temas claro e
+escuro. Use `--mva-shadow-low` para cartões e controles, `--mva-shadow-raised`
+para a fotografia principal e `--mva-shadow-overlay` para menus e modais.
+`tailwind.config.js` mapeia as classes de sombra para esses mesmos níveis.
+Em alto contraste e na impressão, as bordas continuam separando as superfícies.
+A navegação tem um desfoque leve e os botões principais têm um reflexo discreto.
+Os botões de WhatsApp e e-mail mostram suas cores ao passar o cursor.
 
 ### Motion
 

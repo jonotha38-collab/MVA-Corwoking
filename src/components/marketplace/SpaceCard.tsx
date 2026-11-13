@@ -18,7 +18,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ space, onSelect, onBook })
   };
 
   return (
-    <div className="surface-card mva-glass-listing group w-full bg-white rounded-2xl border border-slate-200/80 flex flex-col overflow-hidden hover:border-slate-300 transition-all duration-300">
+    <div className="surface-card mva-glass-listing group w-full bg-white rounded-2xl border border-slate-200/80 flex flex-col overflow-hidden transition-colors">
       
       {/* Image Container */}
       <button

@@ -42,6 +42,14 @@ export default {
           900: '#7c2d12',
         },
       },
+      boxShadow: {
+        sm: 'var(--mva-shadow-low)',
+        DEFAULT: 'var(--mva-shadow-low)',
+        md: 'var(--mva-shadow-raised)',
+        lg: 'var(--mva-shadow-raised)',
+        xl: 'var(--mva-shadow-overlay)',
+        '2xl': 'var(--mva-shadow-overlay)',
+      },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },

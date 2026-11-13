@@ -151,7 +151,7 @@ export const CorrespondenceView: React.FC = () => {
     <div className="space-y-8 pb-16">
       
       {/* Top Banner - Professional Navy */}
-      <div className="bg-gradient-to-br from-navy-900 to-navy-950 rounded-3xl p-8 sm:p-12 border border-navy-800 shadow-2xl text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-navy-900 to-navy-950 rounded-3xl p-8 sm:p-12 border border-navy-800 shadow-sm text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative overflow-hidden">
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30 backdrop-blur-md mb-4">
             <Mail className="w-4 h-4" />{t("Central de Recepção & Triagem de Correspondências ")}</div>
@@ -162,7 +162,7 @@ export const CorrespondenceView: React.FC = () => {
         {isAdmin(currentUser) && (
           <button
             onClick={() => setShowAddModal(true)}
-            className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:-translate-y-0.5 flex items-center gap-2 shrink-0"
+            className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 flex items-center gap-2 shrink-0"
           >
             <Plus className="w-5 h-5" />{t("Registrar Correspondência ")}</button>
         )}
@@ -178,7 +178,7 @@ export const CorrespondenceView: React.FC = () => {
           onClick={() => setActiveFilter('aguardando_retirada')}
           className={`p-6 rounded-3xl border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
             activeFilter === 'aguardando_retirada' 
-              ? 'bg-gradient-to-br from-orange-50 to-white border-orange-400 shadow-lg shadow-orange-500/10' 
+              ? 'bg-gradient-to-br from-orange-50 to-white border-orange-400 shadow-lg'
               : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
           }`}
         >
@@ -200,7 +200,7 @@ export const CorrespondenceView: React.FC = () => {
           onClick={() => setActiveFilter('digitalizado')}
           className={`p-6 rounded-3xl border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
             activeFilter === 'digitalizado' 
-              ? 'bg-gradient-to-br from-navy-50 to-white border-navy-400 shadow-lg shadow-navy-900/10' 
+              ? 'bg-gradient-to-br from-navy-50 to-white border-navy-400 shadow-lg'
               : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
           }`}
         >
@@ -222,7 +222,7 @@ export const CorrespondenceView: React.FC = () => {
           onClick={() => setActiveFilter('retirado')}
           className={`p-6 rounded-3xl border cursor-pointer transition-all duration-300 hover:-translate-y-1 ${
             activeFilter === 'retirado' 
-              ? 'bg-gradient-to-br from-emerald-50 to-white border-emerald-400 shadow-lg shadow-emerald-500/10' 
+              ? 'bg-gradient-to-br from-emerald-50 to-white border-emerald-400 shadow-lg'
               : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
           }`}
         >

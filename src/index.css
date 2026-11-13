@@ -75,8 +75,7 @@ select { text-overflow: ellipsis; }
   .action-primary:hover:not(:disabled) { background: #a93f06; }
   .action-primary:active:not(:disabled) { transform: translateY(1px); }
   .surface-card {
-    box-shadow: 0 2px 8px rgb(15 23 42 / .025);
-    transition: border-color .22s ease, box-shadow .22s ease;
+    transition: border-color .2s ease;
   }
   .skip-link {
     @apply fixed left-4 top-4 z-[100] rounded-lg bg-white px-4 py-3 font-semibold text-navy-900;
@@ -90,7 +89,7 @@ button.bg-orange-500, button.bg-orange-600, .btn-primary { background-color: #c5
 button.bg-orange-500:hover, button.bg-orange-600:hover, .btn-primary:hover { background-color: #a93f06; }
 
 @media (hover: hover) {
-  .surface-card:hover { border-color: #cbd5e1; box-shadow: 0 8px 24px rgb(15 23 42 / .065); }
+  .surface-card:hover { border-color: rgb(var(--line-strong-rgb)); }
 }
 @media (min-width: 1024px) {
   .hero-title { font-size: 3.5rem; }
@@ -106,12 +105,11 @@ button.bg-orange-500:hover, button.bg-orange-600:hover, .btn-primary:hover { bac
 body { background:var(--page); color:var(--ink); }
 main { padding-top:32px !important; }
 h1,h2,h3 { letter-spacing:-.035em; }
-.hero-shell { border-radius:28px; border-color:#293c53; box-shadow:0 16px 45px #07162914; }
+.hero-shell { border-color:#293c53; }
 .hero-title { max-width:760px; font-weight:600; line-height:1.12; letter-spacing:-.045em; }
 .hero-shell p { line-height:1.8; }
-.action-primary { background:#b84613; border-radius:12px; box-shadow:0 4px 12px #b846131a; }
-.action-primary:hover:not(:disabled) { background:#97370d; box-shadow:0 6px 20px #b8461333; transform:translateY(-2px); }
-.surface-card { border-radius:22px; box-shadow:0 5px 24px #0a192f06; }
+.action-primary { background:#b84613; border-radius:10px; }
+.action-primary:hover:not(:disabled) { background:#97370d; }
 .preferences { display:flex; align-items:center; gap:7px; color:#d5deeb; flex-shrink:0; }
 .preferences select { background:transparent; color:inherit; border:0; font-size:12px; width:91px; cursor:pointer; padding:8px 0; }
 .preferences option { background:#142033; color:#fff; }
@@ -133,7 +131,6 @@ h1,h2,h3 { letter-spacing:-.035em; }
 :root[data-theme="dark"] :is(.text-red-600,.text-red-700) { color:#ffa6a6; }
 :root[data-theme="dark"] :is(.bg-amber-50,.bg-amber-100) { background:#382f1c; }
 :root[data-theme="dark"] :is(.text-amber-600,.text-amber-700,.text-amber-800) { color:#f5cf7d; }
-:root[data-theme="dark"] [class*="shadow-slate-"] { --tw-shadow-color:transparent; box-shadow:none; }
 :root[data-theme="dark"] .input { background:var(--surface); color:var(--ink); }
 :root[data-theme="dark"] .preferences select { background:transparent; }
 @media (min-width:1024px) { .hero-title { font-size:clamp(3rem,4.4vw,4rem); } .hero-shell { padding-top:76px; padding-bottom:76px; } }
@@ -164,7 +161,7 @@ button,input,select,textarea { font-family:inherit; }
 
 /* Fiscal checkout — one contained, accessible payment surface. */
 .payment-overlay { position:fixed; inset:0; z-index:60; background:#050c18bd; backdrop-filter:blur(8px); display:flex; align-items:flex-start; justify-content:center; padding:32px 20px; overflow:auto; overscroll-behavior:contain; }
-.payment-dialog { width:100%; max-width:1020px; margin:auto; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:26px; box-shadow:0 28px 100px #0005; outline:none; flex-shrink:0; }
+.payment-dialog { width:100%; max-width:1020px; margin:auto; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:26px; box-shadow:var(--mva-shadow-overlay); outline:none; flex-shrink:0; }
 .checkout-heading { position:relative; display:flex; justify-content:space-between; align-items:center; padding:20px 28px; border-bottom:1px solid var(--line); background:#0a1424; border-radius:25px 25px 0 0; color:#fff; }
 .checkout-brand { display:flex; align-items:center; gap:18px; }.checkout-brand span { font-size:12px; color:#b7c4d5; border-left:1px solid #ffffff24; padding-left:18px; }
 .checkout-close { width:40px; height:40px; display:grid; place-items:center; border-radius:12px; color:inherit; flex-shrink:0; }.checkout-close:hover { background:#7f8fa518; }
@@ -199,7 +196,7 @@ button,input,select,textarea { font-family:inherit; }
 .payment-card-caption>span:last-child { display:flex; align-items:center; gap:5px; font-size:10px; font-weight:450; letter-spacing:0; }
 .payment-card-perspective { perspective:1100px; }
 .payment-card-rotator { position:relative; aspect-ratio:1.65; width:100%; transform-style:preserve-3d; }
-.payment-card-face { position:absolute; inset:0; border-radius:20px; padding:23px 25px; overflow:hidden; color:#f6f8fc; background:linear-gradient(125deg,#233751 0%,#112137 49%,#0a1424 100%); border:1px solid #ffffff29; backface-visibility:hidden; -webkit-backface-visibility:hidden; box-shadow:0 12px 26px #09152924; }
+.payment-card-face { position:absolute; inset:0; border-radius:20px; padding:23px 25px; overflow:hidden; color:#f6f8fc; background:linear-gradient(125deg,#233751 0%,#112137 49%,#0a1424 100%); border:1px solid #ffffff29; backface-visibility:hidden; -webkit-backface-visibility:hidden; box-shadow:var(--mva-shadow-raised); }
 .payment-card-face::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(115deg,transparent 30%,#ffffff05 45%,transparent 58%); }
 .payment-card-orbit { position:absolute; right:-75px; top:35px; width:310px; height:310px; border:1px solid #f79d5725; border-radius:50%; pointer-events:none; }
 .payment-card-orbit::before,.payment-card-orbit::after { content:''; position:absolute; inset:20px; border:1px solid #f79d5714; border-radius:50%; }
@@ -214,7 +211,7 @@ button,input,select,textarea { font-family:inherit; }
 .payment-card-back { transform:rotateY(180deg); padding:0; }.payment-card-stripe { height:42px; margin-top:24px; background:#050a12; border-top:1px solid #ffffff09; border-bottom:1px solid #ffffff09; }.payment-card-back-content { padding:21px 25px; }.payment-card-signature { display:flex; justify-content:space-between; gap:12px; align-items:center; background:repeating-linear-gradient(0deg,#e1e3e9 0px,#e1e3e9 2px,#f5f3ee 2px,#f5f3ee 4px); border-radius:4px; padding:12px; color:#28364a; font-size:11px; }.payment-card-signature span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-style:italic; }.payment-card-signature strong { padding-left:10px; letter-spacing:.2em; }.payment-card-back-content>p { display:flex; align-items:center; gap:7px; color:#b5c4d7; font-size:9px; line-height:1.7; margin:15px 0; }.payment-card-back-content>p svg { flex-shrink:0; }.payment-card-back-content .payment-card-platform { font-size:13px; }.payment-card-back-content .payment-card-platform>span { font-size:17px; }
 .payment-card-status { display:flex; align-items:center; justify-content:space-between; gap:9px; margin-top:10px; min-height:32px; }.payment-card-status>p { font-size:10px; color:var(--muted); line-height:1.7; }.payment-card-status>button { display:flex; align-items:center; justify-content:center; gap:5px; padding:7px 8px; border-radius:8px; font-size:10px; color:var(--muted); min-height:32px; flex-shrink:0; }.payment-card-status>button:hover { background:var(--soft); color:var(--accent); }
 .payment-card-examples { display:flex; gap:7px; flex-wrap:wrap; margin:6px 0 10px; }.payment-card-examples button { font-size:10px; min-height:35px; padding:7px 12px; border:1px solid var(--line); border-radius:9px; color:var(--muted); }.payment-card-examples [aria-pressed="true"] { color:var(--accent); border-color:var(--accent); background:#b846130a; }.payment-card-demo-note { font-size:10px; line-height:1.8; color:var(--muted); }
-:root[data-theme="dark"] .payment-card-face { box-shadow:0 14px 26px #0003; background:linear-gradient(125deg,#314962 0%,#182e47 49%,#0b182b 100%); border-color:#536b884f; }
+:root[data-theme="dark"] .payment-card-face { background:linear-gradient(125deg,#314962 0%,#182e47 49%,#0b182b 100%); border-color:#536b884f; }
 @media (max-width:420px) { .payment-card-face { padding:18px 19px; border-radius:17px; }.payment-card-bottom { left:19px; right:19px; bottom:18px; }.payment-card-top { min-height:31px; }.payment-card-brand { min-height:31px; gap:5px; }.payment-card-brand svg { width:45px; height:31px; }.card-wordmark.is-visa { font-size:25px; }.payment-card-chip { margin:10px 0 12px; }.payment-card-chip>svg:first-child { width:36px; height:28px; }.payment-card-number { font-size:20px; word-spacing:0; letter-spacing:.06em; }.payment-card-bottom span { font-size:10px; }.payment-card-bottom small { font-size:6px; margin-bottom:5px; }.payment-card-back-content { padding:15px 19px; }.payment-card-stripe { height:34px; margin-top:20px; }.payment-card-signature { padding:8px 10px; }.payment-card-back-content>p { margin:10px 0; font-size:8px; }.payment-card-platform { font-size:18px; }.card-wordmark.is-other { font-size:14px; } }
 
 
@@ -240,11 +237,9 @@ button,input,select,textarea { font-family:inherit; }
 /* 2026 · Acabamento institucional: menos efeitos, hierarquia mais clara. */
 :root { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
-.surface-card { border-radius: 16px; box-shadow: 0 2px 10px rgb(20 32 51 / .05); }
-.hero-shell { border-radius: 20px; box-shadow: 0 8px 26px rgb(7 22 41 / .12); }
+.surface-card { border-radius: 16px; box-shadow: var(--mva-shadow-low); }
+.hero-shell { border-radius: 20px; box-shadow: var(--mva-shadow-raised); }
 .hero-title { letter-spacing: -.035em; line-height: 1.15; }
-.action-primary { border-radius: 10px; box-shadow: none; }
-.action-primary:hover:not(:disabled) { transform: none; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
 /* Layout seguro para notebooks estreitos, telas pequenas e zoom do navegador.
@@ -280,22 +275,20 @@ header nav[aria-label] button { flex-shrink:0; }
 /* Fiscal landing: optical contrast tokens isolated from the global light/dark
    utilities. Brand navy and copper remain identical across both themes. */
 .mva-fiscal {
-  --fiscal-surface: #f9fafb;
+  --fiscal-surface: var(--surface);
   --fiscal-soft: #f1f5fa;
   --fiscal-ink: #152b43;
   --fiscal-muted: #51647b;
-  --fiscal-line: #d8e1eb;
+  --fiscal-line: var(--line);
   --fiscal-accent: #ac4718;
   --fiscal-accent-soft: #fff1e8;
   --fiscal-highlight-border: #f1bd9d;
   color: var(--fiscal-ink);
 }
 :root[data-theme="dark"] .mva-fiscal {
-  --fiscal-surface: #192b40;
   --fiscal-soft: #243a53;
   --fiscal-ink: #f2f7ff;
   --fiscal-muted: #c1cede;
-  --fiscal-line: #38506b;
   --fiscal-accent: #ffbc88;
   --fiscal-accent-soft: #372d2c;
   --fiscal-highlight-border: #8c5d43;
@@ -341,9 +334,9 @@ header nav[aria-label] button { flex-shrink:0; }
 
 /* Accessibility preferences — functional, persistent and keyboard-friendly. */
 .mva-accessibility { position:fixed; right:16px; bottom:20px; z-index:70; font-size:14px; }
-.mva-accessibility-trigger { display:flex; align-items:center; gap:8px; min-height:46px; padding:10px 14px; border-radius:999px; background:#172840; color:#fff; border:1px solid #d7dfe7; box-shadow:0 7px 24px #0b13204a; font-weight:650; }
+.mva-accessibility-trigger { display:flex; align-items:center; gap:8px; min-height:46px; padding:10px 14px; border-radius:999px; background:#172840; color:#fff; border:1px solid #d7dfe7; box-shadow:var(--mva-shadow-raised); font-weight:650; }
 .mva-accessibility-trigger:hover { background:#263e5b; }
-.mva-accessibility-panel { position:absolute; right:0; bottom:calc(100% + 10px); width:min(340px,calc(100vw - 24px)); max-height:min(70dvh,540px); overflow:auto; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 18px 60px #07162938; }
+.mva-accessibility-panel { position:absolute; right:0; bottom:calc(100% + 10px); width:min(340px,calc(100vw - 24px)); max-height:min(70dvh,540px); overflow:auto; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:var(--mva-shadow-overlay); }
 .mva-accessibility-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; font-size:15px; }
 .mva-accessibility-heading button,.mva-accessibility-text-size button { display:grid; place-items:center; min-width:44px; min-height:44px; border:1px solid var(--line); border-radius:10px; }
 .mva-accessibility-text-size { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }

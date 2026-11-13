@@ -1,136 +1,45 @@
-/**
- * MVA Global Glass Buttons
- * Visual integration of the user-supplied glass-button hover/pressed/parallax
- * reference. Applied to existing React <button> elements and button-styled
- * links automatically, including lazy-loaded screens.
- *
- * Non-destructive: background/text colors, dimensions, actions, focus and
- * button states remain owned by each existing component and MVA theme.
- * No global html/body overrides and no decorative buttons are created.
- */
-
-#root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(.mva-contact-glassy):not([data-mva-glass="off"]) {
-  --mva-glass-x: 0px;
-  --mva-glass-y: 0px;
-  transition:
-    translate 220ms cubic-bezier(.22,1,.36,1),
-    scale 220ms cubic-bezier(.22,1,.36,1),
-    background-color 200ms ease,
-    border-color 200ms ease,
-    color 200ms ease,
-    box-shadow 220ms cubic-bezier(.22,1,.36,1),
-    filter 200ms ease,
-    backdrop-filter 200ms ease,
-    -webkit-backdrop-filter 200ms ease,
-    transform 200ms ease;
-  transform-origin: center;
+/* Keep the frosted finish close to the surface of primary actions. */
+#root :where(
+  button.action-primary, button.btn-primary, button.btn-dark,
+  button.bg-orange-500, button.bg-orange-600, button.mva-payment-action,
+  a.action-primary, a.btn-primary, a.btn-dark, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta
+):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]) {
+  --mva-button-shadow: var(--mva-shadow-low);
+  --mva-button-sheen: linear-gradient(165deg, rgb(255 255 255 / .085), transparent 68%);
+  --mva-button-highlight: inset 0 1px rgb(255 255 255 / .12);
+  background-image: var(--mva-button-sheen);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 transparent), var(--tw-ring-shadow, 0 0 transparent),
+    var(--mva-button-highlight), var(--mva-button-shadow);
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
-/* The main actions get a subtle frozen-glass reflection even at rest.
-   Their branded background and foreground colors are NOT replaced. */
-#root :is(button.action-primary, button.btn-primary, button.btn-dark, button.bg-orange-500, button.bg-orange-600, button.bg-navy-900, button.bg-navy-950, button[class*="bg-[#"], a.action-primary, a.btn-primary, a.btn-dark, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta):not(.mva-contact-glassy):not([data-mva-glass="off"]) {
-  background-image: linear-gradient(
-    127deg,
-    rgb(255 255 255 / .14) 0%,
-    rgb(255 255 255 / .055) 22%,
-    transparent 66%
-  );
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / .24), 0 4px 13px rgb(10 25 47 / .11);
-}
-
-/* Minor utility, icon, calendar and header buttons have a quieter treatment
-   to avoid altering spatial controls and repeatedly arranged button grids. */
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  #root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(:disabled):not([aria-disabled="true"]):not([data-mva-glass="off"]):not(.mva-contact-glassy):not(.mva-accessibility-trigger):hover {
-    translate: var(--mva-glass-x,0px) calc(-2px + var(--mva-glass-y,0px));
-    scale: 1.012;
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / .33), 0 9px 23px rgb(10 25 47 / .15);
-    -webkit-backdrop-filter: blur(7px) saturate(1.08);
-    backdrop-filter: blur(7px) saturate(1.08);
-    filter: brightness(1.06);
-  }
-
-  #root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(:disabled):not([aria-disabled="true"]):not([data-mva-glass="off"]):not(.mva-contact-glassy):not(.mva-accessibility-trigger):active {
-    translate: 0 -1px;
-    scale: .982;
-    box-shadow: inset 0 2px 6px rgb(0 0 0 / .13), 0 3px 10px rgb(10 25 47 / .10);
-    -webkit-backdrop-filter: blur(11px);
-    backdrop-filter: blur(11px);
-    filter: brightness(.985);
-  }
-
-  /* Keyboard-friendly menus, calendar cells and accessibility controls:
-     keep their anchor positions stable, retaining only a frosted highlight. */
-  #root :is(header nav button, [role="menuitem"], [role="gridcell"], .mva-accessibility button):hover {
-    translate: none;
-    scale: 1;
-    filter: none;
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
+@media (hover: hover) {
+  #root :where(
+    button.action-primary, button.btn-primary, button.btn-dark,
+    button.bg-orange-500, button.bg-orange-600, button.mva-payment-action,
+    a.action-primary, a.btn-primary, a.btn-dark, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta
+  ):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]):hover {
+    --mva-button-shadow: var(--mva-shadow-raised);
   }
 }
-
-/* Highlight focus without shrinking or shifting focusable controls. */
-#root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(:disabled):not([aria-disabled="true"]):not([data-mva-glass="off"]):not(.mva-contact-glassy):focus-visible {
-  box-shadow: 0 0 0 3px rgb(var(--accent-rgb) / .22), inset 0 1px 0 rgb(255 255 255 / .32);
+#root :where(
+  button.action-primary, button.btn-primary, button.btn-dark,
+  button.bg-orange-500, button.bg-orange-600, button.mva-payment-action,
+  a.action-primary, a.btn-primary, a.btn-dark, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta
+):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]):active {
+  --mva-button-shadow: inset 0 1px 3px rgb(0 0 0 / .16);
 }
 
-/* Leave original featured glassy WhatsApp/email links entirely intact.
-   Responsive use: the touch interface never depends on hover or parallax. */
-@media (hover: none), (pointer: coarse) {
-  #root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(.mva-contact-glassy):not([data-mva-glass="off"]) {
-    translate: none !important;
-    scale: 1 !important;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+:root[data-a11y-contrast="true"] #root :where(button, a) {
+  --mva-button-sheen: none !important;
+  --mva-button-highlight: 0 0 transparent !important;
+  --mva-button-shadow: 0 0 transparent !important;
 }
 
-/* Respect both system reduced motion and the user's MVA accessibility panel. */
-@media (prefers-reduced-motion: reduce) {
-  #root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(.mva-contact-glassy) {
-    transition: none !important;
-    translate: none !important;
-    scale: 1 !important;
-    filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-}
-:root[data-a11y-motion="true"] #root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(.mva-contact-glassy) {
-  transition: none !important;
-  translate: none !important;
-  scale: 1 !important;
-  filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-/* High-contrast accessibility needs predictable opaque colors, not blur. */
-:root[data-a11y-contrast="true"] #root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(.mva-contact-glassy) {
-  background-image: none !important;
-  box-shadow: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  filter: none !important;
-}
-@media (prefers-contrast: more), (forced-colors: active) {
-  #root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(.mva-contact-glassy) {
-    background-image: none !important;
-    box-shadow: none !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    filter: none !important;
-    translate: none !important;
-    scale: 1 !important;
-  }
-}
-@media print {
-  #root :is(button, a[role="button"], a.action-primary, a.btn, a.btn-primary, a.btn-dark, a.btn-ghost, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta, a.home-room-bottom > a, a.home-photo-caption > a, a.home-card-link):not(.mva-contact-glassy) {
-    background-image: none !important;
-    box-shadow: none !important;
-    filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
+@media print, (prefers-contrast: more), (forced-colors: active) {
+  #root :where(button, a) {
+    --mva-button-sheen: none !important;
+    --mva-button-highlight: 0 0 transparent !important;
+    --mva-button-shadow: 0 0 transparent !important;
   }
 }

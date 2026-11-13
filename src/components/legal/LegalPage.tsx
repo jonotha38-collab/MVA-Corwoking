@@ -66,7 +66,7 @@ export const LegalPage: React.FC = () => {
           onClick={() => setActiveSection('lgpd')}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
             activeSection === 'lgpd'
-              ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+              ? 'bg-orange-500 text-white shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white bg-slate-100 dark:bg-navy-900/40 hover:bg-slate-200 dark:hover:bg-navy-900'
           }`}
         >
@@ -77,7 +77,7 @@ export const LegalPage: React.FC = () => {
           onClick={() => setActiveSection('privacy')}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
             activeSection === 'privacy'
-              ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+              ? 'bg-orange-500 text-white shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white bg-slate-100 dark:bg-navy-900/40 hover:bg-slate-200 dark:hover:bg-navy-900'
           }`}
         >
@@ -88,7 +88,7 @@ export const LegalPage: React.FC = () => {
           onClick={() => setActiveSection('terms')}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
             activeSection === 'terms'
-              ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+              ? 'bg-orange-500 text-white shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white bg-slate-100 dark:bg-navy-900/40 hover:bg-slate-200 dark:hover:bg-navy-900'
           }`}
         >
@@ -293,7 +293,7 @@ export const LegalPage: React.FC = () => {
       )}
 
       {/* Canal de Atendimento do DPO / Encarregado de Dados */}
-      <Reveal className="p-6 rounded-2xl bg-slate-900 dark:bg-gradient-to-r dark:from-navy-900 dark:to-navy-950 text-white border border-slate-800 dark:border-navy-800 shadow-xl space-y-4">
+      <Reveal className="p-6 rounded-2xl bg-slate-900 dark:bg-gradient-to-r dark:from-navy-900 dark:to-navy-950 text-white border border-slate-800 dark:border-navy-800 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white flex items-center gap-2">

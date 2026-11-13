@@ -122,13 +122,12 @@ export function FiscalView(){
  const planQuote=(id:FiscalPlanId)=>quotePlan(FISCAL_PLANS[id],term,term===12&&transfer);
  return <div className="mva-fiscal min-w-0 space-y-20 pb-16 sm:space-y-24">
   {/* Hero - two-column editorial treatment, native MVA identity. */}
-  <section className="relative isolate overflow-hidden rounded-[24px] border border-[#263c54] bg-[#0c1c30] text-white shadow-[0_22px_65px_rgba(9,22,41,.13)] sm:rounded-[30px]" aria-labelledby="fiscal-hero-heading">
+  <section className="relative isolate overflow-hidden rounded-[24px] border border-[#263c54] bg-[#0c1c30] text-white shadow-md sm:rounded-[30px]" aria-labelledby="fiscal-hero-heading">
    <div className="pointer-events-none absolute inset-0 hidden lg:block" aria-hidden="true">
      <img src="/hero-office.jpg" alt="" className="absolute inset-y-0 right-0 h-full w-[53%] object-cover object-center"/>
      <div className="absolute inset-0 bg-gradient-to-r from-[#0c1c30] via-[#0c1c30] 40% to-[#0c1c30]/15"/>
      <div className="absolute inset-0 bg-gradient-to-t from-[#0c1c30]/40 via-transparent to-[#0c1c30]/10"/>
    </div>
-   <div className="pointer-events-none absolute -left-36 bottom-0 h-80 w-80 rounded-full bg-orange-500/10 blur-[110px]" aria-hidden="true"/>
    <div className="relative grid min-w-0 lg:min-h-[540px] lg:grid-cols-[minmax(0,1.16fr)_minmax(0,.84fr)]">
     <div className="min-w-0 space-y-7 px-6 py-11 sm:px-10 sm:py-16 lg:px-12 lg:py-20">
       <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-3.5 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-orange-200">
@@ -141,7 +140,7 @@ export function FiscalView(){
        Endereço fiscal e comercial em Aracaju, com atendimento, correspondências e a estrutura de um coworking de verdade. Tudo em um só lugar.
       </p>
       <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
-       <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl bg-[#cf581f] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-950/20 transition hover:bg-[#b84410]">
+       <button type="button" onClick={()=>go('planos-fiscais')} className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl bg-[#cf581f] px-6 py-3.5 text-sm font-bold text-white action-primary transition-colors hover:bg-[#b84410]">
          Conhecer planos e preços <ArrowRight className="h-4 w-4" aria-hidden/>
        </button>
        <button type="button" onClick={()=>go('como-funciona-fiscal')} className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10">
@@ -157,7 +156,7 @@ export function FiscalView(){
     <div className="relative min-h-[250px] overflow-hidden lg:min-h-0">
      <img src="/hero-office.jpg" alt="Ambiente profissional da MVA Coworking" className="absolute inset-0 h-full w-full object-cover lg:hidden"/>
      <div className="absolute inset-0 bg-gradient-to-t from-[#0c1c30] via-transparent to-transparent lg:hidden"/>
-     <div className="absolute bottom-6 left-5 right-5 flex items-center gap-3 rounded-2xl border border-white/20 bg-[#0e2339]/85 p-4 text-white shadow-xl backdrop-blur-lg sm:bottom-10 sm:left-auto sm:right-10 sm:max-w-[285px] lg:bottom-12">
+     <div className="absolute bottom-6 left-5 right-5 flex items-center gap-3 rounded-2xl border border-white/20 bg-[#0e2339]/95 p-4 text-white shadow-sm sm:bottom-10 sm:left-auto sm:right-10 sm:max-w-[285px] lg:bottom-12">
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-orange-500/20"><MapPin className="h-5 w-5 text-orange-200"/></span>
       <div className="min-w-0"><p className="text-[11px] font-bold uppercase tracking-[.12em] text-orange-200">Presença em Aracaju</p><p className="mt-1 text-sm font-semibold">São José · SE</p><p className="text-xs text-slate-300">Sede MVA Coworking</p></div>
      </div>
@@ -180,7 +179,7 @@ export function FiscalView(){
      {icon:MonitorSmartphone,title:'Tudo no seu painel',description:'Acesse informações de contrato, solicitações e documentos em uma área reservada.'},
      {icon:UsersRound,title:'Coworking de verdade',description:'Reserve salas de reunião e espaços para encontros presenciais conforme disponibilidade.'},
      {icon:Headphones,title:'Acompanhamento humano',description:'Equipe para orientar a contratação e esclarecer exigências documentais.'}
-    ].map(({icon:Icon,title,description})=><article key={title} className="mva-glass-surface group min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm transition-colors hover:border-orange-200 sm:p-7">
+    ].map(({icon:Icon,title,description})=><article key={title} className="group min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 transition-colors hover:border-orange-200 sm:p-7">
        <div className="mb-6 grid h-12 w-12 place-items-center rounded-2xl bg-[#fff1e8] fiscal-accent"><Icon className="h-5 w-5" aria-hidden/></div>
        <h3 className="text-lg font-semibold fiscal-ink">{title}</h3>
        <p className="mt-2 text-sm leading-[1.8] fiscal-muted">{description}</p>
@@ -219,7 +218,7 @@ export function FiscalView(){
     <h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-[36px]">Um plano para cada fase da sua empresa.</h2>
     <p className="text-sm leading-relaxed fiscal-muted">Valores claros e serviços que acompanham o seu negócio.</p>
    </div>
-   <div className="mva-glass-period mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border fiscal-line fiscal-surface p-1.5 shadow-sm" aria-label="Período do plano">
+   <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border fiscal-line fiscal-surface p-1.5" aria-label="Período do plano">
      <button type="button" aria-pressed={term===1} onClick={()=>setTerm(1)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===1?'bg-navy-900 text-white shadow-sm':'fiscal-muted hover:bg-slate-100'}`}>Mensal</button>
      <button type="button" aria-pressed={term===12} onClick={()=>setTerm(12)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===12?'bg-navy-900 text-white shadow-sm':'fiscal-muted hover:bg-slate-100'}`}>Anual · 12 meses</button>
    </div>
@@ -231,7 +230,7 @@ export function FiscalView(){
     {planIds.map(id=>{
       const p=FISCAL_PLANS[id], info=planInfo[id],q=planQuote(id);
       const monthlyEquivalent=q.amount/(term===1?1:12);
-      return <article key={id} className={`mva-glass-plan relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border fiscal-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl ${info.popular?'border-[#d06636] shadow-[0_12px_35px_rgba(183,74,28,.11)]':'fiscal-line'}`}>
+      return <article key={id} className={`mva-glass-plan relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border fiscal-surface transition-colors hover:border-[#d06636] ${info.popular?'border-[#d06636]':'fiscal-line'}`}>
         {info.popular&&<div className="bg-[#14304d] py-2.5 text-center text-[11px] font-bold uppercase tracking-[.16em] text-white">MVA Excellence · o mais completo</div>}
         <div className="flex flex-1 flex-col p-6 sm:p-7">
           <span className="text-[11px] font-bold uppercase tracking-[.12em] fiscal-accent">{info.eyebrow}</span>
@@ -272,7 +271,7 @@ export function FiscalView(){
      {icon:SearchCheck,number:'01',title:'Escolha sua solução',desc:'Compare os planos, o prazo e a unidade de interesse.'},
      {icon:FileText,number:'02',title:'Análise e documentação',desc:'Na tela de pagamento, informe apenas os dados necessários à contratação. A equipe da MVA verificará a atividade e a documentação.'},
      {icon:BadgeCheck,number:'03',title:'Contrato e liberação',desc:'Depois da aprovação e do pagamento confirmado, os documentos pertinentes ficam disponíveis no painel.'}
-    ].map(({icon:Icon,number,title,desc})=><article key={number} className="mva-glass-surface relative min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 sm:p-7">
+    ].map(({icon:Icon,number,title,desc})=><article key={number} className="relative min-w-0 rounded-[22px] border fiscal-line fiscal-surface p-6 sm:p-7">
       <div className="flex items-center justify-between"><span className="text-sm font-bold tracking-widest fiscal-accent">{number}</span><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#fff1e8] fiscal-accent"><Icon className="h-5 w-5"/></div></div>
       <h3 className="mt-7 text-lg font-semibold fiscal-ink">{title}</h3>
       <p className="mt-2 text-sm leading-[1.75] fiscal-muted">{desc}</p>
@@ -290,7 +289,7 @@ export function FiscalView(){
     {unitsLoading?<div className="rounded-2xl border fiscal-line fiscal-surface p-6 text-sm fiscal-muted" role="status">Consultando unidades disponíveis…</div>
       :units.length===0?<div className="rounded-2xl border fiscal-line fiscal-surface p-6 text-sm fiscal-muted">Unidades em análise de disponibilidade. Consulte nossa equipe para mais informações.</div>
       :<div className="grid gap-4 md:grid-cols-2">
-        {units.map(unit=><article key={unit.id} className="mva-glass-unit flex min-w-0 items-start gap-4 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm">
+        {units.map(unit=><article key={unit.id} className="flex min-w-0 items-start gap-4 rounded-[22px] border fiscal-line fiscal-surface p-6 shadow-sm">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#142940] text-orange-300"><MapPin className="h-5 w-5"/></div>
           <div className="min-w-0"><span className="text-[11px] font-semibold uppercase tracking-widest fiscal-accent">Unidade disponível para consulta</span>
             <h3 className="mt-2 break-words text-base font-bold fiscal-ink">{unit.name}</h3>
@@ -314,7 +313,7 @@ export function FiscalView(){
   <section id="duvidas-fiscais" className="scroll-mt-32 space-y-7">
    <div className="max-w-2xl space-y-3"><span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">Sem letras miúdas</span><h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-4xl">Perguntas frequentes.</h2><p className="text-sm leading-relaxed fiscal-muted">As respostas mais importantes antes de contratar seu escritório virtual.</p></div>
    <div className="grid min-w-0 gap-3">
-    {faqs.map(({q,a})=><details key={q} className="mva-glass-faq-item group min-w-0 rounded-2xl border fiscal-line fiscal-surface p-4 open:border-orange-200 sm:p-5">
+    {faqs.map(({q,a})=><details key={q} className="group min-w-0 rounded-2xl border fiscal-line fiscal-surface p-4 open:border-orange-200 sm:p-5">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-sm font-semibold fiscal-ink marker:content-none sm:text-[15px]">{q}<ChevronDown className="h-5 w-5 shrink-0 fiscal-accent transition-transform group-open:rotate-180"/></summary>
       <p className="max-w-4xl pt-4 text-sm leading-[1.8] fiscal-muted">{a}</p>
      </details>)}

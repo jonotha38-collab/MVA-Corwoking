@@ -112,10 +112,10 @@ export const MarketplaceView: React.FC = () => {
           <h1 className="hero-title">
             {`${t('Espaços de coworking e salas de reunião para o seu negócio')}${selectedCity !== 'Todas' ? ` · ${selectedCity}` : ''}`}
           </h1>
-          <p className="mt-4 max-w-xl text-base text-slate-200 drop-shadow">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados. ")}</p>
+          <p className="mt-4 max-w-xl text-base text-slate-200">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados. ")}</p>
         </div>
         
-        <form onSubmit={search} className="mva-glass-search relative z-10 mt-10 grid gap-3 rounded-2xl bg-white p-3 shadow-2xl md:grid-cols-12" role="search">
+        <form onSubmit={search} className="mva-glass-search relative z-10 mt-10 grid gap-3 rounded-2xl bg-white p-3 md:grid-cols-12" role="search">
           <div className="relative md:col-span-4"><Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t("Nome, bairro ou comodidade")} aria-label={t("Buscar espaços")} className={field} /></div>
           <div className="relative md:col-span-3"><MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} aria-label={t("Cidade")} className={field}>{cities.map(c => <option key={c} value={c}>{t(c === 'Todas' ? 'Todas as cidades' : c)}</option>)}</select></div>
           <div className="relative md:col-span-3"><Users className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" aria-hidden /><select value={capacity} onChange={e => setCapacity(e.target.value)} aria-label={t("Capacidade")} className={field}><option value="all">{t("Qualquer capacidade ")}</option><option value="small">{t("Até 4 pessoas ")}</option><option value="medium">{t("5 a 10 pessoas ")}</option><option value="large">{t("Mais de 10 pessoas ")}</option></select></div>

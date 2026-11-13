@@ -181,7 +181,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
                   onClose();
                   onOpenBooking(space);
                 }}
-                className="w-1/2 sm:w-auto px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-md hover:shadow-orange-500/25 transition-all flex items-center justify-center gap-2"
+                className="w-1/2 sm:w-auto px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
               >
                 <Calendar className="w-4 h-4" />{t("Agendar Agora ")}</button>
             </div>

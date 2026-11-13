@@ -1,6 +1,9 @@
 /* MVA theme tokens. One palette drives surfaces, controls and legacy Tailwind utilities. */
 :root {
   color-scheme: light;
+  --mva-shadow-low: 0 1px 2px rgb(12 24 42 / .035), 0 5px 14px -9px rgb(12 24 42 / .16);
+  --mva-shadow-raised: 0 2px 4px rgb(12 24 42 / .055), 0 12px 30px -16px rgb(12 24 42 / .25);
+  --mva-shadow-overlay: 0 4px 12px rgb(12 24 42 / .08), 0 20px 44px -16px rgb(12 24 42 / .34);
   --page-rgb:246 247 249; --surface-rgb:255 255 255; --soft-rgb:237 241 246; --field-rgb:248 250 252;
   --ink-rgb:23 40 64; --muted-rgb:93 107 126; --line-rgb:220 227 235; --line-strong-rgb:168 185 206;
   --accent-rgb:184 70 19; --accent-soft-rgb:255 240 230; --accent-line-rgb:237 192 162;
@@ -13,6 +16,9 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
+  --mva-shadow-low: 0 1px 2px rgb(0 0 0 / .12), 0 5px 14px -9px rgb(0 0 0 / .28);
+  --mva-shadow-raised: 0 2px 4px rgb(0 0 0 / .16), 0 12px 30px -16px rgb(0 0 0 / .38);
+  --mva-shadow-overlay: 0 4px 12px rgb(0 0 0 / .21), 0 20px 44px -16px rgb(0 0 0 / .52);
   --page-rgb:11 19 32; --surface-rgb:20 32 51; --soft-rgb:27 43 64; --field-rgb:16 28 45;
   --ink-rgb:237 242 250; --muted-rgb:172 187 206; --line-rgb:43 61 84; --line-strong-rgb:72 95 124;
   --accent-rgb:255 174 121; --accent-soft-rgb:52 38 31; --accent-line-rgb:112 76 53;
@@ -20,6 +26,18 @@
   --danger-rgb:255 166 166; --danger-soft-rgb:61 35 42; --danger-line-rgb:117 66 75;
   --warning-rgb:245 207 125; --warning-soft-rgb:56 47 28; --warning-line-rgb:111 91 47;
   --info-rgb:158 202 255; --info-soft-rgb:25 44 69; --info-line-rgb:57 91 135;
+}
+:root[data-a11y-contrast="true"] {
+  --mva-shadow-low: 0 0 transparent;
+  --mva-shadow-raised: 0 0 transparent;
+  --mva-shadow-overlay: 0 0 transparent;
+}
+@media print, (prefers-contrast: more), (forced-colors: active) {
+  :root, :root[data-theme="dark"] {
+    --mva-shadow-low: 0 0 transparent;
+    --mva-shadow-raised: 0 0 transparent;
+    --mva-shadow-overlay: 0 0 transparent;
+  }
 }
 body { background:var(--page); color:var(--ink); }
 :focus-visible { outline-color:var(--accent); }
@@ -132,7 +150,6 @@ body { background:var(--page); color:var(--ink); }
 :root[data-theme="dark"] [class~="to-orange-50"] { --tw-gradient-to:rgb(var(--accent-soft-rgb)) var(--tw-gradient-to-position); }
 :root[data-theme="dark"] [class~="to-white"] { --tw-gradient-to:rgb(var(--surface-rgb)) var(--tw-gradient-to-position); }
 
-:root[data-theme="dark"] [class*="shadow-slate-"] { --tw-shadow-color:transparent; }
 :root[data-theme="dark"] .preferences select { background:transparent; color:#d5deeb; }
 @media print {
  :root,:root[data-theme="dark"] { color-scheme:light; --page-rgb:255 255 255; --surface-rgb:255 255 255; --soft-rgb:245 247 249; --field-rgb:255 255 255; --ink-rgb:17 24 39; --muted-rgb:71 85 105; --line-rgb:203 213 225; --accent-rgb:184 70 19; --accent-soft-rgb:255 240 230; }
