@@ -9,24 +9,24 @@ const mod={exports:{}};new Function('module','exports',compiled)(mod,mod.exports
 const {FISCAL_PLANS,quotePlan,NEW_FISCAL_PLAN_IDS}=mod.exports;
 test('new MVA prices are explicitly fixed in BRL cents',()=>{
  assert.deepEqual([...NEW_FISCAL_PLAN_IDS],['mva_essencial','mva_profissional','mva_excellence']);
- assert.equal(FISCAL_PLANS.mva_essencial.monthlyCents,7990);
- assert.equal(FISCAL_PLANS.mva_profissional.monthlyCents,9190);
- assert.equal(FISCAL_PLANS.mva_excellence.monthlyCents,10300);
+ assert.equal(FISCAL_PLANS.mva_essencial.monthlyCents,8990);
+ assert.equal(FISCAL_PLANS.mva_profissional.monthlyCents,9990);
+ assert.equal(FISCAL_PLANS.mva_excellence.monthlyCents,10990);
 });
 test('annual quote has 10 percent discount and charges once for twelve months',()=>{
- assert.equal(quotePlan(FISCAL_PLANS.mva_essencial,12,false).amount,86292);
- assert.equal(quotePlan(FISCAL_PLANS.mva_profissional,12,false).amount,99252);
- assert.equal(quotePlan(FISCAL_PLANS.mva_excellence,12,false).amount,111240);
- assert.equal(quotePlan(FISCAL_PLANS.mva_excellence,1,false).amount,10300);
+ assert.equal(quotePlan(FISCAL_PLANS.mva_essencial,12,false).amount,97092);
+ assert.equal(quotePlan(FISCAL_PLANS.mva_profissional,12,false).amount,107892);
+ assert.equal(quotePlan(FISCAL_PLANS.mva_excellence,12,false).amount,118692);
+ assert.equal(quotePlan(FISCAL_PLANS.mva_excellence,1,false).amount,10990);
 });
 test('transfer promotion is not added on top of annual percentage discount',()=>{
  const q=quotePlan(FISCAL_PLANS.mva_excellence,12,true);
- assert.equal(q.amount,82400);
+ assert.equal(q.amount,87920);
  assert.equal(q.freeMonths,4);
  assert.equal(q.annualDiscountPercent,0);
 });
 test('benefits for rooms are tiered and Excellence bonuses never roll over',()=>{
- assert.deepEqual(NEW_FISCAL_PLAN_IDS.map(p=>FISCAL_PLANS[p].roomDiscountPercent),[5,10,15]);
+ assert.deepEqual(NEW_FISCAL_PLAN_IDS.map(p=>FISCAL_PLANS[p].roomDiscountPercent),[0,5,10]);
  assert.equal(FISCAL_PLANS.mva_excellence.bonusHours,2);
  assert.equal(FISCAL_PLANS.mva_excellence.bonusMonths,3);
 });

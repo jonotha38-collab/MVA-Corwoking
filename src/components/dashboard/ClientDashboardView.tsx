@@ -55,6 +55,9 @@ export const ClientDashboardView: React.FC = () => {
   const [paidBookingIds, setPaidBookingIds] = useState<Set<string>>(() => new Set());
   const [creditedBookingIds,setCreditedBookingIds]=useState<Set<string>>(() => new Set());
   const [fiscalRoomPerk,setFiscalRoomPerk]=useState<FiscalRoomPerk|null>(null);
+  const hasFiscalRoomPerk = fiscalRoomPerk?.active && (
+    fiscalRoomPerk.planId === 'mva_excellence' || (fiscalRoomPerk.roomDiscountPercent ?? 0) > 0
+  );
   const voucherCanceled = selectedVoucher?.status === 'cancelada' || voucher?.status === 'canceled';
   const voucherConfirmed = isComplimentaryBooking(selectedVoucher) || voucher?.status === 'available' || voucher?.status === 'used' || (
     !!selectedVoucher && (paidBookingIds.has(selectedVoucher.id) || creditedBookingIds.has(selectedVoucher.id) || fiscalCovered(selectedVoucher))
@@ -191,24 +194,24 @@ export const ClientDashboardView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between text-slate-500">
             <span className="font-bold uppercase tracking-wider text-[11px]">
-               {fiscalRoomPerk?.active?(fiscalRoomPerk.planId==='mva_excellence'?'Bônus de atendimento':'Benefício nas salas'):'Crédito de Horas'}
+               {hasFiscalRoomPerk?(fiscalRoomPerk.planId==='mva_excellence'?'Bônus de atendimento':'Benefício nas salas'):'Crédito de Horas'}
               </span>
             <Clock className="w-4 h-4 text-orange-600" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-navy-900">
-              {fiscalRoomPerk?.active
+              {hasFiscalRoomPerk
                 ?fiscalRoomPerk.planId==='mva_excellence'
                   ?`${Number(fiscalRoomPerk.bonusHoursRemaining||0).toLocaleString('pt-BR')}h`
                   :`${fiscalRoomPerk.roomDiscountPercent}%`
                 :`${addressActive?Math.max(0,currentCompany.meetingHoursAllowance-currentCompany.meetingHoursUsed):0}h`}</span>
-            <span className="text-xs text-slate-500">{fiscalRoomPerk?.active&&fiscalRoomPerk.planId!=='mva_excellence'?'nas salas MVA':'disponíveis'}</span>
+            <span className="text-xs text-slate-500">{hasFiscalRoomPerk&&fiscalRoomPerk.planId!=='mva_excellence'?'nas salas MVA':'disponíveis'}</span>
           </div>
           <p className="text-[11px] text-slate-400">
-            {fiscalRoomPerk?.active
+            {hasFiscalRoomPerk
                 ?fiscalRoomPerk.planId==='mva_excellence'
                   ?`Não acumulativas · ${fiscalRoomPerk.roomDiscountPercent}% de desconto nas demais horas · vencem em ${fiscalRoomPerk.bonusCycleEnd?.split('-').reverse().join('/')||'fim da oferta'}`
-                  :`Desconto válido em salas próprias MVA durante a vigência do contrato fiscal.`
+                  :`Desconto válido em salas de reunião próprias da MVA durante a vigência do contrato fiscal.`
                 :`${currentCompany.meetingHoursUsed}h consumidas de ${currentCompany.meetingHoursAllowance}h no ciclo atual`}</p>
         </div>
 

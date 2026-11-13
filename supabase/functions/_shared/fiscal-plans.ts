@@ -5,9 +5,9 @@ export const FISCAL_PLANS = {
   comercial: { id:'comercial',name:'Endereço Comercial (plano anterior)',monthlyCents:2990,fiscal:false,meetingHours:0,annualDiscountPercent:0,roomDiscountPercent:0,bonusHours:0,bonusMonths:0 },
   fiscal: { id:'fiscal',name:'Endereço Fiscal (plano anterior)',monthlyCents:8000,fiscal:true,meetingHours:0,annualDiscountPercent:0,roomDiscountPercent:0,bonusHours:0,bonusMonths:0 },
   fiscal_ie: { id:'fiscal_ie',name:'Endereço Fiscal com Inscrição Estadual (plano anterior)',monthlyCents:12000,fiscal:true,meetingHours:2,annualDiscountPercent:0,roomDiscountPercent:0,bonusHours:0,bonusMonths:0 },
-  mva_essencial: { id:'mva_essencial',name:'MVA Essencial',monthlyCents:7990,fiscal:true,meetingHours:0,annualDiscountPercent:10,roomDiscountPercent:5,bonusHours:0,bonusMonths:0 },
-  mva_profissional: { id:'mva_profissional',name:'MVA Profissional',monthlyCents:9190,fiscal:true,meetingHours:0,annualDiscountPercent:10,roomDiscountPercent:10,bonusHours:0,bonusMonths:0 },
-  mva_excellence: { id:'mva_excellence',name:'MVA Excellence',monthlyCents:10300,fiscal:true,meetingHours:2,annualDiscountPercent:10,roomDiscountPercent:15,bonusHours:2,bonusMonths:3 },
+  mva_essencial: { id:'mva_essencial',name:'MVA Essencial',monthlyCents:8990,fiscal:true,meetingHours:0,annualDiscountPercent:10,roomDiscountPercent:0,bonusHours:0,bonusMonths:0 },
+  mva_profissional: { id:'mva_profissional',name:'MVA Profissional',monthlyCents:9990,fiscal:true,meetingHours:0,annualDiscountPercent:10,roomDiscountPercent:5,bonusHours:0,bonusMonths:0 },
+  mva_excellence: { id:'mva_excellence',name:'MVA Excellence',monthlyCents:10990,fiscal:true,meetingHours:2,annualDiscountPercent:10,roomDiscountPercent:10,bonusHours:2,bonusMonths:3 },
 } as const;
 export const NEW_FISCAL_PLAN_IDS = ['mva_essencial','mva_profissional','mva_excellence'] as const;
 export type FiscalPlanId=keyof typeof FISCAL_PLANS;

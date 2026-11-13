@@ -16,38 +16,29 @@ type ServiceUnit = { id:string; name:string; street_address:string; city:string;
 const planIds = ['mva_essencial','mva_profissional','mva_excellence'] as const satisfies readonly FiscalPlanId[];
 const brl = (cents:number) => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2}).format(cents/100);
 
-const planInfo: Record<(typeof planIds)[number],{eyebrow:string;summary:string;ideal:string;features:string[];popular?:boolean}> = {
+const planInfo: Record<(typeof planIds)[number],{eyebrow:string;features:string[];popular?:boolean}> = {
   mva_essencial:{
     eyebrow:'O essencial para começar',
-    summary:'Endereço fiscal com recepção de correspondências e uma presença profissional para sua empresa.',
-    ideal:'Quem precisa formalizar o endereço e ter uma base segura para o negócio.',
     features:[
       'Endereço fiscal mediante análise e formalização',
       'Recebimento de correspondências com aviso no painel',
-      'Acompanhamento da solicitação e dos documentos',
-      '5% de desconto nas salas próprias da MVA'
+      'Acompanhamento da solicitação e dos documentos'
     ]
   },
   mva_profissional:{
     eyebrow:'Mais estrutura para sua rotina',
-    summary:'A estrutura fiscal essencial com gerenciamento de correspondências, recados e documentos.',
-    ideal:'Profissionais e empresas que precisam de mais organização e flexibilidade.',
     features:[
       'Todos os benefícios do MVA Essencial',
       'Gerenciamento de correspondências, recados e documentos',
-      'Histórico de recebimentos e solicitações no painel',
-      '10% de desconto nas salas próprias da MVA'
+      'Histórico de recebimentos e solicitações no painel'
     ]
   },
   mva_excellence:{
     eyebrow:'O plano mais completo',
-    summary:'O endereço da sua empresa com gestão de correspondências e horas de atendimento para começar com presença.',
-    ideal:'Quem valoriza estrutura presencial sem manter uma sala própria.',
     features:[
       'Endereço fiscal e gerenciamento de correspondências, recados e documentos',
       '2 horas de bônus por mês em sala de atendimento para até 3 pessoas, nos 3 primeiros meses',
-      'Horas bônus mensais não acumulativas: o saldo não usado expira ao fim do mês contratual',
-      '15% de desconto nas demais horas e salas próprias da MVA'
+      'Horas bônus mensais não acumulativas: o saldo não usado expira ao fim do mês contratual'
     ],
     popular:true
   }
@@ -60,7 +51,7 @@ const faqs = [
   {q:'Vocês recebem correspondências e encomendas?',a:'A MVA possui uma área de gestão de correspondências. Os serviços de recebimento, guarda e eventual digitalização dependem das condições do plano, da unidade e de autorização do titular.'},
   {q:'Posso contratar por um mês ou por um ano?',a:'Sim. A contratação é pré-paga e não renova automaticamente. O plano anual possui 10% de desconto sobre 12 mensalidades. Quem comprovar transferência de outro endereço fiscal poderá solicitar a campanha de 4 meses grátis; essa condição substitui, sem acumular, os 10% anuais.'},
   {q:'Como funcionam as 2 horas de bônus do MVA Excellence?',a:'São 2 horas por mês contratual, disponíveis somente durante os três primeiros meses após a primeira formalização do plano e enquanto o contrato estiver ativo. Valem para sala de atendimento MVA de até 3 pessoas, conforme disponibilidade. As horas não são acumulativas: saldo não usado expira ao final de cada mês contratual.'},
-  {q:'Como funciona o desconto nas salas?',a:'O desconto é aplicado automaticamente nas salas próprias da MVA em reservas realizadas durante a vigência de um contrato fiscal ativo e pago: 5% no Essencial, 10% no Profissional e 15% no Excellence. Parceiros, adicionais e horários fora da vigência não estão contemplados.'},
+  {q:'Como funciona o desconto nas salas?',a:`Clientes do MVA Profissional têm ${FISCAL_PLANS.mva_profissional.roomDiscountPercent}% de desconto e clientes do MVA Excellence têm ${FISCAL_PLANS.mva_excellence.roomDiscountPercent}% nas salas de reunião próprias da MVA. O desconto incide sobre a locação da sala em reservas dentro da vigência de um contrato fiscal ativo e pago.`},
   {q:'Outros coworkings podem oferecer endereço fiscal na MVA?',a:'Proprietários podem solicitar credenciamento de suas unidades. Cada espaço passa por avaliação; o cadastro como coworking não autoriza automaticamente oferecer endereço fiscal.'},
 ];
 const go = (id:string) => document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -216,7 +207,7 @@ export function FiscalView(){
    <div className="mx-auto max-w-2xl space-y-3 text-center">
     <span className="text-[11px] font-bold uppercase tracking-[.2em] fiscal-accent">Escolha seu plano</span>
     <h2 className="text-2xl font-semibold tracking-tight fiscal-ink sm:text-[36px]">Um plano para cada fase da sua empresa.</h2>
-    <p className="text-sm leading-relaxed fiscal-muted">Valores claros e serviços que acompanham o seu negócio.</p>
+    <p className="text-sm leading-relaxed fiscal-muted">Todos os planos incluem endereço fiscal. Compare os benefícios de cada um.</p>
    </div>
    <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border fiscal-line fiscal-surface p-1.5" aria-label="Período do plano">
      <button type="button" aria-pressed={term===1} onClick={()=>setTerm(1)} className={`rounded-xl px-5 py-3 text-xs font-bold transition sm:text-sm ${term===1?'bg-navy-900 text-white shadow-sm':'fiscal-muted hover:bg-slate-100'}`}>Mensal</button>
@@ -230,12 +221,14 @@ export function FiscalView(){
     {planIds.map(id=>{
       const p=FISCAL_PLANS[id], info=planInfo[id],q=planQuote(id);
       const monthlyEquivalent=q.amount/(term===1?1:12);
+      const features = p.roomDiscountPercent > 0
+        ? [...info.features, `${p.roomDiscountPercent}% de desconto nas salas de reunião próprias da MVA`]
+        : info.features;
       return <article key={id} className={`mva-glass-plan relative flex min-w-0 flex-col overflow-hidden rounded-[24px] border fiscal-surface transition-colors hover:border-[#d06636] ${info.popular?'border-[#d06636]':'fiscal-line'}`}>
         {info.popular&&<div className="bg-[#14304d] py-2.5 text-center text-[11px] font-bold uppercase tracking-[.16em] text-white">MVA Excellence · o mais completo</div>}
         <div className="flex flex-1 flex-col p-6 sm:p-7">
           <span className="text-[11px] font-bold uppercase tracking-[.12em] fiscal-accent">{info.eyebrow}</span>
-          <h3 className="mt-3 min-h-[48px] text-xl font-semibold leading-tight fiscal-ink">{p.name}</h3>
-          <p className="mt-3 min-h-[72px] text-sm leading-[1.7] fiscal-muted">{info.summary}</p>
+          <h3 className="mt-3 text-xl font-semibold leading-tight fiscal-ink">{p.name}</h3>
           <div className="mt-6 border-t fiscal-line pt-5">
             <p className="text-[11px] font-semibold fiscal-muted">A partir de</p>
             <div className="mt-1 flex flex-wrap items-baseline gap-1.5">
@@ -250,7 +243,7 @@ export function FiscalView(){
           <button type="button" onClick={()=>start(id)} className={`mt-6 flex min-h-[47px] w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors disabled:opacity-60 ${info.popular?'bg-[#c65019] text-white hover:bg-[#aa3c0f]':'bg-navy-900 text-white hover:bg-navy-800'}`}>Ver contratação e pagamento <ArrowRight className="h-4 w-4"/></button>
           <div className="mt-6 border-t fiscal-line pt-5">
             <p className="mb-4 text-xs font-semibold fiscal-ink">O que está incluído</p>
-            <ul className="space-y-3">{info.features.map(feature=><li key={feature} className="flex items-start gap-2.5 text-[13px] leading-[1.55] fiscal-muted"><Check className="mt-0.5 h-4 w-4 shrink-0 fiscal-accent"/>{feature}</li>)}</ul>
+            <ul className="space-y-3">{features.map(feature=><li key={feature} className="flex items-start gap-2.5 text-[13px] leading-[1.55] fiscal-muted"><Check className="mt-0.5 h-4 w-4 shrink-0 fiscal-accent"/>{feature}</li>)}</ul>
           </div>
         </div>
       </article>;
