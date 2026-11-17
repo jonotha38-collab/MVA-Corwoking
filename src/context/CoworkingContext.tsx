@@ -8,7 +8,7 @@ import { isAdmin, profileToUser } from '../lib/auth';
 import { formatAddress, rowToBooking, rowToCorrespondence, rowToFiscal, rowToSpace, spaceToRow } from '../lib/mappers';
 import type { Booking, Correspondence, FiscalContract, Space, UserAccount } from '../types';
 
-interface ToastState { id: number; message: string; type: 'success' | 'info' | 'error' }
+export interface ToastState { id: number; message: string; type: 'success' | 'info' | 'error' | 'waiting' | 'analysis' | 'rejected' }
 
 interface CoworkingContextType {
   ready: boolean;
@@ -51,7 +51,8 @@ interface CoworkingContextType {
   refreshFiscalContracts: () => Promise<void>;
   refreshSpaces: () => Promise<void>;
   refreshBookingExpirations: (bookingIds: string[]) => Promise<void>;
-  showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
+  showToast: (message: string, type?: ToastState['type']) => void;
+  dismissToast: (id: number) => void;
 }
 
 const EMPTY_COMPANY: FiscalContract = {
@@ -85,10 +86,14 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   const lastUid = useRef<string | null>(null);
 
-  const showToast = useCallback((message: string, type: 'success' | 'info' | 'error' = 'success') => {
+  const showToast = useCallback((message: string, type: ToastState['type'] = 'success') => {
     const id = Date.now() + Math.random();
-    setToasts(prev => [...prev, { id, message, type }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4500);
+    setToasts(prev => prev.some(toast => toast.message === message && toast.type === type)
+      ? prev : [...prev, { id, message, type }]);
+  }, []);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
 
   const fail = useCallback((what: string, err: unknown) => {
@@ -243,7 +248,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const { data, error } = await supabase.from('spaces').update({ approval, rejection_reason: reason }).eq('id', id).select().single();
     if (error) return fail('Não foi possível atualizar o status do anúncio', error);
     setSpaces(prev => prev.map(s => (s.id === id ? rowToSpace(data) : s)));
-    showToast(approval === 'aprovado' ? 'Espaço aprovado e publicado no marketplace.' : 'Espaço rejeitado. O motivo ficará visível para o anunciante.', approval === 'aprovado' ? 'success' : 'info');
+    showToast(approval === 'aprovado' ? 'Espaço aprovado e publicado no marketplace.' : 'Espaço rejeitado. O motivo ficará visível para o anunciante.', approval === 'aprovado' ? 'success' : 'rejected');
   };
   const approveSpace = (id: string) => setApproval(id, 'aprovado', null);
   const rejectSpace = (id: string, reason: string) => setApproval(id, 'rejeitado', reason);
@@ -346,7 +351,7 @@ export const CoworkingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       selectedCity, selectedCategory, toasts, authModalOpen, authModalTab, setActiveTab, setSearchQuery, setSelectedCity,
       setSelectedCategory, setAuthModalOpen, setAuthModalTab, logout, addSpace, updateSpace, deleteSpace, approveSpace,
       rejectSpace, addBooking, cancelBooking, checkInBooking, addCorrespondence, requestDigitalization, completeDigitalization,
-      markCorrespondenceAsRetrieved, refreshFiscalContracts, refreshSpaces, refreshBookingExpirations, showToast,
+      markCorrespondenceAsRetrieved, refreshFiscalContracts, refreshSpaces, refreshBookingExpirations, showToast, dismissToast,
     }}>
       {children}
     </CoworkingContext.Provider>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Clock3 } from 'lucide-react';
+import { StatusNotice } from '../common/StatusNotice';
 import { t, usePreferences } from '../../lib/preferences';
 
 export function useBookingPaymentWindow(deadline?: string | null) {
@@ -29,17 +29,14 @@ export function BookingPaymentDeadline({ deadline, closed, canceled }: {
   }).format(new Date(deadline));
 
   return (
-    <div role="status" className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-900">
-      <Clock3 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-      <div>
-        {canceled ? <strong>{t('Reserva cancelada por falta de pagamento.')}</strong> : <>
-          <strong>{t('Prazo para pagamento')}</strong>
-          <time dateTime={deadline} className="ml-1 font-bold">{deadlineLabel}</time> ({t('horário de Brasília')})
-          <p>{t(closed
+    <StatusNotice status={canceled ? 'canceled' : 'waiting'}
+      title={canceled ? 'Reserva cancelada por falta de pagamento.' : 'Prazo para pagamento'}>
+      {!canceled && <>
+          <time dateTime={deadline} className="font-semibold">{deadlineLabel}</time> ({t('horário de Brasília')})
+          <span className="mt-1 block">{t(closed
             ? 'Prazo encerrado. Estamos verificando se o pagamento foi recebido.'
-            : 'Sem pagamento até esse horário, a reserva será cancelada automaticamente e o horário será liberado.')}</p>
-        </>}
-      </div>
-    </div>
+            : 'Sem pagamento até esse horário, a reserva será cancelada automaticamente e o horário será liberado.')}</span>
+      </>}
+    </StatusNotice>
   );
 }

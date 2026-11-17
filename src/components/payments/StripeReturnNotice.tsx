@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle2, Clock3, X } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
+import { StatusNotice } from '../common/StatusNotice';
+import type { StatusKind } from '../common/StatusBadge';
 
 type State='checking'|'paid'|'test'|'pending'|'canceled'|'connect';
 export function StripeReturnNotice(){
@@ -52,7 +53,9 @@ export function StripeReturnNotice(){
   window.history.replaceState(window.history.state,'',url.pathname+url.search+url.hash);
  };
  if(!visible)return null;
- const success=state==='paid';
+ const tones:Record<State,StatusKind>={
+  checking:'waiting',paid:'approved',test:'info',pending:'waiting',canceled:'canceled',connect:'analysis'
+ };
  const messages:Record<State,[string,string]>={
   checking:['Consultando pagamento','Estamos verificando a situação no banco de dados da MVA.'],
   paid:['Pagamento real confirmado pelo Stripe','O pagamento consta como confirmado. A prestação do serviço continua sujeita às condições e aprovações aplicáveis.'],
@@ -62,12 +65,6 @@ export function StripeReturnNotice(){
   connect:['Cadastro Stripe em avaliação','Confira no painel do proprietário quando a conta estiver habilitada para cobranças e repasses.']
  };
  const [title,description]=messages[state];
- return <div role="status" className={`mb-6 flex items-start gap-3 rounded-2xl border p-4 shadow-sm sm:p-5 ${success?'border-emerald-200 bg-emerald-50':'border-amber-200 bg-amber-50'}`}>
-  {success?<CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700"/>:
-    state==='checking'?<Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-amber-800"/>:
-    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-800"/>}
-  <div className="min-w-0 flex-1"><p className={`text-sm font-bold ${success?'text-emerald-900':'text-amber-900'}`}>{title}</p>
-    <p className={`mt-1 text-xs leading-relaxed ${success?'text-emerald-800':'text-amber-800'}`}>{description}</p></div>
-  <button type="button" onClick={dismiss} aria-label="Dispensar aviso do Stripe" className="shrink-0 rounded-lg p-2 text-slate-600 hover:bg-black/5"><X className="h-4 w-4"/></button>
- </div>;
+ return <StatusNotice status={tones[state]} title={title} className="mb-6"
+   onDismiss={dismiss} dismissLabel="Dispensar aviso do Stripe">{description}</StatusNotice>;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Building2, CheckCircle2, FileCheck2, Info, LockKeyhole, ShieldCheck, X } from 'lucide-react';
+import { ArrowLeft, Building2, LockKeyhole, ShieldCheck, X } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { usePreferences } from '../../lib/preferences';
 import { EXCELLENCE_ACCOUNTING_CONSULTATION, getPlan, quotePlan, money, type FiscalPlanId, type FiscalTermMonths } from '../../lib/fiscal-payment';
@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabase';
 import { matchesFiscalApplication } from '../../lib/fiscal-application-flow';
 import { MvaLogo } from '../common/MvaLogo';
 import { Dialog } from '../ui/Dialog';
+import { StatusSymbol } from '../common/StatusBadge';
 import { StripeCheckoutAction } from './StripeCheckoutAction';
 import { FiscalApplicantForm, FiscalMissingDocuments, type CreatedFiscalApplication } from '../fiscal/FiscalApplicantForm';
 
@@ -92,10 +93,10 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
        <p className="text-xs leading-relaxed text-slate-600">A MVA utiliza sua conta para relacionar a contratação aos documentos e pagamentos da empresa.</p>
        <button onClick={startLogin} type="button" className="action-primary checkout-submit">Entrar na minha conta</button>
      </div>}
-     {currentUser&&!loading&&!match&&<div className="space-y-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
-       <div className="flex items-start gap-2"><Info className="mt-0.5 h-5 w-5 shrink-0 text-amber-700"/>
-        <div><p className="text-sm font-bold text-amber-900">Análise necessária antes de pagar</p>
-        <p className="mt-1 text-xs leading-relaxed text-amber-800">
+     {currentUser&&!loading&&!match&&<div data-status={other?.status==='rejected'?'rejected':other?.status==='under_review'?'analysis':'waiting'} className="mva-notice space-y-4 rounded-xl p-4">
+       <div className="flex items-start gap-2"><StatusSymbol status={other?.status==='rejected'?'rejected':other?.status==='under_review'?'analysis':'waiting'} className="mt-0.5"/>
+        <div className="min-w-0 break-words"><p className="text-sm font-bold mva-status-text">Análise necessária antes de pagar</p>
+        <p className="mt-1 text-xs leading-relaxed mva-status-detail">
           {other?.status==='submitted'||other?.status==='under_review'
            ? 'Já existe uma solicitação para este serviço. A equipe da MVA precisa concluir a avaliação.'
            : other?.status==='rejected'
@@ -111,19 +112,19 @@ export function FiscalCheckout({planId,initialTerm=12,transfer=false,application
           <FiscalMissingDocuments application={other as unknown as CreatedFiscalApplication} accountId={currentUser.id}/>}
        {(other?.status==='submitted'||other?.status==='under_review'||other?.status==='rejected')&&<a href={contact} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-xs font-bold text-navy-900">Falar com a equipe MVA</a>}
        <button type="button" onClick={()=>{onClose();setActiveTab('fiscal-status')}}
-        className="ml-3 text-xs font-semibold text-amber-900 underline underline-offset-2">Ver minhas solicitações</button>
+        className="ml-3 text-xs font-semibold mva-status-text underline underline-offset-2">Ver minhas solicitações</button>
      </div>}
      {currentUser&&!loading&&match&&<div className="space-y-4">
-       <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-         <FileCheck2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700"/>
-         <div><strong className="text-sm text-emerald-900">Contratante elegível para a contratação</strong>
-           <p className="mt-1 text-xs leading-relaxed text-emerald-800">{match.company_name}. Os documentos finais dependem do contrato e da confirmação financeira.</p></div>
+       <div data-status="approved" className="mva-notice flex items-start gap-3 rounded-xl p-4">
+         <StatusSymbol status="approved" className="mt-0.5"/>
+         <div className="min-w-0 break-words"><strong className="text-sm mva-status-text">Contratante elegível para a contratação</strong>
+           <p className="mt-1 text-xs leading-relaxed mva-status-detail">{match.company_name}. Os documentos finais dependem do contrato e da confirmação financeira.</p></div>
        </div>
        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-700">
         <strong>Formas de pagamento:</strong> o Stripe apresenta as opções habilitadas para sua compra. Pix, quando disponível, gera QR Code ou código copia e cola. Pagar ou visualizar o QR Code não libera o endereço: o pagamento precisa ser confirmado e a documentação aprovada pela MVA.
        </div>
-       {paymentStatus==='paid'?<div role="status" className="flex items-start gap-2 rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-900">
-          <CheckCircle2 className="h-5 w-5 shrink-0"/>{paymentIsLive?'Pagamento real confirmado. A MVA concluirá a formalização antes de autorizar o endereço.':'Pagamento de teste confirmado: nenhuma cobrança real ou liberação de endereço foi realizada.'}
+       {paymentStatus==='paid'?<div role="status" data-status="approved" className="mva-notice flex items-start gap-2 rounded-xl p-4 text-sm font-semibold">
+          <StatusSymbol status="approved"/><span className="min-w-0 break-words">{paymentIsLive?'Pagamento real confirmado. A MVA concluirá a formalização antes de autorizar o endereço.':'Pagamento de teste confirmado: nenhuma cobrança real ou liberação de endereço foi realizada.'}</span>
         </div>:<StripeCheckoutAction action="checkout_fiscal" resourceId={match.id} label="Continuar para pagamento seguro"/>}
      </div>}
      <p className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-500">

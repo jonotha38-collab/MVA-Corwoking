@@ -5,6 +5,7 @@ import { useCoworking } from '../../context/CoworkingContext';
 import { FISCAL_PLANS, type FiscalPlanId, validCnpj } from '../../lib/fiscal-payment';
 import { rowToFiscal } from '../../lib/mappers';
 import type { FiscalContract } from '../../types';
+import { StatusBadge, StatusSymbol } from '../common/StatusBadge';
 
 export type FiscalApplication = {
  id:string; user_id:string; company_name:string; trading_name:string; cnpj:string; cnae:string;
@@ -92,7 +93,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
        unit_id:form.unit_id||null,terms_version:'2026-10-30',
      });
      if(insertError)throw insertError;
-     showToast('Solicitação enviada. A equipe analisará o endereço e a atividade da empresa.','success');
+     showToast('Solicitação enviada. A equipe analisará o endereço e a atividade da empresa.','waiting');
      setConsent(false);await load();onSubmitted?.();
    }catch(e){setError('Não foi possível enviar a solicitação. Confira os dados e tente novamente.')}
    finally{setBusy(false)}
@@ -139,7 +140,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
     {[{icon:ShieldCheck,label:'Análise de atividade'},{icon:FileCheck2,label:'Documentos protegidos'},{icon:CalendarClock,label:'Vigência e renovação'}].map(({icon:Icon,label})=><div key={label} className="flex items-center gap-2 rounded-xl bg-slate-50 p-3 text-xs font-medium text-navy-800"><Icon className="h-4 w-4 shrink-0 text-orange-600"/>{label}</div>)}
    </div>
   </header>}
-  {error&&<div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}</div>}
+  {error&&<div role="alert" data-status="rejected" className="mva-notice rounded-xl p-4 text-sm"><StatusSymbol status="rejected" className="mr-2"/>{error}</div>}
   {mode!=='application'&&currentUser && <div className="space-y-4">
     <div className="flex items-center justify-between gap-3"><h3 className="font-bold text-navy-900">Minhas empresas e solicitações</h3><button type="button" onClick={()=>void load()} className="text-xs font-semibold text-orange-700 hover:underline">Atualizar</button></div>
     {loading?<p className="text-sm text-slate-500">Carregando solicitações…</p>:applications.length===0?<p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">Você ainda não solicitou um endereço fiscal. Preencha o formulário abaixo para começar.</p>:<div className="grid gap-3 lg:grid-cols-2">
@@ -153,7 +154,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
         return <article key={app.id} className="min-w-0 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div className="min-w-0"><h4 className="break-words text-sm font-bold text-navy-900">{app.company_name}</h4><p className="mt-1 text-xs text-slate-500">{app.applicant_type==='pf'?'Pessoa Física':app.applicant_type==='pj'?'Pessoa Jurídica · CNPJ '+app.cnpj:'CNPJ '+app.cnpj} · {FISCAL_PLANS[app.plan_id].name}</p></div>
-            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${app.status==='approved'?'bg-emerald-50 text-emerald-800':app.status==='rejected'?'bg-rose-50 text-rose-800':'bg-amber-50 text-amber-800'}`}>{labels[app.status]}</span>
+            <StatusBadge status={app.status==='approved'?'approved':app.status==='rejected'?'rejected':app.status==='under_review'?'analysis':'waiting'}>{labels[app.status]}</StatusBadge>
           </div>
           <p className="text-xs text-slate-500">Solicitação {new Date(app.created_at).toLocaleDateString('pt-BR')} · {app.term_months===12?'12 meses':'1 mês'}</p>
           {app.review_notes&&<p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">{app.review_notes}</p>}
@@ -169,14 +170,14 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
               <input type="file" accept=".pdf,.jpg,.jpeg,.png" disabled={uploading!==null} className="sr-only" onChange={e=>{void uploadDocument(app,e.target.files?.[0]||null);e.currentTarget.value=''}}/>
             </label>}
           </div>
-          {app.status==='approved'&&<div role="status" className={`space-y-2 rounded-xl border p-3 ${paid?'border-emerald-200 bg-emerald-50':'border-amber-200 bg-amber-50'}`}>
-            <p className={`text-xs font-bold ${paid?'text-emerald-900':'text-amber-900'}`}>
+          {app.status==='approved'&&<div role="status" data-status={delivered?'approved':order?.status==='refunded'||order?.status==='disputed'?'rejected':'waiting'} className="mva-notice space-y-2 rounded-xl p-3">
+            <p className="mva-status-text text-xs font-semibold"><StatusSymbol status={delivered?'approved':order?.status==='refunded'||order?.status==='disputed'?'rejected':'waiting'} className="mr-2"/>
               {delivered?'Documentos liberados para download':
                paid?'Pagamento confirmado — formalização em andamento':
                order?.status==='refunded'||order?.status==='disputed'?'Pagamento interrompido — fale com a MVA':
                'Elegibilidade aprovada — aguardando pagamento'}
             </p>
-            <p className={`text-xs leading-relaxed ${paid?'text-emerald-800':'text-amber-800'}`}>
+            <p className="mva-status-detail text-xs leading-relaxed">
               {delivered?(app.plan_id==='comercial'?'A MVA concluiu a formalização. O contrato assinado está disponível abaixo.':'A MVA concluiu a conferência humana. A declaração e o contrato assinados estão disponíveis abaixo.'):
                paid?'A MVA está preparando e validando o contrato e os documentos pertinentes. O uso do endereço ainda não está autorizado; o acesso será liberado após aprovação final.':
                'O pagamento será realizado pelo Stripe. Você só poderá utilizar o endereço após a formalização e a autorização da MVA.'}
@@ -195,16 +196,16 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
        return <article key={c.id} className="rounded-2xl border border-slate-200 bg-white p-5">
          <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-bold text-navy-900">{c.companyName} · Contrato</h3>
-          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${c.status==='ativo'?'bg-emerald-50 text-emerald-800':'bg-amber-50 text-amber-800'}`}>
+          <StatusBadge status={c.status==='ativo'?(remaining<0?'rejected':'approved'):'waiting'}>
             {c.status==='ativo'?`Vigência: ${remaining<0?'encerrada':`${remaining} dias restantes`}`:'Aguardando formalização'}
-          </span>
+          </StatusBadge>
          </div>
          {c.status==='ativo'
           ? <p className="mt-2 text-xs text-slate-600">Autorização formalizada pela MVA. Renovação prevista: {c.renewalDate.split('-').reverse().join('/')}. O vencimento não gera cobrança automática.</p>
-          : <p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">Pagamento recebido; aguarde a conferência e assinatura dos documentos. Ainda não é permitido utilizar o endereço.</p>}
-         {c.status==='ativo'&&remaining<=30&&<p className="mt-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">Consulte a MVA para renovar e manter o serviço regularizado.</p>}
+          : <p data-status="waiting" className="mva-notice mt-2 rounded-xl p-3 text-xs"><StatusSymbol status="waiting" className="mr-2"/>Pagamento recebido; aguarde a conferência e assinatura dos documentos. Ainda não é permitido utilizar o endereço.</p>}
+         {c.status==='ativo'&&remaining<=30&&<p data-status="waiting" className="mva-notice mt-2 rounded-xl p-3 text-xs"><StatusSymbol status="waiting" className="mr-2"/>Consulte a MVA para renovar e manter o serviço regularizado.</p>}
          <div className="mt-3 flex flex-wrap gap-2">{docs.map(d=><button type="button" key={d.id} onClick={()=>void openFile(d)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-800"><FileCheck2 className="mr-1 inline h-4 w-4"/>{d.category==='contract'?'Contrato assinado':d.category==='authorization'?'Declaração assinada':d.file_name}</button>)}</div>
-         {c.status==='ativo'&&docs.length>0&&<p className="mt-2 text-xs font-medium text-emerald-700">Documentos aprovados disponíveis em acesso privado, para consulta e download.</p>}
+         {c.status==='ativo'&&docs.length>0&&<p className="mva-status-detail mt-2 text-xs font-medium">Documentos aprovados disponíveis em acesso privado, para consulta e download.</p>}
        </article>;
     })}
   </div>}

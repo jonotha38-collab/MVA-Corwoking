@@ -3194,5 +3194,97 @@
   "Confirmar reserva de cortesia": [
     "Confirm complimentary booking",
     "Confirmar reserva de cortesía"
+  ],
+  "Concluído": [
+    "Completed",
+    "Completado"
+  ],
+  "Atualização": [
+    "Update",
+    "Actualización"
+  ],
+  "Não foi possível concluir": [
+    "Could not complete",
+    "No se pudo completar"
+  ],
+  "Aguardando": [
+    "Waiting",
+    "En espera"
+  ],
+  "Rejeitado": [
+    "Rejected",
+    "Rechazado"
+  ],
+  "Fechar notificação": [
+    "Dismiss notification",
+    "Cerrar notificación"
+  ],
+  "Notificações": [
+    "Notifications",
+    "Notificaciones"
+  ],
+  "Dispensar aviso do Stripe": [
+    "Dismiss Stripe notice",
+    "Cerrar aviso de Stripe"
+  ],
+  "Conta Stripe preparada": [
+    "Stripe account ready",
+    "Cuenta de Stripe preparada"
+  ],
+  "Não foi possível abrir o Stripe": [
+    "Could not open Stripe",
+    "No se pudo abrir Stripe"
+  ],
+  "Consultando pagamento": [
+    "Checking payment",
+    "Consultando el pago"
+  ],
+  "Estamos verificando a situação no banco de dados da MVA.": [
+    "We are checking the payment status in MVA records.",
+    "Estamos verificando el estado del pago en los registros de MVA."
+  ],
+  "Pagamento real confirmado pelo Stripe": [
+    "Live payment confirmed by Stripe",
+    "Pago real confirmado por Stripe"
+  ],
+  "O pagamento consta como confirmado. A prestação do serviço continua sujeita às condições e aprovações aplicáveis.": [
+    "The payment is confirmed. The service remains subject to the applicable conditions and approvals.",
+    "El pago consta como confirmado. El servicio sigue sujeto a las condiciones y aprobaciones aplicables."
+  ],
+  "Nenhum dinheiro real foi cobrado e nenhum serviço foi liberado por este pagamento de teste.": [
+    "No real money was charged and no service was enabled by this test payment.",
+    "No se cobró dinero real ni se habilitó ningún servicio por este pago de prueba."
+  ],
+  "Pagamento ainda não confirmado": [
+    "Payment not yet confirmed",
+    "Pago aún no confirmado"
+  ],
+  "O retorno à página não comprova a cobrança. Atualize o painel para consultar a confirmação enviada pelo Stripe.": [
+    "Returning to this page does not confirm payment. Refresh the dashboard to check confirmation from Stripe.",
+    "Volver a esta página no confirma el pago. Actualice el panel para consultar la confirmación enviada por Stripe."
+  ],
+  "Checkout interrompido": [
+    "Checkout interrupted",
+    "Checkout interrumpido"
+  ],
+  "Você voltou da tela do Stripe. Nenhum pagamento novo foi confirmado nesta etapa.": [
+    "You returned from Stripe. No new payment was confirmed at this stage.",
+    "Ha vuelto de Stripe. No se confirmó ningún pago nuevo en esta etapa."
+  ],
+  "Cadastro Stripe em avaliação": [
+    "Stripe account under review",
+    "Cuenta de Stripe en revisión"
+  ],
+  "Confira no painel do proprietário quando a conta estiver habilitada para cobranças e repasses.": [
+    "Check the owner dashboard to see when the account is enabled for charges and payouts.",
+    "Consulte el panel del propietario para saber cuándo la cuenta estará habilitada para cobros y transferencias."
+  ],
+  "A conta está preparada para receber pagamentos.": [
+    "The account is ready to receive payments.",
+    "La cuenta está preparada para recibir pagos."
+  ],
+  "Não foi possível utilizar suas horas": [
+    "Could not use your hours",
+    "No se pudieron usar sus horas"
   ]
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, CreditCard, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useCoworking } from '../../context/CoworkingContext';
+import { StatusNotice } from '../common/StatusNotice';
 
 type Action = 'checkout_fiscal' | 'checkout_booking' | 'checkout_owner' | 'owner_portal' | 'connect_onboarding' | 'checkout_booking_plan' | 'booking_plan_portal';
 type GatewayStatus = {
@@ -64,18 +65,18 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
   checkout_booking_plan:'Assinar plano de atendimento',booking_plan_portal:'Gerenciar meu plano de atendimento'
  };
  return <div className="min-w-0 space-y-2">
-   {connected&&<p role="status" className="rounded-lg bg-emerald-50 p-3 text-xs font-semibold text-emerald-800">A conta está preparada para receber pagamentos.</p>}
+   {connected&&<StatusNotice status="approved" title="Conta Stripe preparada">A conta está preparada para receber pagamentos.</StatusNotice>}
    <button type="button" onClick={()=>void trigger()} disabled={!enabled||busy||connected}
      className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-bold transition-colors ${enabled?'mva-payment-action bg-[#cf581f] text-white hover:bg-[#ad4210]':'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-600'} disabled:opacity-75 ${className}`}>
      {busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<CreditCard className="h-4 w-4"/>}
      {busy?'Conectando ao Stripe…':!enabled?(status?.sandbox?'Indisponível para esta conta (teste)':'Pagamento ainda indisponível'):(label||defaultLabels[action])+(status?.sandbox?' (teste)':'')}
      {enabled&&!busy&&<ArrowRight className="h-4 w-4"/>}
    </button>
-   {enabled&&action==='checkout_fiscal'&&status?.pixAvailable&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-200">
-     <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0"/>Pix e cartão disponíveis no Stripe. Se escolher Pix, aguarde a confirmação bancária antes de considerar o pagamento concluído.
+   {enabled&&action==='checkout_fiscal'&&status?.pixAvailable&&<p role="status" className="mva-status-detail flex items-start gap-1.5 text-[11px] leading-relaxed">
+     <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true"/>Pix e cartão disponíveis no Stripe. Se escolher Pix, aguarde a confirmação bancária antes de considerar o pagamento concluído.
    </p>}
-   {enabled&&status?.sandbox&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-sky-800 dark:text-sky-200">
-      <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0"/>Sandbox Stripe para administradores: não há cobrança real.
+   {enabled&&status?.sandbox&&<p role="status" className="mva-status-detail flex items-start gap-1.5 text-[11px] leading-relaxed">
+      <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true"/>Sandbox Stripe para administradores: não há cobrança real.
    </p>}
    {!enabled&&<p role="status" className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-500">
      <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0"/>
@@ -85,6 +86,6 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
        ? 'O Stripe está em modo de teste: somente contas administradoras autenticadas podem iniciar um pagamento simulado. Nenhuma cobrança real será feita.'
        : 'O pagamento ainda não foi liberado pela MVA. Nenhuma cobrança será realizada.'}
    </p>}
-   {error&&<p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-800">{error}</p>}
+   {error&&<StatusNotice status="rejected" role="alert" title="Não foi possível abrir o Stripe">{error}</StatusNotice>}
   </div>;
 }

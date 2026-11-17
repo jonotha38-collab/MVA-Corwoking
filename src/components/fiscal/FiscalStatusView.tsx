@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AlertCircle, ArrowRight, Building2, CalendarDays, Check, CheckCircle2, ClipboardList, Clock3, FileClock, FileText, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
+import { ArrowRight, Building2, CalendarDays, Check, ClipboardList, Clock3, FileText, RefreshCw, ShieldCheck } from 'lucide-react';
 import { useCoworking } from '../../context/CoworkingContext';
 import { supabase } from '../../lib/supabase';
 import { FISCAL_PLANS, type FiscalPlanId } from '../../lib/fiscal-payment';
@@ -7,6 +7,7 @@ import { requiredBusinessDocuments, type BusinessDetails, type FiscalDocumentKin
 import { FiscalCheckout } from '../payments/FiscalCheckout';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
 import { fiscalSteps, type FiscalMilestone } from '../../lib/fiscal-progress';
+import { StatusBadge, StatusSymbol, type StatusKind } from '../common/StatusBadge';
 
 type Status='submitted'|'under_review'|'approved'|'rejected';
 type Application={
@@ -24,12 +25,11 @@ const nowDate=()=>{
  return parts.year+'-'+parts.month+'-'+parts.day;
 };
 function Stage({stage,index}:{stage:FiscalMilestone;index:number}){
- const Icon=stage.state==='done'?Check:stage.state==='problem'?XCircle:stage.state==='current'?Clock3:FileClock;
- const style=stage.state==='done'?'border-emerald-300 bg-emerald-50 text-emerald-800':stage.state==='problem'?'border-rose-300 bg-rose-50 text-rose-800':stage.state==='current'?'border-orange-400 bg-orange-50 text-orange-900':'border-slate-200 bg-slate-50 text-slate-500';
+ const status:StatusKind=stage.state==='done'?'approved':stage.state==='problem'?'rejected':stage.state==='current'&&index<=1?'analysis':'waiting';
  return <li className="relative flex gap-4 pb-5 last:pb-0">
   {index<4&&<span aria-hidden className="absolute left-[21px] top-10 bottom-0 w-px bg-slate-200"/>}
-  <div className={`relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${style}`}>
-   <Icon className="h-5 w-5" aria-hidden/>
+  <div className="mva-notice mva-status-step relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border" data-status={status} data-current={stage.state==='current'}>
+   <StatusSymbol status={status}/>
   </div>
   <div className="min-w-0 flex-1 pt-0.5">
    <div className="flex flex-wrap items-start justify-between gap-2">
@@ -109,8 +109,8 @@ export function FiscalStatusView(){
    </div>
   </header>
   {!currentUser?<div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-navy-900">Entre na sua conta para acompanhar solicitações vinculadas ao seu cadastro.</div>:
-  error?<div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-800">
-    <p className="flex items-center gap-2"><AlertCircle className="h-4 w-4"/>{error}</p>
+  error?<div role="alert" data-status="rejected" className="mva-notice flex flex-wrap items-center justify-between gap-3 rounded-2xl p-5 text-sm">
+    <p className="flex min-w-0 items-start gap-2"><StatusSymbol status="rejected"/><span className="min-w-0 break-words">{error}</span></p>
     <button type="button" onClick={()=>void refresh()} className="rounded-lg bg-white px-3 py-2 font-semibold">Tentar novamente</button>
    </div>:
   loading&&applications.length===0?<p role="status" className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-700">Carregando suas solicitações…</p>:
@@ -138,7 +138,7 @@ export function FiscalStatusView(){
           {app?.id===a.id&&<Check className="h-4 w-4 shrink-0 text-orange-600"/>}
          </div>
          <p className="mt-1 text-xs text-slate-600">{FISCAL_PLANS[a.plan_id]?.name||'Endereço fiscal'} · {a.term_months===1?'1 mês':'12 meses'}</p>
-         <span className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${a.status==='rejected'||aContract&&aContract.renewal_date<nowDate()?'bg-rose-50 text-rose-800':aContract?'bg-emerald-50 text-emerald-800':a.status==='approved'?'bg-orange-50 text-orange-900':'bg-slate-100 text-slate-700'}`}>{label}</span>
+         <StatusBadge className="mt-3" status={a.status==='rejected'||aContract&&aContract.renewal_date<nowDate()?'rejected':aContract||aOrder?'approved':a.status==='under_review'?'analysis':'waiting'}>{label}</StatusBadge>
         </button>;
        })}
       </div>
@@ -150,21 +150,21 @@ export function FiscalStatusView(){
         <h2 className="mt-2 break-words text-xl font-semibold text-navy-950">{app.company_name}</h2>
         <p className="mt-1 text-xs text-slate-600">Enviado em {readableDate(app.created_at)} · {FISCAL_PLANS[app.plan_id]?.name} · {app.term_months===1?'Mensal':'Anual'}</p>
        </div>
-       <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${active?'bg-emerald-100 text-emerald-800':expired||app.status==='rejected'?'bg-rose-100 text-rose-800':'bg-orange-50 text-orange-900'}`}>
+       <StatusBadge status={expired||app.status==='rejected'?'rejected':active||app.status==='approved'?'approved':app.status==='under_review'?'analysis':'waiting'}>
         {active?'Ativo':expired?'Vigência encerrada':app.status==='rejected'?'Ajustes necessários':app.status==='approved'?'Aprovado':'Em andamento'}
-       </span>
+       </StatusBadge>
       </div>
-      <div className={`rounded-xl border p-4 ${app.status==='rejected'||expired?'border-rose-200 bg-rose-50':active?'border-emerald-200 bg-emerald-50':'border-orange-200 bg-orange-50'}`}>
+      <div className="mva-notice rounded-xl p-4" data-status={app.status==='rejected'||expired?'rejected':active?'approved':app.status==='under_review'?'analysis':'waiting'}>
        <p className="text-[11px] font-bold uppercase tracking-[.08em] text-slate-600">Situação atual</p>
-       <p className="mt-1 text-sm font-bold text-navy-950">{current?.title}</p>
+       <p className="mva-status-text mt-2 flex items-start gap-2 text-sm font-semibold"><StatusSymbol status={current?.state==='problem'?'rejected':active?'approved':app.status==='under_review'?'analysis':'waiting'}/><span className="min-w-0 break-words">{current?.title}</span></p>
        <p className="mt-1 text-xs leading-5 text-slate-700">{current?.description}</p>
        {app.review_notes&&<div className="mt-3 border-t border-black/10 pt-3 text-xs leading-5 text-slate-700">
         <strong>Parecer da equipe MVA: </strong>{app.review_notes}
        </div>}
       </div>
-      {missing.length>0&&app.status!=='approved'&&<div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-       <p className="flex items-center gap-2 text-xs font-bold text-amber-900"><AlertCircle className="h-4 w-4"/>Documentos societários pendentes</p>
-       <p className="mt-2 text-xs leading-5 text-amber-900">{missing.join(', ')}.</p>
+      {missing.length>0&&app.status!=='approved'&&<div role="status" data-status="waiting" className="mva-notice rounded-xl p-4">
+       <p className="mva-status-text flex items-start gap-2 text-xs font-semibold"><StatusSymbol status="waiting"/>Documentos societários pendentes</p>
+       <p className="mva-status-detail mt-2 text-xs leading-5">{missing.join(', ')}.</p>
       </div>}
       <div>
        <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-navy-950"><CalendarDays className="h-4 w-4 text-orange-600"/>Etapas do processo</h3>
@@ -172,14 +172,14 @@ export function FiscalStatusView(){
       </div>
       <div className="border-t border-slate-200 pt-5">
        <p className="mb-3 text-xs font-semibold text-navy-950">Próxima ação</p>
-       {active?<div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-semibold text-emerald-900"><CheckCircle2 className="h-4 w-4"/>Endereço autorizado até {contract?.renewal_date.split('-').reverse().join('/')}.</div>:
-        expired?<p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-800">A vigência foi encerrada. Consulte a equipe MVA para solicitar a renovação antes de utilizar o endereço.</p>:
+       {active?<div data-status="approved" className="mva-notice flex items-start gap-2 rounded-xl p-3 text-xs font-semibold"><StatusSymbol status="approved"/><span className="min-w-0 break-words">Endereço autorizado até {contract?.renewal_date.split('-').reverse().join('/')}.</span></div>:
+        expired?<p role="alert" data-status="rejected" className="mva-notice rounded-xl p-4 text-xs font-semibold"><StatusSymbol status="rejected" className="mr-2"/>A vigência foi encerrada. Consulte a equipe MVA para solicitar a renovação antes de utilizar o endereço.</p>:
         app.status==='rejected'?<button type="button" onClick={()=>setActiveTab('fiscal')} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy-950 px-4 py-3 text-sm font-semibold text-white">Ver condições para novo pedido<ArrowRight className="h-4 w-4"/></button>:
         app.status==='approved'&&!paid&&!blockedPayment?<StripeCheckoutAction action="checkout_fiscal" resourceId={app.id} label="Continuar para pagamento seguro"/>:
-        app.status==='approved'&&blockedPayment?<p className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-800">O pagamento foi revertido ou contestado. Consulte a MVA antes de prosseguir.</p>:
-        paid?<p className="rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-700">Pagamento recebido. Aguarde a conferência e a assinatura dos documentos pela equipe MVA.</p>:
+        app.status==='approved'&&blockedPayment?<p data-status="rejected" className="mva-notice rounded-xl p-4 text-xs"><StatusSymbol status="rejected" className="mr-2"/>O pagamento foi revertido ou contestado. Consulte a MVA antes de prosseguir.</p>:
+        paid?<p data-status="waiting" className="mva-notice rounded-xl p-4 text-xs leading-5"><StatusSymbol status="waiting" className="mr-2"/>Pagamento recebido. Aguarde a conferência e a assinatura dos documentos pela equipe MVA.</p>:
         missing.length>0?<button type="button" onClick={()=>setCheckout(app)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy-950 px-4 py-3 text-sm font-bold text-white">Enviar documentos pendentes<ArrowRight className="h-4 w-4"/></button>:
-        <p className="rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-700">Nenhuma ação é necessária agora. Você pode acompanhar a análise nesta página.</p>}
+        <p data-status="analysis" className="mva-notice rounded-xl p-4 text-xs leading-5"><StatusSymbol status="analysis" className="mr-2"/>Nenhuma ação é necessária agora. Você pode acompanhar a análise nesta página.</p>}
        <p className="mt-3 flex items-start gap-2 text-[11px] leading-5 text-slate-500"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0"/>A aprovação e o pagamento não liberam automaticamente o uso do endereço. A autorização depende da formalização pela MVA.</p>
       </div>
      </article>}

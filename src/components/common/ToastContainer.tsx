@@ -1,38 +1,58 @@
+import { useEffect, useRef, useState } from 'react';
+import { X } from 'lucide-react';
 import { t } from '../../lib/preferences';
-import React from 'react';
-import { useCoworking } from '../../context/CoworkingContext';
-import { CheckCircle2, Info, AlertTriangle } from 'lucide-react';
+import { useCoworking, type ToastState } from '../../context/CoworkingContext';
+import { StatusSymbol, type StatusKind } from './StatusBadge';
 
-export const ToastContainer: React.FC = () => {
-  const { toasts } = useCoworking();
-
-  if (toasts.length === 0) return null;
-
-  return (
-    <div role="status" aria-live="polite" aria-atomic="false" className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-3 right-3 sm:left-auto sm:right-5 lg:bottom-5 z-50 flex flex-col gap-2 sm:max-w-md sm:w-full pointer-events-none no-print">
-      {toasts.map(toast => {
-        let icon = <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />;
-        let borderClass = 'border-emerald-500/30 bg-slate-900 text-white';
-
-        if (toast.type === 'info') {
-          icon = <Info className="w-5 h-5 text-blue-400 shrink-0" />;
-          borderClass = 'border-blue-500/30 bg-slate-900 text-white';
-        } else if (toast.type === 'error') {
-          icon = <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />;
-          borderClass = 'border-rose-500/30 bg-slate-900 text-white';
-        }
-
-        return (
-          <div
-            key={toast.id}
-            role={toast.type === "error" ? "alert" : "status"}
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-2xl backdrop-blur-md transition-all duration-300 animate-slideIn ${borderClass}`}
-          >
-            {t(icon)}
-            <div className="text-sm font-medium leading-relaxed">{t(toast.message)}</div>
-          </div>
-        );
-      })}
-    </div>
-  );
+const presentation: Record<ToastState['type'], { status: StatusKind; title: string }> = {
+  success: { status: 'approved', title: 'Concluído' },
+  info: { status: 'info', title: 'Atualização' },
+  error: { status: 'rejected', title: 'Não foi possível concluir' },
+  waiting: { status: 'waiting', title: 'Aguardando' },
+  analysis: { status: 'analysis', title: 'Em análise' },
+  rejected: { status: 'rejected', title: 'Rejeitado' },
 };
+
+function ToastMessage({ toast }: { toast: ToastState }) {
+  const { dismissToast } = useCoworking();
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const remaining = useRef(Math.max(6500, Math.min(14000, toast.message.length * 60)));
+  const { status, title } = presentation[toast.type];
+
+  // Pause expiry while the message is being read or used.
+  useEffect(() => {
+    if (hovered || focused) return;
+    const started = Date.now();
+    const timer = window.setTimeout(() => dismissToast(toast.id), remaining.current);
+    return () => {
+      window.clearTimeout(timer);
+      remaining.current = Math.max(0, remaining.current - (Date.now() - started));
+    };
+  }, [toast.id, dismissToast, hovered, focused]);
+
+  return <div className="mva-toast" data-status={status}
+    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+    onFocusCapture={() => setFocused(true)}
+    onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
+    {status !== 'info' && <div className="mva-toast-symbol">
+      <StatusSymbol status={status} />
+      <span className="mva-toast-signature" aria-hidden="true"><span /><span /></span>
+    </div>}
+    <div className="mva-toast-copy" role={toast.type === 'error' || toast.type === 'rejected' ? 'alert' : 'status'} aria-atomic="true">
+      <p className="mva-toast-title">{t(title)}</p>
+      <p className="mva-toast-message">{t(toast.message)}</p>
+    </div>
+    <button type="button" className="mva-toast-close" onClick={() => dismissToast(toast.id)}
+      aria-label={t('Fechar notificação')} title={t('Fechar notificação')}>
+      <X size={16} strokeWidth={1.5} aria-hidden="true" />
+    </button>
+  </div>;
+}
+
+export function ToastContainer() {
+  const { toasts } = useCoworking();
+  return <div className="mva-toast-stack no-print" role="region" aria-label={t('Notificações')}>
+    {toasts.map(toast => <ToastMessage key={toast.id} toast={toast} />)}
+  </div>;
+}

@@ -64,3 +64,29 @@ Contrato dos fluxos de **acompanhamento de endereço fiscal** e **reserva de sal
 - **Navegação:** CTAs externos removidos da home, marketplace, menus, cadastro e rodapé; o terceiro serviço da home passa a destacar o acompanhamento de solicitações fiscais. O endereço `?page=owner-dashboard` permanece restrito ao administrador e redireciona usuários não autorizados.
 - **Retomada:** requer decisão explícita da MVA, restaurar políticas RLS anteriores de espaços e credenciamento, reabilitar faturamento opcional em `mva_billing_settings` e reintroduzir os acessos públicos ao cadastro. Não reabrir apenas escondendo/mostrando botões; a segurança do banco deve acompanhar a mudança.
 - **Verificação:** teste SQL com sessão `authenticated` simulada e transação `ROLLBACK` rejeitou criação de um espaço externo. Não foi incluída nem excluída nenhuma sala.
+
+## Feedback compartilhado
+
+| Capacidade | Proprietário canônico | Fonte | Variantes | Verificação |
+| --- | --- | --- | --- | --- |
+| Toast | CoworkingProvider.showToast/dismissToast + ToastContainer | Este contrato | success, info, error, waiting, analysis, rejected | navegador: emissão, duplicatas, fechar, tempo/foco, claro/escuro e mobile |
+| Indicadores e avisos | StatusBadge/StatusSymbol + theme.css | DESIGN.md; estado retornado pelo domínio | approved, waiting, analysis, rejected, info | quatro estados, texto longo e passos fiscais |
+
+Mensagens iguais do mesmo tipo não se acumulam. Fechar descarta apenas o aviso,
+sem alterar registros. Expiração entre 6,5 e 14 segundos conforme o tamanho da
+mensagem; pausar enquanto houver foco ou ponteiro sobre o cartão. Desmontar o
+aviso limpa seu timer. Erros/rejeições usam `alert`, demais mensagens usam `status`,
+sem live regions aninhadas. O feedback não recebe foco automaticamente e nunca
+substitui o motivo persistente de um erro, rejeição ou pendência no respectivo painel.
+Não inferir aprovação, pagamento ou autorização pela aparência ou pelo ícone.
+Os SVGs Lucide de status são decorativos (`aria-hidden` e `focusable="false"`);
+o texto mantém o estado acessível. A substituição da iconografia não altera
+anúncios de live region, prazos de leitura, fechamento ou regras de negócio.
+
+## Avisos de checkout
+
+- Proprietário de apresentação persistente: `StatusNotice` + `StatusSymbol` + tokens de `theme.css`. Acrescenta a variante `canceled`, com texto de cancelamento e o ícone CircleX; não equivale a uma rejeição cadastral.
+- `StripeReturnNotice` mantém consultas, polling, posse do pedido, modo real/teste e limpeza dos parâmetros ao dispensar. URL de retorno não comprova pagamento; somente o estado confirmado do servidor permite a apresentação de sucesso.
+- `StripeCheckoutAction` mantém autorização, flags do gateway, prevenção de envio duplicado e validação do destino Stripe. Falha de abertura continua inline com `role="alert"`; avisos informativos usam `role="status"`.
+- Avisos de retorno não desaparecem por tempo. Dispensar não altera pedido, cobrança ou reserva.
+- Confirmação de reserva e prazo reutilizam os valores financeiros já calculados; pendente e cancelado não devem apresentar check de sucesso. Preservar prazo, verificação de pagamento e liberação de horário no servidor.

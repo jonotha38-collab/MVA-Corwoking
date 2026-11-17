@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Building2, CalendarClock, CheckCircle2, ClipboardCheck, ExternalLink, FileCheck2, RefreshCw, ShieldCheck, Upload, XCircle } from 'lucide-react';
+import { Building2, CalendarClock, ClipboardCheck, ExternalLink, FileCheck2, RefreshCw, ShieldCheck, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { fiscalApplicationQueue, type FiscalQueue } from '../../lib/fiscal-application-flow';
 import { useCoworking } from '../../context/CoworkingContext';
 import type { FiscalApplication } from '../fiscal/FiscalServiceCenter';
 import { FiscalIntakeReview, missingFiscalDocuments } from './FiscalIntakeReview';
 import type { FiscalDocumentKind } from '../../lib/fiscal-intake';
+import { StatusBadge, StatusSymbol } from '../common/StatusBadge';
 
 type Provider={id:string;owner_id:string;space_id:string;details:string;status:'submitted'|'approved'|'rejected';admin_notes:string;created_at:string};
 type Unit={id:string;name:string;street_address:string;active:boolean;approved_at:string|null};
@@ -80,7 +81,7 @@ export function FiscalOperationsCenter(){
    const {error}=await supabase.from(name).update(data).eq('id',id);
    if(error)showToast(error.message||'Não foi possível alterar o estado. Confira os registros e documentos.','error');
    else {
-     showToast('Análise registrada.','success');
+     showToast('Análise registrada.',status==='rejected'?'rejected':status==='under_review'?'analysis':'success');
      await reload();
      if(!provider)setQueue(status==='approved'?'approved':status==='rejected'?'rejected':'pending');
    }
@@ -171,9 +172,9 @@ export function FiscalOperationsCenter(){
       <div className="min-w-0"><h4 className="break-words text-sm font-bold text-navy-900">{r.company_name}</h4>
         <p className="mt-1 text-xs text-slate-500">{r.applicant_type==='pf'?'Pessoa Física':'CNPJ '+r.cnpj} · Atividade {r.cnae} · {r.term_months} {r.term_months===1?'mês':'meses'}</p>
         <p className="mt-1 text-xs text-slate-600">{r.responsible_name} · {r.contact_email}</p></div>
-      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${paid?'bg-emerald-100 text-emerald-900':r.status==='rejected'?'bg-rose-100 text-rose-800':'bg-slate-100 text-navy-800'}`}>
+      <StatusBadge status={paid?'approved':r.status==='rejected'?'rejected':r.status==='under_review'?'analysis':'waiting'}>
         {paid?'Pagamento confirmado':r.status==='approved'?'Aprovada · Aguardando pagamento':labels[r.status]}
-       </span>
+       </StatusBadge>
      </div>
      <FiscalIntakeReview application={r} docs={attached} onOpen={d=>void openDoc(attached.find(item=>item.id===d.id)!)}/>
      {r.status==='approved'
@@ -183,13 +184,13 @@ export function FiscalOperationsCenter(){
             rows={2} maxLength={2000} className="w-full resize-y rounded-lg border border-slate-200 p-3 text-xs text-navy-900"
             placeholder="Motivo da rejeição, pendências documentais e observações de viabilidade…"/></label>}
      {(r.status==='submitted'||r.status==='under_review')&&<div className="flex flex-wrap gap-2">
-       <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">Em análise</button>
-       <button type="button" disabled={busy!==null||missing.length>0} onClick={()=>void review(r.id,'approved')} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white"><CheckCircle2 className="mr-1 inline h-4 w-4"/>Aprovar elegibilidade</button>
-       <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'rejected')} className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700"><XCircle className="mr-1 inline h-4 w-4"/>Rejeitar solicitação</button>
+       <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-navy-900 hover:border-orange-400 hover:bg-slate-50">Em análise</button>
+       <button type="button" disabled={busy!==null||missing.length>0} onClick={()=>void review(r.id,'approved')} className="rounded-lg bg-navy-900 hover:bg-navy-800 px-3 py-2 text-xs font-semibold text-white"><StatusSymbol status="approved" className="mr-1"/>Aprovar elegibilidade</button>
+       <button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'rejected')} className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700"><StatusSymbol status="rejected" className="mr-1"/>Rejeitar solicitação</button>
       </div>}
      {r.status==='rejected'&&<button type="button" disabled={busy!==null} onClick={()=>void review(r.id,'under_review')}
          className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-900">Reabrir análise</button>}
-     {r.status==='approved'&&<p role="status" className={`rounded-lg p-3 text-xs font-semibold ${paid?'bg-emerald-50 text-emerald-800':'bg-amber-50 text-amber-900'}`}>
+     {r.status==='approved'&&<p role="status" data-status={paid?'approved':payment?.status==='refunded'||payment?.status==='disputed'?'rejected':'waiting'} className="mva-notice rounded-lg p-3 text-xs font-semibold"><StatusSymbol status={paid?'approved':payment?.status==='refunded'||payment?.status==='disputed'?'rejected':'waiting'} className="mr-2"/>
        {paid
          ? `Pagamento real confirmado pelo Stripe${payment?.paid_at?' em '+new Date(payment.paid_at).toLocaleDateString('pt-BR'):''}. A liberação dos documentos continua sujeita à aprovação humana.`
          : payment?.status==='refunded'||payment?.status==='disputed'
@@ -205,15 +206,15 @@ export function FiscalOperationsCenter(){
   <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
    <h3 className="flex items-center gap-2 font-bold text-navy-900"><Building2 className="h-5 w-5 text-orange-600"/>Coworkings parceiros</h3>
    {providers.length===0?<p className="text-sm text-slate-500">Nenhuma unidade solicitou credenciamento.</p>:providers.map(p=><article key={p.id} className="space-y-2 rounded-xl border border-slate-200 p-4">
-     <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-semibold text-navy-900">Solicitação de unidade · {new Date(p.created_at).toLocaleDateString('pt-BR')}</p><span className="text-xs text-slate-500">{labels[p.status]}</span></div>
+     <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-semibold text-navy-900">Solicitação de unidade · {new Date(p.created_at).toLocaleDateString('pt-BR')}</p><StatusBadge status={p.status==='approved'?'approved':p.status==='rejected'?'rejected':'waiting'}>{labels[p.status]}</StatusBadge></div>
      <p className="break-words text-xs text-slate-600">{p.details}</p>
      <textarea rows={2} maxLength={2000} value={notes[p.id]??p.admin_notes} onChange={e=>setNotes(v=>({...v,[p.id]:e.target.value}))} placeholder="Parecer de credenciamento" className="w-full rounded-lg border border-slate-200 p-3 text-xs"/>
      {p.status==='submitted'&&<div className="flex flex-wrap gap-2">
-       <button type="button" disabled={busy!==null} onClick={()=>void review(p.id,'approved',true)} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white">Credenciar unidade</button>
+       <button type="button" disabled={busy!==null} onClick={()=>void review(p.id,'approved',true)} className="rounded-lg bg-navy-900 hover:bg-navy-800 px-3 py-2 text-xs font-semibold text-white">Credenciar unidade</button>
        <button type="button" disabled={busy!==null} onClick={()=>void review(p.id,'rejected',true)} className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700">Rejeitar</button>
      </div>}
     </article>)}
-   <div className="grid gap-2 sm:grid-cols-2">{units.map(u=><div key={u.id} className="rounded-xl bg-slate-50 p-3 text-xs"><strong className="block break-words text-navy-900">{u.name}</strong><span className="block text-slate-500">{u.street_address}</span><span className="mt-1 block font-semibold text-emerald-700">{u.active?'Habilitada':'Suspensa'}</span></div>)}</div>
+   <div className="grid gap-2 sm:grid-cols-2">{units.map(u=><div key={u.id} className="rounded-xl bg-slate-50 p-3 text-xs"><strong className="block break-words text-navy-900">{u.name}</strong><span className="block text-slate-500">{u.street_address}</span><span className="mva-status-text mt-1 block font-semibold">{u.active?'Habilitada':'Suspensa'}</span></div>)}</div>
   </div>
   <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
    <h3 className="flex items-center gap-2 font-bold text-navy-900"><CalendarClock className="h-5 w-5 text-orange-600"/>Contratos, documentos e vigência</h3>
@@ -230,12 +231,12 @@ export function FiscalOperationsCenter(){
           <p className="text-xs text-slate-500">CNPJ {c.cnpj} · {c.plan_id==='comercial'?'Endereço comercial':'Endereço fiscal'}</p>
           {valid&&<p className="mt-1 text-xs text-slate-600">Vencimento: {c.renewal_date.split('-').reverse().join('/')}</p>}
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${valid?'bg-emerald-50 text-emerald-800':'bg-amber-50 text-amber-800'}`}>
+        <StatusBadge status={valid?'approved':'waiting'}>
          {valid?'Liberado e vigente':c.payment_status!=='paid'?'Pagamento pendente ou revertido':'Pagamento confirmado · Formalização pendente'}
-        </span>
+        </StatusBadge>
        </div>
-       {!valid&&c.payment_status==='paid'&&c.payment_is_live&&<div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <p className="text-xs font-semibold text-amber-900">Anexe os documentos assinados; após conferir a regularidade jurídica, libere o cliente em uma única aprovação.</p>
+       {!valid&&c.payment_status==='paid'&&c.payment_is_live&&<div data-status="waiting" className="mva-notice space-y-3 rounded-xl p-4">
+        <p className="mva-status-text text-xs font-semibold"><StatusSymbol status="waiting" className="mr-2"/>Anexe os documentos assinados; após conferir a regularidade jurídica, libere o cliente em uma única aprovação.</p>
         <div className="flex flex-wrap gap-2">
          {([{category:'contract',label:'Anexar contrato assinado (PDF)'},...(requiresAuthorization?[{category:'authorization',label:'Anexar declaração assinada (PDF)'}]:[])] as {category:'contract'|'authorization';label:string}[]).map(item=>
           <label key={item.category} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-navy-900 px-3 py-2.5 text-xs font-semibold text-white">
@@ -244,20 +245,20 @@ export function FiscalOperationsCenter(){
           </label>)}
         </div>
         <label className="block space-y-1">
-         <span className="text-xs font-semibold text-amber-900">Observações internas da formalização (opcional)</span>
-         <textarea rows={2} maxLength={2000} value={notes[c.id]||''} onChange={e=>setNotes(v=>({...v,[c.id]:e.target.value}))} className="w-full resize-y rounded-lg border border-amber-200 bg-white p-3 text-xs text-navy-900"/>
+         <span className="text-xs font-semibold mva-status-text">Observações internas da formalização (opcional)</span>
+         <textarea rows={2} maxLength={2000} value={notes[c.id]||''} onChange={e=>setNotes(v=>({...v,[c.id]:e.target.value}))} className="w-full resize-y rounded-lg border border-slate-200 bg-white p-3 text-xs text-navy-900"/>
         </label>
         <button type="button" disabled={!canFinalize||busy!==null} onClick={()=>void finalizeContract(c)}
-         className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-60">
-         <CheckCircle2 className="h-4 w-4"/>{busy===c.id?'Concluindo…':'Confirmar formalização e liberar documentos'}
+         className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-navy-900 hover:bg-navy-800 px-4 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-60">
+         <StatusSymbol status="approved"/>{busy===c.id?'Concluindo…':'Confirmar formalização e liberar documentos'}
         </button>
-        {!canFinalize&&<p className="text-xs text-amber-900">Pendências: {!hasContract?'contrato assinado':'contrato anexado'}{requiresAuthorization?', '+(!hasAuthorization?'declaração assinada':'declaração anexada'):''}. O cliente ainda não pode utilizar o endereço.</p>}
+        {!canFinalize&&<p className="text-xs mva-status-text">Pendências: {!hasContract?'contrato assinado':'contrato anexado'}{requiresAuthorization?', '+(!hasAuthorization?'declaração assinada':'declaração anexada'):''}. O cliente ainda não pode utilizar o endereço.</p>}
        </div>}
        {contractDocs.length>0&&<div className="space-y-2">
         <p className="text-xs font-bold text-navy-900">Documentos vinculados</p>
         <div className="flex flex-wrap gap-2">{contractDocs.map(d=><div key={d.id} className="flex flex-wrap items-center gap-2">
          <button type="button" onClick={()=>void openDoc(d)} className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700"><FileCheck2 className="h-4 w-4"/>{d.category==='contract'?'Contrato':'Declaração'} · {d.file_name}</button>
-         {valid&&d.verified&&d.category==='authorization'&&<a className="inline-flex items-center gap-1 text-xs text-emerald-700" target="_blank" rel="noopener noreferrer" href={`${window.location.origin}/?verify_fiscal=${encodeURIComponent(d.verification_code)}`}><ExternalLink className="h-3.5 w-3.5"/>Verificar autenticidade</a>}
+         {valid&&d.verified&&d.category==='authorization'&&<a className="inline-flex items-center gap-1 text-xs text-navy-800" target="_blank" rel="noopener noreferrer" href={`${window.location.origin}/?verify_fiscal=${encodeURIComponent(d.verification_code)}`}><ExternalLink className="h-3.5 w-3.5"/>Verificar autenticidade</a>}
         </div>)}</div>
        </div>}
        <p className="text-[11px] text-slate-500">Arquivos privados: entrega ao cliente somente após a confirmação humana. O código público confirma autenticidade e vigência sem revelar dados cadastrais.</p>

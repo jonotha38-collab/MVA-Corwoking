@@ -164,3 +164,41 @@ Para estados, navegação, recuperação e segurança, consultar `UX-CONTRACT.md
 - Do not add invented promotions, testimonials or guarantees about fiscal approval.
 - Preserve fiscal eligibility, payments, authorization and intern-room rules.
 - Do not publish secret environment values, private data or test customer records.
+
+### Notificações e estados operacionais
+
+Os avisos compartilham a superfície sólida do tema, texto institucional e borda
+neutra. Azul e laranja da marca permanecem inalterados; não usar painéis verdes,
+rosas ou amarelos para preencher estados. A diferenciação vem do texto e de um
+único ícone SVG Lucide: `CircleCheck` para concluído/aprovado, `Clock` para
+aguardando, `FileSearch` para análise documental e `CircleX` para rejeitado/falha. Atualizações informativas sem esses significados não recebem
+um estado artificial. Rótulos de pagamento e autorização continuam explícitos.
+
+O proprietário visual é `src/theme.css`: `--surface`, `--field`, `--ink`,
+`--muted`, `--line` e `--accent` → `.mva-toast`, `.mva-notice` e
+`.mva-status-badge`. `StatusBadge` / `StatusSymbol` centralizam a iconografia;
+`ToastContainer` apresenta o feedback. Não duplicar cores por tela. Avisos de
+espera/análise usam somente um detalhe cobre. Os toasts têm raio de 16px,
+sombra `--mva-shadow-raised`, texto com entrelinha confortável e botão de fechar
+com área de 44px. A família Lucide foi escolhida pelo usuário: contornos em
+`--ink`, tamanho de 20px nos avisos e 16px nos selos, `strokeWidth={1.5}`.
+Não usar emojis nem cores multicoloridas para representar estes estados.
+Em botões, o ícone herda a cor do rótulo para manter contraste sobre o azul-marinho.
+O suporte do ícone do toast tem 38px e um canto inferior de 4px. Dois pequenos
+traços cobre, derivados dos traços da assinatura `MvaLogo`, fazem a ligação com
+a marca. Esse detalhe fica só nos toasts, sem repetir em cada selo ou etapa.
+Superfície sólida e tipografia semibold mantêm a atenção no conteúdo.
+No celular, o posicionamento respeita navegação e acessibilidade;
+texto longo quebra sem alargar a tela. O tema escuro usa os mesmos tokens.
+
+### Retorno de checkout e avisos de pagamento
+
+`StatusNotice` estende o padrão compartilhado para avisos persistentes de checkout,
+erros ao iniciar pagamento e prazos de reserva. Usa `.mva-notice`, `StatusSymbol`
+e os mesmos tokens do tema: superfície sólida, borda neutra com filete cobre,
+ícone Lucide em suporte de 38px e texto institucional. Não repetir os traços da
+logo reservados aos toasts. Botão de dispensar com alvo de 44px e foco visível.
+Cancelamento recebe `CircleX` e texto de cancelamento, sem ser chamado de rejeição.
+Confirmação real recebe `CircleCheck`; pendência recebe `Clock`; análise, `FileSearch`.
+Teste não recebe aparência de pagamento real. A consulta de status e a verificação
+financeira continuam sendo responsabilidade dos componentes do fluxo.

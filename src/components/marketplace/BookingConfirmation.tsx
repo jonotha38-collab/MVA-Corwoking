@@ -5,8 +5,10 @@ import { BookingVoucherCode } from '../common/BookingVoucherCode';
 import { RevealBookingVoucher } from '../common/RevealBookingVoucher';
 import { BookingPaymentDeadline, useBookingPaymentWindow } from '../payments/BookingPaymentDeadline';
 import { StripeCheckoutAction } from '../payments/StripeCheckoutAction';
+import { StatusBadge, StatusSymbol, type StatusKind } from '../common/StatusBadge';
+import { StatusNotice } from '../common/StatusNotice';
 import {
-  ArrowUpRight, Bell, CalendarDays, CalendarPlus, CheckCircle2,
+  ArrowUpRight, Bell, CalendarDays, CalendarPlus,
   Clock3, ExternalLink, MapPin, Printer, ShieldCheck, UserRound,
 } from 'lucide-react';
 import type { Booking, Space } from '../../types';
@@ -106,21 +108,21 @@ export function BookingConfirmation({
     ? (recordedCalendarEventUrl(userId || '', booking.id) || 'https://calendar.google.com/calendar/u/0/r')
     : manualGoogleCalendarLink(booking, space);
 
-  return <div className="space-y-5 bg-[#fafbfc] p-5 sm:p-7">
+  const reservationStatus: StatusKind = paymentExpiredAt ? 'canceled' : financiallyConfirmed ? 'approved' : 'waiting';
+
+  return <div className="space-y-5 bg-[var(--page)] p-5 sm:p-7">
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white" aria-label="Detalhes do agendamento">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4">
-        <div className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-600 text-white">
-            <CheckCircle2 className="h-5 w-5" aria-hidden />
-          </span>
-          <div>
+        <div className="flex min-w-0 items-start gap-2.5">
+          <span className="mva-agenda-symbol mt-0.5"><StatusSymbol status={reservationStatus} /></span>
+          <div className="min-w-0 break-words">
             <p className="text-sm font-bold text-navy-900">{paymentExpiredAt?'Reserva cancelada por falta de pagamento':complimentary?'Reserva de cortesia confirmada':fiscalCovered?'Reserva coberta pelo MVA Excellence':financiallyConfirmed?'Reserva paga e confirmada':'Reserva registrada — aguardando pagamento'}</p>
             <p className="text-xs text-slate-600">{paymentExpiredAt?'O horário foi liberado para um novo agendamento.':complimentary?'Esta reserva administrativa tem cortesia integral.':fiscalCovered?'Suas horas bônus deste mês cobriram integralmente a reserva, sem cobrança extra.':financiallyConfirmed?'Seu pagamento ou saldo de horas foi confirmado.':'Escolha uma forma de pagamento para liberar o comprovante financeiro.'}</p>
           </div>
         </div>
-        <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-semibold text-emerald-800">
+        <StatusBadge status={reservationStatus}>
           {paymentExpiredAt?'Cancelada':complimentary?'Cortesia':financiallyConfirmed?'Paga':'Pendente'}
-        </span>
+        </StatusBadge>
       </div>
       <div className="p-5 sm:p-6">
         <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Detalhes do agendamento</p>
@@ -154,7 +156,7 @@ export function BookingConfirmation({
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" aria-hidden />
             <div><span className="block text-[11px] font-medium text-slate-500">{complimentary?'Cortesia administrativa':fiscalCovered?'Coberto pelo bônus fiscal MVA Excellence':creditApplied?'Coberto pelo plano de horas':paymentStatus==='paid'&&paymentIsLive?'Valor pago via Stripe':paymentStatus==='paid'?'Pagamento de teste (sem cobrança real)':'Valor final da reserva — pagamento não confirmado'}</span>
               <strong className="mt-0.5 block text-sm text-navy-900">{currency(booking.totalPrice)}</strong>
-              {(booking.fiscalBonusHours||0)>0&&<p className="mt-1 text-[11px] font-semibold text-emerald-700">
+              {(booking.fiscalBonusHours||0)>0&&<p className="mt-1 text-[11px] font-semibold mva-status-detail">
                {booking.fiscalBonusHours}h de bônus MVA Excellence aplicadas · não acumulativas
               </p>}
               {(booking.fiscalDiscountPercent||0)>0&&<p className="mt-1 text-[11px] text-slate-600">
@@ -171,7 +173,7 @@ export function BookingConfirmation({
     </section>
 
     {(!paymentClosed || financiallyConfirmed) && <section aria-label="Aviso para a recepção" className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5">
-      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" aria-hidden />
+      <StatusSymbol status={reservationStatus} className="mt-0.5" />
       <div>
         <p className="text-xs font-bold text-navy-900">{complimentary?'Reserva de cortesia confirmada':financiallyConfirmed?'Reserva paga — comprovante válido':'Agendamento pendente de pagamento'}</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
@@ -192,14 +194,14 @@ export function BookingConfirmation({
       <p className="mb-4 text-xs leading-relaxed text-slate-600">
         Pague a reserva com cartão pelo Stripe. {space.isMvaHeadquarters?'A MVA receberá diretamente.':'O pagamento a coworking parceiro só será disponibilizado após a conexão Stripe Connect desse responsável.'}
       </p>
-      {eligibleForCredit&&creditMinutes>=booking.durationHours*60&&<div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-       <p className="mb-2 text-xs font-semibold text-emerald-900">Seu plano possui {(creditMinutes/60).toLocaleString('pt-BR')} horas disponíveis.</p>
+      {eligibleForCredit&&creditMinutes>=booking.durationHours*60&&<div className="mva-notice mb-4">
+       <p className="mva-status-text mb-2 text-xs font-semibold">Seu plano possui {(creditMinutes/60).toLocaleString('pt-BR')} horas disponíveis.</p>
        <button type="button" onClick={()=>void redeem()} disabled={redeeming}
-        className="w-full rounded-lg bg-emerald-700 px-4 py-3 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-60">
+        className="w-full rounded-lg bg-navy-900 px-4 py-3 text-xs font-bold text-white hover:bg-navy-800 disabled:opacity-60">
         {redeeming?'Abatendo saldo…':'Usar '+booking.durationHours+'h do meu plano (sem cobrança adicional)'}
        </button>
       </div>}
-      {creditError&&<p role="alert" className="mb-3 rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-800">{creditError}</p>}
+      {creditError&&<StatusNotice status="rejected" title="Não foi possível utilizar suas horas" role="alert" className="mb-3">{creditError}</StatusNotice>}
       <StripeCheckoutAction action="checkout_booking" resourceId={booking.id}/>
     </section>}
 

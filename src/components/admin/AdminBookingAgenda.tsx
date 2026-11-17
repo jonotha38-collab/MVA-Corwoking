@@ -12,6 +12,7 @@ import { isComplimentaryBooking } from '../../lib/booking-voucher';
 import { RevealBookingVoucher } from '../common/RevealBookingVoucher';
 import { VoucherCheckInForm } from './VoucherCheckInForm';
 import type { Booking } from '../../types';
+import { StatusSymbol } from '../common/StatusBadge';
 
 type InternReservationRow = {
   id: string; user_id: string; room_id: string; reservation_date: string;
@@ -204,8 +205,8 @@ export function AdminBookingAgenda() {
 
       <VoucherCheckInForm onCheckIn={() => void load()} />
 
-      {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && deliveriesPending > 0 && <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
-        <strong>Integrações em processamento:</strong> {deliveriesPending} entrega(s) de e-mail ou Google Agenda pendente(s).
+      {BOOKING_EXTERNAL_INTEGRATIONS_ENABLED && deliveriesPending > 0 && <div role="status" data-status="waiting" className="mva-notice text-sm">
+        <StatusSymbol status="waiting" /> <strong>Integrações em processamento:</strong> {deliveriesPending} entrega(s) de e-mail ou Google Agenda pendente(s).
         Se persistirem, confira a configuração do Google e do provedor de e-mails no Supabase.
       </div>}
 
@@ -218,21 +219,22 @@ export function AdminBookingAgenda() {
             {unread.length > 0 && <span className="rounded-full bg-orange-600 px-2 py-0.5 text-[10px] font-bold text-white">{unread.length}</span>}
           </h3>
           <button type="button" onClick={() => void markRead()} disabled={!unread.length || markingRead}
-            className="text-xs font-semibold text-navy-900 hover:text-orange-700 disabled:opacity-40">
+            className="min-h-11 rounded-lg px-2 text-xs font-semibold text-navy-900 hover:bg-slate-50 hover:text-orange-700 disabled:opacity-40">
             <Check className="mr-1 inline-block h-3.5 w-3.5" /> Marcar como lidos
           </button>
         </div>
         <div className="divide-y divide-slate-100">
           {unread.length ? unread.slice(0, 8).map(n => {
             const item = items.find(i => i.id === n.reservation_id && i.type === n.source);
-            return <div key={n.id} className="flex items-start justify-between gap-4 px-5 py-3.5">
+            return <div key={n.id} className="flex items-start gap-3 px-5 py-4">
+              <span className="mva-agenda-symbol"><StatusSymbol status={n.action === 'created' ? 'approved' : 'rejected'} /></span>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-navy-900">{actionLabel(n)}</p>
+                <p className="text-xs font-semibold text-navy-900">{actionLabel(n)}</p>
                 <p className="mt-1 text-xs text-slate-600">
                   {item ? `${item.name} · ${item.room} · ${formatDate(item.date)}` : 'Consulte o histórico completo da agenda'}
                 </p>
               </div>
-              <time className="shrink-0 text-[11px] text-slate-400">
+              <time dateTime={n.created_at} className="ml-auto shrink-0 text-[11px] text-slate-500">
                 {new Date(n.created_at).toLocaleDateString('pt-BR', { timeZone: 'America/Maceio', day: '2-digit', month: '2-digit' })}
               </time>
             </div>;
