@@ -136,6 +136,18 @@ Os botões de WhatsApp e e-mail mostram suas cores ao passar o cursor.
 
 ### Motion
 
+Button feedback is shared by `src/button-glass.css`, imported after screen styles.
+`src/theme.css` owns its 180 ms duration, easing and brightness tokens. Enabled
+buttons and button-shaped links darken to 90% brightness on fine-pointer hover;
+primary calls to action rise 2px without changing document layout. Pressing uses
+84% brightness and returns the action to its resting position in 80 ms, including
+on touch devices. Existing icon motion and keyboard focus rings remain intact.
+Inverse ghost controls also gain a translucent dark background. Text links use
+an underline on hover. Disabled, aria-disabled and busy controls get no feedback.
+Reduced motion removes translation and makes color feedback immediate. Explicit
+high contrast, forced colors and printing omit filters and motion. Brand colors
+and semantic intent remain unchanged at rest; no scale or looping animation.
+
 The homepage opens with a short upward entrance for the headline, copy and
 actions. The meeting-room photo settles from a 3.5% crop while staying visible.
 Service cards, the room-section heading and the address panel enter once as

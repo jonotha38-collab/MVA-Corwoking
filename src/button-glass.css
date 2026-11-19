@@ -3,14 +3,13 @@
   button.action-primary, button.btn-primary, button.btn-dark,
   button.bg-orange-500, button.bg-orange-600, button.mva-payment-action,
   a.action-primary, a.btn-primary, a.btn-dark, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta
-):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]) {
+):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]) {
   --mva-button-shadow: var(--mva-shadow-low);
   --mva-button-sheen: linear-gradient(165deg, rgb(var(--mva-brand-navy-rgb) / .035), transparent 68%);
   --mva-button-highlight: inset 0 1px rgb(255 255 255 / .12);
   background-image: var(--mva-button-sheen);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 transparent), var(--tw-ring-shadow, 0 0 transparent),
     var(--mva-button-highlight), var(--mva-button-shadow);
-  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
 @media (hover: hover) {
@@ -18,7 +17,7 @@
     button.action-primary, button.btn-primary, button.btn-dark,
     button.bg-orange-500, button.bg-orange-600, button.mva-payment-action,
     a.action-primary, a.btn-primary, a.btn-dark, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta
-  ):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]):hover {
+  ):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):hover {
     --mva-button-shadow: var(--mva-shadow-raised);
   }
 }
@@ -26,7 +25,7 @@
   button.action-primary, button.btn-primary, button.btn-dark,
   button.bg-orange-500, button.bg-orange-600, button.mva-payment-action,
   a.action-primary, a.btn-primary, a.btn-dark, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta
-):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]):active {
+):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):active {
   --mva-button-shadow: inset 0 1px 3px rgb(0 0 0 / .16);
 }
 
@@ -42,4 +41,71 @@
     --mva-button-highlight: 0 0 transparent !important;
     --mva-button-shadow: 0 0 transparent !important;
   }
+}
+
+/* Shared feedback preserves each control's brand/semantic fill and focus ring.
+   Individual translate composes with existing icon/press transforms without reflow. */
+#root :where(
+  button, a.action-primary, a.btn-primary, a.btn-dark, a.home-button,
+  a.mva-home-white-cta, a.fiscal-white-cta, a.mva-contact-glassy,
+  .home-photo-caption a, .home-room-bottom a
+):not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]) {
+  cursor: pointer;
+  transition-property: background-color, border-color, color, box-shadow, filter, translate;
+  transition-duration: var(--mva-control-feedback-duration);
+  transition-timing-function: var(--mva-control-feedback-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #root :where(
+    button, a.action-primary, a.btn-primary, a.btn-dark, a.home-button,
+    a.mva-home-white-cta, a.fiscal-white-cta, a.mva-contact-glassy,
+    .home-photo-caption a, .home-room-bottom a
+  ):not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):hover {
+    filter: brightness(var(--mva-control-hover-brightness));
+  }
+
+  #root :where(
+    button.action-primary, button.btn-primary, button.btn-dark,
+    button.bg-orange-500, button.bg-orange-600, button.mva-payment-action,
+    a.action-primary, a.btn-primary, a.btn-dark, a.home-button,
+    a.mva-home-white-cta, a.fiscal-white-cta, a.mva-contact-glassy
+  ):not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):hover {
+    translate: 0 -2px;
+  }
+
+  /* Inverse ghost controls darken their own surface as well as their content. */
+  #root :where(
+    .preferences button, header nav button,
+    header button[class~="hover:bg-navy-800"], .mva-glass-mobile-nav button,
+    .mva-fiscal button[class~="border-white/25"],
+    .mva-fiscal button[class~="border-white/30"]
+  ):not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):hover {
+    background-color: rgb(0 0 0 / .14);
+  }
+
+  #root :where(.home-text-link, .home-card-link, .home-location-link, .checkout-link):hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+#root :where(
+  button, a.action-primary, a.btn-primary, a.btn-dark, a.home-button,
+  a.mva-home-white-cta, a.fiscal-white-cta, a.mva-contact-glassy,
+  .home-photo-caption a, .home-room-bottom a
+):not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"]):active {
+  filter: brightness(var(--mva-control-press-brightness));
+  translate: none;
+  transition-duration: 80ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #root :where(button, a):is(:hover, :active) { translate: none !important; }
+}
+:root[data-a11y-motion="true"] #root :where(button, a):is(:hover, :active) { translate: none !important; }
+
+:root[data-a11y-contrast="true"] #root :where(button, a) { filter: none !important; translate: none !important; }
+@media print, (prefers-contrast: more), (forced-colors: active) {
+  #root :where(button, a) { filter: none !important; translate: none !important; }
 }
