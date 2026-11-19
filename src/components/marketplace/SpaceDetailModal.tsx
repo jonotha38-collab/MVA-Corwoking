@@ -63,7 +63,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
           <div className="absolute bottom-5 left-6 right-6 text-white">
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {t(space.isMvaHeadquarters ? (
-                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-600 text-white shadow-sm backdrop-blur-md flex items-center gap-1 border border-orange-400">
+                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-600 text-mva-blue shadow-sm backdrop-blur-md flex items-center gap-1 border border-orange-400">
                   <Sparkles className="w-3.5 h-3.5 text-orange-200" />{t("SEDE OFICIAL MVA COWORKING ")}</span>
               ) : (
                 <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-navy-900 text-white backdrop-blur-md border border-navy-700">
@@ -181,7 +181,7 @@ export const SpaceDetailModal: React.FC<SpaceDetailModalProps> = ({ space, onClo
                   onClose();
                   onOpenBooking(space);
                 }}
-                className="w-1/2 sm:w-auto px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                className="w-1/2 sm:w-auto px-6 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
               >
                 <Calendar className="w-4 h-4" />{t("Agendar Agora ")}</button>
             </div>

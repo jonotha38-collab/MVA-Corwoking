@@ -66,7 +66,7 @@ export const LegalPage: React.FC = () => {
           onClick={() => setActiveSection('lgpd')}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
             activeSection === 'lgpd'
-              ? 'bg-orange-500 text-white shadow-md'
+              ? 'bg-orange-500 text-mva-blue shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white bg-slate-100 dark:bg-navy-900/40 hover:bg-slate-200 dark:hover:bg-navy-900'
           }`}
         >
@@ -77,7 +77,7 @@ export const LegalPage: React.FC = () => {
           onClick={() => setActiveSection('privacy')}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
             activeSection === 'privacy'
-              ? 'bg-orange-500 text-white shadow-md'
+              ? 'bg-orange-500 text-mva-blue shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white bg-slate-100 dark:bg-navy-900/40 hover:bg-slate-200 dark:hover:bg-navy-900'
           }`}
         >
@@ -88,7 +88,7 @@ export const LegalPage: React.FC = () => {
           onClick={() => setActiveSection('terms')}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
             activeSection === 'terms'
-              ? 'bg-orange-500 text-white shadow-md'
+              ? 'bg-orange-500 text-mva-blue shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-navy-950 dark:hover:text-white bg-slate-100 dark:bg-navy-900/40 hover:bg-slate-200 dark:hover:bg-navy-900'
           }`}
         >

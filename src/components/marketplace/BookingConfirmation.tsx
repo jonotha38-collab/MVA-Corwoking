@@ -245,7 +245,7 @@ export function BookingConfirmation({
         <Printer className="h-4 w-4" />Imprimir comprovante
       </button>
       <button type="button" onClick={onClose}
-        className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-xs font-bold text-white hover:bg-orange-500">
+        className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-xs font-bold text-mva-blue hover:bg-orange-500">
         Concluir <ArrowUpRight className="h-4 w-4" />
       </button>
     </div>

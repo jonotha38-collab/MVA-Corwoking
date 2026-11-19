@@ -173,7 +173,7 @@ export const MarketplaceView: React.FC = () => {
         <ol className="mt-6 grid gap-6 md:grid-cols-3">
           {STEPS.map((s, i) => (
             <li key={s.title} className="mva-glass-step-card rounded-2xl border border-slate-200 bg-white p-6">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-500 text-sm font-bold text-white">{i + 1}</span>
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-500 text-sm font-bold text-mva-blue">{i + 1}</span>
               <h3 className="mt-4 font-bold text-navy-900">{t(s.title)}</h3>
               <p className="mt-1 text-sm leading-relaxed text-slate-500">{t(s.text)}</p>
             </li>

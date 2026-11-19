@@ -162,7 +162,7 @@ export const CorrespondenceView: React.FC = () => {
         {isAdmin(currentUser) && (
           <button
             onClick={() => setShowAddModal(true)}
-            className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 flex items-center gap-2 shrink-0"
+            className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-mva-blue rounded-xl text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 flex items-center gap-2 shrink-0"
           >
             <Plus className="w-5 h-5" />{t("Registrar Correspondência ")}</button>
         )}
@@ -380,7 +380,7 @@ export const CorrespondenceView: React.FC = () => {
 
                       <button
                         onClick={() => void openPrivateScan(item)}
-                        className="px-3.5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+                        className="px-3.5 py-2 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
                       >
                         <Eye className="w-3.5 h-3.5" />{t("Visualizar PDF ")}</button>
 
@@ -460,7 +460,7 @@ export const CorrespondenceView: React.FC = () => {
                 >{t("Cancelar ")}</button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-sm"
+                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl font-bold shadow-sm"
                 >{t("Gerar Autorização ")}</button>
               </div>
             </form>
@@ -591,7 +591,7 @@ export const CorrespondenceView: React.FC = () => {
                 >{t("Cancelar ")}</button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-sm"
+                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl font-bold shadow-sm"
                 >{t("Salvar e Notificar Cliente ")}</button>
               </div>
             </form>

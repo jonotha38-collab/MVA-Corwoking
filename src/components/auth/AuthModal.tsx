@@ -129,7 +129,7 @@ export const AuthModal: React.FC = () => {
             >{t("Entrar ")}</button>
             <button 
               onClick={() => switchTab('register')} 
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${register ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${register ? 'bg-mva-orange text-mva-blue shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
             >{t("Criar conta ")}</button>
           </div>
         </div>
@@ -209,7 +209,7 @@ export const AuthModal: React.FC = () => {
 
               <button 
                 disabled={loading || !lgpd} 
-                className="w-full rounded-lg bg-orange-500 hover:bg-orange-600 py-2.5 text-xs font-bold text-white shadow-sm disabled:opacity-40 transition-all flex items-center justify-center gap-1.5 mt-1"
+                className="w-full rounded-lg action-primary bg-mva-orange hover:bg-mva-orangeHover py-2.5 text-xs font-bold text-mva-blue shadow-sm disabled:opacity-40 transition-all flex items-center justify-center gap-1.5 mt-1"
               >
                 {t(loading ? 'Aguarde...' : register ? 'Criar conta' : 'Entrar')}
               </button>

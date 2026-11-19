@@ -37,7 +37,7 @@ export function AdminBookingBadge() {
   }, [currentUser?.id, currentUser?.isAdmin]);
   if (!unread) return null;
   return <span aria-label={`${unread} avisos de reserva não lidos`}
-    className="inline-flex items-center gap-1 rounded-full bg-orange-600 px-2 py-0.5 text-[10px] font-bold tabular-nums text-white">
+    className="inline-flex items-center gap-1 rounded-full bg-orange-600 px-2 py-0.5 text-[10px] font-bold tabular-nums text-mva-blue">
     <Bell className="h-3 w-3" aria-hidden />{unread > 79 ? '79+' : unread}
   </span>;
 }

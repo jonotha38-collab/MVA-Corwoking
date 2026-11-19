@@ -221,7 +221,7 @@ export function FiscalServiceCenter({ initialPlan='fiscal', initialTerm=12, requ
     <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-700"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} className="mt-0.5 accent-orange-600"/>
       <span>Declaro que os dados são verdadeiros e autorizo a análise cadastral (termos versão 30/10/2026). Entendo que a solicitação <strong>não concede uso imediato do endereço</strong>, não substitui a viabilidade municipal e não constitui contrato assinado ou pagamento.</span>
     </label>
-    <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-sm font-bold text-white hover:bg-orange-500 disabled:opacity-60 sm:w-auto">
+    <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-sm font-bold text-mva-blue hover:bg-orange-500 disabled:opacity-60 sm:w-auto">
       <FilePlus2 className="h-4 w-4"/>{busy?'Enviando…':currentUser?'Enviar solicitação para análise':'Entrar para solicitar'}
     </button>
     <p className="flex items-start gap-2 text-xs leading-relaxed text-slate-500"><LockKeyhole className="h-4 w-4 shrink-0"/>Arquivos ficam em armazenamento privado; o acesso é concedido à empresa titular e à administração. Declarações são disponibilizadas somente após aprovação, contrato e pagamento válidos.</p>

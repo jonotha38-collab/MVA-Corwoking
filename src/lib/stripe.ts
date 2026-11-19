@@ -32,5 +32,5 @@ export function loadStripeClient(): Promise<StripeClient> {
   return pending;
 }
 export function paymentAppearance(dark: boolean) {
-  return { theme: dark ? 'night' : 'stripe', variables: { colorPrimary: dark ? '#ffae79' : '#b84613', colorBackground: dark ? '#142033' : '#ffffff', colorText: dark ? '#edf2fa' : '#172840', colorDanger: dark ? '#ffa6a6' : '#b42318', fontFamily: 'Inter, system-ui, sans-serif', borderRadius: '12px', spacingUnit: '4px' }, rules: { '.Input': { padding: '14px', boxShadow: 'none' }, '.Label': { fontWeight: '500', marginBottom: '8px' } } };
+  return { theme: dark ? 'night' : 'stripe', variables: { colorPrimary: dark ? '#F29243' : '#242B48', colorBackground: dark ? '#242B48' : '#ffffff', colorText: dark ? '#F1F1F1' : '#242B48', colorDanger: dark ? '#ffa6a6' : '#b42318', fontFamily: 'Inter, system-ui, sans-serif', borderRadius: '12px', spacingUnit: '4px' }, rules: { '.Input': { padding: '14px', boxShadow: 'none' }, '.Label': { fontWeight: '500', marginBottom: '8px' } } };
 }

@@ -78,7 +78,7 @@ export const OwnerDashboardView: React.FC = () => {
         <p className="text-xs text-slate-500 leading-relaxed">{t("Para cadastrar seus espaços de reunião, consultórios ou auditórios e começar a receber agendamentos de clientes, entre com sua conta Google ou faça seu cadastro. ")}</p>
         <button
           onClick={() => setAuthModalOpen(true)}
-          className="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-all inline-flex items-center gap-2"
+          className="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl text-xs font-bold shadow-md transition-all inline-flex items-center gap-2"
         >
           <Sparkles className="w-4 h-4" />{t("Entrar ou Criar Conta de Coworking ")}</button>
       </div>
@@ -222,7 +222,7 @@ export const OwnerDashboardView: React.FC = () => {
 
         <button
           onClick={handleOpenAdd}
-          className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2 shrink-0"
+          className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2 shrink-0"
         >
           <Plus className="w-4 h-4" />{t("Adicionar Espaço / Sala ")}</button>
       </div>
@@ -421,7 +421,7 @@ export const OwnerDashboardView: React.FC = () => {
             <p className="text-xs text-slate-500 max-w-sm mx-auto">{t("Adicione suas salas de reunião, consultórios ou auditórios com fotos reais e endereço para que clientes possam alugar. ")}</p>
             <button
               onClick={handleOpenAdd}
-              className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold transition-all"
+              className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl text-xs font-bold transition-all"
             >{t("Adicionar Primeiro Espaço ")}</button>
           </div>
         ))}
@@ -674,7 +674,7 @@ export const OwnerDashboardView: React.FC = () => {
                 >{t("Cancelar ")}</button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-md transition-all"
+                  className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl font-bold shadow-md transition-all"
                 >
                   {t(editingId ? 'Salvar Alterações' : 'Publicar Espaço no Marketplace')}
                 </button>

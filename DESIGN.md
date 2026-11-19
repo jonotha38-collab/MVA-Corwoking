@@ -2,17 +2,22 @@
 version: alpha
 name: MVA Coworking
 colors:
-  primary: '#b84613'
-  navy: '#102840'
-  copper: '#b84613'
-  copper-hover: '#97370d'
-  on-navy: '#ffffff'
-  inverse-accent: '#ffad78'
-  page: '#f6f7f9'
+  primary: '#F29243'
+  orange-real: '#F29243'
+  navy-yankee: '#242B48'
+  on-primary: '#242B48'
+  on-navy: '#F1F1F1'
+  page: '#F1F1F1'
   surface: '#ffffff'
-  ink: '#172840'
-  muted: '#5d6b7e'
-  line: '#dce3eb'
+  ink: '#242B48'
+  muted: '#666B7F'
+  line: '#BDBFC8'
+  line-strong: '#666B7F'
+  yankee-tint-1: '#3A405A'
+  yankee-tint-2: '#666B7F'
+  yankee-tint-3: '#9195A3'
+  yankee-tint-4: '#BDBFC8'
+  black: '#000000'
 typography:
   display:
     fontFamily: 'Manrope, Inter, system-ui, sans-serif'
@@ -39,27 +44,53 @@ revision changes public presentation only; no payment, auth or database policy c
 
 The visual reference is the physical meeting room: precise architectural lines,
 warm wood, dark structure and a calm place to work. The signature is an unobscured
-room photograph with a navy location caption and a single copper corner. Avoid
+room photograph with a Yankee location caption and a single Laranja Real corner. Avoid
 generic stock-office collages, repetitive numbered service cards, fake reviews,
 artificial availability and decorative gradients.
 
 ## Colors
 
-Runtime ownership is Model B: existing `src/theme.css` owns semantic light/dark
-surface tokens. `src/home.css` owns public presentation tokens and consumes the
-existing semantic variables. This document mirrors accepted runtime values; it
-does not generate CSS. Existing Tailwind colors in admin views are unchanged.
+The user's official brand-identity image supplied on **19 November 2026** is the
+source of truth for this palette. It supersedes the earlier copper/blue treatment:
+**Laranja Real #F29243 (242,146,67)**, **Azul Yankee #242B48 (36,43,72)**,
+**Anti-Flash White #F1F1F1** and black #000000. Yankee tints supplied by the guide
+are #3A405A, #666B7F, #9195A3 and #BDBFC8. Keep the logo's established vector
+geometry; recolor the mark through `MvaLogo` rather than redrawing its proportions.
+
+Runtime ownership is **Model B**. `src/theme.css` owns `--mva-brand-orange`,
+`--mva-brand-navy`, their RGB forms, page/muted/tint tokens, semantic light/dark
+roles and the shared shadow levels. `tailwind.config.js` adapts these CSS variables
+using RGB alpha syntax; `mva.orange`, `mva.blue`, `mva.dark`, `navy.900/950` and
+orange/accent fill utilities resolve to the official brand values. `src/home.css`,
+`src/glass.css` and `src/button-glass.css` consume this owner. Legacy copper-named
+variables remain compatibility aliases only, with no independent color values.
+The shared palette applies to public pages, authenticated workflows, notices,
+buttons and administration; workflow, permission and payment rules are unchanged.
 
 | Role | Runtime owner / consumer |
 | --- | --- |
-| navy / on-navy / inverse-accent | home.css: --home-navy / --home-on-navy / --home-orange → photo caption, location and contact |
-| copper / copper-hover | home.css: --home-copper / --home-copper-hover → primary links |
-| page / surface / ink / muted / line | theme.css RGB variables → home.css semantic references |
-| panel / control | home.css: --home-radius / .home-button → public cards and links |
+| orange-real / on-primary | theme.css: --mva-brand-orange / --mva-brand-navy → .action-primary, payment actions, orange/accent fills and homepage CTA |
+| navy-yankee / on-navy | theme.css brand token → Tailwind mva.blue/dark and navy.900/950, header, footer, heroes, photo captions |
+| page / surface / ink / muted / line | theme.css semantic RGB variables → forms, public cards, dashboards and operational feedback |
+| line-strong | --line-strong-rgb → essential input boundaries; pale structural dividers use --line |
+| panel / control | existing home.css and shared component geometry; color migration does not change layout |
+| shadows | theme.css --mva-shadow-* → Tailwind shadow adapter and glass/button finish |
 
-Dark mode remaps page, surface, text and border colors through theme.css. Navy
-panels keep white text in both themes. White text uses copper #b84613 for primary
-links; pale orange is reserved for accents on navy, never body copy on white.
+Solid Laranja Real actions use **Yankee labels/icons**. Their contrast is 5.92:1;
+white on Real is only 2.34:1 and is not used for small action labels. Real text on
+Anti-Flash White is only 2.07:1, so light-mode readable accents and links use Yankee.
+Dark-mode accents use Real on Yankee (5.92:1) or the nearby dark semantic surface.
+Secondary light-mode text #666B7F on #F1F1F1 reaches 4.68:1. #9195A3 and #BDBFC8
+are decorative/structural tints on light surfaces, not body-text colors. Dark-mode
+page/soft surfaces are modest dark derivatives of Yankee; body text is Anti-Flash
+White and supporting text is #BDBFC8.
+
+Focus inherits context: Yankee on light surfaces, Real on dark brand surfaces,
+with an offset separating it from a filled action. Explicit high contrast removes
+shadows and strengthens neutral surfaces; forced colors uses system Highlight.
+Success, danger, warning and info tokens retain their semantic meanings. Keep the
+WhatsApp service green and the official Google/payment-network marks; these are
+not alternate MVA brand colors. Metal-chip artwork is also unchanged.
 
 ## Typography
 
@@ -91,7 +122,7 @@ cookie preference panel sits above it and scrolls when expanded on short screens
 Na página inicial, a fotografia da MVA dá profundidade à abertura. A chamada
 principal, o processo e as perguntas frequentes ficam sobre o fundo da página.
 Cartões de serviço, salas e planos usam superfícies sólidas e bordas consistentes.
-O destaque de um plano vem da borda cobre. A referência visual é a composição
+O destaque de um plano vem da borda Laranja Real. A referência visual é a composição
 fotográfica da [Fora](https://www.foraspace.com/) e o catálogo da
 [Industrious](https://www.industriousoffice.com/locations).
 
@@ -114,7 +145,7 @@ focus. The FAQ keeps its native disclosure and adds a brief answer entrance.
 zoom and arrow movement. All content is readable before scroll detection runs.
 
 A assinatura MVA usa contornos vetoriais com altura e peso consistentes e dois
-traços cobre entre o V e o A. O componente `MvaLogo` é a fonte do desenho.
+traços Laranja Real entre o V e o A. O componente `MvaLogo` é a fonte do desenho.
 Na abertura, os traços se recolhem no M e voltam a formar a marca em 860 ms,
 em paralelo à inicialização. Em carregamentos mais longos, a marca completa
 permanece estática. A preferência de reduzir movimento exibe a marca estática
@@ -148,7 +179,7 @@ explicitamente elegibilidade, pagamento e autorização. A tipografia de título
 segue Manrope; os detalhes funcionais permanecem em Inter.
 
 O calendário de reservas usa cartões de dias com rolagem horizontal no celular,
-horários selecionados em azul-marinho com borda cobre, ocupados em superfícies
+horários selecionados em Azul Yankee com borda Laranja Real, ocupados em superfícies
 neutras desabilitadas e rótulos persistentes: Livre / Ocupado / Encerrado.
 Apenas disponibilidade confirmada pelo RPC habilita o botão de reserva.
 
@@ -168,7 +199,7 @@ Para estados, navegação, recuperação e segurança, consultar `UX-CONTRACT.md
 ### Notificações e estados operacionais
 
 Os avisos compartilham a superfície sólida do tema, texto institucional e borda
-neutra. Azul e laranja da marca permanecem inalterados; não usar painéis verdes,
+neutra. Azul Yankee e Laranja Real seguem os valores oficiais do guia; não usar painéis verdes,
 rosas ou amarelos para preencher estados. A diferenciação vem do texto e de um
 único ícone SVG Lucide: `CircleCheck` para concluído/aprovado, `Clock` para
 aguardando, `FileSearch` para análise documental e `CircleX` para rejeitado/falha. Atualizações informativas sem esses significados não recebem
@@ -178,7 +209,7 @@ O proprietário visual é `src/theme.css`: `--surface`, `--field`, `--ink`,
 `--muted`, `--line` e `--accent` → `.mva-toast`, `.mva-notice` e
 `.mva-status-badge`. `StatusBadge` / `StatusSymbol` centralizam a iconografia;
 `ToastContainer` apresenta o feedback. Não duplicar cores por tela. Avisos de
-espera/análise usam somente um detalhe cobre. Os toasts têm raio de 16px,
+espera/análise usam somente um detalhe Laranja Real. Os toasts têm raio de 16px,
 sombra `--mva-shadow-raised`, texto com entrelinha confortável e botão de fechar
 com área de 44px. A família Lucide foi escolhida pelo usuário: contornos em
 `--ink`, tamanho de 20px nos avisos e 16px nos selos, `strokeWidth={1.5}`.
@@ -195,7 +226,7 @@ texto longo quebra sem alargar a tela. O tema escuro usa os mesmos tokens.
 
 `StatusNotice` estende o padrão compartilhado para avisos persistentes de checkout,
 erros ao iniciar pagamento e prazos de reserva. Usa `.mva-notice`, `StatusSymbol`
-e os mesmos tokens do tema: superfície sólida, borda neutra com filete cobre,
+e os mesmos tokens do tema: superfície sólida, borda neutra com filete Laranja Real,
 ícone Lucide em suporte de 38px e texto institucional. Não repetir os traços da
 logo reservados aos toasts. Botão de dispensar com alvo de 44px e foco visível.
 Cancelamento recebe `CircleX` e texto de cancelamento, sem ser chamado de rejeição.

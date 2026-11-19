@@ -216,7 +216,7 @@ export function AdminBookingAgenda() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
           <h3 className="flex items-center gap-2 text-sm font-bold text-navy-900">
             <Bell className="h-4 w-4 text-orange-600" /> Novos agendamentos
-            {unread.length > 0 && <span className="rounded-full bg-orange-600 px-2 py-0.5 text-[10px] font-bold text-white">{unread.length}</span>}
+            {unread.length > 0 && <span className="rounded-full bg-orange-600 px-2 py-0.5 text-[10px] font-bold text-mva-blue">{unread.length}</span>}
           </h3>
           <button type="button" onClick={() => void markRead()} disabled={!unread.length || markingRead}
             className="min-h-11 rounded-lg px-2 text-xs font-semibold text-navy-900 hover:bg-slate-50 hover:text-orange-700 disabled:opacity-40">

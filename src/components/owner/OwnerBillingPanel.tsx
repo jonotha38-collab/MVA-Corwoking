@@ -51,7 +51,7 @@ export function OwnerBillingPanel(){
  const active=subscription?.status==='active'||subscription?.status==='trialing';
  const connected=!!account?.charges_enabled&&!!account?.payouts_enabled;
  return <section className="space-y-5" aria-labelledby="owner-billing-heading">
-  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-[#192b40] sm:p-7">
+  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-mva-blue sm:p-7">
    <div className="flex flex-wrap items-start justify-between gap-3">
     <div><span className="text-xs font-bold uppercase tracking-widest text-orange-600 dark:text-orange-300">MVA Parceiros</span>
      <h2 id="owner-billing-heading" className="mt-2 text-xl font-bold text-navy-900 dark:text-slate-100">Mensalidade do seu coworking</h2>
@@ -60,14 +60,14 @@ export function OwnerBillingPanel(){
     <button type="button" onClick={()=>void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-navy-900 dark:border-slate-600 dark:text-slate-100"><RefreshCw className="h-4 w-4"/>Atualizar</button>
    </div>
    {sandboxCheckoutReady&&<p role="status" className="mt-4 rounded-xl border border-sky-200 bg-sky-50 p-3 text-xs font-semibold text-sky-900">Sandbox Stripe para administradores: cartões fictícios, nenhuma cobrança real ou liberação de recursos pagos.</p>}
-   {subscription&&<div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-600 dark:bg-[#233850] dark:text-slate-100">
+   {subscription&&<div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-600 dark:bg-mva-card dark:text-slate-100">
     <BadgeCheck className="h-4 w-4 text-orange-600 dark:text-orange-300"/>
     Plano {plans.find(p=>p.id===subscription.plan_id)?.label||subscription.plan_id} · <strong>{active?'Ativo':subscription.status}</strong>
     {subscription.current_period_end&&<span>· Vencimento {new Date(subscription.current_period_end).toLocaleDateString('pt-BR')}</span>}
     {!subscription.livemode&&<span>· Ambiente de teste</span>}
    </div>}
    {loading?<p className="mt-4 text-xs text-slate-500">Carregando os planos…</p>:<div className="mt-5 grid gap-4 md:grid-cols-3">
-     {plans.map(p=><article key={p.id} className="flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-600 dark:bg-[#233850]">
+     {plans.map(p=><article key={p.id} className="flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-600 dark:bg-mva-card">
        <span className="text-[11px] font-bold uppercase tracking-widest text-orange-700 dark:text-orange-300">{p.label}</span>
        <p className="mt-3 text-2xl font-bold text-navy-900 dark:text-white">{price(p.monthly_cents)}<span className="ml-1 text-xs font-medium text-slate-500 dark:text-slate-300">/mês</span></p>
        <p className="mt-2 text-xs font-bold text-navy-900 dark:text-slate-100">Até {p.max_spaces} espaços</p>
@@ -81,7 +81,7 @@ export function OwnerBillingPanel(){
    <p className="mt-4 flex items-start gap-2 text-[11px] leading-relaxed text-slate-500 dark:text-slate-300"><LockKeyhole className="mt-0.5 h-4 w-4 shrink-0"/>
     As assinaturas e seus limites só serão exigidos depois que a MVA publicar as condições, testar as cobranças e ativar essa regra. Anúncios atuais continuam preservados.</p>
   </div>
-  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-[#192b40] sm:p-7">
+  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-mva-blue sm:p-7">
    <div className="flex items-start gap-3">
     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300"><Landmark className="h-5 w-5"/></span>
     <div><h3 className="text-base font-bold text-navy-900 dark:text-slate-100">Receber pagamentos das suas reservas</h3>

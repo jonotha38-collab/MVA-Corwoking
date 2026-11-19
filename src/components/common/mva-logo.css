@@ -3,7 +3,7 @@
 }
 
 .mva-logo--inverse {
-  fill: #fff;
+  fill: #f1f1f1;
 }
 
 .mva-logo--surface {
@@ -11,7 +11,7 @@
 }
 
 .mva-logo__slash {
-  fill: var(--mva-brand-copper);
+  fill: var(--mva-brand-orange);
 }
 
 @media (prefers-reduced-motion: no-preference) {

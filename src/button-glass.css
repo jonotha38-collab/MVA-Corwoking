@@ -5,7 +5,7 @@
   a.action-primary, a.btn-primary, a.btn-dark, a.home-button, a.mva-home-white-cta, a.fiscal-white-cta
 ):not([data-mva-glass="off"]):not(:disabled):not([aria-disabled="true"]) {
   --mva-button-shadow: var(--mva-shadow-low);
-  --mva-button-sheen: linear-gradient(165deg, rgb(255 255 255 / .085), transparent 68%);
+  --mva-button-sheen: linear-gradient(165deg, rgb(var(--mva-brand-navy-rgb) / .035), transparent 68%);
   --mva-button-highlight: inset 0 1px rgb(255 255 255 / .12);
   background-image: var(--mva-button-sheen);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 transparent), var(--tw-ring-shadow, 0 0 transparent),

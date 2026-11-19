@@ -230,7 +230,7 @@ export function InternRoomsView() {
                   <p className="mt-3 text-[11px] leading-relaxed text-slate-500">Visível somente para a equipe autorizada.</p>
                 </section>
                 <button type="button" disabled={!bookable} onClick={() => void reserve(room)}
-                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors ${mine ? 'bg-emerald-50 text-emerald-800' : bookable ? 'bg-orange-600 text-white hover:bg-orange-500' : 'cursor-not-allowed bg-slate-100 text-slate-500'}`}>
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors ${mine ? 'bg-emerald-50 text-emerald-800' : bookable ? 'bg-orange-600 text-mva-blue hover:bg-orange-500' : 'cursor-not-allowed bg-slate-100 text-slate-500'}`}>
                   {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : mine ? <CheckCircle2 className="h-4 w-4" /> : <CalendarDays className="h-4 w-4" />}
                   {mine ? 'Reserva confirmada' : myReservation ? 'Já reservou outra sala' : !room.room_active ? 'Sala indisponível' : free === 0 ? 'Sem vagas para esta data' : 'Reservar minha vaga'}
                 </button>

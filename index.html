@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <script>try{const p=localStorage.getItem('mva-theme');const t=p==='light'||p==='dark'?p:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.style.colorScheme=t;}catch{}</script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -10,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;650;700&display=swap" rel="stylesheet">
-    <meta name="theme-color" content="#050c18" />
+    <meta name="theme-color" content="#242B48" />
     <meta name="description" content="MVA Coworking em Aracaju: encontre salas para reuniões, conheça os planos de endereço fiscal e anuncie seu coworking." />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://coworking-mva-du8c.vercel.app/" />
@@ -28,7 +29,7 @@
     <meta name="twitter:image" content="https://coworking-mva-du8c.vercel.app/hero-office.jpg" />
     <title>MVA Coworking | Salas, endereço fiscal e coworkings</title>
   </head>
-  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-orange-600 selection:text-white">
+  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-mva-orange selection:text-mva-blue">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

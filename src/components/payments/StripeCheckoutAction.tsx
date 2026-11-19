@@ -67,7 +67,7 @@ export function StripeCheckoutAction({action,resourceId,planId,label,className='
  return <div className="min-w-0 space-y-2">
    {connected&&<StatusNotice status="approved" title="Conta Stripe preparada">A conta está preparada para receber pagamentos.</StatusNotice>}
    <button type="button" onClick={()=>void trigger()} disabled={!enabled||busy||connected}
-     className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-bold transition-colors ${enabled?'mva-payment-action bg-[#cf581f] text-white hover:bg-[#ad4210]':'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-600'} disabled:opacity-75 ${className}`}>
+     className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-bold transition-colors ${enabled?'mva-payment-action action-primary bg-mva-orange text-mva-blue hover:bg-mva-orangeHover':'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-600'} disabled:opacity-75 ${className}`}>
      {busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<CreditCard className="h-4 w-4"/>}
      {busy?'Conectando ao Stripe…':!enabled?(status?.sandbox?'Indisponível para esta conta (teste)':'Pagamento ainda indisponível'):(label||defaultLabels[action])+(status?.sandbox?' (teste)':'')}
      {enabled&&!busy&&<ArrowRight className="h-4 w-4"/>}

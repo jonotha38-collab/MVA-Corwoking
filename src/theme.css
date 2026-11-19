@@ -1,13 +1,22 @@
 /* MVA theme tokens. One palette drives surfaces, controls and legacy Tailwind utilities. */
 :root {
   color-scheme: light;
-  --mva-brand-copper: #b84613;
-  --mva-shadow-low: 0 1px 2px rgb(12 24 42 / .035), 0 5px 14px -9px rgb(12 24 42 / .16);
-  --mva-shadow-raised: 0 2px 4px rgb(12 24 42 / .055), 0 12px 30px -16px rgb(12 24 42 / .25);
-  --mva-shadow-overlay: 0 4px 12px rgb(12 24 42 / .08), 0 20px 44px -16px rgb(12 24 42 / .34);
-  --page-rgb:246 247 249; --surface-rgb:255 255 255; --soft-rgb:237 241 246; --field-rgb:248 250 252;
-  --ink-rgb:23 40 64; --muted-rgb:93 107 126; --line-rgb:220 227 235; --line-strong-rgb:168 185 206;
-  --accent-rgb:184 70 19; --accent-soft-rgb:255 240 230; --accent-line-rgb:237 192 162;
+  --mva-brand-orange-rgb: 242 146 67;
+  --mva-brand-navy-rgb: 36 43 72;
+  --mva-brand-orange: #F29243;
+  --mva-brand-navy: #242B48;
+  --mva-brand-page: #F1F1F1;
+  --mva-brand-muted: #666B7F;
+  --mva-brand-tint: #3A405A;
+  --mva-brand-orange-hover: var(--mva-brand-orange);
+  --mva-brand-copper: var(--mva-brand-orange); /* compatibility alias only */
+  --mva-focus: var(--mva-brand-navy);
+  --mva-shadow-low: 0 1px 2px rgb(var(--mva-brand-navy-rgb) / .035), 0 5px 14px -9px rgb(var(--mva-brand-navy-rgb) / .16);
+  --mva-shadow-raised: 0 2px 4px rgb(var(--mva-brand-navy-rgb) / .055), 0 12px 30px -16px rgb(var(--mva-brand-navy-rgb) / .25);
+  --mva-shadow-overlay: 0 4px 12px rgb(var(--mva-brand-navy-rgb) / .08), 0 20px 44px -16px rgb(var(--mva-brand-navy-rgb) / .34);
+  --page-rgb:241 241 241; --surface-rgb:255 255 255; --soft-rgb:241 241 241; --field-rgb:255 255 255;
+  --ink-rgb:36 43 72; --muted-rgb:102 107 127; --line-rgb:189 191 200; --line-strong-rgb:102 107 127;
+  --accent-rgb:36 43 72; --accent-soft-rgb:254 244 236; --accent-line-rgb:242 146 67;
   --positive-rgb:16 117 82; --positive-soft-rgb:233 248 240; --positive-line-rgb:160 214 187;
   --danger-rgb:180 35 24; --danger-soft-rgb:255 240 238; --danger-line-rgb:239 180 175;
   --warning-rgb:139 93 13; --warning-soft-rgb:255 247 222; --warning-line-rgb:237 209 144;
@@ -20,9 +29,10 @@
   --mva-shadow-low: 0 1px 2px rgb(0 0 0 / .12), 0 5px 14px -9px rgb(0 0 0 / .28);
   --mva-shadow-raised: 0 2px 4px rgb(0 0 0 / .16), 0 12px 30px -16px rgb(0 0 0 / .38);
   --mva-shadow-overlay: 0 4px 12px rgb(0 0 0 / .21), 0 20px 44px -16px rgb(0 0 0 / .52);
-  --page-rgb:11 19 32; --surface-rgb:20 32 51; --soft-rgb:27 43 64; --field-rgb:16 28 45;
-  --ink-rgb:237 242 250; --muted-rgb:172 187 206; --line-rgb:43 61 84; --line-strong-rgb:72 95 124;
-  --accent-rgb:255 174 121; --accent-soft-rgb:52 38 31; --accent-line-rgb:112 76 53;
+  --page-rgb:24 29 49; --surface-rgb:36 43 72; --soft-rgb:45 52 80; --field-rgb:36 43 72;
+  --mva-focus: var(--mva-brand-orange);
+  --ink-rgb:241 241 241; --muted-rgb:189 191 200; --line-rgb:102 107 127; --line-strong-rgb:145 149 163;
+  --accent-rgb:242 146 67; --accent-soft-rgb:45 52 80; --accent-line-rgb:242 146 67;
   --positive-rgb:118 223 180; --positive-soft-rgb:20 53 44; --positive-line-rgb:43 103 78;
   --danger-rgb:255 166 166; --danger-soft-rgb:61 35 42; --danger-line-rgb:117 66 75;
   --warning-rgb:245 207 125; --warning-soft-rgb:56 47 28; --warning-line-rgb:111 91 47;
@@ -57,8 +67,8 @@ body { background:var(--page); color:var(--ink); }
 :where(input,textarea):-webkit-autofill { -webkit-text-fill-color:var(--ink); caret-color:var(--ink); -webkit-box-shadow:0 0 0 1000px var(--field) inset !important; }
 .checkout-error { color:rgb(var(--danger-rgb)); background:rgb(var(--danger-soft-rgb)); border-color:rgb(var(--danger-line-rgb)); }
 .checkout-result-icon.is-success { color:rgb(var(--positive-rgb)); background:rgb(var(--positive-soft-rgb)); border-color:rgb(var(--positive-line-rgb)); }
-.preferences select { color:#d5deeb; background:transparent; }
-.preferences option { background:#142033; color:#edf2fa; }
+.preferences select { color:#BDBFC8; background:transparent; }
+.preferences option { background:var(--mva-brand-navy); color:#F1F1F1; }
 
 /* Theme-aware compatibility for existing screen utilities, including alpha and state variants. */
 :root[data-theme="dark"] [class~="bg-amber-50"] { background-color:rgb(var(--warning-soft-rgb)); }
@@ -151,9 +161,9 @@ body { background:var(--page); color:var(--ink); }
 :root[data-theme="dark"] [class~="to-orange-50"] { --tw-gradient-to:rgb(var(--accent-soft-rgb)) var(--tw-gradient-to-position); }
 :root[data-theme="dark"] [class~="to-white"] { --tw-gradient-to:rgb(var(--surface-rgb)) var(--tw-gradient-to-position); }
 
-:root[data-theme="dark"] .preferences select { background:transparent; color:#d5deeb; }
+:root[data-theme="dark"] .preferences select { background:transparent; color:#BDBFC8; }
 @media print {
- :root,:root[data-theme="dark"] { color-scheme:light; --page-rgb:255 255 255; --surface-rgb:255 255 255; --soft-rgb:245 247 249; --field-rgb:255 255 255; --ink-rgb:17 24 39; --muted-rgb:71 85 105; --line-rgb:203 213 225; --accent-rgb:184 70 19; --accent-soft-rgb:255 240 230; }
+ :root,:root[data-theme="dark"] { color-scheme:light; --page-rgb:255 255 255; --surface-rgb:255 255 255; --soft-rgb:241 241 241; --field-rgb:255 255 255; --ink-rgb:36 43 72; --muted-rgb:58 64 90; --line-rgb:102 107 127; --accent-rgb:36 43 72; --accent-soft-rgb:241 241 241; }
 }
 
 
@@ -265,7 +275,7 @@ body { background:var(--page); color:var(--ink); }
 /* Text inside custom white call-to-action surfaces must remain dark. */
 :root[data-theme="dark"] .mva-home-white-cta,
 :root[data-theme="dark"] .mva-fiscal .fiscal-white-cta {
-  color: #16314d;
+  color: var(--mva-brand-navy);
 }
 
 /* Keep the original navy hero text/light buttons, including in the fiscal flow. */
@@ -275,7 +285,7 @@ body { background:var(--page); color:var(--ink); }
 ) [class~="text-white"] { color: #ffffff; }
 
 @media (prefers-contrast: more) {
-  :root[data-theme="dark"] { --muted-rgb: 201 215 231; --line-rgb: 90 118 150; }
+  :root[data-theme="dark"] { --muted-rgb: 241 241 241; --line-rgb: 189 191 200; }
 }
 
 
@@ -302,7 +312,7 @@ body { background:var(--page); color:var(--ink); }
   overflow-wrap:anywhere;
 }
 .mva-notice[data-status="waiting"], .mva-notice[data-status="analysis"] {
-  border-inline-start-color:var(--accent);
+  border-inline-start-color:var(--mva-brand-orange);
 }
 .mva-status-text { color:var(--ink); }
 .mva-status-detail { color:var(--muted); }
@@ -326,12 +336,12 @@ body { background:var(--page); color:var(--ink); }
   width:2.375rem; height:2.375rem; border:1px solid var(--line); border-radius:.75rem .75rem .25rem .75rem;
   background:var(--field);
 }
-/* The paired copper strokes echo the two slashes in MvaLogo, once per toast. */
+/* The paired Laranja Real strokes echo the two slashes in MvaLogo, once per toast. */
 .mva-toast-signature {
   position:absolute; inset-inline-end:-3px; bottom:-3px; display:flex; gap:3px;
   padding:2px 3px; background:var(--surface); pointer-events:none;
 }
-.mva-toast-signature > span { width:2px; height:9px; background:var(--accent); transform:skewX(-25deg); }
+.mva-toast-signature > span { width:2px; height:9px; background:var(--mva-brand-orange); transform:skewX(-25deg); }
 .mva-toast-copy { flex:1; min-width:0; padding-block:.125rem; overflow-wrap:anywhere; }
 .mva-toast-title { margin:0 0 .2rem; font-size:.8125rem; line-height:1.5; font-weight:600; color:var(--ink); }
 .mva-toast-message { margin:0; font-size:.8125rem; line-height:1.65; font-weight:400; color:var(--muted); }
@@ -368,7 +378,7 @@ body { background:var(--page); color:var(--ink); }
 /* Persistent checkout feedback shares the established MVA notice palette. */
 .mva-status-notice {
   display:flex; align-items:flex-start; gap:.875rem;
-  padding:1.125rem; border-inline-start-color:var(--accent);
+  padding:1.125rem; border-inline-start-color:var(--mva-brand-orange);
   background:var(--surface); box-shadow:var(--mva-shadow-low);
 }
 .mva-status-notice-icon {
@@ -386,4 +396,47 @@ body { background:var(--page); color:var(--ink); }
 @media (forced-colors:active) {
   .mva-status-notice { border-inline-start-color:CanvasText; }
   .mva-status-notice-icon { border-color:CanvasText; }
+}
+
+/* Official MVA identity, approved from the user's brand guide on 19/11/2026.
+   Orange is a fill/accent on Yankee. On light surfaces, brand text stays Yankee. */
+:root :is(
+  [class~="text-orange-500"], [class~="text-orange-600"],
+  [class~="text-orange-700"], [class~="text-orange-800"],
+  [class~="text-orange-900"], [class~="text-orange-950"],
+  [class~="text-accent-500"], [class~="text-accent-600"],
+  [class~="text-accent-700"], [class~="text-accent-800"]
+) { color:var(--accent); }
+:root :is(
+  .action-primary, .mva-payment-action, .btn-primary,
+  [class~="bg-mva-orange"], [class~="bg-orange-500"], [class~="bg-orange-600"],
+  [class~="bg-accent-500"], [class~="bg-accent-600"]
+) {
+  background-color:var(--mva-brand-orange);
+  color:var(--mva-brand-navy);
+}
+:root :is(.action-primary, .mva-payment-action, .btn-primary):hover:not(:disabled) {
+  background-color:var(--mva-brand-orange-hover);
+  color:var(--mva-brand-navy);
+}
+:root :is(.action-primary, .mva-payment-action, .btn-primary) :where(svg, [class~="text-white"]) {
+  color:inherit;
+}
+/* A dark surface keeps its own focus context even while the page is light. */
+:is(
+  [class~="bg-mva-blue"], [class~="bg-mva-dark"], [class~="bg-mva-card"],
+  [class~="bg-navy-900"], [class~="bg-navy-950"],
+  .mva-glass-header, .mva-glass-mobile-nav, .hero-shell,
+  .home-image-label, .home-photo-caption, .home-location-address, .home-contact,
+  .checkout-heading, .payment-card-face
+) { --mva-focus:var(--mva-brand-orange); }
+:root :where(input, textarea, select) { border-color:rgb(var(--line-strong-rgb)); }
+:root :where(.input, .floating-field-input, .checkout-field input) { border-color:rgb(var(--line-strong-rgb)); }
+:root :where(a, button, input, select, textarea):focus-visible { outline-color:var(--mva-focus); }
+/* Direct amber/green/red/info states retain their semantic roles and original tokens. */
+@media (forced-colors:active) {
+  :root :is(a,button,input,select,textarea):focus-visible,
+  :root[data-a11y-contrast="true"] :is(a,button,input,select,textarea):focus-visible {
+    outline-color:Highlight !important;
+  }
 }

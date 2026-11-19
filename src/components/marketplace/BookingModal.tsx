@@ -260,7 +260,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
                     >
                       <div className="flex items-center gap-2.5">
                         <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
-                          isChecked ? 'bg-orange-600 border-orange-600 text-white' : 'border-slate-300 bg-white'
+                          isChecked ? 'bg-orange-600 border-orange-600 text-mva-blue' : 'border-slate-300 bg-white'
                         }`}>
                           {isChecked && <Check className="w-3 h-3" />}
                         </div>
@@ -314,7 +314,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ space, onClose }) =>
               <button
                 type="submit"
                 disabled={!timeAvailable||submitting}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-sm font-bold text-mva-blue transition-colors hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
               >{submitting?'Registrando reserva…':administrativeBooking?t('Confirmar reserva de cortesia'):'Confirmar horário e ver valor final'}</button>
             </div>
           </form>

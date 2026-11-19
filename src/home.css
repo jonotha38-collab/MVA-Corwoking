@@ -1,18 +1,18 @@
 /* Public MVA experience. Theme variables are owned by theme.css. */
 :root {
   --home-display: 'Manrope', 'Inter', system-ui, sans-serif;
-  --home-navy: #102840;
+  --home-navy: var(--mva-brand-navy);
   --home-on-navy: #ffffff;
-  --home-copper: var(--mva-brand-copper);
-  --home-copper-hover: #97370d;
-  --home-orange: #ffad78;
+  --home-copper: var(--mva-brand-orange); /* legacy presentation alias */
+  --home-copper-hover: var(--mva-brand-orange-hover);
+  --home-orange: var(--mva-brand-orange);
   --home-radius: 20px;
-  --scroll-thumb: #8190a2;
-  --scroll-track: #edf1f6;
-  --scroll-hover: #5d6b7e;
-  --scroll-active: #172840;
+  --scroll-thumb: var(--mva-brand-muted);
+  --scroll-track: var(--mva-brand-page);
+  --scroll-hover: var(--mva-brand-muted);
+  --scroll-active: var(--mva-brand-navy);
 }
-:root[data-theme='dark'] { --scroll-thumb: #657a94; --scroll-track: #142033; --scroll-hover: #93a8c1; --scroll-active: #edf2fa; }
+:root[data-theme='dark'] { --scroll-thumb: var(--mva-brand-muted); --scroll-track: var(--mva-brand-navy); --scroll-hover: #BDBFC8; --scroll-active: #F1F1F1; }
 * { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) var(--scroll-track); }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--scroll-track); }
@@ -37,7 +37,7 @@ button:enabled, summary, select, a { cursor: pointer; }
 .home-intro { max-width: 455px; margin-top: 26px; font-size: 16px; line-height: 1.85; color: var(--muted); }
 .home-hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 24px; margin-top: 32px; }
 .home-button { display: inline-flex; align-items: center; justify-content: center; gap: 14px; min-height: 50px; padding: 14px 21px; border-radius: 10px; font-size: 13px; font-weight: 650; line-height: 1.5; transition: background .2s, border-color .2s; }
-.home-button-primary { background: var(--home-copper); color: #fff; }
+.home-button-primary { background: var(--home-copper); color: var(--mva-brand-navy); }
 .home-button-primary:hover { background: var(--home-copper-hover); }
 .home-text-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; color: var(--ink); font-size: 13px; font-weight: 650; }
 .home-text-link:hover { color: var(--accent); }
@@ -46,9 +46,9 @@ button:enabled, summary, select, a { cursor: pointer; }
 .home-hero-visual { position: relative; min-width: 0; aspect-ratio: .98; margin: 0; border-radius: var(--home-radius) var(--home-radius) 64px var(--home-radius); overflow: hidden; background: var(--home-navy); box-shadow: var(--mva-shadow-raised); }
 .home-hero-visual > img { width: 100%; height: 100%; object-fit: cover; object-position: 58% center; }
 .home-hero-visual::after { position: absolute; right: 0; bottom: 0; width: 48px; height: 48px; border-top-left-radius: 15px; background: var(--home-copper); content: ''; }
-.home-image-label { position: absolute; left: 22px; top: 22px; display: flex; align-items: center; gap: 8px; border: 1px solid #ffffff4d; border-radius: 6px; padding: 8px 12px; background: #102840e8; color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.home-image-label { position: absolute; left: 22px; top: 22px; display: flex; align-items: center; gap: 8px; border: 1px solid #ffffff4d; border-radius: 6px; padding: 8px 12px; background: rgb(var(--mva-brand-navy-rgb) / 0.9098); color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .home-image-label .home-location-dot { color: var(--home-orange); }
-.home-photo-caption { position: absolute; right: 20px; bottom: 22px; left: 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 19px 21px; border: 1px solid #ffffff30; border-radius: 12px; background: #102840f2; color: #fff; }
+.home-photo-caption { position: absolute; right: 20px; bottom: 22px; left: 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 19px 21px; border: 1px solid #ffffff30; border-radius: 12px; background: rgb(var(--mva-brand-navy-rgb) / 0.949); color: #fff; }
 .home-photo-caption span { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--home-orange); }
 .home-photo-caption p { max-width: 240px; margin-top: 6px; font-family: var(--home-display); font-size: 18px; font-weight: 500; line-height: 1.45; }
 .home-photo-caption a { display: grid; flex-shrink: 0; place-items: center; width: 44px; height: 44px; border: 1px solid #ffffff50; border-radius: 50%; color: #fff; transition: background .2s; }
@@ -88,7 +88,7 @@ button:enabled, summary, select, a { cursor: pointer; }
 .home-location-address > svg { color: var(--home-orange); margin-bottom: 32px; }
 .home-location-address .home-kicker { color: var(--home-orange); margin-bottom: 12px; }
 .home-location-address h3 { max-width: 320px; font-size: 30px; }
-.home-location-address > p:not(.home-kicker) { margin-top: 14px; color: #c2d0e0; font-size: 12px; line-height: 1.8; }
+.home-location-address > p:not(.home-kicker) { margin-top: 14px; color: #BDBFC8; font-size: 12px; line-height: 1.8; }
 .home-location-link { display: inline-flex; align-items: center; gap: 16px; min-height: 44px; margin-top: 20px; color: #fff; font-size: 12px; font-weight: 600; }
 .home-location-link:hover { color: var(--home-orange); }
 .home-location-copy > p:not(.home-kicker) { margin-top: 22px; color: var(--muted); font-size: 14px; line-height: 1.85; }
@@ -109,15 +109,15 @@ button:enabled, summary, select, a { cursor: pointer; }
 .home-faq details[open] summary svg { transform: rotate(180deg); }
 .home-faq summary:hover { color: var(--accent); }
 .home-faq details > p { padding: 0 28px 24px 0; color: var(--muted); font-size: 13px; line-height: 1.9; }
-.home-contact { display: flex; align-items: center; justify-content: space-between; gap: 36px; border-radius: var(--home-radius); padding: 42px; border: 1px solid #293c53; background: var(--home-navy); color: var(--home-on-navy); }
+.home-contact { display: flex; align-items: center; justify-content: space-between; gap: 36px; border-radius: var(--home-radius); padding: 42px; border: 1px solid var(--mva-brand-navy); background: var(--home-navy); color: var(--home-on-navy); }
 .home-contact > div:first-child { max-width: 530px; }
 .home-contact .home-kicker { color: var(--home-orange); }
 .home-contact h2 { font-size: clamp(1.65rem, 2.7vw, 2.3rem); }
-.home-contact p:not(.home-kicker) { max-width: 440px; margin-top: 16px; color: #c2d0e0; font-size: 13px; line-height: 1.85; }
+.home-contact p:not(.home-kicker) { max-width: 440px; margin-top: 16px; color: #BDBFC8; font-size: 13px; line-height: 1.85; }
 .home-contact-actions { display: flex; flex-shrink: 0; flex-direction: column; align-items: center; gap: 13px; }
 .home-button-light { background: #fff; color: var(--home-navy); }
-.home-button-light:hover { background: #fff0e6; }
-.home-contact-secondary { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; color: #c2d0e0; font-size: 11px; }
+.home-button-light:hover { background: #FEF4EC; }
+.home-contact-secondary { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; color: #BDBFC8; font-size: 11px; }
 .home-contact-secondary:hover { color: #fff; text-decoration: underline; }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -269,7 +269,7 @@ button:enabled, summary, select, a { cursor: pointer; }
   min-width: 0;
   border-radius: 12px;
 }
-.home-redesign .mva-contact-glassy--email { --contact-color: #b84613; }
+.home-redesign .mva-contact-glassy--email { --contact-color: var(--mva-brand-orange); }
 .home-redesign .mva-contact-glassy__face {
   display: flex;
   align-items: center;
@@ -279,8 +279,8 @@ button:enabled, summary, select, a { cursor: pointer; }
   padding: 14px 18px;
   border: 1px solid #ffffff24;
   border-radius: inherit;
-  background: #f3f5f7;
-  color: #102840;
+  background: var(--mva-brand-page);
+  color: var(--mva-brand-navy);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;
@@ -300,9 +300,10 @@ button:enabled, summary, select, a { cursor: pointer; }
     color: #fff;
   }
   .home-redesign .mva-contact-glassy:hover .mva-contact-glassy__face > svg:first-child { color: inherit; }
+  .home-redesign .mva-contact-glassy--email:hover .mva-contact-glassy__face { color:var(--mva-brand-navy); }
 }
 .home-redesign .mva-contact-glassy:focus-visible {
-  outline: 3px solid var(--home-orange);
+  outline: 3px solid var(--mva-focus);
   outline-offset: 4px;
 }
 @media (max-width: 767px) {

@@ -28,7 +28,7 @@ Contrato dos fluxos de **acompanhamento de endereço fiscal** e **reserva de sal
 - Os preços existentes e as regras de pagamento/cancelamento não devem ser alterados por mudanças visuais. O servidor continua definindo valor da reserva.
 
 ## Aparência e acessibilidade
-- Usar tokens do `src/theme.css` e o padrão `DESIGN.md`: azul-marinho, cobre, superfícies neutras; detalhe de etapa com linha de progresso institucional, sem animação excessiva.
+- Usar tokens do `src/theme.css` e o padrão `DESIGN.md`: Azul Yankee #242B48, Laranja Real #F29243 e superfícies neutras; detalhe de etapa com linha de progresso institucional, sem animação excessiva. Rótulos sobre Laranja Real usam Azul Yankee para manter contraste.
 - Botões de dias: área mínima clicável de 44 px, scroll horizontal em celular; salas ocupadas não devem parecer acionáveis.
 - Labels, status, erros e orientações em português claro; contraste no modo claro e escuro; foco de teclado visível.
 - Utilizar `useCoworking` para navegação e controle de sessão, `showToast` para feedback, `StripeCheckoutAction` para cobranças e componentes compartilhados em vez de duplicar mecanismos.

@@ -145,7 +145,7 @@ export const ClientDashboardView: React.FC = () => {
       {/* Profile Header Banner - Minimalist Deep Navy */}
       <div className="bg-navy-950 text-white rounded-3xl p-6 sm:p-8 border border-navy-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center font-bold text-xl shadow-md">
+          <div className="w-14 h-14 rounded-2xl bg-orange-600 text-mva-blue flex items-center justify-center font-bold text-xl shadow-md">
             {t((currentCompany.tradingName || currentUser?.name || 'MVA').substring(0, 2).toUpperCase())}
           </div>
           <div>
@@ -170,7 +170,7 @@ export const ClientDashboardView: React.FC = () => {
             <FileCheck className="w-4 h-4 text-orange-400" />{t("Declaração Fiscal ")}</button>
           <button
             onClick={() => setActiveTab('marketplace')}
-            className="flex-1 md:flex-initial px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 md:flex-initial px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
           >
             <Plus className="w-4 h-4" />{t("Agendar Nova Sala ")}</button>
         </div>
@@ -346,7 +346,7 @@ export const ClientDashboardView: React.FC = () => {
 
           <button
             onClick={() => setSelectedVoucherId(upcomingBooking.id)}
-            className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-2 shrink-0"
+            className="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-mva-blue rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-2 shrink-0"
           >
             <QrCode className="w-4 h-4" />{t(isComplimentaryBooking(upcomingBooking) ? 'Mostrar código da sala' : 'Abrir voucher')}</button>
         </div>
@@ -456,7 +456,7 @@ export const ClientDashboardView: React.FC = () => {
             <p className="text-xs text-slate-500">{t("Agende salas executivas e use seus créditos mensais inclusos. ")}</p>
             <button
               onClick={() => setActiveTab('marketplace')}
-              className="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-semibold"
+              className="px-4 py-2 bg-orange-600 text-mva-blue rounded-xl text-xs font-semibold"
             >{t("Explorar Salas ")}</button>
           </div>
         ))}

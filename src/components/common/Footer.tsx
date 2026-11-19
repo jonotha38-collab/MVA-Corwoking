@@ -119,7 +119,7 @@ export const Footer: React.FC = () => {
                 <a href="mailto:contato@mvacoworking.com.br?subject=Atendimento%20MVA%20Coworking" className="min-w-0 break-all underline-offset-2 hover:text-white hover:underline">contato@mvacoworking.com.br</a>
               </div>
             </div>
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label={chatLabel} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border border-orange-400/30 bg-orange-700 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-orange-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"><MessageCircle className="h-4 w-4" aria-hidden="true"/>{chatLabel}</a>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label={chatLabel} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border border-mva-orange/30 bg-mva-orange px-4 py-2.5 text-xs font-bold text-mva-blue transition hover:bg-mva-orangeHover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"><MessageCircle className="h-4 w-4" aria-hidden="true"/>{chatLabel}</a>
 
           </div>
         </div>
