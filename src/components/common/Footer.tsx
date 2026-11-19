@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
       role="contentinfo"
       className="mva-footer bg-navy-950 text-slate-400 text-sm border-t border-navy-800"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+      <div className="mva-page-frame mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         <div className="grid min-w-0 grid-cols-1 gap-8 mb-12 sm:grid-cols-2 xl:grid-cols-4">
           {/* Brand */}
           <div className="min-w-0 space-y-3">

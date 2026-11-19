@@ -25,7 +25,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ space, onSelect, onBook })
         type="button"
         aria-label={`Ver detalhes de ${space.name}`}
         onClick={() => onSelect(space)}
-        className="relative h-52 w-full overflow-hidden bg-slate-100 cursor-pointer"
+        className="relative h-52 w-full overflow-hidden bg-slate-100 cursor-pointer lg:h-auto lg:aspect-[1.7] lg:min-h-52"
       >
         <img
           src={space.image}
@@ -75,7 +75,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ space, onSelect, onBook })
             )}
           </div>
           
-          <h3 className="font-bold text-lg leading-snug text-navy-900">
+          <h3 className="text-lg font-bold leading-snug text-navy-900 lg:text-xl">
             <button type="button" onClick={() => onSelect(space)} className="text-left hover:text-orange-700">{space.name}</button>
           </h3>
 

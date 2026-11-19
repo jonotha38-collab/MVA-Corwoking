@@ -79,19 +79,19 @@ export const Navbar: React.FC = () => {
       <header
         className={`mva-glass-header sticky top-0 z-40 border-b border-navy-800 bg-navy-950/95 text-white no-print ${isScrolled ? 'shadow-sm' : ''}`}
       >
-        <div className="relative z-20 mx-auto flex h-16 w-full min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:h-20 sm:gap-4 sm:px-6 lg:px-8">
+        <div className="mva-header-bar relative z-20 flex h-16 w-full min-w-0 items-center justify-between gap-2 px-3 sm:h-20 sm:px-[24px] lg:gap-4 lg:px-[28px] 2xl:px-[40px]">
           {/* Logo & Brand */}
           <button onClick={() => setActiveTab('home')} className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3" aria-label={t("MVA Coworking Hub - página inicial")}>
-            <MvaLogo className="block h-auto w-[88px] sm:w-[104px]" />
-            <span className="hidden h-7 w-px bg-navy-700 sm:block" />
-            <span className="hidden min-w-0 text-left leading-tight md:block">
-              <span className="block whitespace-nowrap text-sm font-bold text-slate-100 lg:text-base">{t("Coworking Hub ")}</span>
+            <MvaLogo className="block h-auto w-[88px] sm:w-[112px] lg:w-[122px]" />
+            <span className="hidden h-7 w-px bg-navy-700 lg:block" />
+            <span className="hidden min-w-0 text-left leading-tight lg:block">
+              <span className="block whitespace-nowrap text-sm font-bold text-slate-100 lg:text-[17px]">{t("Coworking Hub ")}</span>
               <span className="hidden max-w-[250px] truncate text-[11px] text-slate-400 2xl:block">{t("Espaços · Endereço fiscal · Correspondência ")}</span>
             </span>
           </button>
 
           {/* ==================== USER MENU (desktop & mobile) ==================== */}
-          <div className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-3">
+          <div className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-[12px]">
             <Preferences />
             <div className="relative z-30" ref={box}>
               {currentUser ? (
@@ -165,12 +165,12 @@ export const Navbar: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openAuth('login')}
-                    className="min-h-11 rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-navy-800 sm:px-4"
+                    className="min-h-11 rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-navy-800 sm:px-[16px] lg:text-base"
                   >{t("Entrar ")}
                   </button>
                   <button
                     onClick={() => openAuth('register')}
-                    className="hidden items-center gap-2 action-primary whitespace-nowrap px-4 py-2.5 text-sm sm:flex"
+                    className="hidden min-h-11 items-center gap-2 action-primary whitespace-nowrap px-[16px] py-2.5 text-sm sm:flex lg:text-base"
                   >
                     <User className="h-4 w-4" aria-hidden />
                     {t("Criar conta ")}
@@ -183,13 +183,13 @@ export const Navbar: React.FC = () => {
         {/* The links have their own row on notebooks: the logo can never overlap "Endereço fiscal". */}
         <div className="relative z-0 hidden border-t border-white/10 lg:block">
             {/* ==================== NAVBAR (hidden on mobile) ==================== */}
-            <nav className="mx-auto flex w-full min-w-0 max-w-7xl items-center justify-between gap-1 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8" aria-label={t("Principal")}>
+            <nav className="mva-page-frame mx-auto flex w-full min-w-0 items-center justify-between gap-1 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8" aria-label={t("Principal")}>
               {navItems.map(({ tab, label, icon: Icon }) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   aria-current={activeTab === tab ? 'page' : undefined}
-                  className={`relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-xs 2xl:text-sm font-semibold transition-colors ${activeTab === tab
+                  className={`relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] xl:text-sm font-semibold transition-colors ${activeTab === tab
                     ? 'bg-white/10 text-white border-b-2 border-orange-500'
                     : tab === 'owner-dashboard'
                       ? 'text-orange-300 hover:bg-orange-500/10'

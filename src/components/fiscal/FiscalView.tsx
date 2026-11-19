@@ -119,15 +119,15 @@ export function FiscalView(){
      <div className="absolute inset-0 bg-gradient-to-r from-mva-blue via-mva-blue 40% to-mva-blue/15"/>
      <div className="absolute inset-0 bg-gradient-to-t from-mva-blue/40 via-transparent to-mva-blue/10"/>
    </div>
-   <div className="relative grid min-w-0 lg:min-h-[540px] lg:grid-cols-[minmax(0,1.16fr)_minmax(0,.84fr)]">
+   <div className="relative grid min-w-0 lg:min-h-[580px] lg:grid-cols-[minmax(0,1.12fr)_minmax(0,.88fr)] xl:min-h-[620px]">
     <div className="min-w-0 space-y-7 px-6 py-11 sm:px-10 sm:py-16 lg:px-12 lg:py-20">
       <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-3.5 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-orange-200">
         <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true"/> Escritório virtual MVA Coworking
       </span>
-      <h1 id="fiscal-hero-heading" className="max-w-[670px] text-[clamp(2.25rem,4.45vw,4.35rem)] font-semibold leading-[1.09] tracking-[-.052em]">
+      <h1 id="fiscal-hero-heading" className="max-w-[720px] text-[clamp(2.25rem,4.65vw,4.65rem)] font-semibold leading-[1.09] tracking-[-.052em]">
        Um endereço para sua empresa. <span className="text-mva-orange">Mais liberdade para você.</span>
       </h1>
-      <p className="max-w-xl text-[15px] leading-[1.85] text-slate-300 sm:text-[17px]">
+      <p className="max-w-xl text-base leading-[1.8] text-slate-300 sm:text-lg">
        Endereço fiscal e comercial em Aracaju, com atendimento, correspondências e a estrutura de um coworking de verdade. Tudo em um só lugar.
       </p>
       <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -144,7 +144,7 @@ export function FiscalView(){
        <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-orange-300"/> Contratação com análise</span>
       </div>
     </div>
-    <div className="relative min-h-[250px] overflow-hidden lg:min-h-0">
+    <div className="relative min-h-[270px] overflow-hidden lg:min-h-0">
      <img src="/hero-office.jpg" alt="Ambiente profissional da MVA Coworking" className="absolute inset-0 h-full w-full object-cover lg:hidden"/>
      <div className="absolute inset-0 bg-gradient-to-t from-mva-blue via-transparent to-transparent lg:hidden"/>
      <div className="absolute bottom-6 left-5 right-5 flex items-center gap-3 rounded-2xl border border-white/20 bg-mva-blue/95 p-4 text-white shadow-sm sm:bottom-10 sm:left-auto sm:right-10 sm:max-w-[285px] lg:bottom-12">
@@ -180,7 +180,7 @@ export function FiscalView(){
 
   {/* Three conceptual types, inspired by clear content hierarchy rather than visual copying. */}
   <section className="mva-glass-story grid min-w-0 gap-8 overflow-hidden rounded-[26px] border fiscal-line fiscal-surface lg:grid-cols-[.82fr_1.18fr]">
-    <div className="relative min-h-[250px] overflow-hidden bg-mva-blue lg:min-h-[455px]">
+    <div className="relative min-h-[270px] overflow-hidden bg-mva-blue lg:min-h-[490px]">
       <img src="/hero-office.jpg" alt="Espaço de trabalho moderno" className="absolute inset-0 h-full w-full object-cover opacity-75"/>
       <div className="absolute inset-0 bg-gradient-to-t from-mva-blue/95 via-mva-blue/20 to-transparent"/>
       <div className="absolute bottom-7 left-7 right-7 text-white sm:bottom-9 sm:left-9">

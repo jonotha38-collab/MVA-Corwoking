@@ -150,6 +150,14 @@ button,input,select,textarea { font-family:inherit; }
  header .action-primary { font-size:11px; padding:10px 9px; }
 }
 /* O menu do notebook tem uma linha exclusiva: não comprimimos a marca nem sobrepomos links. */
+@media (min-width:640px) and (max-width:1023px) {
+ .mva-header-bar .preferences { gap:4px; }
+ .mva-header-bar .preferences > svg,
+ .mva-header-bar .preferences .preference-divider,
+ .mva-header-bar .preferences button span { display:none; }
+ .mva-header-bar .preferences select { width:78px; }
+ .mva-header-bar .preferences button { min-width:36px; padding-inline:5px; }
+}
 @media (min-width:1024px) and (max-width:1279px) {
  header .preferences button span { display:none; }
 }
@@ -242,6 +250,8 @@ button,input,select,textarea { font-family:inherit; }
 
 /* Layout seguro para notebooks estreitos, telas pequenas e zoom do navegador.
    Mantém tabelas roláveis sem sacrificar a leitura do conteúdo principal. */
+.mva-page-frame { max-width: 80rem; }
+.mva-wide-page .mva-page-frame { max-width: 1792px; }
 #root { width:100%; min-width:0; overflow-x:clip; }
 #root main { min-width:0; }
 #root main :is(article,section) { min-width:0; }
@@ -251,6 +261,9 @@ header nav[aria-label] button { flex-shrink:0; }
 
 /* Layout fluido dos títulos longos (inclusive nas traduções para EN/ES). */
 .hero-title { overflow-wrap:break-word; }
+@media (min-width: 1024px) {
+ .mva-glass-marketplace .hero-title { max-width: 50rem; font-size: clamp(3.5rem, 4.3vw, 4.15rem); }
+}
 @media (max-width:639px) {
  .hero-title { font-size:clamp(1.8rem,7.2vw,2.25rem); }
  .hero-shell { padding:28px 18px; }

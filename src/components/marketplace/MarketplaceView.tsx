@@ -107,12 +107,12 @@ export const MarketplaceView: React.FC = () => {
         <div className="absolute inset-0 bg-navy-950/80 mix-blend-multiply pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/80 to-transparent pointer-events-none" />
         
-        <div className="relative max-w-3xl z-10">
+        <div className="relative z-10 max-w-[50rem]">
           <p className="eyebrow mb-5 text-orange-300">{t("MVA Coworking · Espaços de trabalho ")}</p>
           <h1 className="hero-title">
             {`${t('Espaços de coworking e salas de reunião para o seu negócio')}${selectedCity !== 'Todas' ? ` · ${selectedCity}` : ''}`}
           </h1>
-          <p className="mt-4 max-w-xl text-base text-slate-200">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados. ")}</p>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-200 lg:text-lg">{t("Reserve salas na sede MVA, na Rua Dom José Thomaz, 565, ou em coworkings parceiros verificados. ")}</p>
         </div>
         
         <form onSubmit={search} className="mva-glass-search relative z-10 mt-10 grid gap-3 rounded-2xl bg-white p-3 md:grid-cols-12" role="search">
@@ -134,7 +134,7 @@ export const MarketplaceView: React.FC = () => {
       <section ref={results} className="scroll-mt-28" aria-labelledby="resultados">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="resultados" className="text-2xl font-bold text-navy-900">{t("Espaços disponíveis ")}</h2>
+            <h2 id="resultados" className="text-2xl font-bold text-navy-900 lg:text-3xl">{t("Espaços disponíveis ")}</h2>
             <p className="text-sm text-slate-500">{t(filtered.length)} {t(filtered.length === 1 ? 'espaço encontrado' : 'espaços encontrados')}</p>
           </div>
           <div className="flex items-center gap-3">

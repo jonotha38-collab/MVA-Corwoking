@@ -105,8 +105,12 @@ are introduced. Primary body text remains readable without web fonts.
 
 ## Layout
 
-Use the existing 1280px app container. Desktop hero: copy and a distinct photograph
-in two columns. Below 768px: copy first, then photo, then stacked service cards.
+Public home, spaces and fiscal pages use a frame up to 1792px with responsive
+side padding. The top header row spans the viewport, placing the wordmark near
+the left edge and account actions near the right edge. Desktop navigation and
+footer content follow the public frame. Operational pages keep the app frame.
+Desktop home gives the meeting-room photograph slightly more space than the
+copy. Below 768px, copy leads into the photo and stacked service cards.
 Sections have 88px separation, reduced to 60px on mobile. Services are parallel
 choices; only the actual three-step process is numbered.
 
